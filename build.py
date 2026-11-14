@@ -362,6 +362,10 @@ body[data-study] #help{right:280px}
 #lectbtn{position:fixed;right:170px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:var(--ink2);
 background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:7px 11px;cursor:pointer;opacity:.85}
 #lectbtn:hover,#themebtn:hover,#langbtn:hover{opacity:1}
+#bonusind{display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:41;font:700 13px var(--mono);color:var(--asp);background:var(--card);border:1px solid var(--asp);border-radius:99px;padding:5px 12px}
+body.bonus-on #bonusind{display:block}
+#overview button.bonus{border-style:dashed;opacity:.75}body.bonus-on #overview button.bonus{opacity:1}
+.slide.bonus .kicker::before{content:"⭐ ";}
 #themebtn,#langbtn{position:fixed;top:12px;z-index:41;font:700 14px var(--font);color:var(--ink2);background:var(--card);border:1px solid var(--line2);
 border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 #themebtn{right:170px}#langbtn{right:222px;font-family:var(--mono)}
@@ -436,6 +440,7 @@ def deck_page(src, title, has_study, has_lect, lang, has_en):
 </div></div>
 <div id="overview"></div>
 <div id="help">← → · F</div>
+<div id="bonusind" title="B — გამორთვა">⭐ დამატებითი სლაიდები ჩართულია</div>
 <script>{JS}</script>
 </body></html>'''
 
@@ -453,7 +458,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
     for i, sl in enumerate(slides, 1):
         m = re.search(r'<aside class="study">(.*?)</aside>', sl, re.S)
         sec = re.search(r'data-section="([^"]*)"', sl)
-        study.append({'n': i, 'title': heading(sl), 'section': sec.group(1) if sec else '', 'html': md(m.group(1)) if m else None, 'raw': m.group(1) if m else ''})
+        study.append({'n': i, 'bonus': bool(re.match(r'<section class="slide[^"]*\bbonus\b', sl)), 'title': heading(sl), 'section': sec.group(1) if sec else '', 'html': md(m.group(1)) if m else None, 'raw': m.group(1) if m else ''})
         clean = re.sub(r'<aside class="(?:study|notes)">.*?</aside>', '', sl, flags=re.S)
         src = src.replace(sl, clean, 1)
     src = re.sub(r'<aside class="notes">.*?</aside>', '', src, flags=re.S)   # old lecturer notes are never published
@@ -491,7 +496,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
 # lecture.json → "lecturer_quiz": [{"q", "options", "answer", "explain"}] — „✅ მზად ხარ?“
 LECT_KINDS = {'🎯': 'main', '🧠': 'deep', '🗣': 'how', '🙋': 'ask', '⚠': 'myth', '💡': 'ex', '❓': 'faq', '💻': 'code',
               '📋': 'cheat', '✅': 'prep', '📌': 'must', '✂': 'cut', '⬅': 'prev', '➡': 'next', '🚫': 'no', '🏁': 'wrap',
-              '📏': 'rubric', '🔁': 'next', '📖': 'learn', '🎬': 'flow', '🎙': 'mono', '📚': 'src', '🔬': 'deeper'}
+              '📏': 'rubric', '🔁': 'next', '📖': 'learn', '🎬': 'flow', '🎙': 'mono', '📚': 'src', '🔬': 'deeper', '⭐': 'star', '🆘': 'sos', '🚦': 'signals', '🧩': 'must'}
 LEARN_KINDS = ('learn', 'deeper', 'src')   # „📖 ისწავლე“ რეჟიმი — თემის სრული ახსნა ლექტორისთვის
 
 def lect_kind(h):
@@ -696,7 +701,7 @@ def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_sl
             m = re.match(r'\s*<h([23])>(.*?)</h\1>', body, re.S)   # study text's own heading wins over the slide title
             if m:
                 title, body = html.unescape(re.sub(r'<[^>]+>', '', m.group(2))), body[m.end():]
-            blocks.append({'slides': pending + [s['n']], 'title': title, 'section': s['section'], 'html': body, 'raw': s['raw']}); pending = []
+            blocks.append({'slides': pending + [s['n']], 'title': title, 'section': s['section'], 'html': body, 'raw': s['raw'], 'bonus': s['bonus']}); pending = []
         elif blocks:
             blocks[-1]['slides'].append(s['n'])
         else:
@@ -721,8 +726,9 @@ def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_sl
             first = b['slides'][0]
             sl = ''.join(f'<span class="anchor" id="s-{x}"></span>' for x in b['slides'])
             kind = ' check' if 'შეამოწმე' in b['title'] else ' lead' if b['title'].startswith('ნაწილი') else ''   # „ნაწილი N“ = თავის შესავალი
+            if b['bonus']: kind += ' bonus'
             arts.append(f'<article class="blk{kind}" data-slides="{",".join(map(str, b["slides"]))}">{sl}'
-                        f'<div class="bh"><h3>{esc(b["title"])}</h3><a class="chip" href="index.html#/{first}" data-go="{first}" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი {first}</a></div>'
+                        f'<div class="bh"><h3>{"<span class=star>⭐ დამატებით</span>" if b["bonus"] else ""}{esc(b["title"])}</h3><a class="chip" href="index.html#/{first}" data-go="{first}" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი {first}</a></div>'
                         f'{b["html"]}</article>')
         goal = f'<p class="goal">🎯 <b>ამის შემდეგ:</b> {md_inline(info["goal"])}</p>' if info.get('goal') else ''
         body.append(f'<section class="chap" id="{cid}" data-num="{1 if mnum else 0}">{anchors}<header class="chh"><span class="cn{"" if mnum else " e"}">{badge}</span>'
