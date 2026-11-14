@@ -508,6 +508,11 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 .calc b{color:var(--ink)}
 .calc .r{color:var(--mvc);font-weight:800}
 
+.cases-sm .case{grid-template-columns:48px 1fr;padding:10px 14px;gap:10px}
+.cases-sm .case .ce{font-size:32px}.cases-sm .case b{font-size:19px}.cases-sm .case p{font-size:16px;margin:2px 0 6px}.cases-sm .case .tag{font-size:12.5px;padding:2px 8px}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.role{display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:14px;background:color-mix(in srgb,var(--a) 9%,var(--card));border-left:5px solid var(--a)}
+.role>span{font-size:32px}.role b{display:block;font-size:20px;color:var(--a)}.role small{display:block;font-size:15.5px;line-height:1.35;color:var(--ink2)}
 .case{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
 .case .ce{font-size:42px;text-align:center}
 .case b{font-size:22px;color:var(--ink)}
@@ -615,15 +620,20 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 </section>
 
 <section class="slide" data-section="მოდული">
-  <div class="kicker">რეალური პროექტები</div>
-  <h2>სად <span class="grad">მუშაობს</span> ეს დღეს</h2>
-  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:18px;margin-top:8px">
-    <div class="case"><div class="ce">🏦</div><div><b>ბანკის / ტელეკომის ასისტენტი</b><p>პასუხობს ტარიფებზე და წესებზე <b>შიდა დოკუმენტებიდან</b>, წყაროს მითითებით</p><span class="tag">RAG · ლექცია 9–12</span></div></div>
-    <div class="case"><div class="ce">🛒</div><div><b>მაღაზიის / მიტანის აგენტი</b><p>ეძებს პროდუქტს, ამატებს კალათაში, ამოწმებს შეკვეთის სტატუსს</p><span class="tag">Tools · Agents · 4, 13–15</span></div></div>
-    <div class="case"><div class="ce">📄</div><div><b>დოკუმენტების ავტომატიზაცია</b><p>ინვოისი / CV / ხელშეკრულება → <b>C# ობიექტი</b> → ბაზაში</p><span class="tag">Structured Output · 2</span></div></div>
-    <div class="case"><div class="ce">🏢</div><div><b>კომპანიის შიდა ასისტენტი</b><p>HR-ის წესები, IT-ს ინსტრუქციები, Jira/Slack — <b>MCP</b>-ით მიერთებული</p><span class="tag">MCP · Multi-Agent · 16–18</span></div></div>
+  <div class="kicker">რეალური პროექტები → ვინ გახდებით</div>
+  <h2>სად <span class="grad">მუშაობს</span> ეს დღეს — და ვინ იქნებით თქვენ</h2>
+  <div class="grid2 cases-sm" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:6px">
+    <div class="case"><div class="ce">🏦</div><div><b>ბანკის / ტელეკომის ასისტენტი</b><p>პასუხობს <b>შიდა დოკუმენტებიდან</b>, წყაროს მითითებით</p><span class="tag">RAG · 9–12</span></div></div>
+    <div class="case"><div class="ce">🛒</div><div><b>მაღაზიის / მიტანის აგენტი</b><p>ეძებს, ამატებს კალათაში, ამოწმებს სტატუსს</p><span class="tag">Tools · Agents · 4, 13–15</span></div></div>
+    <div class="case"><div class="ce">📄</div><div><b>დოკუმენტების ავტომატიზაცია</b><p>ინვოისი / CV → <b>C# ობიექტი</b> → ბაზაში</p><span class="tag">Structured Output · 2</span></div></div>
+    <div class="case"><div class="ce">🏢</div><div><b>კომპანიის შიდა ასისტენტი</b><p>HR, IT, Jira/Slack — <b>MCP</b>-ით</p><span class="tag">MCP · Multi-Agent · 16–18</span></div></div>
   </div>
-  <div class="callout ask mt">🙋 თქვენ რომელ კომპანიაში გინახავთ მსგავსი? რას გააუმჯობესებდით?</div>
+  <div class="roles step">
+    <div class="role" style="--a:var(--net)"><span>🧩</span><div><b>AI Engineer</b><small>LLM-ს სისტემაში აერთებს: მონაცემი, უსაფრთხოება, ხარჯი</small></div></div>
+    <div class="role" style="--a:var(--asp)"><span>🤖</span><div><b>Agent Developer</b><small>აგენტები, რომლებიც სისტემაში <b>მოქმედებენ</b></small></div></div>
+    <div class="role" style="--a:var(--api)"><span>⚙️</span><div><b>Backend + AI</b><small>backend AI ფუნქციებით — ყველაზე ხშირი ვაკანსია</small></div></div>
+  </div>
+  <div class="callout step" data-with style="--a:var(--mvc);font-size:20px;margin-top:12px">მოდელს <b>არ ვწვრთნით</b> — მზა მოდელს <b>ვიყენებთ</b> და სისტემად ვაქცევთ. ეს არის AI ინჟინრის საქმის უდიდესი ნაწილი</div>
   
 </section>
 
@@ -643,18 +653,6 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 </section>
 
 <section class="slide" data-section="მოდული">
-  <div class="kicker">ვინ გახდებით</div>
-  <h2>.NET დეველოპერი, რომელიც <span class="grad">AI სისტემებს აწყობს</span></h2>
-  <div class="grid3" style="gap:18px;margin-top:10px">
-    <div class="card accent" style="--a:var(--net)"><div class="big-emoji">🧩</div><h3 class="mt">AI Engineer</h3><p class="small">LLM-ს არსებულ სისტემაში აერთებს: API, მონაცემი, უსაფრთხოება, ხარჯი</p></div>
-    <div class="card accent" style="--a:var(--asp)"><div class="big-emoji">🤖</div><h3 class="mt">Agent Developer</h3><p class="small">აწყობს აგენტებს, რომლებიც სისტემაში <b>მოქმედებენ</b> — tools, MCP, workflows</p></div>
-    <div class="card accent" style="--a:var(--api)"><div class="big-emoji">⚙️</div><h3 class="mt">Backend + AI</h3><p class="small">ჩვეულებრივი backend, რომელსაც AI ფუნქციები აქვს — ყველაზე ხშირი ვაკანსია</p></div>
-  </div>
-  <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">მოდელს <b>არ ვწვრთნით</b> — მზა მოდელს <b>ვიყენებთ</b> და სისტემად ვაქცევთ. ეს არის AI ინჟინრის საქმის უდიდესი ნაწილი</div>
-  
-</section>
-
-<section class="slide" data-section="მოდული">
   <div class="kicker">🙋 თქვენი პროექტი</div>
   <h2>რას დაამატებდით <span class="c-asp">თქვენს</span> API-ს?</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:22px;margin-top:10px">
@@ -663,7 +661,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
     <div class="card accent" style="--a:var(--net)"><h3><span class="ico">🏨</span>სასტუმრო</h3><p class="small">„3 ღამე, ზღვის ხედით, 300 ლარამდე“ → ოთახის ძებნა და დაჯავშნა</p></div>
     <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🛠️</span>სერვისის ცენტრი</h3><p class="small">„ლეპტოპი ხურდება“ → ხარვეზის კატეგორია, ფასის შეფასება, ჩაწერა</p></div>
   </div>
-  <div class="callout ask mt">🙋 2 წუთი: მეზობელთან ერთად მოიფიქრეთ <b>ერთი</b> AI ფუნქცია თქვენი პროექტისთვის</div>
+  <div class="callout ask mt">🙋 ვის აქვს იდეა <b>თავისი</b> პროექტისთვის? 2–3 იდეა ხმამაღლა — დანარჩენს საშინაოში დაგეგმავთ</div>
   
 </section>
 
@@ -1168,7 +1166,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 </section>
 
 <section class="slide" data-section="4 · პროვაიდერები">
-  <div class="kicker"><span class="game">🎮 წყვილებში · ჯერ ფურცელზე, მერე აქ</span></div>
+  <div class="kicker"><span class="game">🎮 ერთად · ჯერ გამოიცანით, მერე ვითვლით</span></div>
   <h2>რა დაუჯდება რესტორანს <span class="c-asp">AI ასისტენტი?</span></h2>
   <div class="cc" data-cost>
     <div class="cc-in">
@@ -1186,7 +1184,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
       <div class="cc-big"><span data-total>–</span><small>თვეში</small></div>
     </div>
   </div>
-  <div class="callout ask mt">🙋 ჯერ ფურცელზე: A და B მოდელით <b>რამდენი</b> გამოვა? მერე აქ შევამოწმებთ</div>
+  <div class="callout ask mt">🙋 გამოიცანით: A და B მოდელით თვეში <b>რამდენი</b> გამოვა? მერე ერთად დავითვლით</div>
   
 </section>
 

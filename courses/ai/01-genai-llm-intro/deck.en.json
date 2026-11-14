@@ -637,7 +637,7 @@
 "3 AI ფუნქცია": "3 AI features",
 "შენს პროექტში — ცხრილით (შედის / გამოდის / ბაზიდან / Temperature · Max Tokens / ტოკენები)": "in your project — as a table (in / out / from the database / Temperature · Max Tokens / tokens)",
 "ტოკენები —": "Tokens —",
-"-ით": "",
+"-ით": "-connected",
 "(მოდელი gpt-4o), ქართული ტექსტით": "(model gpt-4o), with Georgian text",
 "ერთ ფუნქციაზე": "For one feature, the",
 "თვის ხარჯი": "monthly cost",
@@ -655,52 +655,52 @@
 "შემდეგი ლექციის დასაწყისში ამ დავალებას": "At the start of the next lecture we'll",
 "ერთად განვიხილავთ": "go through this homework together",
 "_slides": {
-"7": {
-"მოდელს": "We"
-},
-"18": {
+"17": {
 "კითხულობს,": "or"
 },
-"20": {
+"19": {
 "მხოლოდ რიცხვებს": "sees only numbers",
 "ნომერი": "number"
 },
-"26": {
+"25": {
 "მოდელს": "Does the model"
 },
-"28": {
+"27": {
 "რომელ ტოკენს აირჩევს": "which token the model picks",
 "მოდელი": ""
 },
-"33": {
+"32": {
 "„ფიქრის“ ტოკენებს": "“Thinking” tokens are",
 "ვიხდით": "paid for",
 "(როგორც output), ხშირად ვერც ვხედავთ": "(as output), often without us seeing them"
 },
-"37": {
+"36": {
 "ტოკენზე": "per token",
 "რატომ": "why"
 },
-"38": {
+"37": {
 "ტოკენზე": "per token",
 "აკეთებს": "on it"
 },
-"39": {
+"38": {
 "რამდენი": "how much",
 "გამოვა? მერე აქ შევამოწმებთ": "do you get? Then we'll check here",
 "🙋 ჯერ ფურცელზე: A და B მოდელით": "🙋 On paper first: with models A and B,"
 },
-"42": {
+"41": {
 "ბაზიდან": "from the database"
 },
-"44": {
+"43": {
 "შემდეგი ტოკენი": "Next token"
 },
-"45": {
+"44": {
 "აიღე და": "— get it and set"
 },
-"17": {
+"16": {
 "შემდეგ?": "?"
+},
+"5": {
+"მოდელს": "We"
 }
 },
 "ტერმინები · ერთი-მეორეში ჩადგმული": "Terms · nested inside each other",
@@ -749,5 +749,20 @@
 "შემდეგ სიტყვას": "next word",
 "გთავაზობს — ოღონდ ძალიან, ძალიან ბევრი წაკითხულით. ახლა ნაბიჯებს": "— only one that has read a huge amount. Now let's",
 "ჩავშლით": "break the steps down",
-": ტოკენი → შემდეგი ტოკენი → რატომ ცდება → რას ხედავს ერთ მოთხოვნაში": ": token → next token → why it makes mistakes → what it sees in one request"
+": ტოკენი → შემდეგი ტოკენი → რატომ ცდება → რას ხედავს ერთ მოთხოვნაში": ": token → next token → why it makes mistakes → what it sees in one request",
+"რეალური პროექტები → ვინ გახდებით": "Real projects → who you'll become",
+"ეს დღეს — და ვინ იქნებით თქვენ": "today — and who you'll be",
+"პასუხობს": "Answers from",
+"ეძებს, ამატებს კალათაში, ამოწმებს სტატუსს": "Searches, adds to the cart, checks status",
+"ინვოისი / CV →": "Invoice / CV →",
+"HR, IT, Jira/Slack —": "HR, IT, Jira/Slack —",
+"LLM-ს სისტემაში აერთებს: მონაცემი, უსაფრთხოება, ხარჯი": "Connects an LLM to a system: data, security, cost",
+"აგენტები, რომლებიც სისტემაში": "Agents that",
+"backend AI ფუნქციებით — ყველაზე ხშირი ვაკანსია": "backend with AI features — the most common job opening",
+"🙋 ვის აქვს იდეა": "🙋 Who has an idea for",
+"თავისი": "their own",
+"პროექტისთვის? 2–3 იდეა ხმამაღლა — დანარჩენს საშინაოში დაგეგმავთ": "project? 2–3 ideas out loud — you'll plan the rest as homework",
+"🎮 ერთად · ჯერ გამოიცანით, მერე ვითვლით": "🎮 Together · guess first, then we calculate",
+"🙋 გამოიცანით: A და B მოდელით თვეში": "🙋 Guess: with models A and B, per month,",
+"გამოვა? მერე ერთად დავითვლით": "will it be? Then we'll calculate together"
 }

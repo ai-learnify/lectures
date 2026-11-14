@@ -508,6 +508,11 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 .calc b{color:var(--ink)}
 .calc .r{color:var(--mvc);font-weight:800}
 
+.cases-sm .case{grid-template-columns:48px 1fr;padding:10px 14px;gap:10px}
+.cases-sm .case .ce{font-size:32px}.cases-sm .case b{font-size:19px}.cases-sm .case p{font-size:16px;margin:2px 0 6px}.cases-sm .case .tag{font-size:12.5px;padding:2px 8px}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.role{display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:14px;background:color-mix(in srgb,var(--a) 9%,var(--card));border-left:5px solid var(--a)}
+.role>span{font-size:32px}.role b{display:block;font-size:20px;color:var(--a)}.role small{display:block;font-size:15.5px;line-height:1.35;color:var(--ink2)}
 .case{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
 .case .ce{font-size:42px;text-align:center}
 .case b{font-size:22px;color:var(--ink)}
@@ -615,15 +620,20 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 </section>
 
 <section class="slide" data-section="Module">
-  <div class="kicker">Real projects</div>
-  <h2>Where <span class="grad">this runs</span> today</h2>
-  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:18px;margin-top:8px">
-    <div class="case"><div class="ce">🏦</div><div><b>Bank / telecom assistant</b><p>Answers about rates and rules <b>from internal documents</b>, citing the source</p><span class="tag">RAG · lectures 9–12</span></div></div>
-    <div class="case"><div class="ce">🛒</div><div><b>Shop / delivery agent</b><p>Finds products, adds them to the cart, checks order status</p><span class="tag">Tools · Agents · 4, 13–15</span></div></div>
-    <div class="case"><div class="ce">📄</div><div><b>Document automation</b><p>Invoice / CV / contract → <b>C# object</b> → database</p><span class="tag">Structured Output · 2</span></div></div>
-    <div class="case"><div class="ce">🏢</div><div><b>Internal company assistant</b><p>HR rules, IT instructions, Jira/Slack — <b>MCP</b>-connected</p><span class="tag">MCP · Multi-Agent · 16–18</span></div></div>
+  <div class="kicker">Real projects → who you'll become</div>
+  <h2>Where <span class="grad">this runs</span> today — and who you'll be</h2>
+  <div class="grid2 cases-sm" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:6px">
+    <div class="case"><div class="ce">🏦</div><div><b>Bank / telecom assistant</b><p>Answers from <b>from internal documents</b>, citing the source</p><span class="tag">RAG · 9–12</span></div></div>
+    <div class="case"><div class="ce">🛒</div><div><b>Shop / delivery agent</b><p>Searches, adds to the cart, checks status</p><span class="tag">Tools · Agents · 4, 13–15</span></div></div>
+    <div class="case"><div class="ce">📄</div><div><b>Document automation</b><p>Invoice / CV → <b>C# object</b> → database</p><span class="tag">Structured Output · 2</span></div></div>
+    <div class="case"><div class="ce">🏢</div><div><b>Internal company assistant</b><p>HR, IT, Jira/Slack — <b>MCP</b>-connected</p><span class="tag">MCP · Multi-Agent · 16–18</span></div></div>
   </div>
-  <div class="callout ask mt">🙋 Where have you seen something like this? What would you improve?</div>
+  <div class="roles step">
+    <div class="role" style="--a:var(--net)"><span>🧩</span><div><b>AI Engineer</b><small>Connects an LLM to a system: data, security, cost</small></div></div>
+    <div class="role" style="--a:var(--asp)"><span>🤖</span><div><b>Agent Developer</b><small>Agents that <b>act inside the system</b></small></div></div>
+    <div class="role" style="--a:var(--api)"><span>⚙️</span><div><b>Backend + AI</b><small>backend with AI features — the most common job opening</small></div></div>
+  </div>
+  <div class="callout step" data-with style="--a:var(--mvc);font-size:20px;margin-top:12px">We <b>don't train</b> the model — we <b>use</b> a ready model and turn it into a system. That is most of an AI engineer's job</div>
   
 </section>
 
@@ -643,18 +653,6 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 </section>
 
 <section class="slide" data-section="Module">
-  <div class="kicker">Who you'll become</div>
-  <h2>A .NET developer who <span class="grad">builds AI systems</span></h2>
-  <div class="grid3" style="gap:18px;margin-top:10px">
-    <div class="card accent" style="--a:var(--net)"><div class="big-emoji">🧩</div><h3 class="mt">AI Engineer</h3><p class="small">Connects an LLM to an existing system: API, data, security, cost</p></div>
-    <div class="card accent" style="--a:var(--asp)"><div class="big-emoji">🤖</div><h3 class="mt">Agent Developer</h3><p class="small">Builds agents that <b>act inside the system</b> — tools, MCP, workflows</p></div>
-    <div class="card accent" style="--a:var(--api)"><div class="big-emoji">⚙️</div><h3 class="mt">Backend + AI</h3><p class="small">A regular backend with AI features — the most common job opening</p></div>
-  </div>
-  <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">We <b>don't train</b> the model — we <b>use</b> a ready model and turn it into a system. That is most of an AI engineer's job</div>
-  
-</section>
-
-<section class="slide" data-section="Module">
   <div class="kicker">🙋 Your project</div>
   <h2>What would you add to <span class="c-asp">your own</span> API?</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:22px;margin-top:10px">
@@ -663,7 +661,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
     <div class="card accent" style="--a:var(--net)"><h3><span class="ico">🏨</span>Hotel</h3><p class="small">“3 nights, sea view, under 300 GEL” → find a room and book it</p></div>
     <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🛠️</span>Repair shop</h3><p class="small">“My laptop overheats” → issue category, price estimate, appointment</p></div>
   </div>
-  <div class="callout ask mt">🙋 2 minutes: with your neighbour, come up with <b>one</b> AI feature for your project</div>
+  <div class="callout ask mt">🙋 Who has an idea for <b>their own</b> project? 2–3 ideas out loud — you'll plan the rest as homework</div>
   
 </section>
 
@@ -1168,7 +1166,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 </section>
 
 <section class="slide" data-section="4 · Providers">
-  <div class="kicker"><span class="game">🎮 In pairs · on paper first, then here</span></div>
+  <div class="kicker"><span class="game">🎮 Together · guess first, then we calculate</span></div>
   <h2>What will an AI assistant <span class="c-asp">cost the restaurant?</span></h2>
   <div class="cc" data-cost>
     <div class="cc-in">
@@ -1186,7 +1184,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
       <div class="cc-big"><span data-total>–</span><small>per month</small></div>
     </div>
   </div>
-  <div class="callout ask mt">🙋 On paper first: with models A and B, <b>how much</b> do you get? Then we'll check here</div>
+  <div class="callout ask mt">🙋 Guess: with models A and B, per month, <b>how much</b> will it be? Then we'll calculate together</div>
   
 </section>
 
@@ -1281,7 +1279,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
       <h3><span class="ico">🏠</span>No code · result — a document in your project's README</h3>
       <ul class="clean small">
 <li><strong>3 AI features</strong> in your project — as a table (in / out / from the database / Temperature · Max Tokens / tokens)</li>
-<li>Tokens — <strong><a href="https://tiktokenizer.vercel.app/">Tiktokenizer</a></strong> (model gpt-4o), with Georgian text</li>
+<li>Tokens — <strong><a href="https://tiktokenizer.vercel.app/">Tiktokenizer</a>-connected</strong> (model gpt-4o), with Georgian text</li>
 <li>For one feature, the <strong>monthly cost</strong>: with Gemini's <strong>real</strong> price, with the formula</li>
 <li>The <strong>quiz</strong> at the end of the study notes (12 questions) — write down your score</li>
 <li><strong>Gemini API key</strong> — get it and set <code class="i">GEMINI_API_KEY</code> — next lecture we write code</li>
