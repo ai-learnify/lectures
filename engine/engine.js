@@ -73,7 +73,7 @@
     prevI = i; prevK = k;
     // hud
     hud.sec.textContent = sections[i] || '';
-    hud.num.textContent = `${slides[i].classList.contains('bonus') ? '⭐ ' : ''}${i + 1} / ${slides.length}`;
+    hud.num.textContent = `${i + 1} / ${slides.length}`;
     const n = groups[i].length;
     hud.dots.innerHTML = n ? Array.from({ length: n }, (_, x) => x < k ? '<b>●</b>' : '○').join('') : '';
     bar.style.width = ((i + (n ? k / n : 1)) / slides.length * 100) + '%';
@@ -103,25 +103,15 @@
     }
   }
 
-  // ⭐ ბონუს სლაიდები (class="slide bonus"): ჩვეულებრივ რეჟიმში ისრები მათ გამოტოვებს; B — ⭐ რეჟიმი
-  let bonusOn = false;
-  try { bonusOn = sessionStorage.getItem('bonus:' + document.title) === '1'; } catch (e) {}
-  const skip = x => !bonusOn && slides[x].classList.contains('bonus') && x !== i;
-  const step = (x, d) => { let y = x + d; while (y >= 0 && y < slides.length && skip(y)) y += d; return y >= 0 && y < slides.length ? y : x; };
-  function setBonus(v) {
-    bonusOn = v; document.body.classList.toggle('bonus-on', v);
-    try { sessionStorage.setItem('bonus:' + document.title, v ? '1' : '0'); } catch (e) {}
-  }
-  function next() { if (k < groups[i].length) k++; else { const y = step(i, 1); if (y !== i) { i = y; k = 0; } } render(true); }
-  function prev() { if (k > 0) { k--; prevK = k; } else { const y = step(i, -1); if (y !== i) { i = y; k = groups[i].length; } } render(false); }
+  function next() { if (k < groups[i].length) k++; else if (i < slides.length - 1) { i++; k = 0; } render(true); }
+  function prev() { if (k > 0) { k--; prevK = k; } else if (i > 0) { i--; k = groups[i].length; } render(false); }
   function go(x, all) { i = Math.max(0, Math.min(slides.length - 1, x)); k = all ? groups[i].length : 0; render(true); }
 
   // overview
   slides.forEach((s, x) => {
     const b = document.createElement('button');
     const t = s.querySelector('h1,h2,h3')?.textContent.trim() || s.dataset.title || 'სლაიდი';
-    b.innerHTML = `<small>${x + 1} · ${sections[x] || ''}${s.classList.contains('bonus') ? ' · ⭐' : ''}</small>${t}`;
-    if (s.classList.contains('bonus')) b.classList.add('bonus');
+    b.innerHTML = `<small>${x + 1} · ${sections[x] || ''}</small>${t}`;
     b.onclick = e => { e.stopPropagation(); ov.classList.remove('open'); go(x); };
     ov.appendChild(b);
   });
@@ -134,7 +124,6 @@
     // ცალკე ჩანართში (არა popup ფანჯარაში) — სლაიდებს მაინც მიჰყვება
     window.open('study.html?live#s-' + (i + 1), 'study-' + document.title);
   };
-  setBonus(bonusOn);
   document.getElementById('studybtn')?.addEventListener('click', e => { e.currentTarget.blur(); openStudy(); });
   const openLecturer = () => window.open('lecturer.html', 'lecturer-' + document.title);
   // ka ⇄ en: იგივე სლაიდზე გადასვლა
@@ -158,7 +147,6 @@
     else if (code === 'KeyL' && document.body.dataset.lect)   // ლექტორის გვერდი: ღილაკი არ ჩანს, მხოლოდ L
      { e.preventDefault(); openLecturer(); }
     else if (code === 'KeyT' && window.toggleTheme) { e.preventDefault(); toggleTheme(); }
-    else if (code === 'KeyB' && slides.some(x => x.classList.contains('bonus'))) { e.preventDefault(); setBonus(!bonusOn); }
   });
   addEventListener('hashchange', () => { const oi = i, ok = k; parseHash(); if (oi !== i || ok !== k) render(true); });
 

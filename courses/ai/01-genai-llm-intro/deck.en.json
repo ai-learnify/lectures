@@ -662,38 +662,38 @@
 "მხოლოდ რიცხვებს": "sees only numbers",
 "ნომერი": "number"
 },
-"26": {
+"24": {
 "მოდელს": "Does the model"
 },
-"29": {
+"26": {
 "რომელ ტოკენს აირჩევს": "which token the model picks",
 "მოდელი": ""
 },
-"35": {
+"31": {
 "„ფიქრის“ ტოკენებს": "“Thinking” tokens are",
 "ვიხდით": "paid for",
 "(როგორც output), ხშირად ვერც ვხედავთ": "(as output), often without us seeing them"
 },
-"39": {
+"35": {
 "ტოკენზე": "per token",
 "რატომ": "why"
 },
-"40": {
+"36": {
 "ტოკენზე": "per token",
 "აკეთებს": "on it"
 },
-"41": {
+"37": {
 "რამდენი": "how much",
 "გამოვა? მერე აქ შევამოწმებთ": "do you get? Then we'll check here",
 "🙋 ჯერ ფურცელზე: A და B მოდელით": "🙋 On paper first: with models A and B,"
 },
-"44": {
+"40": {
 "ბაზიდან": "from the database"
 },
-"46": {
+"42": {
 "შემდეგი ტოკენი": "Next token"
 },
-"47": {
+"43": {
 "აიღე და": "— get it and set"
 },
 "16": {
