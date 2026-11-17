@@ -4,7 +4,7 @@ With code · your project · a table in the README
 
 ## Requirements
 
-- **DI:** no `new Client()` anywhere in the project — `IChatClient` only through `AddChatClient`; the key — `GEMINI_API_KEY` from configuration (never in code or Git), the model in `appsettings.json`
+- **DI:** no `new Client()` anywhere in the project — `IChatClient` only through `AddChatClient`; the key in User Secrets, the model in `appsettings.json`
 - **classify with an enum:** rewrite homework 2's `POST /api/ai-lab/classify` with `GetResponseAsync<your enum>` (without few-shot examples)
 - **A comparison in the README:** the same 5 texts — few-shot (homework 2) vs enum. Table: text · few-shot answer · enum answer · `inputTokens` for both
 - **A record from text:** one endpoint in a **real** Controller of your project (not ai-lab): text → `record` → a C# check (a required field is `null` → `400` with a question) → saved **to the database** with your existing logic

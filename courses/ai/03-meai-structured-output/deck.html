@@ -88,14 +88,14 @@ In lecture 2 we called Gemini for the first time, but we created `IChatClient` r
   <div class="kicker">დღის გზა</div>
   <h2>2 ნაბიჯი: <span class="c-api">სწორი ადგილი</span> → <span class="c-net">სწორი ფორმა</span></h2>
   <div class="route">
-    <div class="stop" style="--a:var(--api)"><span class="sn">1</span><h3>🔌 IChatClient DI-ში</h3><p>new-ის ნაცვლად — რეგისტრაცია Program.cs-ში, მოდელი appsettings-ში. API კურსიდან ნაცნობი ნიმუში</p><span class="from">AddChatClient · constructor injection</span></div>
+    <div class="stop" style="--a:var(--api)"><span class="sn">1</span><h3>🔌 IChatClient DI-ში</h3><p>new-ის ნაცვლად — რეგისტრაცია Program.cs-ში, key User Secrets-ში, მოდელი appsettings-ში. API კურსიდან ნაცნობი ნიმუში</p><span class="from">AddChatClient · constructor injection</span></div>
     <div class="stop" style="--a:var(--net)"><span class="sn">2</span><h3>🧱 Structured output</h3><p>მოდელი ტექსტის ნაცვლად C# ტიპს აბრუნებს: ჯერ ერთ მნიშვნელობას (enum), მერე მთელ ობიექტს</p><span class="from">GetResponseAsync&lt;T&gt; · ChatResponse&lt;T&gt;</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>ტექსტი → ობიექტი</b> — შენს პროექტში, შენი ტიპით</div>
   <aside class="study">
 ### ლექციის გეგმა — 2 ნაბიჯი
 
-1. 🔌 **`IChatClient` DI-ში** — Controller-ში `new`-ის ნაცვლად client-ს `Program.cs`-ში ვარეგისტრირებთ (`AddChatClient`), key-ს კონფიგურაციიდან ვკითხულობთ (იგივე `GEMINI_API_KEY`), მოდელის სახელს — `appsettings.json`-იდან.
+1. 🔌 **`IChatClient` DI-ში** — Controller-ში `new`-ის ნაცვლად client-ს `Program.cs`-ში ვარეგისტრირებთ (`AddChatClient`), key-ს User Secrets-ში ვინახავთ, მოდელის სახელს — `appsettings.json`-ში.
 2. 🧱 **Structured output** — `GetResponseAsync<T>`: მოდელი აბრუნებს C# ტიპს. ჯერ enum (შეფასების კატეგორია), მერე ობიექტი რამდენიმე ველით (ჯავშანი ტექსტიდან).
 
 ბოლოს — კლასის დავალება: ტექსტიდან ობიექტის ამოღება შენს პროექტში.
@@ -103,7 +103,7 @@ In lecture 2 we called Gemini for the first time, but we created `IChatClient` r
   <aside class="study-en">
 ### Lecture plan — 2 steps
 
-1. 🔌 **`IChatClient` in DI** — instead of `new` in the Controller we register the client in `Program.cs` (`AddChatClient`), read the key from configuration (the same `GEMINI_API_KEY`) and the model name from `appsettings.json`.
+1. 🔌 **`IChatClient` in DI** — instead of `new` in the Controller we register the client in `Program.cs` (`AddChatClient`), keep the key in User Secrets and the model name in `appsettings.json`.
 2. 🧱 **Structured output** — `GetResponseAsync<T>`: the model returns a C# type. First an enum (a review category), then an object with several fields (a booking from text).
 
 At the end — classwork: extracting an object from text in your project.
@@ -115,7 +115,7 @@ At the end — classwork: extracting an object from text in your project.
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
     <h1 class="in" style="--d:.1s">IChatClient —<br><span class="grad">DI-ში</span></h1>
-    <p class="lead mt in" style="--d:.3s">AddChatClient · appsettings · constructor injection</p>
+    <p class="lead mt in" style="--d:.3s">AddChatClient · User Secrets · appsettings · constructor injection</p>
   </div>
   <div class="big-num">01</div>
   <aside class="study">
@@ -200,8 +200,8 @@ using Microsoft.Extensions.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string apiKey = builder.Configuration["GEMINI_API_KEY"]
-    ?? throw new InvalidOperationException("GEMINI_API_KEY აკლია");
+string apiKey = builder.Configuration["Gemini:ApiKey"]
+    ?? throw new InvalidOperationException("Gemini:ApiKey აკლია");
 string model = builder.Configuration["Gemini:Model"]
     ?? throw new InvalidOperationException("Gemini:Model აკლია");
 
@@ -217,7 +217,9 @@ builder.Services.AddControllers();
   "Model": "gemini-3.8-flash"
 }
       </code-block>
-      <div class="callout" style="--a:var(--asp);font-size:19px"><b>key</b> — იგივე <code class="i">GEMINI_API_KEY</code> ლექცია 2-დან. Configuration გარემოს ცვლადებსაც კითხულობს — <b>ახალი არაფერი</b></div>
+      <div class="term"><div class="bar"><i></i><i></i><i></i><span>Terminal · პროექტის საქაღალდეში</span></div>
+        <div class="body"><div class="cmd">dotnet user-secrets init</div><div class="cmd">dotnet user-secrets set "Gemini:ApiKey" "AIza…"</div></div></div>
+      <div class="callout" style="--a:var(--asp);font-size:18px">ლექცია 2: <code class="i">GEMINI_API_KEY</code> — Google SDK-ის სახელი. .NET-ში: სექცია <b>Gemini</b> → <code class="i">Gemini:ApiKey</code></div>
       <i class="codestep" data-for="c1" data-lines="11-12"></i>
       <div class="callout step" data-with style="--a:var(--api)"><b>Singleton</b>: ერთი client მთელ აპლიკაციაზე</div>
     </div>
@@ -233,8 +235,8 @@ using Microsoft.Extensions.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string apiKey = builder.Configuration["GEMINI_API_KEY"]
-    ?? throw new InvalidOperationException("GEMINI_API_KEY აკლია");
+string apiKey = builder.Configuration["Gemini:ApiKey"]
+    ?? throw new InvalidOperationException("Gemini:ApiKey აკლია");
 string model = builder.Configuration["Gemini:Model"]
     ?? throw new InvalidOperationException("Gemini:Model აკლია");
 
@@ -246,7 +248,7 @@ builder.Services.AddControllers();
 ```
 
 - **`AddChatClient(...)`** — `Microsoft.Extensions.AI`-ის extension. `IChatClient`-ს არეგისტრირებს **Singleton**-ად: მთელ აპლიკაციაზე ერთი client, ერთი HTTP კავშირების pool. Gemini-ს client thread-safe-ია, ამიტომ ერთდროულ მოთხოვნებს უპრობლემოდ ემსახურება.
-- **`new Client(apiKey: apiKey)`** — key-ს ახლა ცხადად გადავცემთ, კონფიგურაციიდან (`GEMINI_API_KEY`).
+- **`new Client(apiKey: apiKey)`** — key-ს ახლა ცხადად გადავცემთ, კონფიგურაციიდან.
 - **`?? throw`** — თუ key ან მოდელი არ წერია, აპლიკაცია **გაშვებისთანავე** ჩავარდება გასაგები შეცდომით, და არა პირველ მოთხოვნაზე, უცნაური 401-ით.
 
 **მოდელის სახელი** — `appsettings.json`-ში. ეს საიდუმლო არ არის, Git-შიც მიდის:
@@ -259,17 +261,32 @@ builder.Services.AddControllers();
 }
 ```
 
-**key** — იგივე `GEMINI_API_KEY`, რომელიც ლექცია 2-ზე გარემოს ცვლადში ჩაწერე. ახალს არაფერს აკეთებ: `builder.Configuration` ASP.NET Core-ში რამდენიმე წყაროს ერთად კითხულობს — `appsettings.json`-ს, User Secrets-ს და **გარემოს ცვლადებს**. ამიტომ `builder.Configuration["GEMINI_API_KEY"]` შენს ცვლადს პოულობს.
+**key** — **User Secrets**-ში, .NET-ის სახელით `Gemini:ApiKey`. ლექცია 2-ზე key `GEMINI_API_KEY` გარემოს ცვლადში ჩაწერე — ეს Google-ის SDK-ის სახელი იყო, რომელსაც `new Client()` თვითონ ეძებდა. ახლა key-ს .NET-ის კონფიგურაცია კითხულობს, და იქ პარამეტრები სექციებად ლაგდება: სექცია `Gemini`, მასში `Model` და `ApiKey`. ამიტომ key ერთხელ გადაგვაქვს ახალ ადგილას.
 
-განსხვავება ლექცია 2-თან: იქ key-ს Google-ის `Client` თვითონ ეძებდა. ახლა მას **ჩვენ** ვკითხულობთ კონფიგურაციიდან და ცხადად გადავცემთ — ასე ერთ ადგილას ჩანს, საიდან მოდის.
+User Secrets ფაილი შენს კომპიუტერზე, პროექტის გარეთ ინახება და Git-ში არასდროს ხვდება. ტერმინალში, პროექტის საქაღალდეში:
 
-```tip
-გარემოს ცვლადის ნაცვლად შეგიძლია **User Secrets** გამოიყენო — ფაილი შენს კომპიუტერზე, პროექტის გარეთ, Git-ში არ ხვდება: `dotnet user-secrets init`, მერე `dotnet user-secrets set "GEMINI_API_KEY" "AIza..."`. კოდი არ იცვლება — `Configuration` ორივე ადგილას ეძებს.
+```bash
+dotnet user-secrets init
+dotnet user-secrets set "Gemini:ApiKey" "AIza..."
+```
+
+Visual Studio-ში იგივე: პროექტზე მარჯვენა ღილაკი → **Manage User Secrets** → იხსნება `secrets.json`:
+
+```json secrets.json
+{
+  "Gemini:ApiKey": "AIza..."
+}
+```
+
+`builder.Configuration["Gemini:ApiKey"]` ორივე ადგილიდან ერთნაირად კითხულობს — კოდმა არ იცის, სად წერია მნიშვნელობა.
+
+```note
+სერვერზე User Secrets არ არსებობს — იქ იგივე მნიშვნელობა გარემოს ცვლადით მიდის: `Gemini__ApiKey` (ორი ქვედა ტირე = `:`). კოდი არ იცვლება. ამას DevOps-ში, deploy-ზე ვნახავთ.
 ```
 
 ```terms
 AddChatClient — Microsoft.Extensions.AI-ის მეთოდი, რომელიც IChatClient-ს DI-ში არეგისტრირებს (ნაგულისხმევად Singleton)
-Configuration — ASP.NET Core-ის კონფიგურაცია: ერთად კითხულობს appsettings.json-ს, User Secrets-ს და გარემოს ცვლადებს
+User Secrets — დეველოპერის კომპიუტერზე, პროექტის გარეთ შენახული კონფიგურაცია საიდუმლოებისთვის; Git-ში არ ხვდება
 ```
   </aside>
   <aside class="study-en">
@@ -283,8 +300,8 @@ using Microsoft.Extensions.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string apiKey = builder.Configuration["GEMINI_API_KEY"]
-    ?? throw new InvalidOperationException("GEMINI_API_KEY is missing");
+string apiKey = builder.Configuration["Gemini:ApiKey"]
+    ?? throw new InvalidOperationException("Gemini:ApiKey is missing");
 string model = builder.Configuration["Gemini:Model"]
     ?? throw new InvalidOperationException("Gemini:Model is missing");
 
@@ -296,7 +313,7 @@ builder.Services.AddControllers();
 ```
 
 - **`AddChatClient(...)`** — an extension from `Microsoft.Extensions.AI`. It registers `IChatClient` as a **Singleton**: one client for the whole application, one pool of HTTP connections. The Gemini client is thread-safe, so it serves concurrent requests without problems.
-- **`new Client(apiKey: apiKey)`** — now we pass the key explicitly, from configuration (`GEMINI_API_KEY`).
+- **`new Client(apiKey: apiKey)`** — now we pass the key explicitly, from configuration.
 - **`?? throw`** — if the key or the model is missing, the application fails **right at startup** with a clear error, not on the first request with a strange 401.
 
 **The model name** goes in `appsettings.json`. It isn't a secret, it goes to Git too:
@@ -309,17 +326,32 @@ builder.Services.AddControllers();
 }
 ```
 
-**The key** is the same `GEMINI_API_KEY` you put in an environment variable in lecture 2. You don't do anything new: in ASP.NET Core `builder.Configuration` reads several sources together — `appsettings.json`, User Secrets and **environment variables**. That's why `builder.Configuration["GEMINI_API_KEY"]` finds your variable.
+**The key** goes in **User Secrets**, under the .NET name `Gemini:ApiKey`. In lecture 2 you put the key in the `GEMINI_API_KEY` environment variable — that was the Google SDK's name, which `new Client()` looked up by itself. Now .NET configuration reads the key, and there settings are grouped into sections: the `Gemini` section with `Model` and `ApiKey` inside. So we move the key to its new place once.
 
-The difference from lecture 2: there Google's `Client` looked for the key by itself. Now **we** read it from configuration and pass it explicitly — so it's visible in one place where it comes from.
+The User Secrets file is stored on your computer, outside the project, and never ends up in Git. In the terminal, in the project folder:
 
-```tip
-Instead of an environment variable you can use **User Secrets** — a file on your computer, outside the project, it never goes to Git: `dotnet user-secrets init`, then `dotnet user-secrets set "GEMINI_API_KEY" "AIza..."`. The code doesn't change — `Configuration` looks in both places.
+```bash
+dotnet user-secrets init
+dotnet user-secrets set "Gemini:ApiKey" "AIza..."
+```
+
+The same in Visual Studio: right-click the project → **Manage User Secrets** → `secrets.json` opens:
+
+```json secrets.json
+{
+  "Gemini:ApiKey": "AIza..."
+}
+```
+
+`builder.Configuration["Gemini:ApiKey"]` reads from both places the same way — the code doesn't know where the value is written.
+
+```note
+User Secrets don't exist on a server — there the same value comes from an environment variable: `Gemini__ApiKey` (two underscores = `:`). The code doesn't change. We'll see this in DevOps, at deploy time.
 ```
 
 ```terms
 AddChatClient — the Microsoft.Extensions.AI method that registers IChatClient in DI (Singleton by default)
-Configuration — ASP.NET Core configuration: reads appsettings.json, User Secrets and environment variables together
+User Secrets — configuration for secrets stored on the developer's computer, outside the project; it never goes to Git
 ```
   </aside>
 </section>
@@ -919,7 +951,7 @@ It's the same rule as in lecture 2: **the prompt and the model change the probab
   <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
     <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
       <li><b>AddChatClient</b> — ერთი client, Singleton; Controller იღებს constructor-ით</li>
-      <li><b>key</b> — <code class="i">GEMINI_API_KEY</code> (Configuration), <b>მოდელი</b> — appsettings-ში</li>
+      <li><b>key</b> — User Secrets-ში, <b>მოდელი</b> — appsettings-ში</li>
       <li><b>GetResponseAsync&lt;T&gt;</b> — ტიპი → JSON Schema → მოდელი → <b>.Result</b></li>
       <li><b>enum</b> — ერთი მნიშვნელობა სიიდან; <b>record</b> — რამდენიმე ველი</li>
       <li><b>T?</b> და „დატოვე null“ — არ მოიგონოს</li>
@@ -935,7 +967,7 @@ It's the same rule as in lecture 2: **the prompt and the model change the probab
   <aside class="study">
 ## შეჯამება
 
-- **`AddChatClient`** — `IChatClient` ერთხელ იქმნება `Program.cs`-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას constructor-ით იღებს. key — იგივე `GEMINI_API_KEY` (კონფიგურაცია მას გარემოს ცვლადიდან კითხულობს), მოდელის სახელი — `appsettings.json`-ში.
+- **`AddChatClient`** — `IChatClient` ერთხელ იქმნება `Program.cs`-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას constructor-ით იღებს. key — User Secrets-ში, მოდელის სახელი — `appsettings.json`-ში.
 - **პროვაიდერის შეცვლა** — მხოლოდ `Program.cs`; **მოდელის შეცვლა** — მხოლოდ `appsettings.json`. Controller-ს არცერთი არ ეხება.
 - **`GetResponseAsync<T>`** — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემას მისდევს, პასუხი `response.Result`-ში უკვე `T` ტიპისაა.
 - **enum** — ერთი მნიშვნელობა დასაშვები სიიდან (კლასიფიკაცია). **record** — რამდენიმე ველი ტექსტიდან (ამოღება).
@@ -949,7 +981,7 @@ It's the same rule as in lecture 2: **the prompt and the model change the probab
   <aside class="study-en">
 ## Summary
 
-- **`AddChatClient`** — `IChatClient` is created once in `Program.cs` and registered in DI as a Singleton. The Controller receives it through its constructor. The key — the same `GEMINI_API_KEY` (configuration reads it from the environment variable), the model name — in `appsettings.json`.
+- **`AddChatClient`** — `IChatClient` is created once in `Program.cs` and registered in DI as a Singleton. The Controller receives it through its constructor. The key — in User Secrets, the model name — in `appsettings.json`.
 - **Changing the provider** — only `Program.cs`; **changing the model** — only `appsettings.json`. Neither touches the Controller.
 - **`GetResponseAsync<T>`** — a JSON Schema is created from the C# type, sent with the request, the model follows the schema, and the answer in `response.Result` is already of type `T`.
 - **enum** — one value from an allowed list (classification). **record** — several fields from text (extraction).

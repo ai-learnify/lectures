@@ -2,7 +2,7 @@
   "title": "Microsoft.Extensions.AI: DI და Structured Output",
   "why": "ლექცია 2-ზე `IChatClient` Controller-ში `new`-ით შევქმენით, პასუხი კი თავისუფალი ტექსტი იყო — few-shot-ითაც „თითქმის“ ზუსტი. დღეს client-ს სწორ ადგილზე ვსვამთ (DI და კონფიგურაცია, როგორც API კურსზე), ხოლო მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს არსებულ ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.",
   "outcomes": [
-    "`IChatClient`-ის რეგისტრაცია DI-ში `AddChatClient`-ით: key — კონფიგურაციიდან (`GEMINI_API_KEY`), მოდელი — `appsettings.json`-იდან",
+    "`IChatClient`-ის რეგისტრაცია DI-ში `AddChatClient`-ით: key — User Secrets-ში, მოდელი — `appsettings.json`-ში",
     "`GetResponseAsync<T>`-ით enum-ის მიღება და ახსნა, რატომ არის ეს few-shot-ზე საიმედო",
     "ტექსტიდან ობიექტის ამოღება `record`-ით: nullable ველები, `Description`, დღევანდელი თარიღი prompt-ში",
     "ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში"
@@ -13,8 +13,8 @@
       "a": "ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → `AddChatClient` `Program.cs`-ში (Singleton) + Controller-ში constructor injection"
     },
     {
-      "q": "საიდან კითხულობს `Program.cs` Gemini-ს key-ს და მოდელის სახელს? რატომ არ წერია key `appsettings.json`-ში?",
-      "a": "ორივეს `builder.Configuration`-იდან · key — `GEMINI_API_KEY` გარემოს ცვლადიდან (Configuration მას თვითონ კითხულობს), რადგან საიდუმლოა და Git-ში არ უნდა მოხვდეს · მოდელი — `appsettings.json`-იდან: საიდუმლო არ არის, შეცვლა კოდის გარეშე"
+      "q": "სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?",
+      "a": "key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — `appsettings.json`-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)"
     },
     {
       "q": "რით განსხვავდება few-shot structured output-ისგან?",
@@ -46,9 +46,9 @@
       "note": "როგორ მუშაობს JSON Schema Gemini-ზე, რჩევები"
     },
     {
-      "title": "ASP.NET Core — Configuration",
-      "url": "https://learn.microsoft.com/aspnet/core/fundamentals/configuration/",
-      "note": "appsettings, გარემოს ცვლადები, User Secrets — ერთ Configuration-ში"
+      "title": "ASP.NET Core — User Secrets",
+      "url": "https://learn.microsoft.com/aspnet/core/security/app-secrets",
+      "note": "საიდუმლოებების უსაფრთხოდ შენახვა დეველოპმენტში"
     },
     {
       "title": "Google Gen AI .NET SDK",
@@ -82,15 +82,15 @@
       "slide": 8
     },
     {
-      "q": "`builder.Configuration[\"GEMINI_API_KEY\"]` — საიდან მოდის მნიშვნელობა, თუ `appsettings.json`-ში არ წერია?",
+      "q": "სად ვინახავთ Gemini-ს API key-ს დეველოპმენტში?",
       "options": [
-        "არსაიდან — `null` იქნება",
-        "გარემოს ცვლადიდან `GEMINI_API_KEY` — Configuration მასაც კითხულობს",
-        "Google-ის სერვერიდან",
-        "`launchSettings.json`-იდან ავტომატურად"
+        "`appsettings.json`-ში — `Gemini:ApiKey`",
+        "User Secrets-ში — `dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`",
+        "Controller-ში const-ად",
+        "`launchSettings.json`-ში"
       ],
       "answer": 1,
-      "explain": "ASP.NET Core-ის Configuration რამდენიმე წყაროს აერთიანებს: `appsettings.json`, User Secrets, გარემოს ცვლადები. ლექცია 2-ის `setx GEMINI_API_KEY` ამიტომ უცვლელად მუშაობს.",
+      "explain": "User Secrets პროექტის გარეთ ინახება და Git-ში არ ხვდება. `appsettings.json` და `launchSettings.json` Git-ში მიდის.",
       "slide": 8
     },
     {
@@ -192,15 +192,15 @@
   ],
   "lecturer_quiz": [
     {
-      "q": "სტუდენტთან აპლიკაცია გაშვებისთანავე ვარდება: `GEMINI_API_KEY აკლია`. ლექცია 2-ზე `/ask` მუშაობდა. ყველაზე სავარაუდო მიზეზი?",
+      "q": "სტუდენტი ამბობს: „`dotnet user-secrets set` შეცდომას აბრუნებს — Could not find a MSBuild project file“. რა ხდება?",
       "options": [
-        "Gemini დაბლოკილია",
-        "`setx` ახალ ტერმინალში/VS-ში არ ჩანს — Visual Studio `setx`-ის შემდეგ არ გადატვირთულა, ან key სხვა კომპიუტერზე დააყენა",
-        "`AddChatClient` გარემოს ცვლადებს ვერ კითხულობს",
-        "`appsettings.json`-ში key აკლია"
+        "User Secrets Windows-ზე არ მუშაობს",
+        "ტერმინალი solution-ის საქაღალდეშია — ბრძანება პროექტის საქაღალდეში (სადაც `.csproj`-ია) უნდა გაუშვას, ან `--project` მიუთითოს",
+        "Gemini-ს key არასწორია",
+        "ჯერ NuGet package უნდა დააყენოს"
       ],
       "answer": 1,
-      "explain": "Configuration გარემოს ცვლადს პროცესის გაშვებისას კითხულობს — ზუსტად ისევე, როგორც ლექცია 2-ზე `new Client()`. თუ `/ask` მაშინ მუშაობდა, დღეს ცვლადი იგივეა; ხშირად სხვა კომპიუტერთან ან გადაუტვირთავ VS-თან გვაქვს საქმე."
+      "explain": "`dotnet user-secrets` `.csproj`-ს ეძებს მიმდინარე საქაღალდეში. VS-ში იგივე უფრო მარტივადაა: პროექტზე მარჯვენა ღილაკი → Manage User Secrets."
     },
     {
       "q": "რატომ არის უსაფრთხო `IChatClient`-ის Singleton-ად რეგისტრაცია, მაშინ როცა `DbContext` Scoped-ია?",
@@ -290,7 +290,7 @@
   "study": {
     "summary": [
       "**`AddChatClient`** — `IChatClient` ერთხელ იქმნება `Program.cs`-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას **constructor-ით** იღებს — როგორც `DbContext`-ს API კურსზე.",
-      "**key** — იგივე `GEMINI_API_KEY` (Configuration მას გარემოს ცვლადიდან კითხულობს), **მოდელი** — `appsettings.json`-ში. სხვა მოდელი = მხოლოდ კონფიგურაცია, სხვა პროვაიდერი = მხოლოდ `Program.cs`.",
+      "**key** — User Secrets-ში (`dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`), **მოდელი** — `appsettings.json`-ში. სხვა მოდელი = მხოლოდ კონფიგურაცია, სხვა პროვაიდერი = მხოლოდ `Program.cs`.",
       "**`GetResponseAsync<T>`** — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს. `response.Result` უკვე `T`-ია.",
       "**enum** — ერთი მნიშვნელობა სიიდან (კლასიფიკაცია); **record** — რამდენიმე ველი ტექსტიდან (ამოღება). nullable ველები და „დატოვე null“ — რომ არ მოიგონოს; დღევანდელი თარიღი — prompt-ში.",
       "**ფორმა გარანტირებულია, შინაარსი — არა.** მიღებულ ობიექტს ბაზამდე C# ამოწმებს."
@@ -302,7 +302,7 @@
     "chapters": {
       "1 · IChatClient DI-ში": {
         "title": "IChatClient DI-ში: AddChatClient და კონფიგურაცია",
-        "goal": "`IChatClient`-ს `Program.cs`-ში დაარეგისტრირებ: key — კონფიგურაციიდან (`GEMINI_API_KEY`), მოდელი — `appsettings.json`-იდან, Controller კი მას constructor-ით მიიღებს."
+        "goal": "`IChatClient`-ს `Program.cs`-ში დაარეგისტრირებ, key-ს User Secrets-ში შეინახავ, მოდელს — `appsettings.json`-ში, Controller კი მას constructor-ით მიიღებს."
       },
       "2 · Structured output": {
         "title": "Structured output: ტექსტის ნაცვლად C# ტიპი",
