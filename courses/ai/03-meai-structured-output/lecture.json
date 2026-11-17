@@ -1,0 +1,326 @@
+{
+  "title": "Microsoft.Extensions.AI: DI და Structured Output",
+  "why": "ლექცია 2-ზე `IChatClient` Controller-ში `new`-ით შევქმენით, პასუხი კი თავისუფალი ტექსტი იყო — few-shot-ითაც „თითქმის“ ზუსტი. დღეს client-ს სწორ ადგილზე ვსვამთ (DI და კონფიგურაცია, როგორც API კურსზე), ხოლო მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს არსებულ ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.",
+  "outcomes": [
+    "`IChatClient`-ის რეგისტრაცია DI-ში `AddChatClient`-ით: key — User Secrets-ში, მოდელი — `appsettings.json`-ში",
+    "`GetResponseAsync<T>`-ით enum-ის მიღება და ახსნა, რატომ არის ეს few-shot-ზე საიმედო",
+    "ტექსტიდან ობიექტის ამოღება `record`-ით: nullable ველები, `Description`, დღევანდელი თარიღი prompt-ში",
+    "ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში"
+  ],
+  "review": [
+    {
+      "q": "რა არის ცუდი `new Client().AsIChatClient(...)`-ში Controller-ის შიგნით და როგორ ვასწორებთ?",
+      "a": "ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → `AddChatClient` `Program.cs`-ში (Singleton) + Controller-ში constructor injection"
+    },
+    {
+      "q": "სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?",
+      "a": "key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — `appsettings.json`-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)"
+    },
+    {
+      "q": "რით განსხვავდება few-shot structured output-ისგან?",
+      "a": "few-shot ფორმას **სთხოვს** მაგალითებით — ალბათობით · structured output **აიძულებს**: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, `.Result` უკვე C# ტიპია"
+    },
+    {
+      "q": "`BookingRequest`-ში რატომ `int? Guests` და არა `int`? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?",
+      "a": "`?` მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); `int`-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით"
+    },
+    {
+      "q": "structured output-ით მივიღეთ `BookingRequest`. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?",
+      "a": "არა · ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ → 08:00, აკლია სტუმრები (null) · ბაზამდე C# ამოწმებს ველებს"
+    }
+  ],
+  "resources": [
+    {
+      "title": "Microsoft.Extensions.AI — მიმოხილვა",
+      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
+      "note": "IChatClient, DI-ში რეგისტრაცია, ChatClientBuilder"
+    },
+    {
+      "title": "Structured output — .NET quickstart",
+      "url": "https://learn.microsoft.com/dotnet/ai/quickstarts/structured-output",
+      "note": "GetResponseAsync<T> enum-ით და record-ით"
+    },
+    {
+      "title": "Gemini — Structured output",
+      "url": "https://ai.google.dev/gemini-api/docs/structured-output",
+      "note": "როგორ მუშაობს JSON Schema Gemini-ზე, რჩევები"
+    },
+    {
+      "title": "ASP.NET Core — User Secrets",
+      "url": "https://learn.microsoft.com/aspnet/core/security/app-secrets",
+      "note": "საიდუმლოებების უსაფრთხოდ შენახვა დეველოპმენტში"
+    },
+    {
+      "title": "Google Gen AI .NET SDK",
+      "url": "https://googleapis.github.io/dotnet-genai/",
+      "note": "Client(apiKey) და AsIChatClient"
+    }
+  ],
+  "quiz": [
+    {
+      "q": "რატომ არის ცუდი `IChatClient`-ის შექმნა Controller-ის ველში `new`-ით?",
+      "options": [
+        "Controller ყოველ request-ზე იქმნება — მასთან ერთად ახალი client და HTTP კავშირიც",
+        "`new`-ით შექმნილი client Gemini-ს ვერ იძახებს",
+        "Controller-ში ველები აკრძალულია",
+        "key ასე უფრო ძვირი ჯდება"
+      ],
+      "answer": 0,
+      "explain": "ASP.NET Core Controller-ს ყოველ მოთხოვნაზე ახლიდან ქმნის. გარდა ამისა, მოდელის სახელი კოდშია და ტესტში ყალბ client-ს ვერ ჩავსვამთ.",
+      "slide": 7
+    },
+    {
+      "q": "რა lifetime-ით არეგისტრირებს `AddChatClient` `IChatClient`-ს ნაგულისხმევად?",
+      "options": [
+        "Transient — ყოველ ჯერზე ახალი",
+        "Scoped — ყოველ request-ზე ერთი",
+        "Singleton — ერთი მთელ აპლიკაციაზე",
+        "არცერთით — ხელით უნდა მივუთითოთ"
+      ],
+      "answer": 2,
+      "explain": "client-ს შიგნით HTTP კავშირები აქვს და thread-safe-ია, ამიტომ ერთი საკმარისია მთელ აპლიკაციას.",
+      "slide": 8
+    },
+    {
+      "q": "სად ვინახავთ Gemini-ს API key-ს დეველოპმენტში?",
+      "options": [
+        "`appsettings.json`-ში — `Gemini:ApiKey`",
+        "User Secrets-ში — `dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`",
+        "Controller-ში const-ად",
+        "`launchSettings.json`-ში"
+      ],
+      "answer": 1,
+      "explain": "User Secrets პროექტის გარეთ ინახება და Git-ში არ ხვდება. `appsettings.json` და `launchSettings.json` Git-ში მიდის.",
+      "slide": 8
+    },
+    {
+      "q": "Gemini-ს ნაცვლად OpenAI გვინდა. რომელი ფაილი იცვლება?",
+      "options": [
+        "ყველა Controller",
+        "მხოლოდ `appsettings.json`",
+        "მხოლოდ `Program.cs` — client-ის შექმნის ხაზი (და package)",
+        "DTO-ები"
+      ],
+      "answer": 2,
+      "explain": "Controller-ები მხოლოდ `IChatClient`-ს იცნობენ. პროვაიდერი ერთ ადგილას იქმნება — `Program.cs`-ში. სხვა Gemini მოდელზე გადასვლა კი მხოლოდ `appsettings.json`-ია.",
+      "slide": 9
+    },
+    {
+      "q": "few-shot classify ზოგჯერ აბრუნებს `Search.`-ს. რატომ არ ხდება ეს `GetResponseAsync<RequestType>`-ით?",
+      "options": [
+        "Gemini enum-ებს უკეთ ხვდება",
+        "JSON Schema მოთხოვნასთან მიდის და მოდელი სქემის გარეთ ტოკენს ვერ ირჩევს",
+        "C# `Search.`-ს ავტომატურად ასწორებს",
+        "Temperature ავტომატურად 0 ხდება"
+      ],
+      "answer": 1,
+      "explain": "few-shot ფორმას სთხოვს, structured output — აიძულებს. დასაშვები მნიშვნელობები სქემაშია, და მოდელი მხოლოდ მათ შორის ირჩევს.",
+      "slide": 11
+    },
+    {
+      "q": "რას აბრუნებს `await _chat.GetResponseAsync<Sentiment>(messages)`?",
+      "options": [
+        "`Sentiment`-ს პირდაპირ",
+        "`string`-ს, რომელიც ხელით უნდა გადავაქციოთ",
+        "`ChatResponse<Sentiment>`-ს — `Result`-ში `Sentiment`, პლუს `Usage`, `FinishReason`",
+        "JSON Schema-ს"
+      ],
+      "answer": 2,
+      "explain": "`ChatResponse<T>` ჩვეულებრივი `ChatResponse`-ია (ტოკენებით და finish reason-ით) და დამატებით `Result`.",
+      "slide": 12
+    },
+    {
+      "q": "endpoint აბრუნებს `Ok(response.Result)`-ს, სადაც `Result` = `Sentiment.Mixed`. Swagger-ში რას ვხედავთ?",
+      "options": [
+        "`\"Mixed\"`",
+        "`2` — ASP.NET Core enum-ს ნაგულისხმევად რიცხვად აბრუნებს",
+        "შეცდომას",
+        "`{\"data\":\"Mixed\"}`"
+      ],
+      "answer": 1,
+      "explain": "ამიტომ სლაიდზე `sentiment.ToString()`-ს ვაბრუნებთ. ალტერნატივა — `JsonStringEnumConverter` `Program.cs`-ში.",
+      "slide": 12
+    },
+    {
+      "q": "„ოთხნი ვართ, ხვალ 8-ზე“ — რატომ ვწერთ System prompt-ში `დღეს არის {DateTime.Now:…}`?",
+      "options": [
+        "ასე პასუხი უფრო სწრაფია",
+        "მოდელმა დღევანდელი თარიღი არ იცის — „ხვალ“-ის გამოსათვლელად ჩვენ ვაწვდით",
+        "Gemini თარიღის გარეშე შეცდომას აბრუნებს",
+        "ეს JSON Schema-ს ნაწილია"
+      ],
+      "answer": 1,
+      "explain": "მოდელი stateless-ია და მისი ცოდნა ვარჯიშის თარიღზე ჩერდება. დღევანდელი თარიღი კონტექსტია, რომელსაც ჩვენ ვაწვდით — ლექცია 2-ის prompt შაბლონით.",
+      "slide": 16
+    },
+    {
+      "q": "`BookingRequest`-ში `int Guests` (`?`-ის გარეშე) რომ ყოფილიყო და ტექსტში რაოდენობა არ ეწერა, რა მოხდებოდა სავარაუდოდ?",
+      "options": [
+        "მოდელი შეცდომას დააბრუნებდა",
+        "`Guests` = null",
+        "მოდელი რაიმე რიცხვს მოიგონებდა (მაგ. 2) — სქემა მას რიცხვს აიძულებს",
+        "endpoint 400-ს დააბრუნებდა"
+      ],
+      "answer": 2,
+      "explain": "სქემა ამბობს „აქ რიცხვია“, და მოდელი იძულებულია რიცხვი დაწეროს. `int?` სქემაში null-საც უშვებს — „არ ვიცი“.",
+      "slide": 16
+    },
+    {
+      "q": "structured output-მა `BookingRequest` დააბრუნა. რა არის გარანტირებული?",
+      "options": [
+        "რომ ყველა მნიშვნელობა სწორია",
+        "რომ პასუხი `BookingRequest`-ის ფორმისაა; მნიშვნელობები C#-მა უნდა შეამოწმოს",
+        "რომ `At` ყოველთვის სამუშაო საათებშია",
+        "არაფერი"
+      ],
+      "answer": 1,
+      "explain": "ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ შეიძლება 08:00 გახდეს, ველი შეიძლება null იყოს. ბაზამდე C# ამოწმებს.",
+      "slide": 17
+    },
+    {
+      "q": "structured output-ის prompt-ში ჯობია დავწეროთ „დააბრუნე JSON ველებით at და guests“?",
+      "options": [
+        "კი — ასე უფრო ზუსტია",
+        "არა — სქემა ისედაც მოთხოვნასთან მიდის; prompt-ში ვწერთ, რა ამოიღოს და რა წესით",
+        "კი, თორემ მოდელი JSON-ს ვერ დაწერს",
+        "მხოლოდ ინგლისურად"
+      ],
+      "answer": 1,
+      "explain": "Google-ის რეკომენდაციაა სქემა prompt-ში არ გავიმეოროთ — ეს ხარისხს აუარესებს. ფორმას სქემა აწესებს, prompt — წესებს (მაგ. „რაც არ წერია, დატოვე null“).",
+      "slide": 16
+    }
+  ],
+  "lecturer_quiz": [
+    {
+      "q": "სტუდენტთან აპლიკაცია ეშვება და მაშინვე ვარდება: `Gemini:ApiKey აკლია`. `setx GEMINI_API_KEY` ლექცია 2-ზე გაუშვა. რა ხდება?",
+      "options": [
+        "Gemini დაბლოკილია",
+        "კოდი `Gemini:ApiKey`-ს ეძებს კონფიგურაციაში, `GEMINI_API_KEY` კი სხვა სახელია — User Secrets-ში უნდა ჩაწეროს `Gemini:ApiKey`",
+        "`AddChatClient` key-ს ვერ კითხულობს",
+        "Visual Studio-ს გადატვირთვა სჭირდება"
+      ],
+      "answer": 1,
+      "explain": "გარემოს ცვლადებიც კონფიგურაციაშია, მაგრამ `GEMINI_API_KEY` ≠ `Gemini:ApiKey`. სწრაფი გზა: `dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`. (გარემოს ცვლადით იგივე იქნებოდა `Gemini__ApiKey`.)"
+    },
+    {
+      "q": "რატომ არის უსაფრთხო `IChatClient`-ის Singleton-ად რეგისტრაცია, მაშინ როცა `DbContext` Scoped-ია?",
+      "options": [
+        "არ არის უსაფრთხო — Scoped უნდა იყოს",
+        "client-ს მდგომარეობა (state) request-ებს შორის არ აქვს და thread-safe-ია; `DbContext` კი change tracker-ს ინახავს და thread-safe არ არის",
+        "Singleton უფრო სწრაფად იწერება",
+        "Gemini მხოლოდ ერთ კავშირს უშვებს"
+      ],
+      "answer": 1,
+      "explain": "`IChatClient` stateless-ია (ისტორიას ჩვენ ვაგზავნით), შიგნით HttpClient-ის კავშირების pool აქვს. `DbContext` ერთი unit of work-ია და მისი გაზიარება request-ებს შორის შეცდომებს იწვევს."
+    },
+    {
+      "q": "`GetResponseAsync<Sentiment>`-ზე Gemini-ს რეალურად რა ფორმით მიდის სქემა და რა ბრუნდება?",
+      "options": [
+        "`{\"enum\":[...]}` და ბრუნდება `\"Mixed\"`",
+        "ობიექტი ერთი `data` ველით (enum-ის მნიშვნელობებით); ბრუნდება `{\"data\":\"Mixed\"}` და Microsoft.Extensions.AI ხსნის",
+        "სქემა არ მიდის — მხოლოდ prompt",
+        "XML Schema"
+      ],
+      "answer": 1,
+      "explain": "ზედა დონეზე მოდელები ობიექტს აბრუნებენ, ამიტომ არა-ობიექტური ტიპები (enum, int, სია) `data` ველში იხვევა. `ChatResponse<T>` ამას თვითონ ხსნის."
+    },
+    {
+      "q": "მოდელმა სქემის შესაბამისი JSON ვერ დააბრუნა (მაგ. პასუხი `length`-ით მოიჭრა). რა ხდება `response.Result`-ზე?",
+      "options": [
+        "აბრუნებს `default`-ს",
+        "ისვრის exception-ს; უსაფრთხო გზაა `response.TryGetResult(out var x)`",
+        "აბრუნებს `null`-ს",
+        "ხელახლა იძახებს მოდელს"
+      ],
+      "answer": 1,
+      "explain": "`Result` deserialization-ის შეცდომაზე exception-ს ისვრის. `TryGetResult` აბრუნებს `false`-ს. ხშირი მიზეზი — მცირე `MaxOutputTokens` (ფიქრი ლიმიტს ჭამს)."
+    },
+    {
+      "q": "სტუდენტი structured output-ზე Temperature-ს 0-ზე აყენებს, „რომ JSON ზუსტი იყოს“. რას ეუბნები?",
+      "options": [
+        "სწორია, JSON-ზე ყოველთვის 0",
+        "Gemini 3-ზე Temperature ნაგულისხმევზე (1.0) ვტოვებთ; JSON-ის ფორმას სქემა იცავს და არა Temperature",
+        "Temperature 2 უნდა იყოს",
+        "structured output Temperature-ს ავტომატურად ცვლის"
+      ],
+      "answer": 1,
+      "explain": "ლექცია 2-ის წესი: Gemini 3 reasoning მოდელია და დაბალ Temperature-ზე ხარისხი შეიძლება დაეცეს. ფორმის გარანტია სქემიდან მოდის."
+    },
+    {
+      "q": "`DateTime.Now` System prompt-ში. სერვერი UTC-შია, რესტორანი — თბილისში. რა პრობლემაა?",
+      "options": [
+        "არანაირი",
+        "ღამის 00:00–04:00-ს შორის „დღეს“ ერთი დღით ადრე იქნება; „ხვალ“ არასწორად გამოითვლება",
+        "Gemini თარიღს ვერ კითხულობს",
+        "DateTime.Now prompt-ში აკრძალულია"
+      ],
+      "answer": 1,
+      "explain": "თარიღი ბიზნესის დროის სარტყელში უნდა მივაწოდოთ (მაგ. `TimeZoneInfo.ConvertTime` `Asia/Tbilisi`-ზე, ან `TimeProvider`). ლექციაზე `DateTime.Now` გამარტივებაა — ეს მხოლოდ ძლიერ ჯგუფთან ახსენე."
+    }
+  ],
+  "lecturer_explain": [
+    {
+      "task": "ახსენი 1 წუთში, რატომ ვარეგისტრირებთ `IChatClient`-ს DI-ში — ისე, რომ სიტყვა „Singleton“ არ ახსენო.",
+      "points": [
+        "DbContext-ის ანალოგია: Controller არ ქმნის, Controller იღებს",
+        "ერთი client მთელ აპლიკაციაზე, და არა ყოველ მოთხოვნაზე ახალი",
+        "მოდელი კონფიგურაციაშია — შეცვლა კოდის გარეშე; პროვაიდერი — ერთ ფაილში",
+        "ტესტში ყალბ client-ს ჩავსვამთ და Gemini-ს ფულს არ დავხარჯავთ"
+      ]
+    },
+    {
+      "task": "ახსენი, რით განსხვავდება „მოდელს ვთხოვთ JSON-ს“ structured output-ისგან — ლექცია 1-ის next-token prediction-ით.",
+      "points": [
+        "მოდელი ყოველ ნაბიჯზე ტოკენს ალბათობით ირჩევს",
+        "„დააბრუნე JSON“ prompt-ში მხოლოდ ალბათობას ზრდის — შეიძლება მაინც აბზაცი დაწეროს",
+        "structured output-ზე სქემა მოთხოვნასთან მიდის და არჩევანი იზღუდება მხოლოდ სქემის შესაბამის ტოკენებამდე",
+        "შედეგი: ფორმა გარანტირებულია, მნიშვნელობა — კვლავ ალბათობით"
+      ]
+    },
+    {
+      "task": "ახსენი, რატომ არის `int? Guests` უკეთესი `int Guests`-ზე — სტუმრის მიმღების ანალოგიით.",
+      "points": [
+        "ფორმაში „სტუმრების რაოდენობა“ სავალდებულო ველია — მიმღები ცარიელს ვერ დატოვებს და რაიმეს ჩაწერს",
+        "nullable = ველი, სადაც შეიძლება ეწეროს „არ თქვა“",
+        "null-ის შემთხვევაში C# მომხმარებელს დაუსვამს კითხვას („რამდენი ხართ?“)",
+        "მოგონილი რიცხვი უარესია, ვიდრე ცარიელი — ბაზაში არასწორი ჯავშანი ჩაიწერება"
+      ]
+    }
+  ],
+  "study": {
+    "summary": [
+      "**`AddChatClient`** — `IChatClient` ერთხელ იქმნება `Program.cs`-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას **constructor-ით** იღებს — როგორც `DbContext`-ს API კურსზე.",
+      "**key** — User Secrets-ში (`dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`), **მოდელი** — `appsettings.json`-ში. სხვა მოდელი = მხოლოდ კონფიგურაცია, სხვა პროვაიდერი = მხოლოდ `Program.cs`.",
+      "**`GetResponseAsync<T>`** — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს. `response.Result` უკვე `T`-ია.",
+      "**enum** — ერთი მნიშვნელობა სიიდან (კლასიფიკაცია); **record** — რამდენიმე ველი ტექსტიდან (ამოღება). nullable ველები და „დატოვე null“ — რომ არ მოიგონოს; დღევანდელი თარიღი — prompt-ში.",
+      "**ფორმა გარანტირებულია, შინაარსი — არა.** მიღებულ ობიექტს ბაზამდე C# ამოწმებს."
+    ],
+    "skip": [
+      "დღის თემა",
+      "შესავალი"
+    ],
+    "chapters": {
+      "1 · IChatClient DI-ში": {
+        "title": "IChatClient DI-ში: AddChatClient და კონფიგურაცია",
+        "goal": "`IChatClient`-ს `Program.cs`-ში დაარეგისტრირებ, key-ს User Secrets-ში შეინახავ, მოდელს — `appsettings.json`-ში, Controller კი მას constructor-ით მიიღებს."
+      },
+      "2 · Structured output": {
+        "title": "Structured output: ტექსტის ნაცვლად C# ტიპი",
+        "goal": "`GetResponseAsync<T>`-ით მოდელისგან enum-ს მიიღებ და გაიგებ, რატომ არის ეს few-shot-ზე საიმედო."
+      },
+      "3 · ტექსტი → ობიექტი": {
+        "title": "ტექსტი → ობიექტი: record რამდენიმე ველით",
+        "goal": "მომხმარებლის ტექსტიდან ამოიღებ ობიექტს რამდენიმე ველით და შეამოწმებ, რომ მნიშვნელობები სწორია."
+      },
+      "პრაქტიკა": {
+        "title": "კლასის დავალება: ტექსტიდან ობიექტი შენს პროექტში"
+      },
+      "შეჯამება": {
+        "title": "შეჯამება"
+      },
+      "საშინაო": {
+        "title": "საშინაო დავალება"
+      }
+    }
+  }
+}

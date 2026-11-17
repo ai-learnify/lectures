@@ -1,0 +1,229 @@
+{
+  "title": "Microsoft.Extensions.AI: DI and Structured Output",
+  "why": "In lecture 2 we created `IChatClient` in the Controller with `new`, and the answer was free text — “almost” exact even with few-shot. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.",
+  "outcomes": [
+    "Register `IChatClient` in DI with `AddChatClient`: the key in User Secrets, the model in `appsettings.json`",
+    "Get an enum with `GetResponseAsync<T>` and explain why it's more reliable than few-shot",
+    "Extract an object from text with a `record`: nullable fields, `Description`, today's date in the prompt",
+    "Explain why the shape is guaranteed but the content is not, and check the received object in C#"
+  ],
+  "review": [
+    {
+      "q": "What's wrong with `new Client().AsIChatClient(...)` inside a Controller, and how do we fix it?",
+      "a": "A new client on every request · the model name is in the code · we can't plug a fake client into a test → `AddChatClient` in `Program.cs` (Singleton) + constructor injection in the Controller"
+    },
+    {
+      "q": "Where do we keep the Gemini key and where the model name? Why in different places?",
+      "a": "The key — in User Secrets (it's a secret, it must not get into Git; on a server — an environment variable) · the model — in `appsettings.json` (not a secret; change it without changing code)"
+    },
+    {
+      "q": "How does few-shot differ from structured output?",
+      "a": "Few-shot **asks** for a shape with examples — by probability · structured output **forces** it: a JSON Schema from the C# type goes with the request, the model can't write outside the schema, `.Result` is already a C# type"
+    },
+    {
+      "q": "Why `int? Guests` and not `int` in `BookingRequest`? And why do we put today's date in the prompt?",
+      "a": "`?` gives the model the right to say “I don't know” (null); with `int` it's forced to write something and will make it up · the model doesn't know today's date (stateless, training date) — we provide it for “tomorrow”"
+    },
+    {
+      "q": "Structured output gave us a `BookingRequest`. Can we write it straight to the database?",
+      "a": "No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database"
+    }
+  ],
+  "resources": [
+    {
+      "title": "Microsoft.Extensions.AI — overview",
+      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
+      "note": "IChatClient, DI registration, ChatClientBuilder"
+    },
+    {
+      "title": "Structured output — .NET quickstart",
+      "url": "https://learn.microsoft.com/dotnet/ai/quickstarts/structured-output",
+      "note": "GetResponseAsync<T> with an enum and a record"
+    },
+    {
+      "title": "Gemini — Structured output",
+      "url": "https://ai.google.dev/gemini-api/docs/structured-output",
+      "note": "How JSON Schema works on Gemini, tips"
+    },
+    {
+      "title": "ASP.NET Core — User Secrets",
+      "url": "https://learn.microsoft.com/aspnet/core/security/app-secrets",
+      "note": "Storing secrets safely during development"
+    },
+    {
+      "title": "Google Gen AI .NET SDK",
+      "url": "https://googleapis.github.io/dotnet-genai/",
+      "note": "Client(apiKey) and AsIChatClient"
+    }
+  ],
+  "quiz": [
+    {
+      "q": "Why is it bad to create `IChatClient` with `new` in a Controller field?",
+      "options": [
+        "The Controller is created on every request — and with it a new client and HTTP connection",
+        "A client created with `new` can't call Gemini",
+        "Fields are forbidden in Controllers",
+        "The key costs more that way"
+      ],
+      "explain": "ASP.NET Core creates the Controller anew for every request. Besides, the model name is in the code and we can't plug a fake client into a test.",
+      "answer": 0,
+      "slide": 7
+    },
+    {
+      "q": "With what lifetime does `AddChatClient` register `IChatClient` by default?",
+      "options": [
+        "Transient — a new one every time",
+        "Scoped — one per request",
+        "Singleton — one for the whole application",
+        "None — we must specify it"
+      ],
+      "explain": "The client holds HTTP connections and is thread-safe, so one is enough for the whole application.",
+      "answer": 2,
+      "slide": 8
+    },
+    {
+      "q": "Where do we keep the Gemini API key during development?",
+      "options": [
+        "In `appsettings.json` — `Gemini:ApiKey`",
+        "In User Secrets — `dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`",
+        "As a const in the Controller",
+        "In `launchSettings.json`"
+      ],
+      "explain": "User Secrets are stored outside the project and don't get into Git. `appsettings.json` and `launchSettings.json` go to Git.",
+      "answer": 1,
+      "slide": 8
+    },
+    {
+      "q": "We want OpenAI instead of Gemini. Which file changes?",
+      "options": [
+        "Every Controller",
+        "Only `appsettings.json`",
+        "Only `Program.cs` — the line that creates the client (and the package)",
+        "The DTOs"
+      ],
+      "explain": "The Controllers know only `IChatClient`. The provider is created in one place — `Program.cs`. Switching to another Gemini model is only `appsettings.json`.",
+      "answer": 2,
+      "slide": 9
+    },
+    {
+      "q": "The few-shot classify sometimes returns `Search.`. Why doesn't this happen with `GetResponseAsync<RequestType>`?",
+      "options": [
+        "Gemini guesses enums better",
+        "The JSON Schema goes with the request and the model can't choose a token outside the schema",
+        "C# fixes `Search.` automatically",
+        "Temperature automatically becomes 0"
+      ],
+      "explain": "Few-shot asks for a shape, structured output forces it. The allowed values are in the schema, and the model chooses only among them.",
+      "answer": 1,
+      "slide": 11
+    },
+    {
+      "q": "What does `await _chat.GetResponseAsync<Sentiment>(messages)` return?",
+      "options": [
+        "A `Sentiment` directly",
+        "A `string` we must convert by hand",
+        "A `ChatResponse<Sentiment>` — a `Sentiment` in `Result`, plus `Usage`, `FinishReason`",
+        "The JSON Schema"
+      ],
+      "explain": "`ChatResponse<T>` is a normal `ChatResponse` (with tokens and the finish reason) plus `Result`.",
+      "answer": 2,
+      "slide": 12
+    },
+    {
+      "q": "The endpoint returns `Ok(response.Result)` where `Result` = `Sentiment.Mixed`. What do we see in Swagger?",
+      "options": [
+        "`\"Mixed\"`",
+        "`2` — by default ASP.NET Core returns an enum as a number",
+        "An error",
+        "`{\"data\":\"Mixed\"}`"
+      ],
+      "explain": "That's why on the slide we return `sentiment.ToString()`. The alternative is `JsonStringEnumConverter` in `Program.cs`.",
+      "answer": 1,
+      "slide": 12
+    },
+    {
+      "q": "“There are four of us, tomorrow at 8” — why do we write `Today is {DateTime.Now:…}` in the system prompt?",
+      "options": [
+        "The answer is faster that way",
+        "The model doesn't know today's date — we provide it so it can work out “tomorrow”",
+        "Gemini returns an error without a date",
+        "It's part of the JSON Schema"
+      ],
+      "explain": "The model is stateless and its knowledge stops at its training date. Today's date is context we provide — with the lecture 2 prompt template.",
+      "answer": 1,
+      "slide": 16
+    },
+    {
+      "q": "If `BookingRequest` had `int Guests` (without `?`) and the text had no number, what would most likely happen?",
+      "options": [
+        "The model would return an error",
+        "`Guests` = null",
+        "The model would make up a number (e.g. 2) — the schema forces it to write a number",
+        "The endpoint would return 400"
+      ],
+      "explain": "The schema says “a number goes here”, and the model is forced to write one. `int?` also allows null in the schema — “I don't know”.",
+      "answer": 2,
+      "slide": 16
+    },
+    {
+      "q": "Structured output returned a `BookingRequest`. What is guaranteed?",
+      "options": [
+        "That all values are correct",
+        "That the answer has the shape of `BookingRequest`; C# has to check the values",
+        "That `At` is always within opening hours",
+        "Nothing"
+      ],
+      "explain": "The shape is guaranteed, the content is not: “at 8” may become 08:00, a field may be null. C# checks before the database.",
+      "answer": 1,
+      "slide": 17
+    },
+    {
+      "q": "In a structured output prompt, is it better to write “return JSON with fields at and guests”?",
+      "options": [
+        "Yes — it's more precise",
+        "No — the schema is sent with the request anyway; in the prompt we write what to extract and by which rules",
+        "Yes, otherwise the model can't write JSON",
+        "Only in English"
+      ],
+      "explain": "Google recommends not repeating the schema in the prompt — it lowers quality. The schema sets the shape, the prompt sets the rules (e.g. “leave null whatever is not in the text”).",
+      "answer": 1,
+      "slide": 16
+    }
+  ],
+  "study": {
+    "summary": [
+      "**`AddChatClient`** — `IChatClient` is created once in `Program.cs` and registered in DI as a Singleton. The Controller receives it **through the constructor** — like `DbContext` in the API course.",
+      "**The key** — in User Secrets (`dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`), **the model** — in `appsettings.json`. Another model = configuration only, another provider = `Program.cs` only.",
+      "**`GetResponseAsync<T>`** — a JSON Schema is created from the C# type, sent with the request, and the model can't write outside it. `response.Result` is already a `T`.",
+      "**enum** — one value from a list (classification); **record** — several fields from text (extraction). Nullable fields and “leave null” — so it doesn't make things up; today's date — in the prompt.",
+      "**The shape is guaranteed, the content is not.** C# checks the received object before the database."
+    ],
+    "skip": [
+      "დღის თემა",
+      "შესავალი"
+    ],
+    "chapters": {
+      "1 · IChatClient DI-ში": {
+        "title": "IChatClient in DI: AddChatClient and configuration",
+        "goal": "You'll register `IChatClient` in `Program.cs`, keep the key in User Secrets and the model in `appsettings.json`, and the Controller will receive it through its constructor."
+      },
+      "2 · Structured output": {
+        "title": "Structured output: a C# type instead of text",
+        "goal": "You'll get an enum from the model with `GetResponseAsync<T>` and understand why it's more reliable than few-shot."
+      },
+      "3 · ტექსტი → ობიექტი": {
+        "title": "Text → object: a record with several fields",
+        "goal": "You'll extract an object with several fields from a user's text and check that the values are correct."
+      },
+      "პრაქტიკა": {
+        "title": "Classwork: an object from text in your project"
+      },
+      "შეჯამება": {
+        "title": "Summary"
+      },
+      "საშინაო": {
+        "title": "Homework"
+      }
+    }
+  }
+}

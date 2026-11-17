@@ -38,6 +38,7 @@ build.py                     აწყობს საიტს
 |---|---|---|
 | 01 | შესავალი Generative AI-სა და LLM API-ებში | `courses/ai/01-genai-llm-intro/` |
 | 02 | პირველი გამოძახება და Prompt Engineering | `courses/ai/02-prompt-engineering/` |
+| 03 | Microsoft.Extensions.AI: DI და Structured Output | `courses/ai/03-meai-structured-output/` |
 
 ## ლექციის სტრუქტურა
 
