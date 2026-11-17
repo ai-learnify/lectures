@@ -37,6 +37,7 @@ build.py                     აწყობს საიტს
 | # | ლექცია | საქაღალდე |
 |---|---|---|
 | 01 | შესავალი Generative AI-სა და LLM API-ებში | `courses/ai/01-genai-llm-intro/` |
+| 02 | პირველი გამოძახება და Prompt Engineering | `courses/ai/02-prompt-engineering/` |
 
 ## ლექციის სტრუქტურა
 

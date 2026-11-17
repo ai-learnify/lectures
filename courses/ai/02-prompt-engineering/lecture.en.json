@@ -1,0 +1,203 @@
+{
+  "title": "The first call and Prompt Engineering",
+  "why": "In the previous lecture we saw how the model works. Today we call it from our API for the first time: we see tokens, parameters and the finish reason not on a slide but in our own code's response. In the second half we learn how to tell the model who it is, what it does and in what form to answer — that's prompt engineering, the basis of every AI feature that follows.",
+  "outcomes": [
+    "call Gemini from your own API with `IChatClient` and keep the key safe",
+    "set `ChatOptions` and read the tokens (`Usage`) and `FinishReason` from the response",
+    "write a system prompt that sets the assistant's role, topics and answer format",
+    "tell zero-shot from few-shot and get an exact answer with few-shot"
+  ],
+  "review": [
+    {
+      "q": "What is `IChatClient`, and what do we change to switch from Gemini to another provider?",
+      "a": "one interface for every chat model (Microsoft.Extensions.AI) · only the line that creates the client changes; `GetResponseAsync`, the DTOs and the endpoints stay the same"
+    },
+    {
+      "q": "With `maxOutputTokens: 15` the answer is empty and `finishReason` = `length`. Why?",
+      "a": "Gemini “thinks” before answering · the thinking tokens (`ReasoningTokens`) count toward the same limit and nothing is left for the answer · set the limit with room to spare"
+    },
+    {
+      "q": "How is a System message different from a User message?",
+      "a": "**we** write the System message in code: role, topics, rules, answer format · the User message is written by the user · Assistant — the model's answer"
+    },
+    {
+      "q": "What is few-shot and when do we need it?",
+      "a": "a few “question → correct answer” examples in the prompt · when we want the answer in an exact format or exact categories so the code can use it"
+    },
+    {
+      "q": "The system prompt says: “You never name a price”. Is that a guarantee?",
+      "a": "no · a prompt changes the probability of a behaviour but gives no guarantee · what must hold is checked by C# code (lecture 19)"
+    }
+  ],
+  "resources": [
+    {
+      "title": "Microsoft.Extensions.AI — overview",
+      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
+      "note": "IChatClient, ChatOptions, ChatMessage — official documentation"
+    },
+    {
+      "title": "Google Gen AI .NET SDK",
+      "url": "https://googleapis.github.io/dotnet-genai/",
+      "note": "the Google.GenAI package and AsIChatClient"
+    },
+    {
+      "title": "Gemini — model list",
+      "url": "https://ai.google.dev/gemini-api/docs/models",
+      "note": "current model names"
+    },
+    {
+      "title": "Gemini — Prompt design strategies",
+      "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
+      "note": "Google's advice: instructions, few-shot, format"
+    },
+    {
+      "title": "Google AI Studio",
+      "url": "https://aistudio.google.com",
+      "note": "the key and quick prompt experiments in the browser"
+    }
+  ],
+  "quiz": [
+    {
+      "q": "What does `new Client().AsIChatClient(\"gemini-3.8-flash\")` do?",
+      "options": [
+        "creates a Gemini client and turns it into an `IChatClient`; reads the key from the `GEMINI_API_KEY` variable",
+        "downloads the model to our computer",
+        "creates a Gemini account",
+        "trains the model on our menu"
+      ],
+      "explain": "`Client` is Google's SDK, and `AsIChatClient` wraps it in the common interface. The model stays on Google's server — we call it over HTTP."
+    },
+    {
+      "q": "Where is the Gemini API key stored?",
+      "options": [
+        "in `appsettings.json`",
+        "in the Controller, as a const",
+        "in the `GEMINI_API_KEY` environment variable",
+        "in the README, so we don't forget it"
+      ],
+      "explain": "Every other place ends up in Git. Bots find a leaked key within minutes."
+    },
+    {
+      "q": "The response says: `outputTokens` = 19, `reasoningTokens` = 212. How many output tokens do we pay for?",
+      "options": [
+        "19 — thinking is free",
+        "212",
+        "231 — thinking is billed at the output price too",
+        "0 — Gemini is free"
+      ],
+      "explain": "We can't see the thinking tokens, but we pay for them, at the (expensive) output price: 19 + 212 = 231."
+    },
+    {
+      "q": "We ran the same question three times with `Temperature = 0`. What do we expect?",
+      "options": [
+        "three completely different answers",
+        "almost identical answers",
+        "an error — 0 isn't allowed",
+        "an empty answer"
+      ],
+      "explain": "A low Temperature picks the most likely token, so the answers are similar. At a high one — different every time."
+    },
+    {
+      "q": "`ReasoningTokens` = 180, `OutputTokens` = 0, `FinishReason` = `length`. What happened?",
+      "options": [
+        "the key is wrong",
+        "the model spent the limit on thinking and nothing was left for the answer",
+        "the model refused to answer",
+        "the Temperature is too high"
+      ],
+      "explain": "Thinking tokens count toward `MaxOutputTokens`. A reasoning model needs a limit with room to spare."
+    },
+    {
+      "q": "Which message sets the assistant's role and rules?",
+      "options": [
+        "User",
+        "Assistant",
+        "System",
+        "Tool"
+      ],
+      "explain": "The developer writes the System message in code. The user can't see or change it."
+    },
+    {
+      "q": "Which is part of a good system prompt?",
+      "options": [
+        "“Be smart and help everyone”",
+        "the role, which topics it answers, the answer format and what it must not do",
+        "only the restaurant's name",
+        "the user's question"
+      ],
+      "explain": "A general “be good” tells the model nothing. A concrete role, boundaries and format do."
+    },
+    {
+      "q": "A customer asks the assistant to write a letter, but it's a restaurant assistant. The right behaviour?",
+      "options": [
+        "writes the letter — it can",
+        "politely declines and brings the conversation back to the restaurant",
+        "returns an error (500)",
+        "doesn't answer at all"
+      ],
+      "explain": "The system prompt must set this boundary: “on any other topic you politely decline”."
+    },
+    {
+      "q": "What is few-shot?",
+      "options": [
+        "extra training of the model on our data",
+        "a few “question → correct answer” examples in the prompt",
+        "calling several models at once",
+        "asking for a short answer"
+      ],
+      "explain": "The model takes the examples as a pattern and answers in the same form. No training happens — the examples are sent with every request."
+    },
+    {
+      "q": "C# code uses the review classification: `if (label == \"Negative\")`. Why is few-shot better?",
+      "options": [
+        "it's cheaper",
+        "the answer comes as exactly one of the categories, and the code can rely on it",
+        "the model is faster",
+        "few-shot doesn't need a key"
+      ],
+      "explain": "Zero-shot might write “negative” or a whole paragraph — the `if` won't catch that. The examples fix the format."
+    },
+    {
+      "q": "How are few-shot examples sent in the prompt in C#?",
+      "options": [
+        "with `ChatOptions.Examples`",
+        "as User/Assistant pairs in the `ChatMessage` list",
+        "as separate HTTP requests",
+        "through appsettings.json"
+      ],
+      "explain": "For the model this is a “previous conversation”: the User asked, the Assistant answered. The real question goes last."
+    }
+  ],
+  "study": {
+    "summary": [
+      "`IChatClient` is the “DbContext” of LLMs: the code calls `GetResponseAsync`, and a provider talks to Gemini. Switching providers — one line.",
+      "The API key lives only in an **environment variable** (`GEMINI_API_KEY`), never in code or Git.",
+      "`ChatOptions` is set per request. In the response, **`Usage`** (input, output, thinking tokens) and **`FinishReason`** (`stop` / `length`) tell us what it cost and why it stopped.",
+      "We send the model a **list of `ChatMessage`s**: **System** (our rules), **User** (the user), **Assistant** (the model's answer).",
+      "A good **system prompt** = role + topics + format + what it must not do. **Few-shot** examples fix the answer to an exact format so C# code can use it."
+    ],
+    "chapters": {
+      "1 · პირველი გამოძახება": {
+        "title": "The first call: Gemini from our API",
+        "goal": "your API will have an endpoint that calls Gemini and returns the tokens and finish reason along with the text."
+      },
+      "2 · პარამეტრები კოდში": {
+        "title": "Parameters in code: ChatOptions and Usage",
+        "goal": "you'll set Temperature and Max Tokens from code and see in the response what was spent."
+      },
+      "3 · Prompt engineering": {
+        "title": "Prompt engineering: roles, system prompt, few-shot",
+        "goal": "you'll write a system prompt that sets boundaries for the assistant, and get an exact answer with few-shot."
+      },
+      "პრაქტიკა": {
+        "title": "Classwork: your assistant"
+      },
+      "შეჯამება": {
+        "title": "Summary"
+      },
+      "საშინაო": {
+        "title": "Homework"
+      }
+    }
+  }
+}
