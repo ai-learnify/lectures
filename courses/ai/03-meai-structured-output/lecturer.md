@@ -6,13 +6,13 @@
 
 ლექციას ორი ნაწილი აქვს, და ორივე ლექცია 2-ის ღია კითხვიდან იწყება.
 
-**ნაწილი 1 — `IChatClient` DI-ში (მოკლე).** ლექცია 2-ზე client Controller-ში `new`-ით შევქმენით. დღეს ის `Program.cs`-ში `AddChatClient`-ით რეგისტრირდება, key User Secrets-ში გადადის, მოდელის სახელი — `appsettings.json`-ში. **DI-ს არ ვხსნით** — API კურსიდან იციან. ეს 10 წუთი რეფაქტორინგია ნაცნობი ნიმუშით, და არა ახალი თემა.
+**ნაწილი 1 — `IChatClient` DI-ში (მოკლე).** ლექცია 2-ზე client Controller-ში `new`-ით შევქმენით. დღეს ის `Program.cs`-ში `AddChatClient`-ით რეგისტრირდება, key-ს კონფიგურაციიდან ვკითხულობთ — იგივე `GEMINI_API_KEY`, რომელიც ლექცია 2-დან აქვთ (სტუდენტისგან ახალი არაფერი), მოდელის სახელი — `appsettings.json`-ში. **DI-ს არ ვხსნით** — API კურსიდან იციან. ეს 10 წუთი რეფაქტორინგია ნაცნობი ნიმუშით, და არა ახალი თემა.
 
 **ნაწილი 2–3 — Structured output (ლექციის მთავარი ახალი ცნება).** `GetResponseAsync<T>`: მოდელი ტექსტის ნაცვლად C# ტიპს აბრუნებს. ჯერ enum (საშინაო 2-ის classify-ის პრობლემა: `Search.` ≠ `Search`), მერე `record` რამდენიმე ველით („ოთხნი ვართ, ხვალ 8-ზე“ → `BookingRequest`). ბოლოს მთავარი დასკვნა: **ფორმა გარანტირებულია, შინაარსი — არა**.
 
 ### 📌 სტუდენტს აუცილებლად უნდა დარჩეს
 
-1. `IChatClient` — DI-ში, `AddChatClient`-ით, ერთხელ (Singleton). Controller **იღებს** constructor-ით. key — User Secrets, მოდელი — `appsettings.json`.
+1. `IChatClient` — DI-ში, `AddChatClient`-ით, ერთხელ (Singleton). Controller **იღებს** constructor-ით. key — `GEMINI_API_KEY` კონფიგურაციიდან, მოდელი — `appsettings.json`.
 2. `GetResponseAsync<T>` → `ChatResponse<T>` → `.Result` უკვე C# ტიპია.
 3. few-shot ფორმას **სთხოვს**, structured output **აიძულებს** (სქემა მოთხოვნასთან მიდის).
 4. nullable ველები + „დატოვე null“ — რომ მოდელმა არ მოიგონოს. თარიღი — prompt-ში.
@@ -21,7 +21,7 @@
 ### ✅ მომზადება
 
 - **RestaurantApi-ში წინასწარ** გააკეთე ნაწილი 1 (DI) და გაუშვი `/ask` — ლექციაზე ერთად გადააკეთებთ, მაგრამ იცი, რომ მუშაობს
-- **User Secrets** შენთან უკვე იყოს: `dotnet user-secrets set "Gemini:ApiKey" "..."` — პროექტორზე key-ს **არ** აჩვენებ
+- `GEMINI_API_KEY` შენთან ისევ დაყენებულია (ლექცია 2-დან) — პროექტორზე key-ს **არ** აჩვენებ
 - **ნაწილი 3-ის კოდი** (`BookingRequest`, `ParseBooking`) ცალკე ფაილში მოამზადე — ჩასვამ და ახსნი, არ აკრეფ
 - **მოდელის სახელი** შეამოწმე [მოდელების სიაში](https://ai.google.dev/gemini-api/docs/models) — `gemini-3.8-flash` ჯერ კიდევ არის? თუ არა, `appsettings.json`-ში და სლაიდზე შეცვალე. სიიდან ერთი **მეორე** მოდელიც შეარჩიე „მოდელის შეცვლის“ საჩვენებლად
 - სლაიდ 17-ის **3 ტექსტი ერთხელ გაუშვი** — რომ იცოდე, რას აბრუნებს ახლა „8-ზე“ (08:00 თუ 20:00) და „საღამო“
@@ -42,7 +42,7 @@
 
 ტაიმერი ჩართე, როცა **რეალურად იწყებ**. გეგმის ზოლი 105 წუთს აჩვენებს: 65 ბირთვი, 10 შესვენება და 30 რეზერვი.
 
-- **სუსტი ჯგუფი:** რეზერვი თემებში იხარჯება — 🆘 მეორე ახსნებზე, User Secrets-ის პრობლემებზე, structured output-ის ნელ ახსნაზე. ეს ნორმალურია, ამისთვისაა.
+- **სუსტი ჯგუფი:** რეზერვი თემებში იხარჯება — 🆘 მეორე ახსნებზე, DI-ის გახსენებაზე, structured output-ის ნელ ახსნაზე. ეს ნორმალურია, ამისთვისაა.
 - **ძლიერი ჯგუფი:** ბირთვი დასრულდა და დრო დარჩა? ლექციის **ბოლოს** ჩაატარე აქტივობა სიიდან „⭐ თუ დრო დარჩა“. სლაიდები მათ არ სჭირდებათ: Swagger, დაფა, ზეპირი დისკუსია.
 
 **შენი სტილი:** 🎬 მსვლელობა და 🎙️ მონოლოგი **ორიენტირია**, არა ტექსტი, რომელიც უნდა გაიმეორო. სავალდებულოა მხოლოდ 📌 „რა უნდა დარჩეს“ — **როგორ** ახსნი, შენ წყვეტ.
@@ -58,7 +58,7 @@
 **🔴 უჭირთ** — შეანელე და გამოიყენე 🆘 ბლოკები:
 
 - DI-ზე: constructor-ი, `private readonly`, `Program.cs`-ში რეგისტრაცია — ავიწყდებათ (იხ. ნაწილი 2-ის 🆘 „თუ DI ჯგუფთან ჭედავს“)
-- User Secrets-ზე 5+ ადამიანი ჩერდება
+- `Program.cs`-ის რეგისტრაციაზე 5+ ადამიანი ჩერდება
 - `ChatResponse<Sentiment>` და `.Result` ერევათ — „სად არის პასუხი?“
 
 ### ⏱️ საკონტროლო წერტილები
@@ -68,7 +68,7 @@
 | დრო | სადაც უნდა იყო | თუ 10+ წუთით ჩამორჩი — რას შეამოკლებ |
 |---|---|---|
 | **0:08** | სლაიდი 6 · ნაწილი 1 | გამეორება — 3 კითხვა 5-იდან; საშინაო — 1 სტუდენტის ცხრილი |
-| **0:18** | სლაიდი 10 · ნაწილი 2 | User Secrets — ვისაც არ გამოუვიდა, დროებით `appsettings.Development.json`-ში (**არა** Git-ში) და სახლში გადაიტანოს |
+| **0:18** | სლაიდი 10 · ნაწილი 2 | Controller-ის slide (9) — „OpenAI რომ გვინდოდეს“ კითხვა ზეპირად, 30 წამში |
 | **0:30** | სლაიდი 14 · შესვენება | „რა ხდება შიგნით“ (13) — მხოლოდ ისრების სურათი, `data`-ს ახსნის გარეშე |
 | **0:40** | სლაიდი 15 · ნაწილი 3 | — |
 | **0:55** | სლაიდი 18 · დავალება | 3 ტექსტი (17) — მხოლოდ 1 და 2 |
@@ -115,7 +115,7 @@
 ### 🆘 თუ ვერ გაიგეს
 
 - **საშინაო ცოტას აქვს →** აჩვენე ამოხსნის სლაიდი და ცხრილი შენი მაგალითით. დღეს classify-ს enum-ით გადავაკეთებთ — ვინც არ დაწერა, სახლში ორივეს გააკეთებს.
-- **Gemini-ს key ვიღაცას აღარ მუშაობს →** key-იან მეზობელთან. დღეს key User Secrets-ში გადადის — ახლის აღება სახლშიც შეიძლება.
+- **Gemini-ს key ვიღაცას აღარ მუშაობს →** key-იან მეზობელთან. დღეს key-ს იმავე `GEMINI_API_KEY`-იდან ვკითხულობთ — ახლის აღება სახლშიც შეიძლება.
 
 ### 🎯 მთავარი სათქმელი
 
@@ -132,23 +132,22 @@
 ### 📋 ლექციაზე
 
 - „რა არის ცუდი ამ ორ ხაზში?“ (7) — ჯერ კლასი. 3 პრობლემა ნაბიჯებით. პასუხი: **„Controller არ ქმნის, Controller იღებს“**
-- **ერთად ვწერთ** (8): `Program.cs` — `AddChatClient`, `appsettings.json` — `Gemini:Model`, ტერმინალი — `user-secrets`
+- **ერთად ვწერთ** (8): `Program.cs` — `AddChatClient`, `appsettings.json` — `Gemini:Model`; key — იგივე `GEMINI_API_KEY`, `builder.Configuration`-იდან
 - Controller (9): constructor, `_chat` იგივე სახელი → `/ask` მუშაობს. 🙋 „OpenAI რომ გვინდოდეს?“ → მხოლოდ `Program.cs`
 - **DI-ს არ ხსნი** — მხოლოდ თუ ჭედავს (🆘 ქვემოთ)
-- ⏱ **0:18**-ზე სლაიდ 10-ზე. ჩამორჩი? ვისაც User Secrets ვერ გაუკეთდა — დროებით `appsettings.Development.json`, სახლში გადაიტანოს
+- ⏱ **0:18**-ზე სლაიდ 10-ზე. ჩამორჩი? „OpenAI რომ გვინდოდეს“ — ზეპირად, ერთი წინადადებით
 
 ### 🆘 თუ ვერ გაიგეს
 
 - **თუ DI ჯგუფთან ჭედავს →** ნუ ახსნი თეორიას თავიდან. დაფაზე ორი სვეტი: **„API კურსი“** — `builder.Services.AddDbContext<AppDbContext>(...)` / `public ProductsController(AppDbContext db)`; **„დღეს“** — `builder.Services.AddChatClient(...)` / `public AiLabController(IChatClient chat)`. თქვი: „ერთი და იგივე ორი ხაზია, მხოლოდ ტიპი შეიცვალა“. ვისაც კიდევ უჭირს — API კურსის DI ლექციის კონსპექტი სახლში.
 - **„constructor-ი რატომ?“ →** „ASP.NET Core Controller-ს თვითონ ქმნის. ქმნისას ხედავს, რომ constructor-ს `IChatClient` სჭირდება, DI-ში ეძებს და გადასცემს. ჩვენ `new`-ს არასდროს ვწერთ“.
-- **`dotnet user-secrets` ვერ პოულობს პროექტს →** ტერმინალი **პროექტის** საქაღალდეში უნდა იყოს (სადაც `.csproj` არის), არა solution-ის.
-- **`Gemini:ApiKey აკლია` გაშვებისას →** User Secrets-ში სხვა სახელით ჩაწერა (`GEMINI_API_KEY`, `Gemini_ApiKey`, `Gemini::ApiKey`). სწორი: `Gemini:ApiKey`. VS-ში: მარჯვენა ღილაკი → Manage User Secrets → `secrets.json`-ში ნახე.
+- **`GEMINI_API_KEY აკლია` გაშვებისას →** იგივე მიზეზი, რაც ლექცია 2-ის 401-ზე: Visual Studio `setx`-მდე იყო გახსნილი, ან სხვა კომპიუტერზე ზის. გადატვირთვა / `setx`.
 - **`AddChatClient` ვერ პოულობს →** `using Microsoft.Extensions.AI;` აკლია `Program.cs`-ში.
 - **Controller-ში `_chat` წითელია →** ველი წაშალეს constructor-თან ერთად; ან constructor-ის სახელი Controller-ის სახელს არ ემთხვევა.
 
 ### 🎯 მთავარი სათქმელი
 
-`IChatClient` ჩვეულებრივი დამოკიდებულებაა — ისევე, როგორც `DbContext`. ერთხელ ვარეგისტრირებთ, Controller-ი იღებს. საიდუმლო (key) — User Secrets-ში, პარამეტრი (მოდელი) — `appsettings.json`-ში. შედეგი: Controller-მა არ იცის, Gemini-ა თუ OpenAI.
+`IChatClient` ჩვეულებრივი დამოკიდებულებაა — ისევე, როგორც `DbContext`. ერთხელ ვარეგისტრირებთ, Controller-ი იღებს. საიდუმლო (key) — კოდის გარეთ (`GEMINI_API_KEY`, როგორც ლექცია 2-ზე), პარამეტრი (მოდელი) — `appsettings.json`-ში. შედეგი: Controller-მა არ იცის, Gemini-ა თუ OpenAI.
 
 ### 📖 ისწავლე: AddChatClient, Singleton და კონფიგურაცია
 
@@ -182,22 +181,17 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 4. **გარემოს ცვლადები**
 5. command-line არგუმენტები
 
-`"Gemini:ApiKey"` — `:` ჩადგმულ სექციას ნიშნავს (`{"Gemini": {"ApiKey": …}}`). გარემოს ცვლადში `:` ზოგ OS-ზე დაუშვებელია, ამიტომ იწერება `Gemini__ApiKey` (ორი `_`).
+`builder.Configuration["GEMINI_API_KEY"]` ამიტომ პოულობს ლექცია 2-ის გარემოს ცვლადს — სტუდენტს არაფერი ახალი არ უწევს. `"Gemini:Model"` — `:` ჩადგმულ სექციას ნიშნავს (`{"Gemini": {"Model": …}}`); გარემოს ცვლადში იგივე `Gemini__Model` იქნებოდა (ორი `_`).
 
-**მნიშვნელოვანი:** ლექცია 2-ის `GEMINI_API_KEY` გარემოს ცვლადი კონფიგურაციაშიც ჩანს — მაგრამ **სხვა გასაღებით** (`GEMINI_API_KEY`, არა `Gemini:ApiKey`). ამიტომ ის ჩვენს კოდს არ ეხმარება. თუ სტუდენტი ამბობს „key ხომ მაქვს“ — ეს მიზეზია.
+**რატომ key-ს სახელი `GEMINI_API_KEY` და არა `Gemini:ApiKey`?** ორივე სწორი .NET-ის კონფიგურაციის გასაღებია. ვიყენებთ იმას, რაც სტუდენტებს **უკვე** აქვთ (ლექცია 2) — ასე დღეს setup ნულია. ის ასევე Google-ის SDK-ის სტანდარტული სახელია.
 
-#### User Secrets — სად ინახება
+#### User Secrets — ალტერნატივა (სურვილისამებრ)
 
-`dotnet user-secrets init` `.csproj`-ში ამატებს `<UserSecretsId>…</UserSecretsId>`-ს. მნიშვნელობები ინახება:
-
-- Windows: `%APPDATA%\Microsoft\UserSecrets\<UserSecretsId>\secrets.json`
-- macOS/Linux: `~/.microsoft/usersecrets/<UserSecretsId>/secrets.json`
-
-ეს **არ** არის დაშიფრული — უბრალოდ პროექტის გარეთაა, ამიტომ Git-ში ვერ ხვდება. Production-ისთვის არ არის — იქ გარემოს ცვლადი ან secret manager (Azure Key Vault, DigitalOcean env და ა.შ.). User Secrets მხოლოდ `Development` გარემოში იტვირთება (`ASPNETCORE_ENVIRONMENT=Development` — Visual Studio-ში ნაგულისხმევია).
+თუ ვინმეს გარემოს ცვლადი არ უნდა: `dotnet user-secrets init` (`.csproj`-ში ემატება `<UserSecretsId>`), მერე `dotnet user-secrets set "GEMINI_API_KEY" "..."`. ინახება `%APPDATA%\Microsoft\UserSecrets\<id>\secrets.json` (macOS/Linux: `~/.microsoft/usersecrets/<id>/`). არ არის დაშიფრული — უბრალოდ პროექტის გარეთაა. იტვირთება მხოლოდ `Development` გარემოში. კოდი იგივეა. ლექციაზე **არ** აკეთებთ — მხოლოდ თუ ჰკითხავენ.
 
 #### რატომ `?? throw` გაშვებისას
 
-ალტერნატივა — `builder.Configuration["Gemini:ApiKey"]!` — key-ს გარეშეც ჩაირთვება, და პირველ მოთხოვნაზე Gemini `401`-ს ან `400 API key not valid`-ს დააბრუნებს. ეს უფრო გაუგებარია. **Fail fast:** კონფიგურაციის შეცდომა გაშვებისას ჩანს, გასაგები ტექსტით.
+ალტერნატივა — `builder.Configuration["GEMINI_API_KEY"]!` — key-ს გარეშეც ჩაირთვება, და პირველ მოთხოვნაზე Gemini `401`-ს ან `400 API key not valid`-ს დააბრუნებს. ეს უფრო გაუგებარია. **Fail fast:** კონფიგურაციის შეცდომა გაშვებისას ჩანს, გასაგები ტექსტით.
 
 #### `Client` vs `new Client()` (ლექცია 2)
 
@@ -215,7 +209,7 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 
 - [Microsoft.Extensions.AI — overview](https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai) — DI-ში რეგისტრაცია, `ChatClientBuilder`
 - [AddChatClient — API reference](https://learn.microsoft.com/dotnet/api/microsoft.extensions.dependencyinjection.chatclientbuilderservicecollectionextensions.addchatclient) — overload-ები და lifetime
-- [Safe storage of app secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) — User Secrets, სად ინახება
+- [Safe storage of app secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) — User Secrets (ალტერნატივა გარემოს ცვლადს)
 - [Configuration in ASP.NET Core](https://learn.microsoft.com/aspnet/core/fundamentals/configuration/) — წყაროების რიგი, `__` გარემოს ცვლადებში
 
 ### 🎬 მსვლელობა
@@ -232,8 +226,8 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 
 #### 8 · Program.cs · 4.5 წთ
 
-- **რას აკეთებ:** **ერთად წერთ.** ჯერ `appsettings.json` (მოდელი), მერე ტერმინალი (`user-secrets init`, `set`) — key-ს **შენ** ეკრანზე არ წერ, `AIza…` placeholder-ით აჩვენე. მერე `Program.cs` — `AddChatClient`.
-- **რას ეუბნები:** „მოდელის სახელი საიდუმლო არ არის — Git-ში მიდის. key საიდუმლოა — User Secrets-ში, Git-ის გარეთ. კოდი ორივეს ერთნაირად კითხულობს — `Configuration`-იდან.“ Singleton-ზე ერთი წინადადება: „ერთი client მთელ აპლიკაციაზე — როგორც `HttpClient`“.
+- **რას აკეთებ:** **ერთად წერთ.** ჯერ `appsettings.json` (მოდელი), მერე `Program.cs` — key `builder.Configuration["GEMINI_API_KEY"]`-ით, მოდელი `Gemini:Model`-ით, `AddChatClient`.
+- **რას ეუბნები:** „მოდელის სახელი საიდუმლო არ არის — Git-ში მიდის. key საიდუმლოა — ისევ გარემოს ცვლადშია, სადაც ლექცია 2-ზე ჩაწერეთ. `Configuration` ორივეს ერთნაირად კითხულობს.“ Singleton-ზე ერთი წინადადება: „ერთი client მთელ აპლიკაციაზე — როგორც `HttpClient`“.
 - **გადასვლა:** „ახლა Controller-ი.“
 
 #### 9 · Controller · 2.5 წთ
@@ -254,12 +248,12 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 ### ⚠️ ტიპური არასწორი წარმოდგენები
 
 - **„key `appsettings.json`-ში — ხომ კონფიგურაციაა“** → `appsettings.json` Git-ში მიდის. კონფიგურაცია ≠ საიდუმლო.
-- **„User Secrets დაშიფრულია“** → არა, უბრალოდ პროექტის გარეთაა. სერვერზე — გარემოს ცვლადი.
+- **„`Configuration` მხოლოდ `appsettings.json`-ს კითხულობს“** → გარემოს ცვლადებსაც (და User Secrets-ს). ამიტომ `GEMINI_API_KEY` უცვლელად მუშაობს.
 - **„Singleton = ყველა მომხმარებელს ერთი საუბარი აქვს“** → client stateless-ია; ისტორიას ჩვენ ვაგზავნით ყოველ მოთხოვნაზე. Singleton მხოლოდ კავშირს აზიარებს.
 
 ### 💡 მაგალითები
 
-- **ანალოგია:** `AddDbContext` ↔ `AddChatClient`; `ConnectionStrings:Default` ↔ `Gemini:Model`; DB-ის პაროლი User Secrets-ში ↔ Gemini-ს key User Secrets-ში.
+- **ანალოგია:** `AddDbContext` ↔ `AddChatClient`; `ConnectionStrings:Default` ↔ `Gemini:Model`; DB-ის პაროლი კოდის გარეთ ↔ Gemini-ს key კოდის გარეთ (გარემოს ცვლადი).
 - **რეალური სცენარი:** იაფი მოდელი დეველოპმენტში, ძლიერი production-ში — `appsettings.Development.json` vs `appsettings.Production.json`, კოდი ერთი.
 
 ### ❓ მოსალოდნელი კითხვები
@@ -268,9 +262,9 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 ? „`AddChatClient` რას აბრუნებს?“
 = `ChatClientBuilder`-ს. მასზე ლექცია 5-ზე „ფენებს“ დავამატებთ: logging, cache, telemetry. დღეს არაფერს ვამატებთ — client პირდაპირ რეგისტრირდება.
 ? „სერვერზე key საიდან მოვა?“
-= გარემოს ცვლადიდან `Gemini__ApiKey`. კოდი არ იცვლება — `Configuration` გარემოს ცვლადებსაც კითხულობს. DevOps-ში deploy-ზე ვნახავთ.
-? „`GEMINI_API_KEY` ცვლადი ახლა აღარ გვჭირდება?“
-= ჩვენი კოდისთვის — არა, ის `Gemini:ApiKey`-ს ეძებს. ცვლადი შეგიძლია დატოვო ან წაშალო — ხელს არ შეუშლის.
+= იქაც გარემოს ცვლადიდან — `GEMINI_API_KEY`. კოდი არ იცვლება — `Configuration` გარემოს ცვლადებსაც კითხულობს. DevOps-ში deploy-ზე ვნახავთ.
+? „key `appsettings.json`-ში რომ ჩავწეროთ, ასე უფრო მარტივი არ არის?“
+= `appsettings.json` Git-ში მიდის — GitHub-ზე გაჟონილ key-ს ბოტები წუთებში პოულობენ. საიდუმლო — მხოლოდ გარემოს ცვლადში ან User Secrets-ში.
 ? „Program.cs-ში ორი სხვადასხვა მოდელი შეიძლება?“
 = კი — keyed client-ებით (`AddKeyedChatClient("cheap", …)`). ხარჯის ლექციაზე (8) დავუბრუნდებით.
 ```
@@ -573,7 +567,7 @@ structured output ტექსტიდან **მთელ ობიექტ�
 
 ### 🗣️ მერე ისინი: ინსტრუქცია კლასისთვის
 
-1. თუ ჯერ არ გაქვთ — DI (`AddChatClient`, User Secrets, constructor).
+1. თუ ჯერ არ გაქვთ — DI (`AddChatClient`, key `GEMINI_API_KEY`-იდან, constructor).
 2. `record` 3+ ველით: ერთი enum, არასავალდებულო — `?`.
 3. `POST /api/ai-lab/extract`: System — რა ამოიღოს, „დატოვე null“, თარიღი (თუ საჭიროა) → `GetResponseAsync<T>` → `Ok(response.Result)`.
 4. Swagger: სრული, ნაწილობრივი, სხვა თემა.
@@ -683,7 +677,7 @@ public class FakeChatClient(string json) : IChatClient
 
 | კრიტერიუმი | წონა |
 |---|---|
-| DI: `new Client()` არსად; key User Secrets-ში, მოდელი `appsettings.json`-ში | 20% |
+| DI: `new Client()` არსად; key კონფიგურაციიდან (`GEMINI_API_KEY`), მოდელი `appsettings.json`-ში | 20% |
 | `classify` enum-ით: `GetResponseAsync<T>`, 5 ტექსტზე enum-ის მნიშვნელობა | 25% |
 | ტექსტიდან ჩანაწერი: ნამდვილ Controller-ში, nullable ველები, C# შემოწმება (`400` კითხვით), ბაზაში ჩაწერა არსებული ლოგიკით | 35% |
 | შედარების ცხრილი README-ში (few-shot vs enum, `inputTokens`) და ტესტის ქულა | 20% |

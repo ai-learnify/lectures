@@ -4,7 +4,7 @@
 
 ## მოთხოვნები
 
-- **DI:** პროექტში `new Client()` არსად — `IChatClient` მხოლოდ `AddChatClient`-ით; key — User Secrets-ში, მოდელი — `appsettings.json`-ში
+- **DI:** პროექტში `new Client()` არსად — `IChatClient` მხოლოდ `AddChatClient`-ით; key — `GEMINI_API_KEY` კონფიგურაციიდან (კოდში და Git-ში — არასდროს), მოდელი — `appsettings.json`-ში
 - **classify enum-ით:** საშინაო 2-ის `POST /api/ai-lab/classify` გადაწერე `GetResponseAsync<შენი enum>`-ით (few-shot მაგალითების გარეშე)
 - **შედარება README-ში:** იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · `inputTokens` ორივეზე
 - **ტექსტიდან ჩანაწერი:** ერთი endpoint შენი პროექტის **ნამდვილ** Controller-ში (არა ai-lab): ტექსტი → `record` → C# შემოწმება (სავალდებულო ველი `null` → `400` კითხვით) → შენი არსებული ლოგიკით **ბაზაში** ჩაწერა

@@ -6,8 +6,8 @@
 "<p class=\"small\">In lecture 2 we created <code class=\"i\">IChatClient</code> in the Controller with <code class=\"i\">new</code>, and the answer was free text — “almost” exact even with few-shot. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.</p>"
 ],
 [
-"<li><code class=\"i\">IChatClient</code>-ის რეგისტრაცია DI-ში <code class=\"i\">AddChatClient</code>-ით: key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
-"<li>Register <code class=\"i\">IChatClient</code> in DI with <code class=\"i\">AddChatClient</code>: the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
+"<li><code class=\"i\">IChatClient</code>-ის რეგისტრაცია DI-ში <code class=\"i\">AddChatClient</code>-ით: key — კონფიგურაციიდან (<code class=\"i\">GEMINI_API_KEY</code>), მოდელი — <code class=\"i\">appsettings.json</code>-იდან</li>",
+"<li>Register <code class=\"i\">IChatClient</code> in DI with <code class=\"i\">AddChatClient</code>: the key from configuration (<code class=\"i\">GEMINI_API_KEY</code>), the model from <code class=\"i\">appsettings.json</code></li>"
 ],
 [
 "<li><code class=\"i\">GetResponseAsync&lt;T&gt;</code>-ით enum-ის მიღება და ახსნა, რატომ არის ეს few-shot-ზე საიმედო</li>",
@@ -22,8 +22,8 @@
 "<li>Explain why the shape is guaranteed but the content is not, and check the received object in C#</li>"
 ],
 [
-"<li><strong>1 · DI</strong> — თუ ჯერ არ გაგიკეთებია: <code class=\"i\">AddChatClient</code> <code class=\"i\">Program.cs</code>-ში, key — User Secrets-ში, <code class=\"i\">AiLabController</code> — constructor-ით</li>",
-"<li><strong>1 · DI</strong> — if you haven't done it yet: <code class=\"i\">AddChatClient</code> in <code class=\"i\">Program.cs</code>, the key in User Secrets, <code class=\"i\">AiLabController</code> — through the constructor</li>"
+"<li><strong>1 · DI</strong> — თუ ჯერ არ გაგიკეთებია: <code class=\"i\">AddChatClient</code> <code class=\"i\">Program.cs</code>-ში (key — <code class=\"i\">GEMINI_API_KEY</code> კონფიგურაციიდან, მოდელი — <code class=\"i\">appsettings.json</code>-იდან), <code class=\"i\">AiLabController</code> — constructor-ით</li>",
+"<li><strong>1 · DI</strong> — if you haven't done it yet: <code class=\"i\">AddChatClient</code> in <code class=\"i\">Program.cs</code> (the key — <code class=\"i\">GEMINI_API_KEY</code> from configuration, the model — from <code class=\"i\">appsettings.json</code>), <code class=\"i\">AiLabController</code> — through the constructor</li>"
 ],
 [
 "<li><strong>2 · შენი ტიპი</strong> — <code class=\"i\">record</code> <strong>მინიმუმ 3 ველით</strong> შენი პროექტის ტექსტისთვის; ერთი ველი — <strong>enum</strong>, არასავალდებულო ველები — <strong>nullable</strong> (<code class=\"i\">?</code>)</li>",
@@ -54,12 +54,12 @@
 "<span class=\"a step\">A new client on every request · the model name is in the code · we can't plug a fake client into a test → <code class=\"i\">AddChatClient</code> in <code class=\"i\">Program.cs</code> (Singleton) + constructor injection in the Controller</span>"
 ],
 [
-"<span class=\"q\">სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?</span>",
-"<span class=\"q\">Where do we keep the Gemini key and where the model name? Why in different places?</span>"
+"<span class=\"q\">საიდან კითხულობს <code class=\"i\">Program.cs</code> Gemini-ს key-ს და მოდელის სახელს? რატომ არ წერია key <code class=\"i\">appsettings.json</code>-ში?</span>",
+"<span class=\"q\">Where does <code class=\"i\">Program.cs</code> read the Gemini key and the model name from? Why isn't the key in <code class=\"i\">appsettings.json</code>?</span>"
 ],
 [
-"<span class=\"a step\">key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — <code class=\"i\">appsettings.json</code>-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)</span>",
-"<span class=\"a step\">The key — in User Secrets (it's a secret, it must not get into Git; on a server — an environment variable) · the model — in <code class=\"i\">appsettings.json</code> (not a secret; change it without changing code)</span>"
+"<span class=\"a step\">ორივეს <code class=\"i\">builder.Configuration</code>-იდან · key — <code class=\"i\">GEMINI_API_KEY</code> გარემოს ცვლადიდან (Configuration მას თვითონ კითხულობს), რადგან საიდუმლოა და Git-ში არ უნდა მოხვდეს · მოდელი — <code class=\"i\">appsettings.json</code>-იდან: საიდუმლო არ არის, შეცვლა კოდის გარეშე</span>",
+"<span class=\"a step\">Both from <code class=\"i\">builder.Configuration</code> · the key — from the <code class=\"i\">GEMINI_API_KEY</code> environment variable (Configuration reads it itself), because it's a secret and must not get into Git · the model — from <code class=\"i\">appsettings.json</code>: not a secret, change it without changing code</span>"
 ],
 [
 "<span class=\"q\">რით განსხვავდება few-shot structured output-ისგან?</span>",
@@ -86,8 +86,8 @@
 "<span class=\"a step\">No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database</span>"
 ],
 [
-"<li><strong>DI:</strong> პროექტში <code class=\"i\">new Client()</code> არსად — <code class=\"i\">IChatClient</code> მხოლოდ <code class=\"i\">AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
-"<li><strong>DI:</strong> no <code class=\"i\">new Client()</code> anywhere in the project — <code class=\"i\">IChatClient</code> only through <code class=\"i\">AddChatClient</code>; the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
+"<li><strong>DI:</strong> პროექტში <code class=\"i\">new Client()</code> არსად — <code class=\"i\">IChatClient</code> მხოლოდ <code class=\"i\">AddChatClient</code>-ით; key — <code class=\"i\">GEMINI_API_KEY</code> კონფიგურაციიდან (კოდში და Git-ში — არასდროს), მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
+"<li><strong>DI:</strong> no <code class=\"i\">new Client()</code> anywhere in the project — <code class=\"i\">IChatClient</code> only through <code class=\"i\">AddChatClient</code>; the key — <code class=\"i\">GEMINI_API_KEY</code> from configuration (never in code or Git), the model in <code class=\"i\">appsettings.json</code></li>"
 ],
 [
 "<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code class=\"i\">POST /api/ai-lab/classify</code> გადაწერე <code class=\"i\">GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>",
@@ -206,10 +206,8 @@
 "Controller არ ქმნის, Controller იღებს": "the Controller doesn't create, the Controller receives",
 "🧑‍💻 ვწერთ ერთად · Program.cs": "🧑‍💻 Writing together · Program.cs",
 "ერთი რეგისტრაცია:": "One registration:",
-"\"Gemini:ApiKey აკლია\"": "\"Gemini:ApiKey is missing\"",
 "\"Gemini:Model აკლია\"": "\"Gemini:Model is missing\"",
 "// ... დანარჩენი — როგორც იყო": "// ... the rest — as it was",
-"Terminal · პროექტის საქაღალდეში": "Terminal · in the project folder",
 ": ერთი client მთელ აპლიკაციაზე": ": one client for the whole application",
 "იღებს": "receives",
 ", არ ქმნის": ", doesn't create",
@@ -411,5 +409,12 @@
 "AI · ლექცია 3 · Microsoft.Extensions.AI": "AI · Lecture 3 · Microsoft.Extensions.AI",
 "IChatClient DI-ში": "IChatClient in DI",
 "მოგონების ნაცვლად —": "Instead of making things up —",
-"და": "and"
+"და": "and",
+"\"GEMINI_API_KEY აკლია\"": "\"GEMINI_API_KEY is missing\"",
+"— იგივე": "— the same",
+"ლექცია 2-დან. Configuration გარემოს ცვლადებსაც კითხულობს —": "from lecture 2. Configuration reads environment variables too —",
+"ახალი არაფერი": "nothing new",
+"new-ის ნაცვლად — რეგისტრაცია Program.cs-ში, მოდელი appsettings-ში. API კურსიდან ნაცნობი ნიმუში": "Instead of new — registration in Program.cs, the model in appsettings. A familiar pattern from the API course",
+"AddChatClient · appsettings · constructor injection": "AddChatClient · appsettings · constructor injection",
+"(Configuration),": "(Configuration),"
 }

@@ -2,7 +2,7 @@
   "title": "Microsoft.Extensions.AI: DI and Structured Output",
   "why": "In lecture 2 we created `IChatClient` in the Controller with `new`, and the answer was free text — “almost” exact even with few-shot. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.",
   "outcomes": [
-    "Register `IChatClient` in DI with `AddChatClient`: the key in User Secrets, the model in `appsettings.json`",
+    "Register `IChatClient` in DI with `AddChatClient`: the key from configuration (`GEMINI_API_KEY`), the model from `appsettings.json`",
     "Get an enum with `GetResponseAsync<T>` and explain why it's more reliable than few-shot",
     "Extract an object from text with a `record`: nullable fields, `Description`, today's date in the prompt",
     "Explain why the shape is guaranteed but the content is not, and check the received object in C#"
@@ -13,8 +13,8 @@
       "a": "A new client on every request · the model name is in the code · we can't plug a fake client into a test → `AddChatClient` in `Program.cs` (Singleton) + constructor injection in the Controller"
     },
     {
-      "q": "Where do we keep the Gemini key and where the model name? Why in different places?",
-      "a": "The key — in User Secrets (it's a secret, it must not get into Git; on a server — an environment variable) · the model — in `appsettings.json` (not a secret; change it without changing code)"
+      "q": "Where does `Program.cs` read the Gemini key and the model name from? Why isn't the key in `appsettings.json`?",
+      "a": "Both from `builder.Configuration` · the key — from the `GEMINI_API_KEY` environment variable (Configuration reads it itself), because it's a secret and must not get into Git · the model — from `appsettings.json`: not a secret, change it without changing code"
     },
     {
       "q": "How does few-shot differ from structured output?",
@@ -46,9 +46,9 @@
       "note": "How JSON Schema works on Gemini, tips"
     },
     {
-      "title": "ASP.NET Core — User Secrets",
-      "url": "https://learn.microsoft.com/aspnet/core/security/app-secrets",
-      "note": "Storing secrets safely during development"
+      "title": "ASP.NET Core — Configuration",
+      "url": "https://learn.microsoft.com/aspnet/core/fundamentals/configuration/",
+      "note": "appsettings, environment variables, User Secrets — in one Configuration"
     },
     {
       "title": "Google Gen AI .NET SDK",
@@ -82,15 +82,15 @@
       "slide": 8
     },
     {
-      "q": "Where do we keep the Gemini API key during development?",
+      "q": "`builder.Configuration[\"GEMINI_API_KEY\"]` — where does the value come from if it isn't in `appsettings.json`?",
       "options": [
-        "In `appsettings.json` — `Gemini:ApiKey`",
-        "In User Secrets — `dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`",
-        "As a const in the Controller",
-        "In `launchSettings.json`"
+        "Nowhere — it will be `null`",
+        "From the `GEMINI_API_KEY` environment variable — Configuration reads it too",
+        "From Google's server",
+        "Automatically from `launchSettings.json`"
       ],
-      "explain": "User Secrets are stored outside the project and don't get into Git. `appsettings.json` and `launchSettings.json` go to Git.",
       "answer": 1,
+      "explain": "ASP.NET Core Configuration combines several sources: `appsettings.json`, User Secrets, environment variables. That's why lecture 2's `setx GEMINI_API_KEY` works unchanged.",
       "slide": 8
     },
     {
@@ -193,7 +193,7 @@
   "study": {
     "summary": [
       "**`AddChatClient`** — `IChatClient` is created once in `Program.cs` and registered in DI as a Singleton. The Controller receives it **through the constructor** — like `DbContext` in the API course.",
-      "**The key** — in User Secrets (`dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`), **the model** — in `appsettings.json`. Another model = configuration only, another provider = `Program.cs` only.",
+      "**The key** — the same `GEMINI_API_KEY` (Configuration reads it from the environment variable), **the model** — in `appsettings.json`. Another model = configuration only, another provider = `Program.cs` only.",
       "**`GetResponseAsync<T>`** — a JSON Schema is created from the C# type, sent with the request, and the model can't write outside it. `response.Result` is already a `T`.",
       "**enum** — one value from a list (classification); **record** — several fields from text (extraction). Nullable fields and “leave null” — so it doesn't make things up; today's date — in the prompt.",
       "**The shape is guaranteed, the content is not.** C# checks the received object before the database."
@@ -205,7 +205,7 @@
     "chapters": {
       "1 · IChatClient DI-ში": {
         "title": "IChatClient in DI: AddChatClient and configuration",
-        "goal": "You'll register `IChatClient` in `Program.cs`, keep the key in User Secrets and the model in `appsettings.json`, and the Controller will receive it through its constructor."
+        "goal": "You'll register `IChatClient` in `Program.cs`: the key from configuration (`GEMINI_API_KEY`), the model from `appsettings.json`, and the Controller will receive it through its constructor."
       },
       "2 · Structured output": {
         "title": "Structured output: a C# type instead of text",

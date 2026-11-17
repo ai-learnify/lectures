@@ -4,7 +4,7 @@
 
 ## ნაბიჯები
 
-- **1 · DI** — თუ ჯერ არ გაგიკეთებია: `AddChatClient` `Program.cs`-ში, key — User Secrets-ში, `AiLabController` — constructor-ით
+- **1 · DI** — თუ ჯერ არ გაგიკეთებია: `AddChatClient` `Program.cs`-ში (key — `GEMINI_API_KEY` კონფიგურაციიდან, მოდელი — `appsettings.json`-იდან), `AiLabController` — constructor-ით
 - **2 · შენი ტიპი** — `record` **მინიმუმ 3 ველით** შენი პროექტის ტექსტისთვის; ერთი ველი — **enum**, არასავალდებულო ველები — **nullable** (`?`)
 - **3 · endpoint** `POST /api/ai-lab/extract` — System: **რა** ამოიღოს და „რაც არ წერია, დატოვე null“ → `GetResponseAsync<შენი ტიპი>` → `Ok(response.Result)`
 - **4 · Swagger-ში 3 ტექსტი:** სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე
