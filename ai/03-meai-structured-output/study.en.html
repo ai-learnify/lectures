@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Microsoft.Extensions.AI: DI and Structured Output — study notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ Correct.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← Lectures</a>
+  <div class="ttl"><small>📖 AI Agents in .NET · 3</small>Microsoft.Extensions.AI: DI and Structured Output</div>
+  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
+  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
+  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.en.html">▶ Presentation</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>Contents</summary>
+    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">1′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">IChatClient in DI: AddChatClient and configuration</span><span class="nm">4′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Structured output: a C# type instead of text</span><span class="nm">3′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Text → object: a record with several fields</span><span class="nm">3′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: an object from text in your project</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">5</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 3</div>
+      <h1>Microsoft.Extensions.AI: DI and Structured Output</h1>
+      <p>The whole lecture in chapters, ~18 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li><strong><code>AddChatClient</code></strong> — <code>IChatClient</code> is created once in <code>Program.cs</code> and registered in DI as a Singleton. The Controller receives it <strong>through the constructor</strong> — like <code>DbContext</code> in the API course.</li><li><strong>The key</strong> — the same <code>GEMINI_API_KEY</code> (Configuration reads it from the environment variable), <strong>the model</strong> — in <code>appsettings.json</code>. Another model = configuration only, another provider = <code>Program.cs</code> only.</li><li><strong><code>GetResponseAsync&lt;T&gt;</code></strong> — a JSON Schema is created from the C# type, sent with the request, and the model can't write outside it. <code>response.Result</code> is already a <code>T</code>.</li><li><strong>enum</strong> — one value from a list (classification); <strong>record</strong> — several fields from text (extraction). Nullable fields and “leave null” — so it doesn't make things up; today's date — in the prompt.</li><li><strong>The shape is guaranteed, the content is not.</strong> C# checks the received object before the database.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~18 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 11 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — overview</a> — IChatClient, DI registration, ChatClientBuilder</li><li><a href="https://learn.microsoft.com/dotnet/ai/quickstarts/structured-output" target="_blank" rel="noopener">Structured output — .NET quickstart</a> — GetResponseAsync<T> with an enum and a record</li><li><a href="https://ai.google.dev/gemini-api/docs/structured-output" target="_blank" rel="noopener">Gemini — Structured output</a> — How JSON Schema works on Gemini, tips</li><li><a href="https://learn.microsoft.com/aspnet/core/fundamentals/configuration/" target="_blank" rel="noopener">ASP.NET Core — Configuration</a> — appsettings, environment variables, User Secrets — in one Configuration</li><li><a href="https://googleapis.github.io/dotnet-genai/" target="_blank" rel="noopener">Google Gen AI .NET SDK</a> — Client(apiKey) and AsIChatClient</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
+<p>Lecture 2 — <strong>The first call and Prompt Engineering</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../02-prompt-engineering/study.en.html">the previous lecture's notes</a>.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What is <code>IChatClient</code>, and what do we change to switch from Gemini to another provider?</summary><div class="ans">one interface for every chat model (Microsoft.Extensions.AI) · only the line that creates the client changes; <code>GetResponseAsync</code>, the DTOs and the endpoints stay the same</div></details><details><summary>With <code>maxOutputTokens: 15</code> the answer is empty and <code>finishReason</code> = <code>length</code>. Why?</summary><div class="ans">Gemini “thinks” before answering · the thinking tokens (<code>ReasoningTokens</code>) count toward the same limit and nothing is left for the answer · set the limit with room to spare</div></details><details><summary>How is a System message different from a User message?</summary><div class="ans"><strong>we</strong> write the System message in code: role, topics, rules, answer format · the User message is written by the user · Assistant — the model's answer</div></details><details><summary>What is few-shot and when do we need it?</summary><div class="ans">a few “question → correct answer” examples in the prompt · when we want the answer in an exact format or exact categories so the code can use it</div></details><details><summary>The system prompt says: “You never name a price”. Is that a guarantee?</summary><div class="ans">no · a prompt changes the probability of a behaviour but gives no guarantee · what must hold is checked by C# code (lecture 19)</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
+<p>The previous lecture's homework: <strong>A few-shot classifier in your project</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>An endpoint</strong> <code>POST /api/ai-lab/classify</code> — the user's text → <strong>one</strong> category for your project (at least 3 categories, e.g. <code>Search</code> / <code>Order</code> / <code>Question</code>)</li>
+<li><strong>Few-shot:</strong> System + at least <strong>3 examples</strong> as User/Assistant pairs</li>
+<li><strong>A comparison in the README:</strong> 5 texts — zero-shot (without examples) vs few-shot. Table: text · zero-shot answer · few-shot answer · <code>inputTokens</code> for both</li>
+<li><strong>Language:</strong> the same text in Georgian and in English — <code>inputTokens</code> in the table</li>
+<li>The <strong>quiz</strong> at the end of the study notes (11 questions) — write down your score</li>
+</ul>
+<h3>Solution</h3>
+<p>Example — a library API (from the lecture 1 homework: “request type”).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Classify</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("classify")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Classify</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the library request. Answer with one word only: Search, Reserve or Question."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "Do you have anything by Haruki Murakami?"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Search"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "Please hold “Jaqo's Dispossessed” for me until tomorrow"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Reserve"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "Until what time are you open on Saturday?"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Question"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Text</th>
+<th>zero-shot</th>
+<th>few-shot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“Where are your detective novels?”</td>
+<td>“This is a search request, because…”</td>
+<td><code>Search</code></td>
+</tr>
+<tr>
+<td>“Keep this book for me until Monday”</td>
+<td>“reservation”</td>
+<td><code>Reserve</code></td>
+</tr>
+<tr>
+<td>“How much does it cost to restore a card?”</td>
+<td>“Question / information”</td>
+<td><code>Question</code></td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>A zero-shot answer is often right in <strong>content</strong> but not in <strong>form</strong>: “reservation” or a whole sentence won't pass <code>if (label == "Reserve")</code>. Few-shot fixes the form. Still, in the Controller we should check the answer against the list — the model writes what's likely. In lecture 3, with structured output, a C# type (an enum) will guard this.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~4 min read</div><h2>IChatClient in DI: AddChatClient and configuration</h2><p class="goal">🎯 <b>After this</b> You'll register <code>IChatClient</code> in <code>Program.cs</code>: the key from configuration (<code>GEMINI_API_KEY</code>), the model from <code>appsettings.json</code>, and the Controller will receive it through its constructor.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · IChatClient in DI</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
+<p>Nothing new in this part — in the API course you registered <code>DbContext</code> and your services exactly like this. We apply the same pattern to <code>IChatClient</code>: we create it once in <code>Program.cs</code>, and the Controller receives it through its constructor.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>What&#x27;s wrong with the lecture 2 code</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
+<p>In lecture 2 we created <code>IChatClient</code> right inside the Controller, so that our attention stayed on the model:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · lecture 2</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>It works, but it has three problems:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Problem</th>
+<th>Why it's bad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>♻️</td>
+<td><strong>A new client on every request</strong></td>
+<td>ASP.NET Core creates a Controller anew for every request. The <code>_chat</code> field is created with it — a new client and a new HTTP connection every time. On a server that's a waste of resources</td>
+</tr>
+<tr>
+<td>📌</td>
+<td><strong>The model name is in the code</strong></td>
+<td>To switch to another model you have to change the code and deploy again</td>
+</tr>
+<tr>
+<td>🧪</td>
+<td><strong>It can't be tested</strong></td>
+<td>The Controller creates the Gemini client itself. In a test we can't plug in a fake client — every test would call the real Gemini and spend money</td>
+</tr>
+</tbody>
+</table>
+<p>You already know this from the API course: we don't create a <code>DbContext</code> with <code>new</code> in a Controller — <strong>we register it in DI and receive it through the constructor</strong>. The same rule applies to <code>IChatClient</code>.</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Program.cs: AddChatClient</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
+<p>We create <code>IChatClient</code> once, when the application starts, and register it in DI:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Google.GenAI</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">apiKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"GEMINI_API_KEY"</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="o">??</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InvalidOperationException</span><span class="p">(</span><span class="s">"GEMINI_API_KEY is missing"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:Model"</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="o">??</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InvalidOperationException</span><span class="p">(</span><span class="s">"Gemini:Model is missing"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">rest</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">was</span></span></code></pre></div>
+<ul>
+<li><strong><code>AddChatClient(...)</code></strong> — an extension from <code>Microsoft.Extensions.AI</code>. It registers <code>IChatClient</code> as a <strong>Singleton</strong>: one client for the whole application, one pool of HTTP connections. The Gemini client is thread-safe, so it serves concurrent requests without problems.</li>
+<li><strong><code>new Client(apiKey: apiKey)</code></strong> — now we pass the key explicitly, from configuration (<code>GEMINI_API_KEY</code>).</li>
+<li><strong><code>?? throw</code></strong> — if the key or the model is missing, the application fails <strong>right at startup</strong> with a clear error, not on the first request with a strange 401.</li>
+</ul>
+<p><strong>The model name</strong> goes in <code>appsettings.json</code>. It isn't a secret, it goes to Git too:</p>
+<div class="codebox"><div class="ch"><span>appsettings.json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Gemini"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"Model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gemini-3.8-flash"</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>The key</strong> is the same <code>GEMINI_API_KEY</code> you put in an environment variable in lecture 2. You don't do anything new: in ASP.NET Core <code>builder.Configuration</code> reads several sources together — <code>appsettings.json</code>, User Secrets and <strong>environment variables</strong>. That's why <code>builder.Configuration["GEMINI_API_KEY"]</code> finds your variable.</p>
+<p>The difference from lecture 2: there Google's <code>Client</code> looked for the key by itself. Now <strong>we</strong> read it from configuration and pass it explicitly — so it's visible in one place where it comes from.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>Instead of an environment variable you can use <strong>User Secrets</strong> — a file on your computer, outside the project, it never goes to Git: <code>dotnet user-secrets init</code>, then <code>dotnet user-secrets set "GEMINI_API_KEY" "AIza..."</code>. The code doesn't change — <code>Configuration</code> looks in both places.</p></div></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>AddChatClient</dt><dd>the Microsoft.Extensions.AI method that registers IChatClient in DI (Singleton by default)</dd><dt>Configuration</dt><dd>ASP.NET Core configuration: reads appsettings.json, User Secrets and environment variables together</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Controller: constructor injection</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
+<p>In <code>AiLabController</code> only the way we get the client changes. The field name stays the same — <code>_chat</code>, so we don't touch the lecture 2 endpoints (<code>ask</code>, <code>assistant</code>, <code>review-sentiment</code>):</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/ai-lab")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AiLabController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">AiLabController</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">chat</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chat</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// ask, assistant, review-sentiment — unchanged</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>We no longer need <code>using Google.GenAI;</code> in the Controller — the Controller no longer knows it works with Gemini. It knows only <code>IChatClient</code>.</p>
+<p><strong>Check:</strong> Swagger → <code>POST /api/ai-lab/ask</code> → the answer still comes back.</p>
+<p><strong>What changes where now:</strong></p>
+<table>
+<thead>
+<tr>
+<th>I want</th>
+<th>I change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Another Gemini model</td>
+<td>only <code>appsettings.json</code> — <code>"Model"</code></td>
+</tr>
+<tr>
+<td>Another provider (OpenAI, Ollama…)</td>
+<td>only <code>Program.cs</code> — the line that creates the client (and the matching package)</td>
+</tr>
+<tr>
+<td>A fake client in a test</td>
+<td>the test itself passes its own <code>IChatClient</code> to the Controller</td>
+</tr>
+</tbody>
+</table>
+<p>None of the three touches the Controller.</p></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~3 min read</div><h2>Structured output: a C# type instead of text</h2><p class="goal">🎯 <b>After this</b> You'll get an enum from the model with <code>GetResponseAsync&lt;T&gt;</code> and understand why it's more reliable than few-shot.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Part 2 · Structured output</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<p>In lecture 2 we used few-shot to make the model return the exact word almost every time. “Almost” isn't enough for code. <strong>Structured output</strong> doesn't ask the model to “answer with one word” — it asks it to “answer in exactly the shape of this C# type”.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>few-shot: “almost” always</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
+<p>In the homework you wrote a <code>classify</code> endpoint with few-shot. It mostly returns the exact word, but sometimes — <code>Search.</code>, <code>search</code> or a whole sentence. All of it is a <code>string</code>, and <code>if (label == "Search")</code> fails on them.</p>
+<p>Few-shot <strong>asks</strong> the model for a shape: we show it with examples, and the model repeats it with some probability. Probability ≠ a guarantee (lecture 1).</p>
+<p><strong>The idea:</strong> what if the answer were not a <code>string</code> but a C# <strong>enum</strong>?</p>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">RequestType</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Search</span><span class="p">,</span><span class="w"> </span><span class="n">Reserve</span><span class="p">,</span><span class="w"> </span><span class="n">Question</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p><code>"Search."</code> can't get into a variable of type <code>RequestType</code> — only one of the three values can. That's exactly what <strong>structured output</strong> does: it <strong>forces</strong> the shape on the model instead of asking for it.</p></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>GetResponseAsync&lt;T&gt;: an enum</h3><a class="chip" href="index.en.html#/12" data-go="12" target="_blank" title="This part in the presentation">Slide 12</a></div>
+<p>The lecture 2 <code>ReviewSentiment</code> worked with few-shot. Now we write the same endpoint with an enum:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ReviewSentiment</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">Sentiment</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Positive</span><span class="p">,</span><span class="w"> </span><span class="n">Negative</span><span class="p">,</span><span class="w"> </span><span class="n">Mixed</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("review-sentiment")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ReviewSentiment</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the restaurant review."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">Sentiment</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">Sentiment</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Sentiment</span><span class="w"> </span><span class="n">sentiment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sentiment</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Sentiment</span><span class="p">.</span><span class="n">Negative</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* notify the manager */</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">sentiment</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>Line by line:</p>
+<ul>
+<li><strong><code>enum Sentiment</code></strong> — the list of allowed answers. The model can't return anything outside it. You can move the enum to its own file.</li>
+<li><strong>The system prompt gets shorter.</strong> “Answer with only one word: Positive, Negative or Mixed” and the few-shot examples are no longer needed <strong>for the shape</strong> — the type defines the shape. Less text = fewer input tokens.</li>
+<li><strong><code>GetResponseAsync&lt;Sentiment&gt;(messages)</code></strong> — the same <code>GetResponseAsync</code>, but with a type. It returns a <strong><code>ChatResponse&lt;Sentiment&gt;</code></strong>: a normal <code>ChatResponse</code> (<code>Text</code>, <code>Usage</code>, <code>FinishReason</code>) plus <code>Result</code>.</li>
+<li><strong><code>response.Result</code></strong> — already a <code>Sentiment</code>, not a <code>string</code>. <code>if (sentiment == Sentiment.Negative)</code> always works correctly.</li>
+<li><strong><code>sentiment.ToString()</code></strong> — by default ASP.NET Core returns an enum in JSON as a <strong>number</strong> (<code>Mixed</code> → <code>2</code>). <code>ToString()</code> gives us the name.</li>
+</ul>
+<div class="callout tip"><span class="ci">👉</span><div><p>Few-shot examples are still useful <strong>for content</strong>: for example, if you want the model to understand exactly what you mean by <code>Mixed</code>. <strong>For the shape</strong> you don't need them anymore — the type protects the shape.</p></div></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>What happens inside GetResponseAsync&lt;T&gt;</h3><a class="chip" href="index.en.html#/13" data-go="13" target="_blank" title="This part in the presentation">Slide 13</a></div>
+<p>There are four steps in one line:</p>
+<ol>
+<li><strong>C# type → JSON Schema.</strong> Microsoft.Extensions.AI generates a JSON Schema from the type (<code>Sentiment</code>) — a description of the shape: “the answer is an object with one field whose value is one of these three”.</li>
+<li><strong>The schema goes into the request.</strong> The schema is put into <code>ChatOptions.ResponseFormat</code> and sent to Gemini with the request. We don't write it in the prompt.</li>
+<li><strong>The model follows the schema.</strong> Gemini writes the answer so that it matches the schema: at every step it chooses only among tokens that don't break the schema. That's why <code>"Search."</code> or a paragraph simply can't appear.</li>
+<li><strong>JSON → C#.</strong> The answer (<code>{"data":"Mixed"}</code>) is turned into a C# object with <code>System.Text.Json</code> — <code>response.Result</code>.</li>
+</ol>
+<div class="callout note"><span class="ci">💡</span><div><p><strong>Why <code>"data"</code>?</strong> At the top level of JSON, models return only an object. An enum, a number or a list isn't an object — so Microsoft.Extensions.AI automatically “wraps” it in <code>{"data": …}</code> and unwraps it again itself. This doesn't happen for an object (e.g. a <code>record</code>).</p></div></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>structured output</dt><dd>a model answer in a predefined shape (JSON Schema) that the code reads as a C# type</dd><dt>JSON Schema</dt><dd>a description of the shape of JSON: which fields, of which types, which values are allowed</dd><dt>ChatResponse<T></dt><dd>the response of GetResponseAsync<T>: a normal ChatResponse + Result (an object of type T)</dd></dl></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~3 min read</div><h2>Text → object: a record with several fields</h2><p class="goal">🎯 <b>After this</b> You'll extract an object with several fields from a user's text and check that the values are correct.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>Part 3 · Text → object</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
+<p>An enum is one value. In real tasks we need <strong>several</strong> pieces of data from text: a date, a count, a name. Structured output does this too — <code>T</code> can be a <code>record</code> with several fields. This is how a user's free text reaches our existing logic.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>BookingRequest: an object with several fields</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
+<p>A user writes: “there are four of us, tomorrow at 8”. The booking logic needs a <code>DateTime</code> and an <code>int</code>. Structured output is the bridge between the two:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ParseBooking</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">BookingRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Booking date and time")]</span><span class="w"> </span><span class="n">DateTime</span><span class="o">?</span><span class="w"> </span><span class="n">At</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Number of guests")]</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">Guests</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("parse-booking")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ParseBooking</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            Extract the booking details from the user's text.</span></span><span class="ln"><span class="na">            Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">            Leave null whatever is not in the text.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">BookingRequest</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">BookingRequest</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>For <code>Description</code>, at the top of the file: <code>using System.ComponentModel;</code></p>
+<p><strong>Three important details:</strong></p>
+<ol>
+<li><strong>Today's date in the prompt.</strong> The model doesn't know what today's date is: it's stateless and its knowledge stops at its training date (lecture 1). For it to understand “tomorrow”, we give it the date — with the lecture 2 prompt template (<code>$"""…{…}…"""</code>).</li>
+<li><strong>Nullable fields (<code>DateTime?</code>, <code>int?</code>).</strong> <code>?</code> tells the model: “you might not know this”. Without <code>?</code> the model is <strong>forced</strong> to write something — and it will make it up. The prompt line “leave null whatever is not in the text” reinforces the same thing.</li>
+<li><strong><code>[property: Description(...)]</code></strong> — the description goes into the schema and explains the field's meaning to the model. <code>property:</code> is needed because on a <code>record</code> parameter the attribute has to be applied to the property.</li>
+</ol>
+<div class="callout tip"><span class="ci">👉</span><div><p>Google's recommendation: <strong>don't repeat</strong> the schema in the prompt (e.g. “return JSON with fields at and guests”) — it's sent with the request anyway, and repeating it lowers the quality. In the prompt write <strong>what</strong> to extract and <strong>by which rules</strong>.</p></div></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>The shape is guaranteed, the content is not</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
+<p>One endpoint, three texts. Every time a <code>BookingRequest</code> comes back — <strong>the shape is always correct</strong>. The content is a different matter:</p>
+<table>
+<thead>
+<tr>
+<th>Text</th>
+<th>Result</th>
+<th>What to notice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“there are four of us, tomorrow at 8”</td>
+<td><code>at: …T08:00</code>, <code>guests: 4</code></td>
+<td>“8” is ambiguous. The model may pick 8 in the morning, but the restaurant opens at 12:00</td>
+</tr>
+<tr>
+<td>“I'd like a table on Saturday evening”</td>
+<td><code>at: …T19:00</code>, <code>guests: null</code></td>
+<td>The number of guests isn't written → <code>null</code> (it didn't make it up). “Evening” → 19:00, though, is <strong>the model's guess</strong></td>
+</tr>
+<tr>
+<td>“how much is khinkali?”</td>
+<td><code>at: null</code>, <code>guests: null</code></td>
+<td>There's no booking — the shape is still correct, everything is <code>null</code></td>
+</tr>
+</tbody>
+</table>
+<p>Your exact result may differ — the model works with probabilities.</p>
+<p><strong>Conclusion:</strong> structured output guarantees that the answer is <strong>of our type</strong>. It doesn't guarantee that the values are <strong>correct</strong>. So before the object goes into our logic (the database), <strong>C# checks it</strong>:</p>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">BookingRequest</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"Which day and what time?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">Guests</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"How many of you?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">Hour</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">Hour</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">23</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"We're open 12:00–23:00"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">here</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">existing</span><span class="w"> </span><span class="n">booking</span><span class="w"> </span><span class="n">logic</span></span></code></pre></div>
+<p>It's the same rule as in lecture 2: <strong>the prompt and the model change the probability; what must hold, C# checks.</strong></p></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: an object from text in your project</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Classwork: Text to object — in your project</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
+<p>Your project or RestaurantApi · with code · in Swagger</p>
+<h3>Steps</h3>
+<ul>
+<li><strong>1 · DI</strong> — if you haven't done it yet: <code>AddChatClient</code> in <code>Program.cs</code> (the key — <code>GEMINI_API_KEY</code> from configuration, the model — from <code>appsettings.json</code>), <code>AiLabController</code> — through the constructor</li>
+<li><strong>2 · Your type</strong> — a <code>record</code> with <strong>at least 3 fields</strong> for text in your project; one field is an <strong>enum</strong>, optional fields are <strong>nullable</strong> (<code>?</code>)</li>
+<li><strong>3 · An endpoint</strong> <code>POST /api/ai-lab/extract</code> — System: <strong>what</strong> to extract and “leave null whatever is not in the text” → <code>GetResponseAsync&lt;your type&gt;</code> → <code>Ok(response.Result)</code></li>
+<li><strong>4 · 3 texts in Swagger:</strong> complete · partial (something is missing) · off-topic</li>
+</ul>
+<h3>✓ Done when</h3>
+<p>All three texts return your type; whatever isn't in the text is <code>null</code>, not made up; the enum field contains only values from your list</p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li>Add <code>[property: Description("...")]</code> to the fields — did the result change on an ambiguous text?</li>
+<li>Check the result in the endpoint with C#: a required field is <code>null</code> → <code>BadRequest</code> with a question (“which day?”)</li>
+</ul>
+<h3>💡 If you're stuck</h3>
+<ul>
+<li><strong>Ideas:</strong> library — “hold The Gadfly for me until Monday” → <code>{ Title, Until, Action: Reserve }</code> · gym — “two of us will come to yoga tomorrow at 7” → <code>{ Class, At, People }</code> · shop — “a red T-shirt, size M, two of them” → <code>{ Product, Size, Color, Quantity }</code></li>
+<li><strong>Got a date among your fields?</strong> Add <code>Today is {DateTime.Now:yyyy-MM-dd, dddd}.</code> to the system prompt — otherwise it can't understand “tomorrow”</li>
+<li><strong>The enum shows up as a number in Swagger?</strong> That's normal — ASP.NET Core returns enums as numbers. For the name: in <code>Program.cs</code>, <code>AddControllers().AddJsonOptions(o =&gt; o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))</code></li>
+<li><strong><code>InvalidOperationException</code> on <code>.Result</code>?</strong> Check that you haven't set <code>MaxOutputTokens</code> to a small number — thinking eats the limit (lecture 2)</li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
+<p>These questions will also be asked at the start of the next lecture.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What's wrong with <code>new Client().AsIChatClient(...)</code> inside a Controller, and how do we fix it?</summary><div class="ans">A new client on every request · the model name is in the code · we can't plug a fake client into a test → <code>AddChatClient</code> in <code>Program.cs</code> (Singleton) + constructor injection in the Controller</div></details><details><summary>Where does <code>Program.cs</code> read the Gemini key and the model name from? Why isn't the key in <code>appsettings.json</code>?</summary><div class="ans">Both from <code>builder.Configuration</code> · the key — from the <code>GEMINI_API_KEY</code> environment variable (Configuration reads it itself), because it's a secret and must not get into Git · the model — from <code>appsettings.json</code>: not a secret, change it without changing code</div></details><details><summary>How does few-shot differ from structured output?</summary><div class="ans">Few-shot <strong>asks</strong> for a shape with examples — by probability · structured output <strong>forces</strong> it: a JSON Schema from the C# type goes with the request, the model can't write outside the schema, <code>.Result</code> is already a C# type</div></details><details><summary>Why <code>int? Guests</code> and not <code>int</code> in <code>BookingRequest</code>? And why do we put today's date in the prompt?</summary><div class="ans"><code>?</code> gives the model the right to say “I don't know” (null); with <code>int</code> it's forced to write something and will make it up · the model doesn't know today's date (stateless, training date) — we provide it for “tomorrow”</div></details><details><summary>Structured output gave us a <code>BookingRequest</code>. Can we write it straight to the database?</summary><div class="ans">No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database</div></details></div></article><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
+<ul>
+<li><strong><code>AddChatClient</code></strong> — <code>IChatClient</code> is created once in <code>Program.cs</code> and registered in DI as a Singleton. The Controller receives it through its constructor. The key — the same <code>GEMINI_API_KEY</code> (configuration reads it from the environment variable), the model name — in <code>appsettings.json</code>.</li>
+<li><strong>Changing the provider</strong> — only <code>Program.cs</code>; <strong>changing the model</strong> — only <code>appsettings.json</code>. Neither touches the Controller.</li>
+<li><strong><code>GetResponseAsync&lt;T&gt;</code></strong> — a JSON Schema is created from the C# type, sent with the request, the model follows the schema, and the answer in <code>response.Result</code> is already of type <code>T</code>.</li>
+<li><strong>enum</strong> — one value from an allowed list (classification). <strong>record</strong> — several fields from text (extraction).</li>
+<li><strong>Nullable fields</strong> (<code>DateTime?</code>, <code>int?</code>) and “leave null whatever is not in the text” in the prompt — let the model not make things up.</li>
+<li><strong>The shape is guaranteed, the content is not.</strong> C# checks the object before it reaches the database.</li>
+</ul>
+<h3>Next lecture</h3>
+<p>The model extracted the booking, but it doesn't know whether a table is free tomorrow at 20:00 — it can't see our database. In lecture 4 — <strong>Tools / Function Calling</strong>: the model itself decides when to call our C# method (e.g. <code>CheckAvailability</code> or <code>GetMenu</code>).</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>Homework: A typed classifier and a record from text</h3><a class="chip" href="index.en.html#/21" data-go="21" target="_blank" title="This part in the presentation">Slide 21</a></div>
+<p>With code · your project · a table in the README</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>DI:</strong> no <code>new Client()</code> anywhere in the project — <code>IChatClient</code> only through <code>AddChatClient</code>; the key — <code>GEMINI_API_KEY</code> from configuration (never in code or Git), the model in <code>appsettings.json</code></li>
+<li><strong>classify with an enum:</strong> rewrite homework 2's <code>POST /api/ai-lab/classify</code> with <code>GetResponseAsync&lt;your enum&gt;</code> (without few-shot examples)</li>
+<li><strong>A comparison in the README:</strong> the same 5 texts — few-shot (homework 2) vs enum. Table: text · few-shot answer · enum answer · <code>inputTokens</code> for both</li>
+<li><strong>A record from text:</strong> one endpoint in a <strong>real</strong> Controller of your project (not ai-lab): text → <code>record</code> → a C# check (a required field is <code>null</code> → <code>400</code> with a question) → saved <strong>to the database</strong> with your existing logic</li>
+<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>
+</ul>
+<h3>✓ Done when</h3>
+<p><code>classify</code> returns an enum value for all 5 texts; a record created from text shows up in the database; on an incomplete text the endpoint doesn't create a record and returns <code>400</code> with a question; the README has the table and the quiz score</p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li><code>JsonStringEnumConverter</code> in <code>Program.cs</code> — so the API returns enums by name, not as numbers</li>
+<li><code>response.TryGetResult(out var x)</code> instead of <code>response.Result</code> — what does the endpoint return if the model couldn't write JSON matching the schema?</li>
+</ul>
+<h3>💡 Details</h3>
+<ul>
+<li>Write the enum values in English (<code>Search</code>, <code>Reserve</code>…) — the explanation in the prompt can be in any language</li>
+<li>For a field with a date, don't forget today's date in the system prompt</li>
+<li>Don't set <code>MaxOutputTokens</code> to a small number — Gemini thinks first</li>
+<li>Don't write a new service for the record from text — use the method you already create records with (from the API course)</li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 correct · <span id="qd">0</span> / 11 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">1</span><div>Why is it bad to create <code>IChatClient</code> with <code>new</code> in a Controller field?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The Controller is created on every request — and with it a new client and HTTP connection</button><button type="button" class="opt" data-i="1">A client created with <code>new</code> can't call Gemini</button><button type="button" class="opt" data-i="2">Fields are forbidden in Controllers</button><button type="button" class="opt" data-i="3">The key costs more that way</button></div><div class="qe"><span class="verdict"></span> ASP.NET Core creates the Controller anew for every request. Besides, the model name is in the code and we can't plug a fake client into a test. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>With what lifetime does <code>AddChatClient</code> register <code>IChatClient</code> by default?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Transient — a new one every time</button><button type="button" class="opt" data-i="1">Scoped — one per request</button><button type="button" class="opt" data-i="2">Singleton — one for the whole application</button><button type="button" class="opt" data-i="3">None — we must specify it</button></div><div class="qe"><span class="verdict"></span> The client holds HTTP connections and is thread-safe, so one is enough for the whole application. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div><code>builder.Configuration["GEMINI_API_KEY"]</code> — where does the value come from if it isn't in <code>appsettings.json</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Nowhere — it will be <code>null</code></button><button type="button" class="opt" data-i="1">From the <code>GEMINI_API_KEY</code> environment variable — Configuration reads it too</button><button type="button" class="opt" data-i="2">From Google's server</button><button type="button" class="opt" data-i="3">Automatically from <code>launchSettings.json</code></button></div><div class="qe"><span class="verdict"></span> ASP.NET Core Configuration combines several sources: <code>appsettings.json</code>, User Secrets, environment variables. That's why lecture 2's <code>setx GEMINI_API_KEY</code> works unchanged. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">4</span><div>We want OpenAI instead of Gemini. Which file changes?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Every Controller</button><button type="button" class="opt" data-i="1">Only <code>appsettings.json</code></button><button type="button" class="opt" data-i="2">Only <code>Program.cs</code> — the line that creates the client (and the package)</button><button type="button" class="opt" data-i="3">The DTOs</button></div><div class="qe"><span class="verdict"></span> The Controllers know only <code>IChatClient</code>. The provider is created in one place — <code>Program.cs</code>. Switching to another Gemini model is only <code>appsettings.json</code>. <a class="chip" href="#s-9">Review · slide 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>The few-shot classify sometimes returns <code>Search.</code>. Why doesn't this happen with <code>GetResponseAsync&lt;RequestType&gt;</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini guesses enums better</button><button type="button" class="opt" data-i="1">The JSON Schema goes with the request and the model can't choose a token outside the schema</button><button type="button" class="opt" data-i="2">C# fixes <code>Search.</code> automatically</button><button type="button" class="opt" data-i="3">Temperature automatically becomes 0</button></div><div class="qe"><span class="verdict"></span> Few-shot asks for a shape, structured output forces it. The allowed values are in the schema, and the model chooses only among them. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">6</span><div>What does <code>await _chat.GetResponseAsync&lt;Sentiment&gt;(messages)</code> return?</div></div><div class="opts"><button type="button" class="opt" data-i="0">A <code>Sentiment</code> directly</button><button type="button" class="opt" data-i="1">A <code>string</code> we must convert by hand</button><button type="button" class="opt" data-i="2">A <code>ChatResponse&lt;Sentiment&gt;</code> — a <code>Sentiment</code> in <code>Result</code>, plus <code>Usage</code>, <code>FinishReason</code></button><button type="button" class="opt" data-i="3">The JSON Schema</button></div><div class="qe"><span class="verdict"></span> <code>ChatResponse&lt;T&gt;</code> is a normal <code>ChatResponse</code> (with tokens and the finish reason) plus <code>Result</code>. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>The endpoint returns <code>Ok(response.Result)</code> where <code>Result</code> = <code>Sentiment.Mixed</code>. What do we see in Swagger?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>"Mixed"</code></button><button type="button" class="opt" data-i="1"><code>2</code> — by default ASP.NET Core returns an enum as a number</button><button type="button" class="opt" data-i="2">An error</button><button type="button" class="opt" data-i="3"><code>{"data":"Mixed"}</code></button></div><div class="qe"><span class="verdict"></span> That's why on the slide we return <code>sentiment.ToString()</code>. The alternative is <code>JsonStringEnumConverter</code> in <code>Program.cs</code>. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>“There are four of us, tomorrow at 8” — why do we write <code>Today is {DateTime.Now:…}</code> in the system prompt?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The answer is faster that way</button><button type="button" class="opt" data-i="1">The model doesn't know today's date — we provide it so it can work out “tomorrow”</button><button type="button" class="opt" data-i="2">Gemini returns an error without a date</button><button type="button" class="opt" data-i="3">It's part of the JSON Schema</button></div><div class="qe"><span class="verdict"></span> The model is stateless and its knowledge stops at its training date. Today's date is context we provide — with the lecture 2 prompt template. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">9</span><div>If <code>BookingRequest</code> had <code>int Guests</code> (without <code>?</code>) and the text had no number, what would most likely happen?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The model would return an error</button><button type="button" class="opt" data-i="1"><code>Guests</code> = null</button><button type="button" class="opt" data-i="2">The model would make up a number (e.g. 2) — the schema forces it to write a number</button><button type="button" class="opt" data-i="3">The endpoint would return 400</button></div><div class="qe"><span class="verdict"></span> The schema says “a number goes here”, and the model is forced to write one. <code>int?</code> also allows null in the schema — “I don't know”. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>Structured output returned a <code>BookingRequest</code>. What is guaranteed?</div></div><div class="opts"><button type="button" class="opt" data-i="0">That all values are correct</button><button type="button" class="opt" data-i="1">That the answer has the shape of <code>BookingRequest</code>; C# has to check the values</button><button type="button" class="opt" data-i="2">That <code>At</code> is always within opening hours</button><button type="button" class="opt" data-i="3">Nothing</button></div><div class="qe"><span class="verdict"></span> The shape is guaranteed, the content is not: “at 8” may become 08:00, a field may be null. C# checks before the database. <a class="chip" href="#s-17">Review · slide 17</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>In a structured output prompt, is it better to write “return JSON with fields at and guests”?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Yes — it's more precise</button><button type="button" class="opt" data-i="1">No — the schema is sent with the request anyway; in the prompt we write what to extract and by which rules</button><button type="button" class="opt" data-i="2">Yes, otherwise the model can't write JSON</button><button type="button" class="opt" data-i="3">Only in English</button></div><div class="qe"><span class="verdict"></span> Google recommends not repeating the schema in the prompt — it lowers quality. The schema sets the shape, the prompt sets the rules (e.g. “leave null whatever is not in the text”). <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>AddChatClient</dt><dd>the Microsoft.Extensions.AI method that registers IChatClient in DI (Singleton by default)</dd><dt>Configuration</dt><dd>ASP.NET Core configuration: reads appsettings.json, User Secrets and environment variables together</dd><dt>structured output</dt><dd>a model answer in a predefined shape (JSON Schema) that the code reads as a C# type</dd><dt>JSON Schema</dt><dd>a description of the shape of JSON: which fields, of which types, which values are allowed</dd><dt>ChatResponse<T></dt><dd>the response of GetResponseAsync<T>: a normal ChatResponse + Result (an object of type T)</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 3 — Microsoft.Extensions.AI: DI და Structured Output";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
+      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>
