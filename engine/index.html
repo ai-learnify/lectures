@@ -33,6 +33,8 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .course{margin:0 0 46px}
 .course>h2{display:flex;align-items:center;gap:12px;font-size:28px;margin:0 0 18px;font-weight:800}
 .course>h2::before{content:"";width:6px;height:28px;border-radius:3px;background:var(--c)}
+.course>h2 .syl{margin-left:auto;font:700 14px var(--sans,system-ui);text-decoration:none;color:var(--ink);border:1px solid var(--line2);background:var(--card);border-radius:10px;padding:6px 12px}
+.course>h2 .syl:hover{border-color:var(--c)}
 .course>h2 small{font:500 13px var(--mono);color:var(--muted)}
 .course .soon{color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:22px;text-align:center}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
@@ -100,7 +102,7 @@ const card = c => l => {
 };
 document.getElementById('courses').innerHTML = courses.map(c => `
   <section class="course" data-cat="${esc(c.slug)}" style="--c:${c.color}">
-    <h2>${esc(c.title)}<small>${c.count} ლექცია</small></h2>
+    <h2>${esc(c.title)}<small>${c.count} ლექცია</small>${c.syllabus ? `<a class="syl" href="${esc(c.slug)}/syllabus.html">📄 სილაბუსი</a>` : ``}</h2>
     ${c.count ? `<div class="grid">${c.lectures.map(card(c)).join('')}</div>` : `<div class="soon">ლექციები მალე დაემატება</div>`}
   </section>`).join('');
 

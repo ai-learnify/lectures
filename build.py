@@ -850,6 +850,30 @@ def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_sl
         page = page.replace(k, v)
     write_page(out / ('study.en.html' if en else 'study.html'), page)
 
+# კურსის სილაბუსი: courses/<კურსი>/syllabus.md → /<კურსი>/syllabus.html
+#   "### 01. სათაური" = ლექცია; თუ ეს ლექცია აწყობილია, გვერდით ჩნდება ბმულები პრეზენტაციასა და კონსპექტზე
+def write_syllabus(cdir, course):
+    src = cdir / 'syllabus.md'
+    out = OUT / cdir.name / 'syllabus.html'
+    if not src.exists():
+        out.unlink(missing_ok=True)
+        return False
+    built = {int(d.name.split('-', 1)[0]): d.name for d in cdir.iterdir() if (d / 'deck.html').exists() and d.name[:2].isdigit()}
+    h = markdown.markdown(src.read_text(), extensions=['tables', 'sane_lists'])
+    def lec(m):
+        num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
+        slug = built.get(num)
+        go = (f'<span class="go"><a href="{slug}/">▶ პრეზენტაცია</a>'
+              + (f'<a href="{slug}/study.html">📖 კონსპექტი</a>' if (OUT / cdir.name / slug / 'study.html').exists() else '') + '</span>') if slug else ''
+        return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{go}</h3>{desc}</div>'
+    h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
+    page = (ENGINE / 'syllabus.html').read_text()
+    for k, v in {'{{TITLE}}': esc(course['title']), '{{COUNT}}': str(len(re.findall(r'class="lec', h))), '{{BODY}}': h,
+                 '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
+        page = page.replace(k, v)
+    write_page(out, page)
+    return True
+
 # ---------- everything ----------
 def main(filters):
     OUT.mkdir(parents=True, exist_ok=True)
@@ -879,7 +903,8 @@ def main(filters):
                 if info: lectures.append(info)
             prev = {'meta': meta, 'num': int(ldir.name.split('-', 1)[0]), 'homework': md_doc(ldir / 'homework.md'),
                     'homework_en': md_doc(ldir / 'homework.en.md'), 'href': f'../{ldir.name}/'}
-        catalog.append({'slug': cdir.name, 'title': course['title'], 'order': course.get('order', 99), 'lectures': lectures})
+        has_syl = write_syllabus(cdir, course)
+        catalog.append({'slug': cdir.name, 'title': course['title'], 'order': course.get('order', 99), 'lectures': lectures, 'syllabus': has_syl})
     catalog.sort(key=lambda c: c['order'])
     if not filters:
         page = (ENGINE / 'index.html').read_text().replace('/*CATALOG*/[]', json.dumps(catalog, ensure_ascii=False)).replace('<!--THEME-->', THEME_HEAD + '<style>' + PAGE_THEME + '</style>')

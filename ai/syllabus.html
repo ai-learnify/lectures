@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📄 AI აგენტები .NET-ში — სილაბუსი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+</style>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{max-width:880px;margin:0 auto;padding:28px 20px 120px}
+.k{font:600 14px var(--mono);color:var(--accent)}
+h1{font-size:34px;line-height:1.2;margin:6px 0 18px}
+h2{font-size:24px;margin:40px 0 4px;padding-top:14px;border-top:4px solid var(--accent)}
+h3{font-size:19px;margin:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 18px;margin:12px 0}
+.lec p{margin:6px 0 0;color:var(--ink2);font-size:16px}
+.lec.ready{border-left:4px solid var(--green)}
+.go{display:inline-flex;gap:8px;margin-left:auto}
+.go a{font:600 12.5px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;background:var(--card)}
+.go a:hover{border-color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:12px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+hr{display:none}
+@media print{.top,.go{display:none}body{background:#fff}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../">← ლექციები</a>
+  <div class="ttl">📄 სილაბუსი · AI აგენტები .NET-ში</div>
+  <button class="themebtn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+</div>
+<main>
+<div class="k">📄 სილაბუსი · 24 ლექცია</div>
+<h1>AI აგენტების შექმნა და მართვა .NET-ში</h1>
+<p><strong>ტექნოლოგიები:</strong> .NET 10, Microsoft.Extensions.AI, Microsoft Agent Framework, Model Context Protocol, PostgreSQL + pgvector, EF Core 10</p>
+<table>
+<thead>
+<tr>
+<th>დანიშნულება</th>
+<th>Package</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM-ის გამოძახება (provider-agnostic)</td>
+<td><code>Microsoft.Extensions.AI</code>, <code>Microsoft.Extensions.AI.OpenAI</code>, <code>OllamaSharp</code></td>
+</tr>
+<tr>
+<td>აგენტები და workflows</td>
+<td><code>Microsoft.Agents.AI</code>, <code>Microsoft.Agents.AI.OpenAI</code>, <code>Microsoft.Agents.AI.Workflows</code></td>
+</tr>
+<tr>
+<td>MCP</td>
+<td><code>ModelContextProtocol</code>, <code>ModelContextProtocol.AspNetCore</code></td>
+</tr>
+<tr>
+<td>ვექტორული ძებნა</td>
+<td><code>Pgvector.EntityFrameworkCore</code></td>
+</tr>
+<tr>
+<td>Resilience</td>
+<td><code>Microsoft.Extensions.Http.Resilience</code></td>
+</tr>
+<tr>
+<td>ხარისხის შეფასება</td>
+<td><code>Microsoft.Extensions.AI.Evaluation</code>, <code>Microsoft.Extensions.AI.Evaluation.Quality</code></td>
+</tr>
+<tr>
+<td>Observability</td>
+<td><code>OpenTelemetry</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG (12 ლექცია)</h2>
+<div class="lec ready" id="l-1"><h3>01. შესავალი Generative AI-სა და LLM API-ებში<span class="go"><a href="01-genai-llm-intro/">▶ პრეზენტაცია</a><a href="01-genai-llm-intro/study.html">📖 კონსპექტი</a></span></h3><p>Generative AI-ისა და LLM-ების მიმოხილვა; როგორ მუშაობს LLM: ტოკენები, context window, next-token prediction; Temperature, Top-P, Max Tokens; reasoning მოდელები; პროვაიდერები (OpenAI, Anthropic, Gemini, Groq, ლოკალური Ollama) და ფასები; პირველი გამოძახება C#-იდან <code>IChatClient</code>-ით.</p></div>
+<div class="lec ready" id="l-2"><h3>02. Prompt Engineering C# დეველოპერებისთვის<span class="go"><a href="02-prompt-engineering/">▶ პრეზენტაცია</a><a href="02-prompt-engineering/study.html">📖 კონსპექტი</a></span></h3><p>პრომპტ ინჟინერიის სტანდარტები და ტექნიკები (Zero-Shot, Few-Shot, System/User/Assistant შეტყობინებები); პრომპტის შაბლონები კოდში; Structured Output: LLM-ის პასუხი პირდაპირ C# ობიექტად (<code>GetResponseAsync&lt;T&gt;</code>, JSON Schema).</p></div>
+<div class="lec" id="l-3"><h3>03. Microsoft.Extensions.AI</h3><p>რა არის Microsoft.Extensions.AI და რატომ არის ის .NET-ში AI-ის სტანდარტული ფენა; <code>IChatClient</code> და <code>IEmbeddingGenerator</code> აბსტრაქციები; რეგისტრაცია DI-ში (<code>AddChatClient</code>); კონფიგურაცია; პროვაიდერის შეცვლა კოდის შეცვლის გარეშე.</p></div>
+<div class="lec" id="l-4"><h3>04. Tools და Function Calling</h3><p>C#-ის მეთოდების გატანა AI Tool-ებად (<code>AIFunctionFactory.Create</code>, <code>[Description]</code>); როგორ მუშაობს tool call-ის ციკლი; ფუნქციების ავტომატური გამოძახება (<code>UseFunctionInvocation</code>); კარგი tool-ის დიზაინი: სახელი, აღწერა, პარამეტრები.</p></div>
+<div class="lec" id="l-5"><h3>05. Chat Client Pipeline და Middleware</h3><p><code>ChatClientBuilder</code>: logging, caching, OpenTelemetry; საკუთარი middleware-ის დაწერა (მაგ. ტოკენების დათვლა, შეყვანის ფილტრი); რატომ ცვლის middleware ძველ „filter“-ებსა და „plugin“-ებს.</p></div>
+<div class="lec" id="l-6"><h3>06. Streaming და Real-time AI პასუხები</h3><p>AI პასუხების სტრიმინგი (<code>GetStreamingResponseAsync</code>, <code>IAsyncEnumerable&lt;T&gt;</code>); Server-Sent Events endpoint ASP.NET Core-ში; გაუქმება (<code>CancellationToken</code>); SignalR, როგორც ალტერნატივა.</p></div>
+<div class="lec" id="l-7"><h3>07. Context Engineering: კონტექსტისა და მეხსიერების მართვა</h3><p>რა არის context engineering და რატომ არის ის prompt engineering-ზე ფართო; რა შედის მოდელის კონტექსტში: instructions, საუბრის ისტორია, tool-ების აღწერები და პასუხები, მეხსიერება, მოგვიანებით RAG-ით ნაპოვნი დოკუმენტები; ტოკენების ბიუჯეტი; კონტექსტის მართვის სტრატეგიები: შერჩევა, შეკუმშვა (truncation, summarization), თანმიმდევრობა; ჩატის ისტორიის შენახვა PostgreSQL-ში.</p></div>
+<div class="lec" id="l-8"><h3>08. Error Handling, Resilience და ხარჯის კონტროლი</h3><p>შეცდომების მართვა AI გამოძახებებში; Rate Limit (429), Timeout, Retry და Circuit Breaker <code>Microsoft.Extensions.Http.Resilience</code>-ით; Fallback მოდელი; ტოკენების მოხმარებისა და ხარჯის აღრიცხვა.</p></div>
+<div class="lec" id="l-9"><h3>09. Text Embeddings</h3><p>ტექსტის ვექტორიზაციის პრინციპი; <code>IEmbeddingGenerator</code>; Embedding მოდელების შერჩევა და განზომილებები; Cosine Similarity და ვექტორული მანძილების გამოთვლა C#-ში.</p></div>
+<div class="lec" id="l-10"><h3>10. PostgreSQL pgvector გაფართოების ინტეგრაცია EF Core-თან</h3><p>ვექტორული მონაცემთა ბაზების კონცეფცია; pgvector-ის ჩართვა PostgreSQL-ში; ინტეგრაცია EF Core-თან (<code>Pgvector.EntityFrameworkCore</code>); მანძილის ოპერატორები; HNSW ინდექსი.</p></div>
+<div class="lec" id="l-11"><h3>11. Simple RAG (Retrieval-Augmented Generation) C#-ში</h3><p>RAG არქიტექტურის აგება: ingestion (ჩატვირთვა → chunking → ვექტორიზაცია → შენახვა) და query (ძებნა → კონტექსტის დამატება → გენერაცია); დოკუმენტების დამუშავება: ტექსტის ამოღება PDF-დან და Word-დან, გაწმენდა, metadata-ს შენახვა (ფაილი, გვერდი); წყაროების მითითება პასუხში; RAG endpoint C# Web API-ში.</p></div>
+<div class="lec" id="l-12"><h3>12. RAG ოპტიმიზაცია და შეფასება</h3><p>Chunking სტრატეგიები; Metadata Filtering; Hybrid Search (PostgreSQL full-text + vector); Reranking; RAG-ის ხარისხის შეფასება (<code>Microsoft.Extensions.AI.Evaluation</code>: relevance, groundedness).</p></div>
+<hr />
+<h2>Agentic Systems, Multi-Agent &amp; Enterprise AI Project (12 ლექცია)</h2>
+<div class="lec" id="l-13"><h3>13. შესავალი Agentic Systems &amp; Patterns-ში</h3><p>Chatbot vs RAG vs Workflow vs AI Agent; როდის გვჭირდება აგენტი და როდის არა; ReAct (Reasoning + Acting) და Plan-and-Execute პატერნები; რატომ ჩაანაცვლა native function calling-მა ძველი Planner-ები.</p></div>
+<div class="lec" id="l-14"><h3>14. Microsoft Agent Framework</h3><p>რა არის Microsoft Agent Framework (Semantic Kernel-ისა და AutoGen-ის მემკვიდრე); <code>AIAgent</code>, <code>ChatClientAgent</code>; instructions და tools; <code>AgentSession</code> და მრავალჯერადი საუბარი; <code>RunAsync</code> / <code>RunStreamingAsync</code>.</p></div>
+<div class="lec" id="l-15"><h3>15. Custom Tools &amp; External API Integration</h3><p>გარე REST API-ების (ამინდი, ვალუტა) მიბმა აგენტზე tool-ებად <code>IHttpClientFactory</code>-ით; მონაცემთა ბაზის მოთხოვნები tool-ებად (read-only, პარამეტრიზებული); RAG-ის ძებნა როგორც აგენტის tool (Agentic RAG): აგენტი თავად წყვეტს, როდის და რა მოძებნოს; Human-in-the-loop: მომხმარებლის თანხმობა tool-ის შესრულებამდე.</p></div>
+<div class="lec" id="l-16"><h3>16. Model Context Protocol (MCP)</h3><p>MCP-ის კონცეფცია (tools, resources, prompts); MCP სერვერის შექმნა ASP.NET Core-ში (<code>ModelContextProtocol.AspNetCore</code>); გარე MCP სერვერის tool-ების მიერთება აგენტთან.</p></div>
+<div class="lec" id="l-17"><h3>17. Agent Workflows</h3><p><code>Microsoft.Agents.AI.Workflows</code>: executors, edges, graph-based workflow; Sequential და Concurrent ნაბიჯები; deterministic კოდისა და LLM ნაბიჯების გაერთიანება; Checkpointing.</p></div>
+<div class="lec" id="l-18"><h3>18. Multi-Agent Orchestration</h3><p>მრავალ-აგენტიანი არქიტექტურა; სპეციალიზებული აგენტები; ორკესტრაციის მოდელები: Sequential, Concurrent, Handoff, Group Chat; აგენტი, როგორც tool; A2A პროტოკოლის მიმოხილვა.</p></div>
+<div class="lec" id="l-19"><h3>19. AI Safety, Guardrails &amp; Input/Output Validation</h3><p>AI პასუხების ვალიდაცია; Prompt Injection (პირდაპირი და დოკუმენტებიდან/tool-ებიდან) და მისგან დაცვა; OWASP Top 10 for LLM Applications; Agent middleware უსაფრთხოების ფილტრებისთვის; tool-ების მინიმალური უფლებები.</p></div>
+<div class="lec" id="l-20"><h3>20. Observability და Evaluation</h3><p>OpenTelemetry AI-ში: რომელმა აგენტმა რა გამოიძახა, რამდენი ხანი და რა ღირდა; Aspire Dashboard; აგენტის ხარისხის შეფასება (<code>Microsoft.Extensions.AI.Evaluation</code>, LLM-as-judge); golden dataset.</p></div>
+<div class="lec" id="l-21"><h3>21. Final Project Development — Structure, Logging &amp; Config</h3><p>AI აგენტის API-ის აგება; პროექტის სტრუქტურა (Vertical Slice Architecture); Logging (<code>ILogger</code>), Configuration (appsettings.json, User Secrets), Environment Variables; მრავალი პროვაიდერის კონფიგურაცია.</p></div>
+<div class="lec" id="l-22"><h3>22. Final Project Integration &amp; Testing</h3><p>AI სერვისების Unit და Integration ტესტირება; <code>IChatClient</code>-ის Mocking; evals, როგორც regression ტესტები პრომპტის ცვლილებისას.</p></div>
+<div class="lec" id="l-23"><h3>23. სარეზერვო ლექცია</h3></div><hr />
+<div class="lec" id="l-24"><h3>24. საფინალო პროექტების დაცვა</h3><p>სტუდენტები წარადგენენ სრულყოფილ .NET Web API-ს, სადაც ინტეგრირებულია Microsoft Agent Framework-ის აგენტები, pgvector RAG, Custom Tools და MCP, უსაფრთხოების ფილტრები და ხარისხის შეფასება; პორტფოლიოს პრეზენტაცია.</p></div>
+</main>
+</body></html>
