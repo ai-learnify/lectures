@@ -138,6 +138,8 @@ LIGHT_MAP = [  # dark-theme SVG colours → light theme (all decks use the light
 ]
 
 # ---------- study markdown ----------
+LANG = 'ka'   # study text language: 'en' while rendering study.en.html (<aside class="study-en">, lecture.en.json, *.en.md)
+def L(ka, en): return en if LANG == 'en' else ka
 # Fenced blocks:  ```csharp Title   ```prompt Title   ```check (? კითხვა / = პასუხი)   ```terms (ტერმინი — ახსნა)   ```note / ```warn
 def md_inline(text):
     h = markdown.markdown(text.strip(), extensions=['sane_lists'])
@@ -146,8 +148,8 @@ def md_inline(text):
 def render_fence(kind, arg, body):
     body = body.strip('\n')
     if kind == 'prompt':
-        return (f'<div class="prompt"><div class="ph"><span>🤖 {esc(arg or "AI-სთვის — დააკოპირე და ჰკითხე")}</span>'
-                f'<button class="copy" type="button">კოპირება</button></div><div class="pb">{esc(body)}</div></div>')
+        return (f'<div class="prompt"><div class="ph"><span>🤖 {esc(arg or L("AI-სთვის — დააკოპირე და ჰკითხე", "For an AI — copy it and ask"))}</span>'
+                f'<button class="copy" type="button">{L("კოპირება", "Copy")}</button></div><div class="pb">{esc(body)}</div></div>')
     if kind == 'check':
         items, cur = [], None
         for line in body.split('\n'):
@@ -158,18 +160,18 @@ def render_fence(kind, arg, body):
             elif cur and cur[1] and line.strip():
                 cur[1].append(line.strip())
         qs = ''.join(f'<details><summary>{md_inline(q)}</summary><div class="ans">{md_inline(" ".join(a))}</div></details>' for q, a in items)
-        return f'<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div>{qs}</div>'
+        return f'<div class="selfcheck"><div class="sh">✅ {L("შეამოწმე თავი", "Check yourself")} <small>{L("დაფიქრდი, მერე გახსენი პასუხი", "think first, then open the answer")}</small></div>{qs}</div>'
     if kind == 'terms':
         rows = [l.split('—', 1) for l in body.split('\n') if '—' in l]
         dl = ''.join(f'<dt>{md_inline(t)}</dt><dd>{md_inline(d)}</dd>' for t, d in rows)
-        return f'<div class="terms"><div class="th">📘 ტერმინები</div><dl>{dl}</dl></div>'
+        return f'<div class="terms"><div class="th">📘 {L("ტერმინები", "Terms")}</div><dl>{dl}</dl></div>'
     if kind in ('note', 'warn', 'tip'):
         ico = {'note': '💡', 'warn': '⚠️', 'tip': '👉'}[kind]
         return f'<div class="callout {kind}"><span class="ci">{ico}</span><div>{markdown.markdown(body, extensions=["sane_lists"])}</div></div>'
     lang = kind or 'plain'
     arg = arg.rstrip('!').strip()   # '!' only marks the block shown on the homework-review slide
     title = esc(arg) if arg else esc(lang)
-    return (f'<div class="codebox"><div class="ch"><span>{title}</span><button class="copy" type="button">კოპირება</button></div>'
+    return (f'<div class="codebox"><div class="ch"><span>{title}</span><button class="copy" type="button">{L("კოპირება", "Copy")}</button></div>'
             f'<pre class="code"><code>{highlight(body, lang)}</code></pre></div>')
 
 FENCE = re.compile(r'^```(\w*)[ \t]*([^\n]*)\n(.*?)^```[ \t]*$', re.M | re.S)
@@ -216,8 +218,17 @@ def qa_rows(review):
 def check_md(review):
     return '```check\n' + '\n'.join(f'? {r["q"]}\n= {r["a"]}' for r in review) + '\n```'
 
+def en_aside(text):
+    return f'\n  <aside class="study-en">\n{text}\n  </aside>' if text else ''
+
 def gen_review(prev):
     pm, num = prev['meta'], prev['num']
+    pe = pm.get('_en')
+    en = en_aside(f'''## Let's recall the previous lecture
+
+Lecture {num} — **{esc(pe["title"])}**. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at [the previous lecture's notes]({prev["href"]}study.en.html).
+
+{check_md(pe["review"])}''') if pe and pe.get('review') else ''
     return f'''<section class="slide" data-section="გამეორება">
   <div class="kicker">გამეორება · ლექცია {num}</div>
   <h2>გავიხსენოთ: <span class="grad">{esc(pm["title"])}</span></h2>
@@ -228,12 +239,22 @@ def gen_review(prev):
 ლექცია {num} — **{esc(pm["title"])}**. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, [წინა ლექციის კონსპექტს]({prev["href"]}study.html) გადახედე.
 
 {check_md(pm["review"])}
-  </aside>
+  </aside>{en}
 </section>'''
 
 def gen_homework_review(prev):
     hw = prev['homework']
     sol = part(hw, 'ამოხსნ')
+    he = prev.get('homework_en')
+    en = en_aside(f'''## Homework review
+
+The previous lecture's homework: **{esc(he["title"])}**. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.
+
+### Requirements
+{part(he, "Requirements")}
+
+### Solution
+{part(he, "Solution")}''') if he else ''
     code = first_code(sol)
     if code and code[2].strip('\n').count('\n') >= 20:
         print(f'  ⚠ ლექცია {prev["num"]}-ის ამოხსნის კოდი სლაიდზე {code[2].strip(chr(10)).count(chr(10)) + 1} ხაზია — ≤20 ჯობია (მონიშნე სხვა ბლოკი "!"-ით)')
@@ -256,10 +277,18 @@ def gen_homework_review(prev):
 
 ### ამოხსნა
 {sol}
-  </aside>
+  </aside>{en}
 </section>'''
 
 def gen_intro(meta):
+    me = meta.get('_en')
+    en = en_aside(f'''## Today's topic: {esc(me["title"])}
+
+{me["why"]}
+
+**By the end of the lecture you'll be able to:**
+
+{chr(10).join("- " + o for o in me["outcomes"])}''') if me else ''
     outs = ''.join(f'<li>{md_inline(o).replace("<code>", "<code class=\"i\">")}</li>' for o in meta['outcomes'])
     return f'''<section class="slide" data-section="დღის თემა">
   <div class="kicker">დღის თემა</div>
@@ -276,16 +305,18 @@ def gen_intro(meta):
 **ლექციის ბოლოს შეძლებ:**
 
 {chr(10).join("- " + o for o in meta["outcomes"])}
-  </aside>
+  </aside>{en}
 </section>'''
 
-def gen_task(doc, section, kicker, ico, color, footer, study_head):
+def gen_task(doc, section, kicker, ico, color, footer, study_head, doc_en=None, head_en=''):
     bonus = part(doc, 'ბონუს')
     done = part(doc, 'მზადაა')
     steps = part(doc, 'ნაბიჯ') or part(doc, 'მოთხოვნ')
     right = f'<div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3>{slide_md(bonus)}</div>' if bonus else ''
     cols = '1.5fr 1fr' if bonus else '1fr'
     study_parts = '\n\n'.join(f'### {h}\n\n{b}' for h, b in doc['parts'] if 'ამოხსნ' not in h)
+    en = en_aside(f'## {head_en}: {esc(doc_en["title"])}\n\n{doc_en["intro"]}\n\n'
+                  + '\n\n'.join(f'### {h}\n\n{b}' for h, b in doc_en['parts'] if 'Solution' not in h)) if doc_en else ''
     return f'''<section class="slide" data-section="{section}">
   <div class="kicker">{kicker}</div>
   <h2>{esc(doc["title"])}</h2>
@@ -304,7 +335,7 @@ def gen_task(doc, section, kicker, ico, color, footer, study_head):
 {doc["intro"]}
 
 {study_parts}
-  </aside>
+  </aside>{en}
 </section>'''
 
 def gen_check(meta):
@@ -318,7 +349,11 @@ def gen_check(meta):
 ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.
 
 {check_md(meta["review"])}
-  </aside>
+  </aside>{en_aside(f'''## Check what you remember
+
+These questions will also be asked at the start of the next lecture.
+
+{check_md(meta["_en"]["review"])}''') if meta.get("_en") else ""}
 </section>'''
 
 def expand(src, meta, ldir, prev):
@@ -327,10 +362,12 @@ def expand(src, meta, ldir, prev):
         'lecture-homework-review': lambda: gen_homework_review(prev) if prev and prev['homework'] else None,
         'lecture-intro': lambda: gen_intro(meta),
         'lecture-classwork': lambda: gen_task(md_doc(ldir / 'classwork.md'), 'პრაქტიკა', '🧑‍💻 თქვენ აკეთებთ · კლასში', '📝', 'var(--mvc)',
-                                              'წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე', 'კლასში დავალება'),
+                                              'წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე', 'კლასში დავალება',
+                                              md_doc(ldir / 'classwork.en.md'), 'Classwork'),
         'lecture-check': lambda: gen_check(meta),
         'lecture-homework': lambda: gen_task(md_doc(ldir / 'homework.md'), 'საშინაო', '🏠 საშინაო დავალება', '🏠', 'var(--net)',
-                                             'შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b>', 'საშინაო დავალება'),
+                                             'შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b>', 'საშინაო დავალება',
+                                             md_doc(ldir / 'homework.en.md'), 'Homework'),
     }
     problems = []
     if '<lecture-intro/>' in src:   # new-format lecture: every part is required
@@ -452,9 +489,11 @@ def build_lecture(course, cdir, ldir, meta, prev):
     study = []
     for i, sl in enumerate(slides, 1):
         m = re.search(r'<aside class="study">(.*?)</aside>', sl, re.S)
+        me = re.search(r'<aside class="study-en">(.*?)</aside>', sl, re.S)
         sec = re.search(r'data-section="([^"]*)"', sl)
-        study.append({'n': i, 'title': heading(sl), 'section': sec.group(1) if sec else '', 'html': md(m.group(1)) if m else None, 'raw': m.group(1) if m else ''})
-        clean = re.sub(r'<aside class="(?:study|notes)">.*?</aside>', '', sl, flags=re.S)
+        study.append({'n': i, 'title': heading(sl), 'section': sec.group(1) if sec else '', 'html': md(m.group(1)) if m else None, 'raw': m.group(1) if m else '',
+                      'raw_en': me.group(1) if me else ''})
+        clean = re.sub(r'\n?[ \t]*<aside class="(?:study|study-en|notes)">.*?</aside>', '', sl, flags=re.S)
         src = src.replace(sl, clean, 1)
     src = re.sub(r'<aside class="notes">.*?</aside>', '', src, flags=re.S)   # old lecturer notes are never published
     for a, b in LIGHT_MAP:
@@ -470,19 +509,33 @@ def build_lecture(course, cdir, ldir, meta, prev):
         write_page(out / 'index.en.html', deck_page(en_src, title, has_study, has_lect, 'en', True))
     else:
         (out / 'index.en.html').unlink(missing_ok=True)
-    for stale in ('script.html', 'study.html', 'lecturer.html'):
+    for stale in ('script.html', 'study.html', 'study.en.html', 'lecturer.html'):
         (out / stale).unlink(missing_ok=True)
 
     materials = []
     if (ldir / 'materials').is_dir():
         shutil.copytree(ldir / 'materials', out / 'materials', dirs_exist_ok=True)
         materials = sorted(p.name for p in (ldir / 'materials').iterdir() if p.is_file())
+    has_study_en = False
     if has_study:
         write_study(out, course, meta, num, title, study, materials, ldir, len(slides))
+        if meta.get('_en'):
+            miss = [s['n'] for s in study if s['html'] and not s['raw_en']]
+            if miss:
+                print(f'  ⚠ study.en: English text is missing on slides {miss}')
+            global LANG
+            LANG = 'en'
+            try:
+                for s in study:
+                    s['html'], s['raw'] = (md(s['raw_en']) if s['raw_en'] else None), s['raw_en']
+                write_study(out, course, meta, num, title, study, materials, ldir, len(slides), 'en')
+                has_study_en = True
+            finally:
+                LANG = 'ka'
     has_lecturer = write_lecturer(out, course, meta, num, title, ldir)
     print(f'  {cdir.name}/{ldir.name}: {len(slides)} slides' + (f', study {sum(1 for s in study if s["html"])} blocks' if has_study else ''))
     return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study,
-            'classwork': (ldir / 'classwork.md').exists(), 'homework': (ldir / 'homework.md').exists(), 'quiz': len(meta.get('quiz', [])), 'lecturer': has_lecturer}, []
+            'classwork': (ldir / 'classwork.md').exists(), 'homework': (ldir / 'homework.md').exists(), 'quiz': len(meta.get('quiz', [])), 'lecturer': has_lecturer, 'study_en': has_study_en}, []
 
 # ლექტორის გვერდი. lecturer.md:
 #   ## სათაური                       ზოგადი ნაწილი (მიმოხილვა, ადგილი მოდულში, შეფასება…)
@@ -650,7 +703,7 @@ def render_resources(meta, ldir, materials, n_slides, n_quiz):
                     f'{" — " + md_inline(r["note"]) if r.get("note") else ""}</li>' for r in meta.get('resources', []))
     if not files and not links:
         return ''
-    return (f'<section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3>'
+    return (f'<section class="res" id="resources"><h3>🔗 {L("სასარგებლო ბმულები", "Useful links")}</h3>'
             + (f'<ul class="rlinks">{links}</ul>' if links else '')
             + (f'<div class="rfiles">{files}</div>' if files else '') + '</section>')
 
@@ -659,9 +712,12 @@ def render_quiz_items(quiz):
     items = []
     for n, x in enumerate(quiz, 1):
         opts = ''.join(f'<button type="button" class="opt" data-i="{i}">{md_inline(o)}</button>' for i, o in enumerate(x['options']))
-        back = f' <a class="chip" href="#s-{x["slide"]}">გაიმეორე · სლაიდი {x["slide"]}</a>' if x.get('slide') else ''
+        back = f' <a class="chip" href="#s-{x["slide"]}">{L("გაიმეორე · სლაიდი", "Review · slide")} {x["slide"]}</a>' if x.get('slide') else ''
         items.append(f'<div class="qq" data-answer="{x["answer"]}"><div class="qt"><span class="qn">{n}</span><div>{md_inline(x["q"])}</div></div>'
                      f'<div class="opts">{opts}</div><div class="qe"><span class="verdict"></span> {md_inline(x.get("explain", ""))}{back}</div></div>')
+    if LANG == 'en':
+        return (f'<div class="qscore"><span id="qs">0</span> / {len(quiz)} correct · <span id="qd">0</span> / {len(quiz)} answered'
+                f'<button type="button" class="btn qreset">Start over</button></div>{"".join(items)}<div class="qsum" id="qsum"></div>')
     return (f'<div class="qscore"><span id="qs">0</span> / {len(quiz)} სწორი · <span id="qd">0</span> / {len(quiz)} პასუხი'
             f'<button type="button" class="btn qreset">თავიდან</button></div>{"".join(items)}<div class="qsum" id="qsum"></div>')
 
@@ -670,6 +726,27 @@ def render_quiz_items(quiz):
 #   "skip":     ["დღის თემა", …]           data-section-ები, რომლებიც მხოლოდ ლექციისთვისაა
 #   "chapters": {"<data-section>": {"title", "goal", "icon"}}
 STUDY_ICONS = {'მოდული': '🧭', 'პრაქტიკა': '✍️', 'შეჯამება': '🏁', 'საშინაო': '🏠'}
+STUDY_TITLES_EN = {'მოდული': 'The module', 'პრაქტიკა': 'Classwork', 'შეჯამება': 'Summary', 'საშინაო': 'Homework',
+                   'გამეორება': 'Review', 'საშინაოს განხილვა': 'Homework review'}
+# study.html is written in Georgian; study.en.html = the same template with these replacements
+STUDY_PAGE_EN = [
+    ('<html lang="ka">', '<html lang="en">'), ('— კონსპექტი</title>', '— study notes</title>'),
+    ('← ლექციები', '← Lectures'), ('title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"', 'title="On: the text follows the presentation"'),
+    ('<span class="lt">მიჰყვება სლაიდებს</span>', '<span class="lt">Following the slides</span>'),
+    ('title="ღია / მუქი თემა"', 'title="Light / dark theme"'), ('href="index.html">▶ პრეზენტაცია', 'href="index.en.html">▶ Presentation'),
+    ('<summary>სარჩევი</summary>', '<summary>Contents</summary>'), ('<span>წაკითხული</span>', '<span>Read</span>'),
+    ('📖 კონსპექტი · {{COURSE}} · ლექცია {{NUM}}', '📖 Study notes · {{COURSE}} · Lecture {{NUM}}'),
+    ('ლექციის სრული მასალა თავებად, ~{{TOTAL}} წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.',
+     'The whole lecture in chapters, ~{{TOTAL}} minutes of reading. Your progress is saved in the browser.'),
+    ('ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.',
+     'This page follows the presentation: when the slide changes, the matching part is highlighted.'),
+    ("'✓ წავიკითხე' : '☐ წავიკითხე'", "'✓ Read' : '☐ Mark as read'"), ("'✓ დაკოპირდა'", "'✓ Copied'"), ("'კოპირება'", "'Copy'"),
+    ("'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'", "'Following the slides' : 'Reading freely'"),
+    ("'გაიმეორე ეს კითხვები: '", "'Review these questions: '"),
+    ("'. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'", "'. The explanation is under each one, and “Review” takes you to the right part.'"),
+    ("'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉'", "'All correct! You can move on to the next lecture. 🎉'"),
+    ('content:"✓ სწორია."', 'content:"✓ Correct."'), ('content:"✗ არა."', 'content:"✗ No."'),
+]
 
 def read_minutes(text, wpm=130):
     return max(1, round(len(re.findall(r'\w+', re.sub(r'```.*?```', '', text, flags=re.S))) / wpm))
@@ -686,8 +763,15 @@ def glossary(raws):
                     seen.add(t.lower()); rows.append((t, d))
     return rows
 
-def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_slides):
-    cfg = meta.get('study', {})
+def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_slides, lang='ka'):
+    en = lang == 'en'
+    ka_skip = meta.get('study', {}).get('skip', [])
+    meta_ka = meta
+    if en:   # English texts; the chapter keys (data-section) stay Georgian
+        meta = {**meta, **meta['_en']}
+        meta['quiz'] = [{**k, **e} for k, e in zip(meta_ka.get('quiz', []), meta['_en'].get('quiz', []))]   # answer / slide come from lecture.json
+    cfg = {**meta.get('study', {}), 'skip': ka_skip}
+    deck = 'index.en.html' if en else 'index.html'
     skip = set(cfg.get('skip', []))
     blocks, pending = [], []   # [{slides, title, section, html, raw}] — სლაიდები ტექსტის გარეშე წინა ბლოკს მიჰყვება
     for s in study:
@@ -712,7 +796,7 @@ def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_sl
         sec = c['section']; info = cfg.get('chapters', {}).get(sec, {})
         mnum = re.match(r'^(\d+)\s*·\s*(.+)$', sec)
         badge = mnum.group(1) if mnum else info.get('icon', STUDY_ICONS.get(sec, '•'))
-        title = info.get('title') or (mnum.group(2) if mnum else sec)
+        title = info.get('title') or (mnum.group(2) if mnum and not en else STUDY_TITLES_EN.get(sec, sec) if en else sec)
         mins = read_minutes(''.join(b['raw'] for b in c['blocks'])); total += mins
         cid = f'c-{n}'
         anchors = ''.join(f'<span class="anchor" id="{a}"></span>' for k, a in (('პრაქტიკა', 'classwork'), ('საშინაო', 'homework')) if sec == k)
@@ -720,44 +804,51 @@ def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_sl
         for b in c['blocks']:
             first = b['slides'][0]
             sl = ''.join(f'<span class="anchor" id="s-{x}"></span>' for x in b['slides'])
-            kind = ' check' if 'შეამოწმე' in b['title'] else ' lead' if b['title'].startswith('ნაწილი') else ''   # „ნაწილი N“ = თავის შესავალი
+            kind = ' check' if re.search(r'შეამოწმე|Check (?:yourself|what)', b['title']) else ' lead' if re.match(r'ნაწილი|Part \d', b['title']) else ''   # „ნაწილი N“ = თავის შესავალი
             arts.append(f'<article class="blk{kind}" data-slides="{",".join(map(str, b["slides"]))}">{sl}'
-                        f'<div class="bh"><h3>{esc(b["title"])}</h3><a class="chip" href="index.html#/{first}" data-go="{first}" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი {first}</a></div>'
+                        f'<div class="bh"><h3>{esc(b["title"])}</h3><a class="chip" href="{deck}#/{first}" data-go="{first}" target="_blank" title="{L("ეს ნაწილი პრეზენტაციაში", "This part in the presentation")}">{L("სლაიდი", "Slide")} {first}</a></div>'
                         f'{b["html"]}</article>')
-        goal = f'<p class="goal">🎯 <b>ამის შემდეგ:</b> {md_inline(info["goal"])}</p>' if info.get('goal') else ''
+        goal = f'<p class="goal">🎯 <b>{L("ამის შემდეგ:", "After this")}</b> {md_inline(info["goal"])}</p>' if info.get('goal') else ''
         body.append(f'<section class="chap" id="{cid}" data-num="{1 if mnum else 0}">{anchors}<header class="chh"><span class="cn{"" if mnum else " e"}">{badge}</span>'
-                    f'<div class="cht"><div class="ck">{"თავი " + mnum.group(1) + " · " if mnum else ""}~{mins} წთ კითხვა</div><h2>{esc(title)}</h2>{goal}</div>'
-                    f'<button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody">{"".join(arts)}</div></section>')
+                    f'<div class="cht"><div class="ck">{L("თავი ", "Chapter ") + mnum.group(1) + " · " if mnum else ""}~{mins} {L("წთ კითხვა", "min read")}</div><h2>{esc(title)}</h2>{goal}</div>'
+                    f'<button type="button" class="read">{L("☐ წავიკითხე", "☐ Mark as read")}</button></header><div class="cbody">{"".join(arts)}</div></section>')
         nav.append(f'<a href="#{cid}"><span class="nn{"" if mnum else " e"}">{badge}</span><span class="nt">{esc(title)}</span><span class="nm">{mins}′</span></a>')
     quiz = meta.get('quiz', [])
     terms = glossary(b['raw'] for b in blocks)
     extra = ''
     if quiz:
-        nav.append('<a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">' + str(len(quiz)) + '</span></a>')
-        extra += f'<section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2>' \
-                 f'<p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody">{render_quiz_items(quiz)}</div></section>'
+        nav.append(f'<a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">{L("შეამოწმე ცოდნა", "Test yourself")}</span><span class="nm">{len(quiz)}</span></a>')
+        extra += f'<section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">{L("ტესტი · ქულით", "Quiz · scored")}</div><h2 id="quiz">{L("შეამოწმე ცოდნა", "Test yourself")}</h2>' \
+                 f'<p class="goal">{L("აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.", "Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.")}</p></div></header><div class="cbody">{render_quiz_items(quiz)}</div></section>'
     if terms:
-        nav.append('<a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">' + str(len(terms)) + '</span></a>')
+        nav.append(f'<a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">{L("ტერმინები", "Terms")}</span><span class="nm">{len(terms)}</span></a>')
         dl = ''.join(f'<dt>{md_inline(t)}</dt><dd>{md_inline(d)}</dd>' for t, d in terms)
-        extra += f'<section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl>{dl}</dl></div></div></section>'
+        extra += f'<section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">{L("ლექციის ყველა ტერმინი", "All terms of the lecture")}</div><h2>{L("ტერმინები", "Terms")}</h2></div></header><div class="cbody"><div class="terms"><dl>{dl}</dl></div></div></section>'
     # ⚡ 5 წუთში
     summary = cfg.get('summary') or meta.get('outcomes', [])
     ch_num = [c for c in chapters if re.match(r'^\d', c['section'])]
-    path = [f'<li><a href="#c-1">წაიკითხე თავები</a> — სულ ~{total} წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li>']
-    if quiz: path.append(f'<li><a href="#quiz">გაიარე ტესტი</a> — {len(quiz)} კითხვა, ქულით</li>')
-    if (ldir / 'classwork.md').exists(): path.append('<li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li>')
-    if (ldir / 'homework.md').exists(): path.append('<li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li>')
-    quick = (f'<section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p>'
+    path = [L(f'<li><a href="#c-1">წაიკითხე თავები</a> — სულ ~{total} წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li>',
+              f'<li><a href="#c-1">Read the chapters</a> — ~{total} min in total. Each chapter ends with “Check yourself”</li>')]
+    if quiz: path.append(L(f'<li><a href="#quiz">გაიარე ტესტი</a> — {len(quiz)} კითხვა, ქულით</li>', f'<li><a href="#quiz">Take the quiz</a> — {len(quiz)} questions, scored</li>'))
+    if (ldir / 'classwork.md').exists(): path.append(L('<li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li>', '<li><a href="#classwork">Do the classwork</a> at home</li>'))
+    if (ldir / 'homework.md').exists(): path.append(L('<li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li>', '<li><a href="#homework">Homework</a> — we review it at the next lecture</li>'))
+    quick = (f'<section class="quick"><div class="qk"><h2>⚡ {L("5 წუთში", "In 5 minutes")}</h2><p class="qs">{L("თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:", "If this is all you remember, you know the core of the lecture:")}</p>'
              f'<ol class="take">{"".join(f"<li>{md_inline(x)}</li>" for x in summary)}</ol></div>'
-             f'<div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path">{"".join(path)}</ol></div></section>')
+             f'<div class="qp"><h3>📍 {L("ლექცია გააცდინე?", "Missed the lecture?")}</h3><ol class="path">{"".join(path)}</ol></div></section>')
     resources = render_resources(meta, ldir, materials, n_slides, len(quiz))
     page = (ENGINE / 'study.html').read_text()
+    if en:
+        for a, b in STUDY_PAGE_EN:
+            assert a in page, f'study.html: "{a}" not found'
+            page = page.replace(a, b)
+    has_en = bool(meta.get('_en')) or en
+    langbtn = (f'<a class="btn langbtn" href="{"study.html" if en else "study.en.html"}" title="{"ქართულად" if en else "English"}">{"KA" if en else "EN"}</a>' if has_en else '')
     mats = ''.join(f'<a href="materials/{esc(m)}" download>📎 {esc(m)}</a>' for m in materials)
-    for k, v in {'{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course['title']), '{{NUM}}': str(num), '{{TOTAL}}': str(total),
+    for k, v in {'{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course.get('title_en', course['title']) if en else course['title']), '{{NUM}}': str(num), '{{TOTAL}}': str(total),
                  '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{NAV}}': ''.join(nav), '{{QUICK}}': quick,
-                 '{{BODY}}': '\n'.join(body) + extra, '{{RESOURCES}}': resources, '{{MATERIALS}}': mats, '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
+                 '{{BODY}}': '\n'.join(body) + extra, '{{RESOURCES}}': resources, '{{MATERIALS}}': mats, '{{LANGBTN}}': langbtn, '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
         page = page.replace(k, v)
-    write_page(out / 'study.html', page)
+    write_page(out / ('study.en.html' if en else 'study.html'), page)
 
 # ---------- everything ----------
 def main(filters):
@@ -777,6 +868,8 @@ def main(filters):
         lectures, prev = [], None
         for ldir in sorted(p for p in cdir.iterdir() if (p / 'deck.html').exists()):
             meta = json.loads((ldir / 'lecture.json').read_text())
+            if (ldir / 'lecture.en.json').exists():
+                meta['_en'] = json.loads((ldir / 'lecture.en.json').read_text())
             if meta.get('starts_series'):   # e.g. a guest lecture for another group: no review of the previous lecture
                 prev = None
             rel = f'{cdir.name}/{ldir.name}'
@@ -785,7 +878,7 @@ def main(filters):
                 problems += errs
                 if info: lectures.append(info)
             prev = {'meta': meta, 'num': int(ldir.name.split('-', 1)[0]), 'homework': md_doc(ldir / 'homework.md'),
-                    'href': f'../{ldir.name}/'}
+                    'homework_en': md_doc(ldir / 'homework.en.md'), 'href': f'../{ldir.name}/'}
         catalog.append({'slug': cdir.name, 'title': course['title'], 'order': course.get('order', 99), 'lectures': lectures})
     catalog.sort(key=lambda c: c['order'])
     if not filters:

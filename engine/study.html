@@ -18,6 +18,7 @@ a{color:var(--accent)}
 .top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
 .btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
 .live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
 .live.on{display:flex}
@@ -182,6 +183,7 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
   <a class="back" href="../../">← ლექციები</a>
   <div class="ttl"><small>📖 {{COURSE}} · {{NUM}}</small>{{TITLE}}</div>
   <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  {{LANGBTN}}
   <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
   <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
 </div>
@@ -288,6 +290,11 @@ document.addEventListener('click', e => {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
     qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
   }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
 });
 // deep link #s-12 → that part of the text
 const h = location.hash.match(/^#s-(\d+)$/);

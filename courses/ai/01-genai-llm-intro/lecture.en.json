@@ -1,0 +1,221 @@
+{
+  "title": "Introduction to Generative AI and LLM APIs",
+  "why": "This is the first lecture of the module. First we'll see the whole picture — what you'll build in 24 lectures, why you can't do it yet and who you'll be by the end of the module. Then we'll learn how a language model works inside: what it “reads”, how it writes an answer, why it makes mistakes and what it costs — so that from the next lecture, when we write code, these questions won't come up.",
+  "outcomes": [
+    "explain what you'll build in the module, what you'll be able to do and who you'll become",
+    "explain how an LLM produces text: tokens, next-token prediction, context window",
+    "choose Temperature, Top-P and Max Tokens for the task",
+    "choose a provider and calculate the monthly cost in tokens"
+  ],
+  "review": [
+    {
+      "q": "What is a token and why do we care about it in the backend?",
+      "a": "a piece of text the model reads and writes in · price, the context window limit and speed are counted in tokens; Georgian — more tokens"
+    },
+    {
+      "q": "How does an LLM write an answer?",
+      "a": "next-token prediction: computes probabilities for the next token → picks one → appends it → repeats until it finishes or hits the limit"
+    },
+    {
+      "q": "The model named the price of our dish. Why don't we trust it?",
+      "a": "it has never seen our menu; it writes what's likely, not what's true — hallucination · prices always come from the database"
+    },
+    {
+      "q": "Why doesn't the model “remember” the previous request?",
+      "a": "stateless: every request is independent · we have to send the history every time"
+    },
+    {
+      "q": "Which Temperature do we set to detect the order type, and what does `finish_reason = length` mean?",
+      "a": "0 — one correct answer, the same every time · length — it hit Max Tokens, the answer was cut off"
+    },
+    {
+      "q": "The restaurant chat has 300 conversations a day. What increases the cost the most?",
+      "a": "an expensive model (prices differ tenfold) · a growing history that is sent again every time · Georgian text — more tokens"
+    }
+  ],
+  "resources": [
+    {
+      "title": "Google AI Studio",
+      "url": "https://aistudio.google.com",
+      "note": "get a Gemini API key"
+    },
+    {
+      "title": "Gemini — list of models",
+      "url": "https://ai.google.dev/gemini-api/docs/models",
+      "note": "current model names"
+    },
+    {
+      "title": "Gemini — pricing",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "note": "for the homework cost calculation"
+    },
+    {
+      "title": "Tiktokenizer — text to tokens (choose gpt-4o)",
+      "url": "https://tiktokenizer.vercel.app",
+      "note": "see how text splits into tokens"
+    }
+  ],
+  "quiz": [
+    {
+      "q": "What is a token?",
+      "options": [
+        "One word",
+        "A piece of text the model reads and writes in",
+        "One letter",
+        "One sentence"
+      ],
+      "explain": "A token can be a word, a syllable or a letter — the tokenizer decides. Price, limits and speed are counted in tokens."
+    },
+    {
+      "q": "The same idea in English and in Georgian. What happens with Georgian?",
+      "options": [
+        "The tokens are the same",
+        "Many more tokens → more expensive and slower",
+        "Fewer tokens",
+        "The model can't read Georgian"
+      ],
+      "explain": "The tokenizer “saw” little Georgian, so a Georgian word splits into several parts."
+    },
+    {
+      "q": "How does an LLM write an answer?",
+      "options": [
+        "It looks up a ready answer in a database",
+        "At every step it calculates probabilities for the next token, picks one and repeats",
+        "It writes the whole answer at once",
+        "It searches the internet for the answer"
+      ],
+      "explain": "This is next-token prediction — the core mechanism of an LLM."
+    },
+    {
+      "q": "The model said: “Khinkali costs 1.20 ₾ here”. What do we do?",
+      "options": [
+        "Trust it — the model is smart",
+        "Set Temperature to 0 and then trust it",
+        "The price always comes from our database (tool or RAG)",
+        "Use a bigger model"
+      ],
+      "explain": "This is hallucination: the model writes what is likely, not what is true. Temperature 0 makes the answer consistent, not correct."
+    },
+    {
+      "q": "First request: “My name is Nino”. Second, separate request: “What's my name?”. What will it answer?",
+      "options": [
+        "“Nino”",
+        "It won't know — the model is stateless",
+        "It remembers for 24 hours",
+        "Only if we write in Georgian"
+      ],
+      "explain": "Every request is independent. For “memory” we have to send the history every time."
+    },
+    {
+      "q": "We extract the date and party size from a customer's text. Which Temperature?",
+      "options": [
+        "0",
+        "0.7",
+        "1.5",
+        "2"
+      ],
+      "explain": "There is one correct answer and we want the same result every time."
+    },
+    {
+      "q": "The response says `finish_reason: \"length\"`. What does it mean?",
+      "options": [
+        "The model finished successfully",
+        "It hit Max Tokens — the answer was cut off",
+        "We sent a text that was too long",
+        "The model restarted"
+      ],
+      "explain": "A normal finish is `stop`. On `length`, raise the limit or log it."
+    },
+    {
+      "q": "What does Top-P = 0.9 do?",
+      "options": [
+        "Returns 90% of the text",
+        "Keeps the most likely tokens until their sum reaches 90%",
+        "Sets Temperature to 0.9",
+        "Limits the answer to 90 tokens"
+      ],
+      "explain": "It cuts the weak “tail”, and the choice happens only among the remaining tokens."
+    },
+    {
+      "q": "FAQ bot: “Open on Sunday?”. Should we use a reasoning model?",
+      "options": [
+        "Yes — it's always better",
+        "No — it's a simple question; reasoning is slow and we pay for thinking tokens",
+        "Yes, if it's in Georgian",
+        "Only in the evening, when the load is low"
+      ],
+      "explain": "Reasoning is worth it for multi-step tasks, not simple questions."
+    },
+    {
+      "q": "10M input and 1M output tokens a month. Price: $0.15 / $0.60 (per 1M). Cost?",
+      "options": [
+        "$0.75",
+        "$2.10",
+        "$7.50",
+        "$1.50"
+      ],
+      "explain": "10 × 0.15 + 1 × 0.60 = 1.50 + 0.60 = $2.10."
+    },
+    {
+      "q": "When is a local model (running on our own server) the better choice?",
+      "options": [
+        "When we want the strongest model",
+        "When customer data must not leave the company",
+        "When we want good quality in Georgian",
+        "When we don't have a server"
+      ],
+      "explain": "A local model keeps the data inside the system; on the other hand, it needs a powerful server and small models are weak in Georgian."
+    },
+    {
+      "q": "Where do we store the Gemini API key?",
+      "options": [
+        "In `appsettings.json`",
+        "In code, as a const",
+        "In the environment variable `GEMINI_API_KEY`",
+        "In `launchSettings.json`"
+      ],
+      "explain": "The other files go to Git — bots find a leaked key within minutes."
+    }
+  ],
+  "study": {
+    "summary": [
+      "In this module an **AI agent** appears in your API: the model decides what to do, and **your C# code** does it.",
+      "The model reads text as **tokens** and sees only numbers. Price, limits and speed are counted in tokens; Georgian takes more tokens.",
+      "The model writes the **likely** next token, not the true one. Prices, stock and reservations must always come **from the database**.",
+      "The model **doesn't remember** the previous request: we send the history every time, and we pay for it.",
+      "**Temperature**, **Top-P** and **Max Tokens** are set per request, depending on the task. Cost = tokens × price, and output is more expensive than input."
+    ],
+    "chapters": {
+      "მოდული": {
+        "title": "The module: what we'll build and who you'll become",
+        "goal": "you'll know what you'll build in 24 lectures, what you're missing now and where this runs in real projects."
+      },
+      "1 · რატომ AI": {
+        "title": "Why AI: where if/else ends",
+        "goal": "you can explain what regular code can't do and why an LLM is, for us, just another HTTP API."
+      },
+      "2 · როგორ მუშაობს": {
+        "title": "How an LLM works",
+        "goal": "you can explain what a token is, how the model writes an answer, why it makes things up and why it doesn't remember the previous conversation."
+      },
+      "3 · პარამეტრები": {
+        "title": "Parameters: Temperature, Top-P, Max Tokens",
+        "goal": "you'll choose parameters for the task and know when a reasoning model is needed."
+      },
+      "4 · პროვაიდერები": {
+        "title": "Providers and price",
+        "goal": "you'll choose cloud or local and calculate the monthly cost of an AI feature."
+      },
+      "პრაქტიკა": {
+        "title": "Classwork: planning an AI feature",
+        "goal": "following the example, you'll plan an AI feature for your project."
+      },
+      "შეჯამება": {
+        "title": "Summary"
+      },
+      "საშინაო": {
+        "title": "Homework"
+      }
+    }
+  }
+}

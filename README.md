@@ -85,7 +85,16 @@ build.py                     აწყობს საიტს
 
 ### ინგლისური ვერსია (`deck.en.json`)
 
-თუ ლექციის საქაღალდეში არის `deck.en.json`, build აწყობს `index.en.html`-საც. პრეზენტაციაში **EN / KA** ღილაკი იმავე სლაიდზე გადადის. კონსპექტი და ლექტორის გვერდი მხოლოდ ქართულია.
+თუ ლექციის საქაღალდეში არის `deck.en.json`, build აწყობს `index.en.html`-საც. პრეზენტაციაში **EN / KA** ღილაკი იმავე სლაიდზე გადადის. ლექტორის გვერდი მხოლოდ ქართულია.
+
+**ინგლისური კონსპექტი (`study.en.html`).** თუ ლექციაში არის `lecture.en.json`, build აწყობს ინგლისურ კონსპექტსაც:
+
+- `deck.html` — ყოველი `<aside class="study">`-ის შემდეგ `<aside class="study-en">` (იგივე markdown, ინგლისურად; build აფრთხილებს, რომელ სლაიდს აკლია)
+- `lecture.en.json` — `title`, `why`, `outcomes`, `review`, `resources`, `quiz` (მხოლოდ ტექსტები — `answer`/`slide` lecture.json-დან მოდის, იმავე რიგით), `study` (`summary`, `chapters` — გასაღებები ქართული `data-section`-ებია)
+- `classwork.en.md`, `homework.en.md` — სექციები: `Steps` / `Requirements`, `Done when`, `Bonus`, `Solution` (კონსპექტში არ ჩანს)
+- `course.json` → `"title_en"`
+
+კონსპექტზე **EN / KA** ღილაკი იმავე ადგილზე გადადის; ინგლისური პრეზენტაციიდან P ინგლისურ კონსპექტს ხსნის.
 
 ```json
 {

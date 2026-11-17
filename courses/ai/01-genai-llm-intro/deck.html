@@ -157,6 +157,11 @@
 
 24 ლექცია. მოდულის ბოლოს შენი API ადამიანის ენას „გაიგებს“ და მის მაგივრად იმოქმედებს: მოძებნის მენიუში, დაამატებს კალათაში, დაჯავშნის მაგიდას. პირველ ლექციაზე ვნახავთ მთელ სურათს — რას ვისწავლით, რისი აწყობა შეგეძლება და ვინ გახდები — შემდეგ კი ვიგებთ, როგორ მუშაობს ენობრივი მოდელი შიგნიდან.
   </aside>
+  <aside class="study-en">
+## The module: building and managing AI agents in .NET
+
+24 lectures. By the end of the module your API will “understand” human language and act on the user's behalf: search the menu, add to the cart, book a table. In the first lecture we look at the whole picture — what we'll learn, what you'll be able to build and who you'll become — and then we find out how a language model works inside.
+  </aside>
 </section>
 
 <section class="slide" data-section="მოდული">
@@ -173,6 +178,11 @@
 ### აქამდე — მომხმარებელი, ამიერიდან — შემქმნელი
 
 თითქმის ყველას გამოუყენებია AI: ჩატში კითხვა, კოდის დაწერა, თარგმანი. ეს AI-ის **მომხმარებლის** როლია. ამ მოდულში როლი იცვლება: AI-ს **საკუთარ სისტემაში ჩააშენებ** — შენი API-დან გამოიძახებ, შენს მონაცემს მიაწვდი, შენს C# მეთოდებს გამოაძახებინებ და გააკონტროლებ, რომ შეცდომა არ დაუშვას.
+  </aside>
+  <aside class="study-en">
+### Until now — a user, from now on — a builder
+
+Almost everyone has used AI: asking a chat, writing code, translating. That is the role of an AI **user**. In this module the role changes: you will **build AI into your own system** — call it from your API, give it your data, let it call your C# methods and make sure it doesn't make mistakes.
   </aside>
 </section>
 
@@ -205,6 +215,19 @@
 
 მარჯვენა ნაწილი — „აგენტი შიგნიდან“ — მთავარი იდეაა: **მოდელი წყვეტს, რა გააკეთოს; აკეთებს ჩვენი კოდი.** ეს ყველაფერი 24 ლექციაში ნაბიჯ-ნაბიჯ შენდება.
   </aside>
+  <aside class="study-en">
+### By the end of the module — this is RestaurantApi
+
+The customer writes in plain language: “Something light, no meat, for two. And a table tomorrow at 8”. The AI agent:
+
+1. **Searches the menu** — in our database (PostgreSQL), not “from memory”, so the price is real.
+2. **Books a table** — with our C# method (`BookTable`), which it calls itself.
+3. **Offers to add to the cart** — and asks for consent before acting.
+4. **Protects itself** — when someone tries to trick it (“forget your instructions…”), it refuses.
+5. **Is measured** — how many tokens were spent, what it cost, how long it took.
+
+The right-hand part — “inside the agent” — is the key idea: **the model decides what to do; our code does it.** All of this is built step by step over 24 lectures.
+  </aside>
 </section>
 
 <section class="slide" data-section="მოდული">
@@ -228,6 +251,20 @@
 | როგორ ვუპასუხოთ **ჩვენი** მონაცემით (embeddings, pgvector, RAG), რომ მოდელმა არ მოიგონოს | 9–12 |
 | როგორ ვაქციოთ „მოქმედად“: tool-ები, აგენტები, MCP, რამდენიმე აგენტი | 4, 13–18 |
 | როგორ დავიცვათ (prompt injection, guardrails) და როგორ გავზომოთ ხარისხი (evals, observability) | 19–22 |
+  </aside>
+  <aside class="study-en">
+### What you have — and what you're missing
+
+**You already know:** ASP.NET Core Web API, EF Core and PostgreSQL, DI, DTOs, validation. RestaurantApi has a menu, cart, orders and reservations. In other words, **everything the agent will use as its “hands” already exists.**
+
+**You're missing four things** — and that's exactly what the module is about:
+
+| What you're missing | Lectures |
+|---|---|
+| How to talk to a model from C#, get the answer as an object, what it costs and how to handle errors | 1–8 |
+| How to answer with **our** data (embeddings, pgvector, RAG) so the model doesn't make things up | 9–12 |
+| How to turn it into “action”: tools, agents, MCP, several agents together | 4, 13–18 |
+| How to secure it (prompt injection, guardrails) and measure quality (evals, observability) | 19–22 |
   </aside>
 </section>
 
@@ -269,6 +306,28 @@
 
 მნიშვნელოვანი: ჩვენ მოდელს **არ ვწვრთნით** (ეს ML ინჟინრის/მკვლევრის საქმეა). ვიღებთ მზა მოდელს და **სისტემად ვაქცევთ** — ეს AI ინჟინრის სამუშაოს უდიდესი ნაწილია.
   </aside>
+  <aside class="study-en">
+### Where this runs today — real examples
+
+| Project | What it does | Technique (lecture) |
+|---|---|---|
+| 🏦 Bank / telecom assistant | Answers customers about rates, rules and procedures **from internal documents** and cites the source | RAG (9–12) |
+| 🛒 Shop / delivery agent | Finds products, adds them to the cart, checks order status — through the system's API | Tools, Agents (4, 13–15) |
+| 📄 Document automation | Extracts fields from an invoice, CV or contract and writes them to the database | Structured Output (2) |
+| 🏢 Internal company assistant | Answers employees about HR rules and IT instructions; connects to Jira, Slack | MCP, Multi-Agent (16–18) |
+
+All four are built from the same “bricks” — and you'll learn those bricks in this module.
+
+#### Who you'll become
+
+After the module you'll be **a .NET developer who builds AI systems**. In job ads this role goes by different names:
+
+- **AI Engineer** — connects an LLM to an existing system and is responsible for data, security, cost and quality.
+- **Agent Developer** — builds agents that act inside a system: tools, MCP, workflows.
+- **Backend developer with AI** — a regular backend role where part of the features run on AI. The most common case.
+
+Important: we **don't train** models (that's the job of an ML engineer or researcher). We take a ready model and **turn it into a system** — that is most of an AI engineer's work.
+  </aside>
 </section>
 
 <section class="slide" data-section="მოდული">
@@ -295,6 +354,18 @@
 
 ახალ პროექტს არ ვიწყებთ: ლექტორი ამ ყველაფერს RestaurantApi-ს ამატებს, შენ — შენს API პროექტს.
   </aside>
+  <aside class="study-en">
+### Module map — what you can do after each stage
+
+1. **Lectures 1–3 · We talk to the model.** How an LLM works, how to write a good instruction (prompt) and get the answer as a C# object, Microsoft.Extensions.AI and `IChatClient`.
+2. **Lectures 4–8 · The model calls our C# code.** Tools and function calling, middleware, streaming, chat history and context, errors and cost control.
+3. **Lectures 9–12 · It answers with our data.** Embeddings, PostgreSQL + pgvector, RAG — answers based on the menu and documents, citing the source.
+4. **Lectures 13–18 · The agent acts.** Microsoft Agent Framework, custom tools, MCP, workflows, several agents working together.
+5. **Lectures 19–20 · Secured and measured.** Prompt injection, guardrails, OpenTelemetry, evals — measuring quality.
+6. **Lectures 21–24 · Final project.** Your Web API + agent, tests, defense.
+
+We don't start a new project: the lecturer adds all of this to RestaurantApi, and you add it to your own API project.
+  </aside>
 </section>
 
 <section class="slide" data-section="მოდული">
@@ -318,6 +389,18 @@
 - 🛠️ **სერვისის ცენტრი** — „ლეპტოპი ხურდება“ → კატეგორია, ფასის შეფასება, ჩაწერა.
 
 მოიფიქრე ასეთი ფუნქციები შენი პროექტისთვის — საშინაოში 3 მათგანს დაგეგმავ, მოდულის მანძილზე კი ააწყობ.
+  </aside>
+  <aside class="study-en">
+### What would you add to your API?
+
+Every API project has a place where a person asks for something “in plain language”. Examples:
+
+- 📚 **Library** — “Something mystical, short, by a Georgian author” → book recommendations from the database.
+- 🏋️ **Gym** — “Any trainer free tomorrow morning?” → search the schedule and book.
+- 🏨 **Hotel** — “3 nights, sea view, under 300 GEL” → find a room and book it.
+- 🛠️ **Repair shop** — “My laptop overheats” → category, price estimate, appointment.
+
+Think of such features for your project — in the homework you'll plan 3 of them, and over the module you'll build them.
   </aside>
 </section>
 
@@ -346,6 +429,17 @@
 
 გზაში: ტოკენაიზერი (ნებისმიერი ტექსტი), „იყავი LLM“, Temperature-ის სლაიდერი და ხარჯის კალკულატორი.
   </aside>
+  <aside class="study-en">
+### Lecture plan — 5 stops
+
+1. 🤔 **Why AI?** — which problem regular code can't solve.
+2. 🧩 **How an LLM works** — tokens, next-token prediction, context window.
+3. 🎛️ **Parameters** — Temperature, Top-P, Max Tokens; reasoning models.
+4. 💸 **Providers and price** — cloud or local, how the cost is calculated.
+5. 🧭 **Summary** — planning an AI feature in pairs and review questions.
+
+Along the way: a tokenizer (any text), “Be the LLM”, the Temperature slider and the cost calculator.
+  </aside>
 </section>
 
 <section class="slide divider" data-section="1 · რატომ AI">
@@ -359,6 +453,11 @@
 ## ნაწილი 1 · რას ვერ აკეთებს if / else?
 
 სანამ წაიკითხავ, სცადე თავად უპასუხო: რა ტიპის ამოცანას ვერ წერ ჩვეულებრივი C# კოდით, რამდენი პირობაც არ უნდა დაწერო?
+  </aside>
+  <aside class="study-en">
+## Part 1 · What can't if / else do?
+
+Before reading on, try to answer yourself: what kind of problem can't you write in regular C# code, no matter how many conditions you add?
   </aside>
 </section>
 
@@ -394,6 +493,24 @@
 = ერთი აზრი უამრავნაირად ითქმება; წესების რაოდენობა უსასრულოა და ნებისმიერ ახალ ფორმულირებაზე ტყდება.
 ```
   </aside>
+  <aside class="study-en">
+### The problem: customers write in plain language
+
+Three realistic messages from the restaurant chat:
+
+- **Nino:** “Something light, no meat, for two, under 40 GEL”
+- **Giorgi:** “Four of us tomorrow at 8, with a kid, by the window if possible”
+- **Luka:** “I want that thing with the red sauce I got last week, but less spicy”
+
+Try it: how would you turn each one into a call to our API? For Nino the filters `isVegetarian=true`, `maxPrice=40` would still work, but what is “light” — calories? portion size? For Giorgi, “tomorrow at 8” has to become a date and time, and “with a kid” — an extra chair? For Luka we'd have to search past orders and match the “red sauce” to a dish description.
+
+You can't write this with keyword search (`Contains("no meat")`): the same idea is said in a thousand ways, with typos, slang, in two languages. **Regular code expects exact input — human language isn't exact.**
+
+```check
+? Why can't we handle natural language with `if/else`?
+= The same idea can be phrased in countless ways; the number of rules is endless and they break on every new phrasing.
+```
+  </aside>
 </section>
 
 <section class="slide" data-section="1 · რატომ AI">
@@ -426,6 +543,23 @@
 ```terms
 დეტერმინისტული — ერთი და იგივე შეყვანა ყოველთვის ერთსა და იმავე შედეგს იძლევა
 ალბათური (probabilistic) — შედეგი შემთხვევითობას შეიცავს; ერთი შეყვანა სხვადასხვა შედეგს იძლევა
+```
+  </aside>
+  <aside class="study-en">
+### Regular code vs a language model
+
+| | C# code | LLM |
+|---|---|---|
+| Input | exact, structured (`dishId`, `date`) | any text |
+| Rules | we write them | the model “learned” them from text |
+| Result | **deterministic**: one input → always the same result | **probabilistic**: one question can get different answers |
+| Error | a bug — we find and fix it | a convincingly stated falsehood (we'll name it in part 2) |
+
+The key idea: **an LLM doesn't replace regular code.** Adding to the cart, calculating the price, saving a reservation stay in C# — that's where we need precision. We use an LLM where human language has to be “understood” or produced. This whole module is about connecting these two worlds.
+
+```terms
+deterministic — the same input always produces the same result
+probabilistic — the result contains randomness; one input can produce different results
 ```
   </aside>
 </section>
@@ -474,6 +608,31 @@ Machine Learning — პროგრამა წესებს თვითო
 Deep Learning — Machine Learning მრავალშრიანი ნეირონული ქსელით
 GenAI — AI, რომელიც ახალ კონტენტს ქმნის
 LLM — დიდი ენობრივი მოდელი: ტექსტი შედის, ტექსტი გამოდის
+```
+  </aside>
+  <aside class="study-en">
+### AI → ML → Deep Learning → GenAI → LLM
+
+These terms are often used as synonyms, but they are actually **circles nested inside each other**: each one is part of the previous.
+
+| Term | What it is | Example |
+|---|---|---|
+| **AI** — artificial intelligence | The broadest concept: any program that performs a “smart” task. It can be written with ordinary rules (if/else) | a chess program, a navigation route |
+| **Machine Learning** | The programmer doesn't write the rules: the program finds them itself **from examples** | a spam filter that has “seen” thousands of labelled emails |
+| **Deep Learning** | ML that uses a **multi-layer neural network**. That's how it learns complex things: images, sound, language | face unlock, speech recognition |
+| **GenAI** — generative AI | Models that don't just recognise things but **create new ones** | images from a description, music, text, code |
+| **LLM** — large language model | GenAI for text: **text in → text out**. “Large” — billions of parameters and an enormous training text | ChatGPT, Gemini, Claude |
+
+**ChatGPT is all three** — AI, Machine Learning and an LLM at once, because the LLM sits inside all the other circles. But not every AI is an LLM: an old chess program is AI but not ML.
+
+In this course we are **users of LLMs**, not their creators: we don't train models, we call a ready model through an API and connect it to our system. That is how most of the AI engineering profession works.
+
+```terms
+AI (artificial intelligence) — any program that performs a “smart” task
+Machine Learning — the program finds the rules itself from examples
+Deep Learning — Machine Learning with a multi-layer neural network
+GenAI — AI that creates new content
+LLM — large language model: text in, text out
 ```
   </aside>
 </section>
@@ -527,6 +686,25 @@ Backend დეველოპერისთვის LLM ჯადოსნუ�
 
 ამ JSON-ს ხელით არ დავწერთ — C#-ში ამას .NET-ის ბიბლიოთეკა გააკეთებს — კოდს შემდეგ ლექციებზე ვწერთ. მაგრამ კარგია იცოდე, რა მიდის „კაპოტის ქვეშ“.
   </aside>
+  <aside class="study-en">
+### For us an LLM = just another HTTP API
+
+For a backend developer an LLM is nothing magical: it's an **external service** we send an HTTP request to — just like a weather or payment API. Almost all providers use the same format (the so-called **OpenAI-compatible** API). Above is Gemini's OpenAI-compatible address; a request to OpenAI, Groq or a local Ollama looks almost identical.
+
+**Request:**
+
+- `model` — which model we're asking
+- `messages` — a list of messages, each with its own `role` (`user`, `assistant`, `system` — in detail in lecture 2)
+- `temperature`, `max_tokens` — parameters, in part 3
+
+**Response:**
+
+- `choices[0].message.content` — the text of the answer
+- `finish_reason` — why it stopped writing (`stop` — it finished by itself, `length` — it hit the limit)
+- `usage` — how many **tokens** were spent. This is what we pay for.
+
+We won't write this JSON by hand — in C# a .NET library will do it — we write code in the next lectures. But it's good to know what goes on “under the hood”.
+  </aside>
 </section>
 
 <section class="slide divider" data-section="2 · როგორ მუშაობს">
@@ -540,6 +718,11 @@ Backend დეველოპერისთვის LLM ჯადოსნუ�
 ## ნაწილი 2 · როგორ „ფიქრობს“ LLM?
 
 ჯერ ვნახავთ **მთელ სურათს** — რა ხდება „Send“-ის დაჭერიდან პასუხამდე, — შემდეგ კი ნაწილ-ნაწილ ჩავშლით სამ იდეას, რომელიც მთელი კურსის მანძილზე დაგვჭირდება: **ტოკენი** (რას „კითხულობს“ მოდელი), **next-token prediction** (როგორ წერს პასუხს) და **context window** (რამდენს „ხედავს“ ერთდროულად).
+  </aside>
+  <aside class="study-en">
+## Part 2 · How does an LLM “think”?
+
+First we'll see the **big picture** — what happens from pressing “Send” to the answer — and then break down, piece by piece, three ideas we'll need throughout the course: the **token** (what the model “reads”), **next-token prediction** (how it writes the answer) and the **context window** (how much it “sees” at once).
   </aside>
 </section>
 
@@ -576,6 +759,24 @@ Backend დეველოპერისთვის LLM ჯადოსნუ�
 
 შემდეგ სლაიდებზე თითო ნაბიჯს ჩავშლით: რა არის **ტოკენი**, როგორ ირჩევა **შემდეგი ტოკენი**, **რატომ ცდება** მოდელი და **რას ხედავს** ის ერთ მოთხოვნაში.
   </aside>
+  <aside class="study-en">
+### The big picture: what happens after “Send”?
+
+Before we go into the details, here's how a language model works in simple terms.
+
+**Once, in advance — training.** The model “read” trillions of words (books, web pages, code) and learned which word follows which. Companies do this (Google, OpenAI…). We use a ready model.
+
+**On every request — 4 steps:**
+
+1. **The text is cut into pieces** — “Book a table for” → `Book` · ` a` · ` table` · ` for`. These pieces are called **tokens**.
+2. **The model calculates which piece comes next** — it gives every possible piece a probability: ` two` 62%, ` four` 21%, ` pizza` 0.1%…
+3. **It picks one and appends it to the text** — “Book a table for **two**”. How “boldly” it picks is decided by **Temperature** (part 3).
+4. **It repeats** — what comes after “Book a table for two”? And so on, piece by piece, until it finishes the answer. That's why you see the answer in a chat appear gradually, word by word.
+
+**Analogy:** a phone keyboard that suggests the next word — only one that has read almost the entire internet.
+
+On the next slides we break down each step: what a **token** is, how the **next token** is chosen, **why the model makes mistakes** and **what it sees** in one request.
+  </aside>
 </section>
 
 <section class="slide" data-section="2 · როგორ მუშაობს">
@@ -599,6 +800,20 @@ Backend დეველოპერისთვის LLM ჯადოსნუ�
 ```terms
 ტოკენი (token) — ტექსტის ნაჭერი, რომლითაც მოდელი კითხულობს და წერს
 tokenizer — პროგრამა, რომელიც ტექსტს ტოკენებად (და ID-ებად) ყოფს და პირიქით
+```
+  </aside>
+  <aside class="study-en">
+### What is a token?
+
+First try to answer yourself: does the model read text by letters, by words, or some other way?
+
+**Answer:** neither — **by tokens**. A token is a piece of text: a common word is one token, a rare one splits into several parts, sometimes even into single letters. Each token has its own **number (ID)**, and the model actually sees these numbers.
+
+For the backend a token is **the unit of measurement**: price, limit (context window) and speed are all counted in tokens.
+
+```terms
+token — a piece of text the model reads and writes in
+tokenizer — a program that splits text into tokens (and IDs) and back
 ```
   </aside>
 </section>
@@ -636,6 +851,24 @@ tokenizer — პროგრამა, რომელიც ტექსტს
 სხვადასხვა მოდელს სხვადასხვა tokenizer აქვს (Gemini-საც საკუთარი), ამიტომ რიცხვები მოდელიდან მოდელამდე განსხვავდება — მაგრამ ტენდენცია იგივეა. ამას Tiktokenizer-ში თვითონ ნახავთ.
 ```
   </aside>
+  <aside class="study-en">
+### One idea in two languages — real tokens
+
+Below is the **real** split by the GPT-4o tokenizer (`o200k_base`), with real IDs:
+
+| Text | Tokens | Count |
+|---|---|---|
+| Book a table for two | `Book` · ` a` · ` table` · ` for` · ` two` | **5** |
+| დაჯავშნე მაგიდა ორისთვის (Georgian) | `დ` · `აჯ` · `ავშ` · `ნ` · `ე` · ` მაგ` · `იდა` · ` ო` · `რის` · `თვის` | **10** |
+
+Notice: a token often includes the **leading space** (` table`). The English word is a single token, while Georgian splits into parts — the tokenizer “learned” on the text that is most common on the internet, and there is little Georgian there.
+
+**What it means for us:** Georgian text is more tokens → more expensive, slower, and less of it fits into the context.
+
+```note
+Different models have different tokenizers (Gemini has its own), so the numbers vary from model to model — but the trend is the same. You'll see this yourself in Tiktokenizer.
+```
+  </aside>
 </section>
 
 <section class="slide" data-section="2 · როგორ მუშაობს">
@@ -670,6 +903,23 @@ tokenizer — პროგრამა, რომელიც ტექსტს
 ```terms
 tokenizer — პროგრამა, რომელიც ტექსტს ტოკენებად ჭრის და ნომრებად აქცევს (და პირიქით)
 vocabulary (ლექსიკონი) — tokenizer-ის ცხრილი: ნაჭერი → ნომერი (ID)
+```
+  </aside>
+  <aside class="study-en">
+### The model sees only numbers
+
+This is how text reaches the model:
+
+1. **Text** — e.g. `Book a table for two`.
+2. **Pieces** — the tokenizer cuts the text into tokens: `Book` · ` a` · ` table` · ` for` · ` two`. A token often includes the leading space.
+3. **Vocabulary** — the tokenizer has a table where each piece has its own number (ID). GPT-4o's vocabulary has ~200 000 pieces; ` table` = **3293**.
+4. **Only numbers go into the model** — `[6904, 261, 3293, 395, 1920]`. The model also returns its answer as numbers, and the tokenizer turns them back into text.
+
+**How does the model “know” what 3293 means?** Inside the model each number maps to a **vector** — hundreds of numbers that, during training, “arranged themselves” so that tokens with similar meanings are close together. We'll come back to this idea in lecture 9 (embeddings) — RAG is built on it.
+
+```terms
+tokenizer — a program that cuts text into tokens and turns them into numbers (and back)
+vocabulary — the tokenizer's table: piece → number (ID)
 ```
   </aside>
 </section>
@@ -710,6 +960,21 @@ vocabulary (ლექსიკონი) — tokenizer-ის ცხრილი
 
 ```tip
 Gemini-ს საკუთარი tokenizer აქვს, ამიტომ მისი რიცხვები ცოტა განსხვავდება — ტენდენცია იგივეა. ზუსტ რაოდენობას Gemini-ს API თვითონ აბრუნებს (`usage`), ამას ლექცია 2-ზე ვნახავთ. იგივე საიტი საშინაოშიც დაგჭირდება.
+```
+  </aside>
+  <aside class="study-en">
+### 🎮 Try it yourself: Tiktokenizer
+
+Open **[tiktokenizer.vercel.app](https://tiktokenizer.vercel.app/)** — a free site that splits any text into tokens: coloured pieces, each one's number (ID) and the total count.
+
+1. On the left, choose the model **gpt-4o** (the new tokenizer, `o200k_base`).
+2. Type a Georgian sentence and count the tokens.
+3. Switch to **gpt-4** (the older one, `cl100k_base`) and compare: on the old tokenizer Georgian text is several times more tokens — i.e. it used to be several times more expensive.
+
+Also try: the same sentence in English, C# code, emoji, your name, a long word („ვეგეტარიანელი“).
+
+```tip
+Gemini has its own tokenizer, so its numbers differ a little — the trend is the same. Gemini's API returns the exact count itself (`usage`); we'll see this in lecture 2. You'll need the same site for the homework too.
 ```
   </aside>
 </section>
@@ -754,6 +1019,28 @@ next-token prediction — შემდეგი ტოკენის წინ�
 ალბათობების განაწილება (distribution) — ყველა შესაძლო ტოკენის სია თავისი ალბათობით; ჯამი 100%
 ```
   </aside>
+  <aside class="study-en">
+### Next-token prediction — the whole secret of an LLM
+
+An LLM does one thing: **it knows which token comes next.** More precisely, based on the text it calculates a **probability** for every possible token.
+
+The loop looks like this:
+
+1. **Input** — the model receives a sequence of tokens: `Book a table for`
+2. **Probabilities** — it calculates which token comes next: `two` — 62%, `four` — 21%, `tonight` — 9%, `pizza` — 0.1%… (illustrative numbers)
+3. **Choice** — it picks one (how — that's decided by **Temperature**, part 3)
+4. **Repeat** — it appends the chosen token to the text and runs the whole loop again: `Book a table for two` → next token → …
+5. **End** — when the model picks a special “end” token, or hits the limit (`max_tokens`)
+
+That's all. Chat, writing code, translation — everything happens through this one loop. The model's “thinking” and “knowledge” are “written” into these probabilities: while training on an enormous text it learned what follows what.
+
+**Backend takeaway:** every token is one full run of the model. That's why a 500-token answer is noticeably slower and more expensive than a 50-token one. It's also why the answer in ChatGPT “appears gradually” — that's **streaming** (lecture 6).
+
+```terms
+next-token prediction — predicting the next token: the core mechanism of an LLM
+probability distribution — the list of all possible tokens with their probabilities; they add up to 100%
+```
+  </aside>
 </section>
 
 <section class="slide" data-section="2 · როგორ მუშაობს">
@@ -785,6 +1072,17 @@ next-token prediction — შემდეგი ტოკენის წინ�
 სწორედ ესაა ალბათობების განაწილება. მოდელმა ტექსტზე ვარჯიშისას ნახა, რომ ასეთ წინადადებას ყველაზე ხშირად „დავჯავშნო“ მოსდევს, ამიტომ მისი ალბათობა მაღალია. „ბანანი“ გრამატიკულად შეიძლება, მაგრამ თითქმის არასდროს გვხვდება — ალბათობა ნულთან ახლოსაა.
 
 **მნიშვნელოვანი დეტალი:** ყველა ერთსა და იმავეს არ დაწერს, თუმცა ყველა პასუხი „ნორმალური“ იქნება. მოდელიც ასეა: ერთ კითხვაზე რამდენიმე სწორი გაგრძელება არსებობს, და რომელს აირჩევს — ამას Temperature წყვეტს.
+  </aside>
+  <aside class="study-en">
+### 🎮 Try it yourself · Be the LLM
+
+The sentence: **“Tomorrow evening I'd like a table ___”**
+
+First write one word yourself, then ask 3–4 friends the same. The result is almost always like this: most write “for two”, some “for four” or “by the window”, and **nobody** writes “banana”.
+
+That is exactly a probability distribution. While training on text, the model saw that a sentence like this is most often followed by “for two”, so its probability is high. “Banana” is grammatically possible but almost never occurs — its probability is close to zero.
+
+**An important detail:** not everyone writes the same thing, yet every answer is “normal”. The model is the same: one question has several valid continuations, and which one it picks is decided by Temperature.
   </aside>
 </section>
 
@@ -826,6 +1124,31 @@ knowledge cutoff — თარიღი, სადამდეც მოდე�
 hallucination — დამაჯერებლად ნათქვამი, მაგრამ მცდარი ან მოგონილი ინფორმაცია
 ```
   </aside>
+  <aside class="study-en">
+### Where the model “knows” things from — and when it lies
+
+A model is created in two stages:
+
+1. **Pre-training** — on an enormous text (internet, books, code) it learns to guess the next token. The result: a model that “convincingly continues” any text, but isn't an assistant yet — it might “continue” a question with ten more questions.
+2. **Fine-tuning** (and RLHF) — extra training on dialogues and human ratings: it learns to follow instructions and behave like an assistant. That's how it becomes a “chat” model.
+
+**Knowledge cutoff** — the training data goes up to a certain date. The model doesn't know what happened after it. And most importantly: **our restaurant's menu, prices and free tables** it has never seen.
+
+**Hallucination** — when the model doesn't know the answer, it still writes the most “likely” text. “Khinkali 1.20 ₾” sounds convincing because there are many such sentences on the internet — but it's not our price. The model isn't lying on purpose: its goal is **likely** text, not **true** text.
+
+**The fix** (the main theme of the course): we don't make the model answer from memory, we **give it our data** — with a tool (lecture 4: the model calls our `GetMenu()` method) or with RAG (lecture 11: we find the relevant document and put it in the prompt).
+
+```warn
+A rule that applies throughout the course: **prices, stock, reservations, money — never from the model's memory.** Such data always comes from our database.
+```
+
+```terms
+pre-training — the main training on a large text: guessing the next token
+fine-tuning — additional training for a specific behaviour (e.g. assistant dialogue)
+knowledge cutoff — the date up to which the model's training data reaches
+hallucination — convincingly stated but wrong or made-up information
+```
+  </aside>
 </section>
 
 <section class="slide" data-section="2 · როგორ მუშაობს">
@@ -857,7 +1180,7 @@ hallucination — დამაჯერებლად ნათქვამი,
 - **კითხვა** — მომხმარებლის ბოლო შეტყობინება
 - **პასუხი** — რასაც მოდელი დაწერს
 
-**მოდელს მეხსიერება არ აქვს (stateless).** ეს ყველაზე ხშირი გაუგებრობაა. ChatGPT-ში ჩანს, თითქოს მოდელს „ახსოვს“ საუბარი — სინამდვილეში ყოველ ახალ შეტყობინებაზე აპლიკაცია **მთელ ისტორიას თავიდან უგზავნის**. ჩვენც ასე უნდა მოვიქცეთ: თუ ისტორიას არ გავუგზავნით, მოდელმა არ იცის, რაზე ვლაპარაკობდით. დღეს ამას კოდშიც შევამოწმებთ, ხოლო ისტორიის შენახვას PostgreSQL-ში — ლექცია 7-ზე ვისწავლით.
+**მოდელს მეხსიერება არ აქვს (stateless).** ეს ყველაზე ხშირი გაუგებრობაა. ChatGPT-ში ჩანს, თითქოს მოდელს „ახსოვს“ საუბარი — სინამდვილეში ყოველ ახალ შეტყობინებაზე აპლიკაცია **მთელ ისტორიას თავიდან უგზავნის**. ჩვენც ასე უნდა მოვიქცეთ: თუ ისტორიას არ გავუგზავნით, მოდელმა არ იცის, რაზე ვლაპარაკობდით. ლექცია 2-ზე ამას კოდშიც ვნახავთ, ხოლო ისტორიის შენახვას PostgreSQL-ში — ლექცია 7-ზე ვისწავლით.
 
 **backend-ის დასკვნები:**
 
@@ -868,6 +1191,32 @@ hallucination — დამაჯერებლად ნათქვამი,
 ```terms
 context window — ტოკენების მაქსიმუმი ერთ მოთხოვნაში (შემავალი + გამომავალი)
 stateless — სისტემა, რომელსაც წინა მოთხოვნები არ ახსოვს; ყოველი მოთხოვნა დამოუკიდებელია
+```
+  </aside>
+  <aside class="study-en">
+### Context window — what the model “sees” in one request
+
+The **context window** is the maximum number of tokens the model processes in one request — **input and output** together. With modern models this ranges from tens of thousands of tokens to a million (the exact number is in the model's documentation).
+
+What goes into it (the bar on the slide):
+
+- **System** — instructions for the model (“You are a restaurant assistant…”)
+- **Chat history** — previous questions and answers
+- **Data** — the menu, documents, tool results
+- **Question** — the user's latest message
+- **Answer** — what the model will write
+
+**The model has no memory (stateless).** This is the most common misunderstanding. In ChatGPT it looks as if the model “remembers” the conversation — in reality, on every new message the app **sends the whole history again**. We'll have to do the same: if we don't send the history, the model doesn't know what we were talking about. We'll see this in code in lecture 2, and learn to store the history in PostgreSQL in lecture 7.
+
+**Backend takeaways:**
+
+- a long history = more tokens on every request = more money
+- the history will eventually hit the **limit** — managing it (compressing, selecting) is our job
+- the model sees **only** what we put into this request
+
+```terms
+context window — the maximum number of tokens in one request (input + output)
+stateless — a system that doesn't remember previous requests; every request is independent
 ```
   </aside>
 </section>
@@ -892,6 +1241,20 @@ stateless — სისტემა, რომელსაც წინა მ�
 = მოდელი ყოველ ნაბიჯზე ითვლის ალბათობებს შემდეგი ტოკენისთვის, ირჩევს ერთს, უმატებს ტექსტს და ციკლს იმეორებს — სანამ დასრულების ტოკენს ან ლიმიტს არ მიაღწევს.
 ```
   </aside>
+  <aside class="study-en">
+### ❓ Check yourself · part 2
+
+```check
+? Why is the same text more expensive in Georgian than in English?
+= Georgian text splits into more tokens (the tokenizer saw little Georgian), and price is counted in tokens.
+? The model named the price of our dish. Why don't we trust it?
+= It never saw our menu during training. The model writes the most likely text, not the true one — that's hallucination. Prices always come from the database.
+? In the first request we said “there are four of us”, in the second we asked “how many are we?”. What will it answer?
+= It won't know. The model is stateless: every request is separate. For it to “remember”, the second request has to include the previous messages too.
+? What does “next-token prediction” mean?
+= At every step the model calculates probabilities for the next token, picks one, appends it to the text and repeats the loop — until it reaches the end token or the limit.
+```
+  </aside>
 </section>
 
 <section class="slide divider" data-section="შესვენება">
@@ -914,6 +1277,11 @@ stateless — სისტემა, რომელსაც წინა მ�
 ## ნაწილი 3 · რომელ ტოკენს აირჩევს?
 
 ვიცით, რომ მოდელი ყოველ ნაბიჯზე ალბათობების სიას იღებს. ახლა ვნახავთ, რომელი პარამეტრებით ვმართავთ **არჩევანს** და **პასუხის სიგრძეს** — ესენი ყოველ API მოთხოვნაში გვხვდება.
+  </aside>
+  <aside class="study-en">
+## Part 3 · Which token will it pick?
+
+We know that at every step the model gets a list of probabilities. Now we'll see which parameters control the **choice** and the **length of the answer** — they appear in every API request.
   </aside>
 </section>
 
@@ -950,6 +1318,28 @@ stateless — სისტემა, რომელსაც წინა მ�
 ```terms
 logit — მოდელის „ქულა“ თითო ტოკენისთვის, სანამ ალბათობად იქცევა
 softmax — ფორმულა, რომელიც ქულებს ალბათობებად აქცევს (ჯამი 100%)
+```
+  </aside>
+  <aside class="study-en">
+### 🎛️ Temperature and Top-P — live
+
+This slide uses the real formula: the model gives each token a “score” (logit), and the probabilities are calculated like this — each score is divided by **Temperature** and then turned into a probability with softmax.
+
+- **Temperature ↓** (towards 0) → the distribution gets **sharper**: the most likely option wins (“for two”). At 0 — almost always the same.
+- **Temperature ↑** (towards 2) → the distribution gets **flatter**: weak options (“banana”) also get a chance.
+- **Top-P** — in the list sorted by probability, it keeps the most likely options until their sum reaches P; it cuts the rest (shown in grey).
+
+**🎲 Pick 10 times** — picks exactly like the model does: randomly, with these probabilities. Try Temperature 0, 0.7 and 2.
+
+**When to use what:** one correct answer (extracting a date, classification) → 0; chat → ~0.7; creative text → 1+. We usually don't change Top-P and Temperature together.
+
+```note
+The starting probabilities are illustrative; the formula is real.
+```
+
+```terms
+logit — the model's “score” for each token before it becomes a probability
+softmax — the formula that turns scores into probabilities (adding up to 100%)
 ```
   </aside>
 </section>
@@ -992,6 +1382,28 @@ softmax — ფორმულა, რომელიც ქულებს ა�
 ლიმიტი ძალიან დაბალი რომ იყოს, მომხმარებელი მოჭრილ წინადადებას მიიღებს. ამიტომ backend-ში `finish_reason == length` ყოველთვის უნდა შევამოწმოთ (დალოგოთ, ან ლიმიტი გავზარდოთ). ამას ლექცია 2-ზე კოდშიც ვნახავთ.
 ```
   </aside>
+  <aside class="study-en">
+### Max Tokens — where to stop
+
+**Max Tokens** (`max_tokens`, `max_output_tokens`, in C# `MaxOutputTokens`) limits how many tokens the model may write **in the answer**. When it reaches the limit, writing simply stops — even mid-word or mid-sentence.
+
+**Why we need it:**
+
+- 💸 **Cost limit** — output tokens are the most expensive; the limit guarantees one request won't “grow out of control”.
+- ⏱️ **Time limit** — a short answer arrives quickly.
+- 🐛 **Protection from odd behaviour** — sometimes a model repeats the same thing endlessly; the limit stops it.
+
+**How do we know whether it was cut off?** The response has `finish_reason`:
+
+| Value | Means |
+|---|---|
+| `stop` | the model finished by itself — the normal case |
+| `length` | it hit Max Tokens — **the answer is cut off** |
+
+```warn
+If the limit is too low, the user gets a cut-off sentence. That's why the backend should always check `finish_reason == length` (log it, or raise the limit). We'll see this in code in lecture 2.
+```
+  </aside>
 </section>
 
 <section class="slide" data-section="3 · პარამეტრები">
@@ -1021,6 +1433,22 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 რიცხვები ორიენტირია და არა კანონი — სწორ მნიშვნელობას ექსპერიმენტით პოულობენ (ლექცია 12 და 20: შეფასება/evals).
 
 **მთავარი:** პარამეტრი **ცალკეულ მოთხოვნას** ეკუთვნის. ერთი და იგივე მოდელი ერთ endpoint-ში 0-ით გამოიძახება, მეორეში — 0.8-ით.
+  </aside>
+  <aside class="study-en">
+### One project — different parameters
+
+In RestaurantApi the LLM will do several different jobs, and each needs its own parameters:
+
+| Task | Temperature | Max Tokens | Why |
+|---|---|---|---|
+| Detecting the message type (order / reservation / question) | 0 | ~10 | one correct answer; one word |
+| “Four of us tomorrow at 8” → date, time, party size | 0 | ~100 | exact data extraction (lecture 2: structured output) |
+| Chat with a customer, recommendations | 0.5–0.8 | ~300 | natural tone, but no fantasy |
+| Description of a new dish for the menu | 0.9–1.2 | ~200 | creative text |
+
+The numbers are a guide, not a law — the right values are found by experiment (lectures 12 and 20: evaluation/evals).
+
+**The key point:** a parameter belongs to **an individual request**. The same model is called with 0 in one endpoint and with 0.8 in another.
   </aside>
 </section>
 
@@ -1061,6 +1489,21 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 
 **წესი:** მარტივ კითხვაზე („რა ღირს ხინკალი?“, „ღიაა კვირას?“) reasoning მოდელი ზედმეტი ხარჯია. რეალურ სისტემაში ხშირად ორ მოდელს იყენებენ: სწრაფ და იაფს — უმეტესი მოთხოვნისთვის, reasoning-ს — მხოლოდ რთულისთვის.
   </aside>
+  <aside class="study-en">
+### Reasoning models — they think first, then answer
+
+A regular model starts writing the answer right away. A **reasoning model** first writes an internal “thought” — step-by-step reasoning (so-called reasoning or thinking tokens) — and only then the final answer. It's still next-token prediction; the model is simply trained to “think out loud” before answering.
+
+**When it's worth it:** multi-step tasks — “8 guests, 2 children, the terrace is taken, which tables should we combine?”, calculations, combining complex rules, planning an agent's actions.
+
+**What it costs:**
+
+- 💸 **Money** — reasoning tokens are billed (usually as output tokens), even if you don't show them to the user; some providers don't show them at all, only the count in `usage`.
+- 🐢 **Time** — several seconds or more may pass before the answer.
+- 🎛️ **Parameters** — some reasoning models don't accept Temperature, but have a “how much to think” parameter instead (e.g. reasoning effort).
+
+**Rule:** for a simple question (“How much is khinkali?”, “Open on Sunday?”) a reasoning model is wasted money. Real systems often use two models: a fast, cheap one for most requests, and a reasoning one only for the hard ones.
+  </aside>
 </section>
 
 <section class="slide" data-section="3 · პარამეტრები">
@@ -1083,6 +1526,20 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 = Temperature განაწილების ფორმას ცვლის (მკვეთრი ↔ ბრტყელი), Top-P კი ჭრის სუსტ ტოკენებს: ტოვებს ყველაზე სავარაუდოებს, სანამ ჯამი P-ს არ მიაღწევს.
 ```
   </aside>
+  <aside class="study-en">
+### ❓ Check yourself · part 3
+
+```check
+? We extract the date and party size from a customer's message. Which Temperature would you set?
+= 0 (or very low). There is one correct answer and we want the same result every time.
+? The answer stops mid-word. What happened and where do you see it?
+= The model hit the Max Tokens limit. The response has `finish_reason` = `length` (in C# `ChatFinishReason.Length`).
+? Would you use a reasoning model for the menu FAQ bot (“Open on Sunday?”)?
+= No. The question is simple; a reasoning model is slow and we pay for thinking tokens too. A fast, cheap model is entirely enough.
+? How is Top-P different from Temperature?
+= Temperature changes the shape of the distribution (sharp ↔ flat), while Top-P cuts weak tokens: it keeps the most likely ones until their sum reaches P.
+```
+  </aside>
 </section>
 
 <section class="slide divider" data-section="4 · პროვაიდერები">
@@ -1096,6 +1553,11 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 ## ნაწილი 4 · ვინ, სად და რამდენად?
 
 მოდელი ვიღაცის სერვერზე უნდა მუშაობდეს — პროვაიდერის ღრუბელში ან ჩვენს კომპიუტერზე. არჩევანი ფასს, სიჩქარეს, ხარისხს და მონაცემების უსაფრთხოებას ცვლის.
+  </aside>
+  <aside class="study-en">
+## Part 4 · Who, where and how much?
+
+The model has to run on someone's server — in the provider's cloud or on our own computer. The choice affects price, speed, quality and data security.
   </aside>
 </section>
 
@@ -1130,6 +1592,24 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 მოდელების კონკრეტული ვერსიები და სახელები თვეობით იცვლება, ამიტომ ამ ლექციაში მათ არ ვიმახსოვრებთ. მიმდინარე სიას ყოველთვის პროვაიდერის დოკუმენტაციაში ვამოწმებთ.
 ```
   </aside>
+  <aside class="study-en">
+### Providers — whose model, whose server
+
+| Provider | Models | What stands out |
+|---|---|---|
+| **OpenAI** | GPT, reasoning models | The most widely used API. Others adopted its request/response format (“OpenAI-compatible”) |
+| **Anthropic** | Claude | Strong at code, long documents, agentic tasks |
+| **Google** | Gemini | Large context window, text + images + audio; has a free tier |
+| **Groq** | Open models (Llama, Qwen, etc.) | Custom chips, very fast answers; free tier for learning |
+| **Ollama** | Open models, on your computer | Free, offline, data never leaves the computer |
+| Others | Azure OpenAI, Mistral, DeepSeek… | Most offer an OpenAI-compatible endpoint |
+
+An **open (open-weight) model** means the model's “weights” (learned parameters) are public: anyone can download it and run it on their own server or computer. A closed model (GPT, Claude, Gemini) can only be called through the provider's API.
+
+```note
+Specific model versions and names change month by month, so we don't memorise them in this lecture. We always check the current list in the provider's documentation.
+```
+  </aside>
 </section>
 
 <section class="slide" data-section="4 · პროვაიდერები">
@@ -1160,6 +1640,23 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 
 ```tip
 რეალურ კომპანიაში არჩევანს ხშირად **მონაცემი** წყვეტს: ბანკი ან კლინიკა შეიძლება ვერ აგზავნიდეს კლიენტის მონაცემს გარე პროვაიდერთან. მაშინ ღია მოდელი საკუთარ სერვერზე ეშვება.
+```
+  </aside>
+  <aside class="study-en">
+### Cloud API or a local model?
+
+| | ☁️ Cloud | 💻 Local (Ollama) |
+|---|---|---|
+| Price | we pay per token | free — we pay with computer resources |
+| Quality | the strongest models | small models are weaker, especially in Georgian |
+| Speed | fast; depends on the network | depends on your GPU/CPU |
+| Data | goes to the provider | never leaves the computer |
+| For learning | API key, limits, sometimes a card | no key needed, but you need a powerful computer |
+
+**Our choice for the course:** we use **Google Gemini** — a cloud model that writes Georgian well and has a free tier for learning (if you need more — a paid plan). A local model (Ollama) is worth it when data must not leave the company. The C# code will be almost the same for both — we'll see this in the coding lectures.
+
+```tip
+In a real company the choice is often decided by **data**: a bank or a clinic may not be allowed to send customer data to an external provider. Then an open model runs on their own server.
 ```
   </aside>
 </section>
@@ -1200,6 +1697,28 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 ფასები ხშირად იცვლება. ხარჯის რეალური გათვლისთვის ყოველთვის გახსენი პროვაიდერის **pricing** გვერდი — საშინაო დავალებაში ამას გააკეთებ.
 ```
   </aside>
+  <aside class="study-en">
+### Price — we pay per token, and not equally
+
+Providers list prices **per 1 million tokens** (sometimes per 1000), and count three things separately:
+
+- 📥 **Input** — everything we send: system instructions, chat history, data, the question. Relatively cheap.
+- 📤 **Output** — what the model writes. Usually **several times more expensive** than input, because each output token is a separate run of the model. A reasoning model's “thinking” tokens are billed as output too.
+- ♻️ **Cached input** — if many requests share the same beginning (e.g. a long system prompt), some providers bill its repetition cheaply.
+
+**Illustrative prices** (to show the order of magnitude — **not** real prices):
+
+| Class | Input / 1M | Output / 1M |
+|---|---|---|
+| ⚡ A · small, fast model | $0.15 | $0.60 |
+| 🧠 B · large, strong model | $3.00 | $15.00 |
+
+The difference between models is tenfold or more. That's why “the smartest model for everything” is often a bad decision.
+
+```warn
+Prices change often. For a real cost estimate always open the provider's **pricing** page — you'll do this in the homework.
+```
+  </aside>
 </section>
 
 <section class="slide" data-section="4 · პროვაიდერები">
@@ -1237,6 +1756,21 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 
 **დასაფიქრებელი:** ქართულის გამო ტოკენები ×1.5 → ხარჯიც ×1.5. საუბრის ისტორია ყოველ ახალ შეტყობინებაზე თავიდან იგზავნება (stateless!) — input სწრაფად იზრდება (ლექცია 7). reasoning მოდელი output-ს ფიქრის ტოკენებით ზრდის.
   </aside>
+  <aside class="study-en">
+### 🎮 What will an AI assistant cost the restaurant?
+
+**Given:** 300 conversations a day; 2 000 input and 300 output tokens each; 30 days. Prices per 1M tokens (illustrative): ⚡ A — $0.15 / $0.60, 🧠 B — $3 / $15.
+
+First calculate it yourself, then check with the calculator on the slide (it's public — use it at home too).
+
+**Solution:**
+
+1. input: 300 × 2 000 × 30 = **18M** tokens; output: 300 × 300 × 30 = **2.7M**
+2. ⚡ A: 18 × 0.15 + 2.7 × 0.60 = **≈ $4.3 per month**
+3. 🧠 B: 18 × 3 + 2.7 × 15 = **≈ $94.5 per month** — 22 times more
+
+**Something to think about:** because of Georgian, tokens ×1.5 → cost ×1.5 too. The chat history is sent again with every new message (stateless!) — input grows fast (lecture 7). A reasoning model increases output with thinking tokens.
+  </aside>
 </section>
 
 <section class="slide" data-section="4 · პროვაიდერები">
@@ -1255,6 +1789,18 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 = ღია მოდელს, რომელიც საკუთარ სერვერზე ეშვება (მაგ. Ollama-თი ან სხვა inference სერვერით). მონაცემი სისტემას არ ტოვებს; სამაგიეროდ, ხარისხი შეიძლება ღრუბლოვანზე დაბალი იყოს და სერვერი უფრო ძლიერი დაგვჭირდეს.
 ? რა ზრდის ყველაზე მეტად ხარჯს ჩატში?
 = ძვირი მოდელის არჩევა და მზარდი საუბრის ისტორია, რომელიც ყოველ მოთხოვნაზე თავიდან იგზავნება. ქართული ტექსტიც ზრდის ტოკენების რაოდენობას.
+```
+  </aside>
+  <aside class="study-en">
+### ❓ Check yourself · part 4
+
+```check
+? Why is an output token more expensive than an input token?
+= The model processes input tokens all at once, while each output token is a separate full run of the model (next-token prediction).
+? The owner says: “customer data must not leave the company”. What would you suggest?
+= An open model running on our own server (e.g. with Ollama or another inference server). The data never leaves the system; on the other hand, quality may be lower than in the cloud and we may need a more powerful server.
+? What increases the cost of a chat the most?
+= Choosing an expensive model and a growing chat history that is sent again with every request. Georgian text also increases the number of tokens.
 ```
   </aside>
 </section>
@@ -1296,6 +1842,21 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 | ტოკენები | კლიენტის ტექსტი ~15–25; მენიუს ნაწილი + ინსტრუქცია — რამდენიმე ასეული |
 
 ყველაზე მნიშვნელოვანი ხაზი **„ბაზიდან“** არის: ყველაფერი, რაც ფაქტია (ფასი, მარაგი, ჯავშანი), ჩვენი კოდი ბაზიდან იღებს და მოდელს აწვდის. მოდელი მხოლოდ ტექსტს აყალიბებს.
+  </aside>
+  <aside class="study-en">
+### Example: how we plan an AI feature
+
+Before writing code, an AI engineer plans a feature in two steps: **1 — what the feature is** and **2 — how it will work**. Here is the planned “menu recommendation” — we filled it in together in class:
+
+| Question | Answer |
+|---|---|
+| What goes in | the customer's text: “Something light, no meat, for two” |
+| What comes out | a recommendation of 2–3 dishes with a short explanation |
+| From the database | dishes, prices, vegetarian or not, availability — **never** from the model |
+| Temperature · Max Tokens | ~0.6 (natural, but no fantasy) · ~200 |
+| Tokens | the customer's text ~15–25; part of the menu + instructions — a few hundred |
+
+The most important row is **“from the database”**: everything that is a fact (price, stock, reservation) our code takes from the database and gives to the model. The model only shapes the text.
   </aside>
 </section>
 
@@ -1340,6 +1901,28 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 ```prompt გამოცდა მთელ ლექციაზე
 ვსწავლობ AI-ს .NET-ში. პირველ ლექციაზე გავიარეთ: რა არის LLM, ტოკენები და tokenizer (ნაჭრები, ლექსიკონი, ID-ები), next-token prediction, hallucination, context window და stateless მოდელი, Temperature / Top-P / Max Tokens, finish_reason, reasoning მოდელები, პროვაიდერები (cloud vs ლოკალური, Gemini) და ფასის დათვლა input/output ტოკენებით.
 დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ, მათ შორის 2 პრაქტიკული სიტუაცია რესტორნის API-ზე. ყოველ ჩემს პასუხზე მითხარი, სწორია თუ არა და რატომ, მერე დასვი შემდეგი. ბოლოს მითხარი, რა უნდა გავიმეორო. კომუნიკაცია ქართულად.
+```
+  </aside>
+  <aside class="study-en">
+## Summary
+
+**The module:** over 24 lectures an AI agent appears in RestaurantApi (and in your project) that understands human language and acts through our C# code: searches the menu, books a table, adds to the cart — securely and measurably. You become a .NET developer who builds AI systems.
+
+**Remember:**
+
+1. **Token** — a piece of text and a number (ID); price, limits and speed are counted in tokens. Georgian takes more tokens.
+2. **Next-token prediction** — the model writes what is likely, not necessarily what is true (hallucination). Prices, stock, reservations — always from our database.
+3. **Stateless** — the model doesn't remember the previous request; we send the history and we pay for it.
+4. **Temperature, Top-P, Max Tokens** — request parameters; `finish_reason = length` → the answer was cut off. A reasoning model — only for hard tasks.
+5. **Provider and price** — input is cheap, output is expensive; a tenfold difference between models. We use Gemini.
+
+### ⏭️ Next lecture — code
+
+The first call from RestaurantApi to Gemini, and Prompt Engineering: how to give the model clear instructions and get the answer directly as a C# object. **At home, get a Gemini API key** (see the homework).
+
+```prompt Test yourself on the whole lecture
+I'm learning AI in .NET. In the first lecture we covered: what an LLM is, tokens and the tokenizer (pieces, vocabulary, IDs), next-token prediction, hallucination, the context window and stateless models, Temperature / Top-P / Max Tokens, finish_reason, reasoning models, providers (cloud vs local, Gemini) and calculating cost with input/output tokens.
+Ask me 8 questions one at a time, from easy to hard, including 2 practical situations about a restaurant API. After each of my answers tell me whether it's right and why, then ask the next one. At the end tell me what I should review. Communicate in English.
 ```
   </aside>
 </section>

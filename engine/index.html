@@ -94,7 +94,7 @@ const card = c => l => {
     <div class="top"><span class="num">ლექცია ${l.num}</span><span class="slides">${l.slides} სლაიდი</span></div>
     <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
     ${mats}
-    <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
+    <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}${l.study_en ? `<a class="btn en" href="${href}study.en.html" title="Study notes in English">EN</a>` : ``}</div>
     ${l.study ? `<div class="links">${l.classwork ? `<a href="${href}study.html#classwork">📝 კლასის დავალება</a>` : ''}${l.homework ? `<a href="${href}study.html#homework">🏠 საშინაო</a>` : ''}${l.quiz ? `<a href="${href}study.html#quiz">✅ ტესტი · ${l.quiz}</a>` : ''}${l.lecturer ? `<a class="lect" href="${href}lecturer.html">🎓 ლექტორისთვის</a>` : ''}</div>` : ''}
   </article>`;
 };

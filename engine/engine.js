@@ -122,7 +122,7 @@
   };
   const openStudy = () => {
     // ცალკე ჩანართში (არა popup ფანჯარაში) — სლაიდებს მაინც მიჰყვება
-    window.open('study.html?live#s-' + (i + 1), 'study-' + document.title);
+    window.open((document.documentElement.lang === 'en' ? 'study.en.html' : 'study.html') + '?live#s-' + (i + 1), 'study-' + document.title);
   };
   document.getElementById('studybtn')?.addEventListener('click', e => { e.currentTarget.blur(); openStudy(); });
   const openLecturer = () => window.open('lecturer.html', 'lecturer-' + document.title);
