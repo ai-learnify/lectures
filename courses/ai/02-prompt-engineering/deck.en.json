@@ -323,5 +323,6 @@
 "ტექსტი, რომელიც არცერთ კატეგორიაში არ ჯდება — რას აბრუნებს? დაამატე კატეგორია": "A text that fits no category — what does it return? Add a category",
 "და ერთი მაგალითი": "and one example",
 "Controller-ში შეამოწმე პასუხი: თუ სიაში არ არის →": "Check the answer in the Controller: if it's not in the list →",
-". რატომ არ ვენდობით მოდელს ბოლომდე?": ". Why don't we trust the model completely?"
+". რატომ არ ვენდობით მოდელს ბოლომდე?": ". Why don't we trust the model completely?",
+"0 — ერთი სწორი პასუხი, ყოველ ჯერზე ერთნაირი (Gemini 3-ზე — ნაგულისხმევი, ლექცია 2) · length — Max Tokens-ს მიაღწია, პასუხი მოიჭრა": "0 — one correct answer, the same every time (on Gemini 3 — the default, lecture 2) · length — it hit Max Tokens, the answer was cut off"
 }

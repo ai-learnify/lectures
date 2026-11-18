@@ -26,7 +26,7 @@
     },
     {
       "q": "Which Temperature do we set to detect the order type, and what does `finish_reason = length` mean?",
-      "a": "0 — one correct answer, the same every time · length — it hit Max Tokens, the answer was cut off"
+      "a": "0 — one correct answer, the same every time (on Gemini 3 — the default, lecture 2) · length — it hit Max Tokens, the answer was cut off"
     },
     {
       "q": "The restaurant chat has 300 conversations a day. What increases the cost the most?",
@@ -114,7 +114,7 @@
         "1.5",
         "2"
       ],
-      "explain": "There is one correct answer and we want the same result every time."
+      "explain": "On a regular model — 0: there is one correct answer and we want the same result every time. Exception: Gemini 3 (reasoning) — we leave Temperature at the default (1.0), and the shape is protected by structured output (lectures 2–3)."
     },
     {
       "q": "The response says `finish_reason: \"length\"`. What does it mean?",

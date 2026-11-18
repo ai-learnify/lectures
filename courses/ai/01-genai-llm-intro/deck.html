@@ -133,7 +133,6 @@
 .cc-big small{font-size:18px;color:var(--muted)}
 </style>
 
-
 <!-- =========================================================
      AI · ლექცია 1 — შესავალი Generative AI-სა და LLM API-ებში
      ფერები: LLM/მოდელი = იისფერი · ტოკენი/ფასი = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
@@ -291,7 +290,7 @@ The right-hand part — “inside the agent” — is the key idea: **the model 
 |---|---|---|
 | 🏦 ბანკის / ტელეკომის ასისტენტი | კლიენტს პასუხობს ტარიფებზე, წესებზე, პროცედურებზე **შიდა დოკუმენტებიდან** და მიუთითებს წყაროს | RAG (9–12) |
 | 🛒 მაღაზიის / მიტანის აგენტი | ეძებს პროდუქტს, ამატებს კალათაში, ამოწმებს შეკვეთის სტატუსს — სისტემის API-ით | Tools, Agents (4, 13–15) |
-| 📄 დოკუმენტების ავტომატიზაცია | ინვოისიდან, CV-დან ან ხელშეკრულებიდან იღებს ველებს და ბაზაში წერს | Structured Output (2) |
+| 📄 დოკუმენტების ავტომატიზაცია | ინვოისიდან, CV-დან ან ხელშეკრულებიდან იღებს ველებს და ბაზაში წერს | Structured Output (3) |
 | 🏢 კომპანიის შიდა ასისტენტი | თანამშრომელს პასუხობს HR-ის წესებზე, IT ინსტრუქციებზე; უერთდება Jira-ს, Slack-ს | MCP, Multi-Agent (16–18) |
 
 ოთხივე ერთი და იგივე „აგურებიდან“ შენდება — და ამ აგურებს ამ მოდულში ისწავლი.
@@ -313,7 +312,7 @@ The right-hand part — “inside the agent” — is the key idea: **the model 
 |---|---|---|
 | 🏦 Bank / telecom assistant | Answers customers about rates, rules and procedures **from internal documents** and cites the source | RAG (9–12) |
 | 🛒 Shop / delivery agent | Finds products, adds them to the cart, checks order status — through the system's API | Tools, Agents (4, 13–15) |
-| 📄 Document automation | Extracts fields from an invoice, CV or contract and writes them to the database | Structured Output (2) |
+| 📄 Document automation | Extracts fields from an invoice, CV or contract and writes them to the database | Structured Output (3) |
 | 🏢 Internal company assistant | Answers employees about HR rules and IT instructions; connects to Jira, Slack | MCP, Multi-Agent (16–18) |
 
 All four are built from the same “bricks” — and you'll learn those bricks in this module.
@@ -353,6 +352,18 @@ Important: we **don't train** models (that's the job of an ML engineer or resear
 6. **ლექციები 21–24 · ფინალური პროექტი.** შენი Web API + აგენტი, ტესტები, დაცვა.
 
 ახალ პროექტს არ ვიწყებთ: ლექტორი ამ ყველაფერს RestaurantApi-ს ამატებს, შენ — შენს API პროექტს.
+  
+### რას დაამატებდი შენს API-ს?
+
+ყოველ API პროექტს აქვს ადგილი, სადაც ადამიანი „ჩვეულებრივი ენით“ ითხოვს რამეს. მაგალითები:
+
+- 📚 **ბიბლიოთეკა** — „რამე მისტიკური, მოკლე, ქართველი ავტორის“ → წიგნების რეკომენდაცია ბაზიდან.
+- 🏋️ **სპორტდარბაზი** — „ხვალ დილით თავისუფალი ტრენერი?“ → განრიგის ძებნა და ჩაწერა.
+- 🏨 **სასტუმრო** — „3 ღამე, ზღვის ხედით, 300 ლარამდე“ → ოთახის ძებნა და დაჯავშნა.
+- 🛠️ **სერვისის ცენტრი** — „ლეპტოპი ხურდება“ → კატეგორია, ფასის შეფასება, ჩაწერა.
+
+მოიფიქრე ასეთი ფუნქციები შენი პროექტისთვის — საშინაოში 3 მათგანს დაგეგმავ, მოდულის მანძილზე კი ააწყობ.
+  
   </aside>
   <aside class="study-en">
 ### Module map — what you can do after each stage
@@ -365,32 +376,7 @@ Important: we **don't train** models (that's the job of an ML engineer or resear
 6. **Lectures 21–24 · Final project.** Your Web API + agent, tests, defense.
 
 We don't start a new project: the lecturer adds all of this to RestaurantApi, and you add it to your own API project.
-  </aside>
-</section>
-
-<section class="slide" data-section="მოდული">
-  <div class="kicker">🙋 თქვენი პროექტი</div>
-  <h2>რას დაამატებდით <span class="c-asp">თქვენს</span> API-ს?</h2>
-  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:22px;margin-top:10px">
-    <div class="card accent" style="--a:var(--api)"><h3><span class="ico">📚</span>ბიბლიოთეკა</h3><p class="small">„რამე მისტიკური, მოკლე, ქართველი ავტორის“ → წიგნების რეკომენდაცია ბაზიდან</p></div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🏋️</span>სპორტდარბაზი</h3><p class="small">„ხვალ დილით თავისუფალი ტრენერი?“ → განრიგის ძებნა და ჩაწერა</p></div>
-    <div class="card accent" style="--a:var(--net)"><h3><span class="ico">🏨</span>სასტუმრო</h3><p class="small">„3 ღამე, ზღვის ხედით, 300 ლარამდე“ → ოთახის ძებნა და დაჯავშნა</p></div>
-    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🛠️</span>სერვისის ცენტრი</h3><p class="small">„ლეპტოპი ხურდება“ → ხარვეზის კატეგორია, ფასის შეფასება, ჩაწერა</p></div>
-  </div>
-  <div class="callout ask mt">🙋 ვის აქვს იდეა <b>თავისი</b> პროექტისთვის? 2–3 იდეა ხმამაღლა — დანარჩენს საშინაოში დაგეგმავთ</div>
-  <aside class="study">
-### რას დაამატებდი შენს API-ს?
-
-ყოველ API პროექტს აქვს ადგილი, სადაც ადამიანი „ჩვეულებრივი ენით“ ითხოვს რამეს. მაგალითები:
-
-- 📚 **ბიბლიოთეკა** — „რამე მისტიკური, მოკლე, ქართველი ავტორის“ → წიგნების რეკომენდაცია ბაზიდან.
-- 🏋️ **სპორტდარბაზი** — „ხვალ დილით თავისუფალი ტრენერი?“ → განრიგის ძებნა და ჩაწერა.
-- 🏨 **სასტუმრო** — „3 ღამე, ზღვის ხედით, 300 ლარამდე“ → ოთახის ძებნა და დაჯავშნა.
-- 🛠️ **სერვისის ცენტრი** — „ლეპტოპი ხურდება“ → კატეგორია, ფასის შეფასება, ჩაწერა.
-
-მოიფიქრე ასეთი ფუნქციები შენი პროექტისთვის — საშინაოში 3 მათგანს დაგეგმავ, მოდულის მანძილზე კი ააწყობ.
-  </aside>
-  <aside class="study-en">
+  
 ### What would you add to your API?
 
 Every API project has a place where a person asks for something “in plain language”. Examples:
@@ -401,46 +387,11 @@ Every API project has a place where a person asks for something “in plain lang
 - 🛠️ **Repair shop** — “My laptop overheats” → category, price estimate, appointment.
 
 Think of such features for your project — in the homework you'll plan 3 of them, and over the module you'll build them.
+  
   </aside>
 </section>
 
 <lecture-intro/>
-
-<section class="slide" data-section="შესავალი">
-  <div class="kicker">დღის გზა</div>
-  <h2>5 გაჩერება</h2>
-  <svg viewBox="0 0 1420 400" width="1420" height="400">
-    <path class="autodraw" style="--d:.2s" d="M90 200 C260 60 400 340 560 200 S860 60 990 200 S1240 340 1340 200" stroke="#353b6b" stroke-width="4" fill="none" stroke-dasharray="10 10"/>
-    <g class="zoom" style="transform-origin:90px 200px"><circle cx="90" cy="200" r="46" fill="#2a1d4d" stroke="#f43f5e" stroke-width="3"/><text x="90" y="216" text-anchor="middle" font-size="40">🤔</text><text x="90" y="290" text-anchor="middle" class="tw b" font-size="21">რატომ AI?</text><text x="90" y="316" text-anchor="middle" class="tm" font-size="16">რას ვერ აკეთებს if/else</text></g>
-    <g class="zoom" style="transform-origin:330px 190px"><circle cx="330" cy="190" r="46" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="330" y="206" text-anchor="middle" font-size="40">🧩</text><text x="330" y="112" text-anchor="middle" class="tw b" font-size="21">როგორ მუშაობს</text><text x="330" y="86" text-anchor="middle" class="tm" font-size="16">ტოკენი · შემდეგი ტოკენი · context</text></g>
-    <g class="zoom" style="transform-origin:560px 200px"><circle cx="560" cy="200" r="46" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="560" y="216" text-anchor="middle" font-size="40">🎛️</text><text x="560" y="290" text-anchor="middle" class="tw b" font-size="21">პარამეტრები</text><text x="560" y="316" text-anchor="middle" class="tm" font-size="16">Temperature · Top-P · Max Tokens</text></g>
-    <g class="zoom" style="transform-origin:800px 140px"><circle cx="800" cy="135" r="46" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="800" y="151" text-anchor="middle" font-size="40">💸</text><text x="800" y="58" text-anchor="middle" class="tw b" font-size="21">პროვაიდერები და ფასი</text><text x="800" y="32" text-anchor="middle" class="tm" font-size="16">ვინ, სად, რამდენად</text></g>
-    <g class="zoom" style="transform-origin:1340px 200px"><circle cx="1340" cy="200" r="52" fill="#0e2a33" stroke="#22d3ee" stroke-width="4" class="pulse"/><text x="1340" y="218" text-anchor="middle" font-size="44">🧭</text><text x="1340" y="292" text-anchor="middle" class="ta b" font-size="21">შეჯამება</text><text x="1340" y="318" text-anchor="middle" class="tm" font-size="16">დაგეგმვა წყვილებში · კითხვები</text></g>
-  </svg>
-  <div class="callout" style="--a:var(--pink);font-size:22px">🎮 გზაში: <b>ტოკენაიზერი</b>, „იყავი LLM“, <b>Temperature-ის სლაიდერი</b> და ხარჯის კალკულატორი</div>
-  <aside class="study">
-### ლექციის გეგმა — 5 გაჩერება
-
-1. 🤔 **რატომ AI?** — რა ამოცანას ვერ ხსნის ჩვეულებრივი კოდი.
-2. 🧩 **როგორ მუშაობს LLM** — ტოკენები, შემდეგი ტოკენის წინასწარმეტყველება, context window.
-3. 🎛️ **პარამეტრები** — Temperature, Top-P, Max Tokens; reasoning მოდელები.
-4. 💸 **პროვაიდერები და ფასი** — ღრუბელი თუ ლოკალური, როგორ ითვლება ხარჯი.
-5. 🧭 **შეჯამება** — AI ფუნქციის დაგეგმვა წყვილებში და შემაჯამებელი კითხვები.
-
-გზაში: ტოკენაიზერი (ნებისმიერი ტექსტი), „იყავი LLM“, Temperature-ის სლაიდერი და ხარჯის კალკულატორი.
-  </aside>
-  <aside class="study-en">
-### Lecture plan — 5 stops
-
-1. 🤔 **Why AI?** — which problem regular code can't solve.
-2. 🧩 **How an LLM works** — tokens, next-token prediction, context window.
-3. 🎛️ **Parameters** — Temperature, Top-P, Max Tokens; reasoning models.
-4. 💸 **Providers and price** — cloud or local, how the cost is calculated.
-5. 🧭 **Summary** — planning an AI feature in pairs and review questions.
-
-Along the way: a tokenizer (any text), “Be the LLM”, the Temperature slider and the cost calculator.
-  </aside>
-</section>
 
 <section class="slide divider" data-section="1 · რატომ AI">
   <div class="vcenter">
@@ -544,48 +495,7 @@ You can't write this with keyword search (`Contains("no meat")`): the same idea 
 დეტერმინისტული — ერთი და იგივე შეყვანა ყოველთვის ერთსა და იმავე შედეგს იძლევა
 ალბათური (probabilistic) — შედეგი შემთხვევითობას შეიცავს; ერთი შეყვანა სხვადასხვა შედეგს იძლევა
 ```
-  </aside>
-  <aside class="study-en">
-### Regular code vs a language model
-
-| | C# code | LLM |
-|---|---|---|
-| Input | exact, structured (`dishId`, `date`) | any text |
-| Rules | we write them | the model “learned” them from text |
-| Result | **deterministic**: one input → always the same result | **probabilistic**: one question can get different answers |
-| Error | a bug — we find and fix it | a convincingly stated falsehood (we'll name it in part 2) |
-
-The key idea: **an LLM doesn't replace regular code.** Adding to the cart, calculating the price, saving a reservation stay in C# — that's where we need precision. We use an LLM where human language has to be “understood” or produced. This whole module is about connecting these two worlds.
-
-```terms
-deterministic — the same input always produces the same result
-probabilistic — the result contains randomness; one input can produce different results
-```
-  </aside>
-</section>
-
-<section class="slide" data-section="1 · რატომ AI">
-  <div class="kicker">ტერმინები · ერთი-მეორეში ჩადგმული</div>
-  <h2>AI → ML → Deep Learning → <span class="grad">GenAI → LLM</span></h2>
-  <div class="callout ask" style="font-size:22px">🙋 ChatGPT — ეს AI-ია, Machine Learning-ია თუ LLM?</div>
-  <div class="grid2" style="grid-template-columns:470px 1fr;gap:34px;align-items:center;margin-top:18px">
-    <div class="nest" style="width:470px;height:430px">
-      <div class="in" style="--a:var(--muted);left:0;top:0;width:470px;height:430px;--d:.1s"><span style="font-size:18px">AI</span></div>
-      <div class="in" style="--a:var(--api);left:45px;top:46px;width:380px;height:350px;--d:.25s"><span style="font-size:18px">Machine Learning</span></div>
-      <div class="in" style="--a:var(--core);left:90px;top:92px;width:290px;height:270px;--d:.4s"><span style="font-size:18px">Deep Learning</span></div>
-      <div class="in" style="--a:var(--asp);left:135px;top:138px;width:200px;height:190px;--d:.55s"><span style="font-size:18px">GenAI</span></div>
-      <div class="in" style="--a:var(--net);left:180px;top:190px;width:110px;height:100px;--d:.7s;align-items:center"><span style="margin:0;font-size:22px">LLM</span></div>
-    </div>
-    <div class="lvls">
-      <div class="lvl step" style="--a:var(--muted)"><b>AI<small>ხელოვნური ინტელექტი</small></b><span>ნებისმიერი პროგრამა, რომელიც „ჭკვიანურ“ საქმეს აკეთებს — <b>თუნდაც if/else-ით</b></span><i>♟️ ჭადრაკის პროგრამა, ნავიგატორის მარშრუტი</i></div>
-      <div class="lvl step" style="--a:var(--api)"><b>Machine Learning<small>მანქანური სწავლება</small></b><span>წესებს პროგრამისტი არ წერს — პროგრამა თვითონ <b>პოულობს მაგალითებიდან</b></span><i>📧 spam ფილტრი: ათასობით მონიშნული წერილი → ისწავლა</i></div>
-      <div class="lvl step" style="--a:var(--core)"><b>Deep Learning<small>ღრმა სწავლება</small></b><span>ML <b>მრავალშრიანი ნეირონული ქსელით</b> — სწავლობს რთულს: სურათს, ხმას, ენას</span><i>📱 ტელეფონი სახით იხსნება, ხმის ამოცნობა</i></div>
-      <div class="lvl step" style="--a:var(--asp)"><b>GenAI<small>გენერაციული AI</small></b><span>არა მხოლოდ ცნობს ან ახარისხებს — <b>ახალს ქმნის</b></span><i>🎨 სურათი აღწერით, მუსიკა, ტექსტი, კოდი</i></div>
-      <div class="lvl step" style="--a:var(--net)"><b>LLM<small>დიდი ენობრივი მოდელი</small></b><span>GenAI ტექსტისთვის: <b>ტექსტი შედის → ტექსტი გამოდის</b></span><i>💬 ChatGPT, Gemini, Claude — <b>ამ კურსის თემა</b></i></div>
-    </div>
-  </div>
-  <div class="callout step mt" style="--a:var(--mvc);font-size:21px">ChatGPT — <b>სამივეა</b>: LLM ⊂ GenAI ⊂ Deep Learning ⊂ ML ⊂ AI. ყოველი შიგნითა წრე გარეთას ნაწილია. ჩვენ ყველაზე შიგნითა წრეს — <b>LLM-ს</b> — მზა სახით ვიყენებთ</div>
-  <aside class="study">
+  
 ### AI → ML → Deep Learning → GenAI → LLM
 
 ეს ტერმინები ხშირად სინონიმებად გამოიყენება, სინამდვილეში კი **ერთმანეთში ჩადგმული წრეებია**: ყოველი შემდეგი წინას ნაწილია.
@@ -609,8 +519,25 @@ Deep Learning — Machine Learning მრავალშრიანი ნე�
 GenAI — AI, რომელიც ახალ კონტენტს ქმნის
 LLM — დიდი ენობრივი მოდელი: ტექსტი შედის, ტექსტი გამოდის
 ```
+  
   </aside>
   <aside class="study-en">
+### Regular code vs a language model
+
+| | C# code | LLM |
+|---|---|---|
+| Input | exact, structured (`dishId`, `date`) | any text |
+| Rules | we write them | the model “learned” them from text |
+| Result | **deterministic**: one input → always the same result | **probabilistic**: one question can get different answers |
+| Error | a bug — we find and fix it | a convincingly stated falsehood (we'll name it in part 2) |
+
+The key idea: **an LLM doesn't replace regular code.** Adding to the cart, calculating the price, saving a reservation stay in C# — that's where we need precision. We use an LLM where human language has to be “understood” or produced. This whole module is about connecting these two worlds.
+
+```terms
+deterministic — the same input always produces the same result
+probabilistic — the result contains randomness; one input can produce different results
+```
+  
 ### AI → ML → Deep Learning → GenAI → LLM
 
 These terms are often used as synonyms, but they are actually **circles nested inside each other**: each one is part of the previous.
@@ -634,6 +561,7 @@ Deep Learning — Machine Learning with a multi-layer neural network
 GenAI — AI that creates new content
 LLM — large language model: text in, text out
 ```
+  
   </aside>
 </section>
 
@@ -850,6 +778,23 @@ tokenizer — a program that splits text into tokens (and IDs) and back
 ```note
 სხვადასხვა მოდელს სხვადასხვა tokenizer აქვს (Gemini-საც საკუთარი), ამიტომ რიცხვები მოდელიდან მოდელამდე განსხვავდება — მაგრამ ტენდენცია იგივეა. ამას Tiktokenizer-ში თვითონ ნახავთ.
 ```
+  
+### მოდელი მხოლოდ რიცხვებს ხედავს
+
+ტექსტი მოდელამდე ასე მიდის:
+
+1. **ტექსტი** — მაგ. `Book a table for two`.
+2. **ნაჭრები** — tokenizer ტექსტს ტოკენებად ჭრის: `Book` · ` a` · ` table` · ` for` · ` two`. ტოკენში ხშირად წინა ჰარიც შედის.
+3. **ლექსიკონი** — tokenizer-ს აქვს ცხრილი, სადაც ყოველ ნაჭერს თავისი ნომერი (ID) აქვს. GPT-4o-ს ლექსიკონში ~200 000 ნაჭერია; ` table` = **3293**.
+4. **მოდელში შედის მხოლოდ რიცხვები** — `[6904, 261, 3293, 395, 1920]`. პასუხსაც მოდელი რიცხვებად აბრუნებს, tokenizer კი მათ ისევ ტექსტად აქცევს.
+
+**როგორ „იცის“ მოდელმა, რას ნიშნავს 3293?** მოდელის შიგნით თითო ნომერს შეესაბამება **ვექტორი** — ასობით რიცხვი, რომელიც წვრთნისას ისე „დალაგდა“, რომ მსგავსი მნიშვნელობის ტოკენები ახლოს არიან. ამ იდეას ლექცია 9-ზე (embeddings) დავუბრუნდებით — RAG სწორედ მასზე დგას.
+
+```terms
+tokenizer — პროგრამა, რომელიც ტექსტს ტოკენებად ჭრის და ნომრებად აქცევს (და პირიქით)
+vocabulary (ლექსიკონი) — tokenizer-ის ცხრილი: ნაჭერი → ნომერი (ID)
+```
+  
   </aside>
   <aside class="study-en">
 ### One idea in two languages — real tokens
@@ -868,44 +813,7 @@ Notice: a token often includes the **leading space** (` table`). The English wor
 ```note
 Different models have different tokenizers (Gemini has its own), so the numbers vary from model to model — but the trend is the same. You'll see this yourself in Tiktokenizer.
 ```
-  </aside>
-</section>
-
-<section class="slide" data-section="2 · როგორ მუშაობს">
-  <div class="kicker">შიგნიდან · ტოკენი → რიცხვი</div>
-  <h2>მოდელი <span class="c-api">მხოლოდ რიცხვებს</span> ხედავს</h2>
-  <div class="store" style="min-height:240px">
-    <div class="sc" style="--a:var(--muted)"><div class="sh">① ტექსტი</div><div class="sv" style="font-size:24px">Book a table for two</div><div class="sn">ჩვენ ვწერთ</div></div>
-    <div class="arr">→</div>
-    <div class="sc" style="--a:var(--asp)"><div class="sh">② ნაჭრები</div><div class="toks" style="justify-content:center"><span class="tk">Book</span><span class="tk"> a</span><span class="tk"> table</span><span class="tk"> for</span><span class="tk"> two</span></div><div class="sn">tokenizer ჭრის</div></div>
-    <div class="arr">→</div>
-    <div class="sc" style="--a:var(--net)"><div class="sh">③ ლექსიკონი</div><pre class="vocab">Book   → 6904
- a     → 261
-<b> table → 3293</b>
- for   → 395
- two   → 1920</pre><div class="sn">~200 000 ნაჭერი, თითოს თავისი <b>ნომერი</b></div></div>
-    <div class="arr">→</div>
-    <div class="sc" style="--a:var(--api)"><div class="sh">④ მოდელში შედის</div><div class="sv mono" style="font-size:20px">[ 6904, 261,<br><b>3293</b>, 395, 1920 ]</div><div class="sn">მხოლოდ <b>რიცხვები</b></div></div>
-  </div>
-  <div class="callout ask mt2">🙋 თუ მოდელი მხოლოდ რიცხვებს ხედავს — როგორ „იცის“, რომ table მაგიდაა? <span class="step" style="color:var(--ink2)">→ თითო ნომერს მოდელში <b>ვექტორი</b> შეესაბამება (ასობით რიცხვი) — ამას ლექცია 9-ზე, embeddings-ში დავუბრუნდებით</span></div>
-  <aside class="study">
-### მოდელი მხოლოდ რიცხვებს ხედავს
-
-ტექსტი მოდელამდე ასე მიდის:
-
-1. **ტექსტი** — მაგ. `Book a table for two`.
-2. **ნაჭრები** — tokenizer ტექსტს ტოკენებად ჭრის: `Book` · ` a` · ` table` · ` for` · ` two`. ტოკენში ხშირად წინა ჰარიც შედის.
-3. **ლექსიკონი** — tokenizer-ს აქვს ცხრილი, სადაც ყოველ ნაჭერს თავისი ნომერი (ID) აქვს. GPT-4o-ს ლექსიკონში ~200 000 ნაჭერია; ` table` = **3293**.
-4. **მოდელში შედის მხოლოდ რიცხვები** — `[6904, 261, 3293, 395, 1920]`. პასუხსაც მოდელი რიცხვებად აბრუნებს, tokenizer კი მათ ისევ ტექსტად აქცევს.
-
-**როგორ „იცის“ მოდელმა, რას ნიშნავს 3293?** მოდელის შიგნით თითო ნომერს შეესაბამება **ვექტორი** — ასობით რიცხვი, რომელიც წვრთნისას ისე „დალაგდა“, რომ მსგავსი მნიშვნელობის ტოკენები ახლოს არიან. ამ იდეას ლექცია 9-ზე (embeddings) დავუბრუნდებით — RAG სწორედ მასზე დგას.
-
-```terms
-tokenizer — პროგრამა, რომელიც ტექსტს ტოკენებად ჭრის და ნომრებად აქცევს (და პირიქით)
-vocabulary (ლექსიკონი) — tokenizer-ის ცხრილი: ნაჭერი → ნომერი (ID)
-```
-  </aside>
-  <aside class="study-en">
+  
 ### The model sees only numbers
 
 This is how text reaches the model:
@@ -921,6 +829,7 @@ This is how text reaches the model:
 tokenizer — a program that cuts text into tokens and turns them into numbers (and back)
 vocabulary — the tokenizer's table: piece → number (ID)
 ```
+  
   </aside>
 </section>
 
@@ -1192,6 +1101,20 @@ hallucination — convincingly stated but wrong or made-up information
 context window — ტოკენების მაქსიმუმი ერთ მოთხოვნაში (შემავალი + გამომავალი)
 stateless — სისტემა, რომელსაც წინა მოთხოვნები არ ახსოვს; ყოველი მოთხოვნა დამოუკიდებელია
 ```
+  
+### ❓ შეამოწმე თავი · ნაწილი 2
+
+```check
+? რატომ არის ერთი და იგივე ტექსტი ქართულად უფრო ძვირი, ვიდრე ინგლისურად?
+= ქართული ტექსტი მეტ ტოკენად იშლება (tokenizer-მა ქართული ცოტა ნახა), ფასი კი ტოკენებით ითვლება.
+? მოდელმა ჩვენი კერძის ფასი დაასახელა. რატომ არ ვენდობით?
+= ჩვენი მენიუ ვარჯიშისას არ უნახავს. მოდელი წერს ყველაზე სავარაუდო ტექსტს და არა ჭეშმარიტს — ეს hallucination-ია. ფასი ყოველთვის ბაზიდან.
+? პირველ მოთხოვნაში ვუთხარით „ოთხნი ვართ“, მეორეში ვკითხეთ „რამდენი ვართ?“. რას უპასუხებს?
+= არ ეცოდინება. მოდელი stateless-ია: ყოველი მოთხოვნა ცალკეა. რომ „ახსოვდეს“, მეორე მოთხოვნაში წინა შეტყობინებებიც უნდა გავგზავნოთ.
+? რას ნიშნავს „next-token prediction“?
+= მოდელი ყოველ ნაბიჯზე ითვლის ალბათობებს შემდეგი ტოკენისთვის, ირჩევს ერთს, უმატებს ტექსტს და ციკლს იმეორებს — სანამ დასრულების ტოკენს ან ლიმიტს არ მიაღწევს.
+```
+  
   </aside>
   <aside class="study-en">
 ### Context window — what the model “sees” in one request
@@ -1218,30 +1141,7 @@ What goes into it (the bar on the slide):
 context window — the maximum number of tokens in one request (input + output)
 stateless — a system that doesn't remember previous requests; every request is independent
 ```
-  </aside>
-</section>
-
-<section class="slide" data-section="2 · როგორ მუშაობს">
-  <div class="kicker">❓ კითხვები · ნაწილი 2</div>
-  <h2>გავიგეთ? <span class="c-net">3 კითხვა</span></h2>
-  <div class="qa"><span class="n">1</span><span class="q">რატომ არის ერთი და იგივე ტექსტი ქართულად უფრო ძვირი, ვიდრე ინგლისურად?</span><span class="a step">მეტ ტოკენად იშლება, ფასი კი ტოკენებით ითვლება</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">მოდელმა ჩვენი კერძის ფასი დაასახელა. რატომ არ ვენდობით?</span><span class="a step">ჩვენი მენიუ არ უნახავს; წერს სავარაუდოს, არა ჭეშმარიტს — hallucination</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">პირველ მოთხოვნაში ვუთხარით „ოთხნი ვართ“, მეორეში ვკითხეთ „რამდენი ვართ?“. რას უპასუხებს?</span><span class="a step">არ იცის — stateless; ისტორია ჩვენ უნდა გავუგზავნოთ</span></div>
-  <aside class="study">
-### ❓ შეამოწმე თავი · ნაწილი 2
-
-```check
-? რატომ არის ერთი და იგივე ტექსტი ქართულად უფრო ძვირი, ვიდრე ინგლისურად?
-= ქართული ტექსტი მეტ ტოკენად იშლება (tokenizer-მა ქართული ცოტა ნახა), ფასი კი ტოკენებით ითვლება.
-? მოდელმა ჩვენი კერძის ფასი დაასახელა. რატომ არ ვენდობით?
-= ჩვენი მენიუ ვარჯიშისას არ უნახავს. მოდელი წერს ყველაზე სავარაუდო ტექსტს და არა ჭეშმარიტს — ეს hallucination-ია. ფასი ყოველთვის ბაზიდან.
-? პირველ მოთხოვნაში ვუთხარით „ოთხნი ვართ“, მეორეში ვკითხეთ „რამდენი ვართ?“. რას უპასუხებს?
-= არ ეცოდინება. მოდელი stateless-ია: ყოველი მოთხოვნა ცალკეა. რომ „ახსოვდეს“, მეორე მოთხოვნაში წინა შეტყობინებებიც უნდა გავგზავნოთ.
-? რას ნიშნავს „next-token prediction“?
-= მოდელი ყოველ ნაბიჯზე ითვლის ალბათობებს შემდეგი ტოკენისთვის, ირჩევს ერთს, უმატებს ტექსტს და ციკლს იმეორებს — სანამ დასრულების ტოკენს ან ლიმიტს არ მიაღწევს.
-```
-  </aside>
-  <aside class="study-en">
+  
 ### ❓ Check yourself · part 2
 
 ```check
@@ -1254,6 +1154,7 @@ stateless — a system that doesn't remember previous requests; every request is
 ? What does “next-token prediction” mean?
 = At every step the model calculates probabilities for the next token, picks one, appends it to the text and repeats the loop — until it reaches the end token or the limit.
 ```
+  
   </aside>
 </section>
 
@@ -1418,6 +1319,7 @@ If the limit is too low, the user gets a cut-off sentence. That's why the backen
     <tr><td>ახალი კერძის აღწერა მენიუსთვის</td><td class="mono"><span class="step fade" data-with>0.9–1.2</span></td><td class="mono"><span class="step fade" data-with>~200</span></td><td><span class="step fade" data-with>კრეატიული ტექსტი, ვარიანტები</span></td></tr>
   </table>
   <div class="callout mt" style="--a:var(--net);font-size:22px">პარამეტრი <b>მოთხოვნას</b> ეკუთვნის და არა პროექტს — ყოველ გამოძახებაზე თავისას ვირჩევთ</div>
+  <div class="callout mt" style="--a:var(--asp);font-size:18px">⚠️ გამონაკლისი: <b>Gemini 3</b> (ფიქრობს პასუხამდე) — Temperature ნაგულისხმევზე (1.0) ვტოვებთ · ლექცია 2</div>
   <aside class="study">
 ### ერთი პროექტი — სხვადასხვა პარამეტრი
 
@@ -1426,55 +1328,18 @@ RestaurantApi-ში LLM რამდენიმე სხვადასხვ
 | ამოცანა | Temperature | Max Tokens | რატომ |
 |---|---|---|---|
 | შეტყობინების ტიპის დადგენა (შეკვეთა / ჯავშანი / კითხვა) | 0 | ~10 | ერთი სწორი პასუხი; ერთი სიტყვა |
-| „ხვალ 8-ზე ოთხნი“ → თარიღი, დრო, სტუმრების რაოდენობა | 0 | ~100 | მონაცემის ზუსტი ამოღება (ლექცია 2: structured output) |
+| „ხვალ 8-ზე ოთხნი“ → თარიღი, დრო, სტუმრების რაოდენობა | 0 | ~100 | მონაცემის ზუსტი ამოღება (ლექცია 3: structured output) |
 | ჩატი კლიენტთან, რეკომენდაცია | 0.5–0.8 | ~300 | ბუნებრივი ტონი, მაგრამ არა ფანტაზია |
 | ახალი კერძის აღწერა მენიუსთვის | 0.9–1.2 | ~200 | კრეატიული ტექსტი |
 
 რიცხვები ორიენტირია და არა კანონი — სწორ მნიშვნელობას ექსპერიმენტით პოულობენ (ლექცია 12 და 20: შეფასება/evals).
 
 **მთავარი:** პარამეტრი **ცალკეულ მოთხოვნას** ეკუთვნის. ერთი და იგივე მოდელი ერთ endpoint-ში 0-ით გამოიძახება, მეორეში — 0.8-ით.
-  </aside>
-  <aside class="study-en">
-### One project — different parameters
 
-In RestaurantApi the LLM will do several different jobs, and each needs its own parameters:
-
-| Task | Temperature | Max Tokens | Why |
-|---|---|---|---|
-| Detecting the message type (order / reservation / question) | 0 | ~10 | one correct answer; one word |
-| “Four of us tomorrow at 8” → date, time, party size | 0 | ~100 | exact data extraction (lecture 2: structured output) |
-| Chat with a customer, recommendations | 0.5–0.8 | ~300 | natural tone, but no fantasy |
-| Description of a new dish for the menu | 0.9–1.2 | ~200 | creative text |
-
-The numbers are a guide, not a law — the right values are found by experiment (lectures 12 and 20: evaluation/evals).
-
-**The key point:** a parameter belongs to **an individual request**. The same model is called with 0 in one endpoint and with 0.8 in another.
-  </aside>
-</section>
-
-<section class="slide" data-section="3 · პარამეტრები">
-  <div class="kicker">reasoning მოდელები</div>
-  <h2>მოდელები, რომლებიც <span class="c-net">ჯერ ფიქრობენ</span></h2>
-  <div class="col" style="gap:18px;margin-top:10px">
-    <div class="flowrow" style="display:flex;gap:14px;align-items:center">
-      <span class="pill on" style="--a:var(--api);font-size:18px;min-width:200px;justify-content:center">ჩვეულებრივი</span>
-      <div class="bubble" style="flex:none;font-size:20px">კითხვა</div><span style="font:800 28px var(--mono);color:var(--muted)">→</span>
-      <div class="bubble me" style="flex:none;font-size:20px;margin-left:0">პასუხი</div>
-    </div>
-    <div class="flowrow" style="display:flex;gap:14px;align-items:center">
-      <span class="pill on" style="--a:var(--net);font-size:18px;min-width:200px;justify-content:center">reasoning</span>
-      <div class="bubble" style="flex:none;font-size:20px">კითხვა</div><span style="font:800 28px var(--mono);color:var(--muted)">→</span>
-      <div class="toks sm" style="flex:1;padding:10px 14px;border:2px dashed var(--net);border-radius:14px;background:color-mix(in srgb,var(--net) 5%,var(--card))"><span class="tk">ჯერ…</span><span class="tk">8 სტუმარი</span><span class="tk">2 მაგიდა?</span><span class="tk">შევამოწმო…</span><span class="tk">არა, ჯობია…</span><span class="tk">…</span></div>
-      <span style="font:800 28px var(--mono);color:var(--muted)">→</span><div class="bubble me" style="flex:none;font-size:20px;margin-left:0">პასუხი</div>
-    </div>
-  </div>
-  <div class="callout ask mt2">🙋 რესტორნის რომელ ამოცანას <b>დასჭირდება</b> reasoning მოდელი, რომელს — არა?</div>
-  <div class="grid3 step mt" style="gap:18px">
-    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">✅</span>კარგია</h3><p>რამდენიმე ნაბიჯიანი ამოცანა: გეგმა, გამოთვლა, რთული წესები</p></div>
-    <div class="card accent" style="--a:var(--red)"><h3><span class="ico">💸</span>ფასი</h3><p>„ფიქრის“ ტოკენებს <b>ვიხდით</b> (როგორც output), ხშირად ვერც ვხედავთ</p></div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🐢</span>სიჩქარე</h3><p>პასუხამდე წამები გადის. „რა ღირს ხინკალი?“ — <b>ზედმეტია</b></p></div>
-  </div>
-  <aside class="study">
+```note
+**გამონაკლისი — reasoning მოდელები.** ცხრილი ჩვეულებრივ მოდელებს ეხება. Gemini 3 პასუხამდე „ფიქრობს“, და Google ურჩევს Temperature ნაგულისხმევზე (1.0) დატოვო — დაბალ მნიშვნელობაზე ხარისხი შეიძლება დაეცეს. ჩვენ Gemini-ს ვიყენებთ, ამიტომ კოდში (ლექცია 2) Temperature-ს ძირითადად არ ვცვლით. ზუსტ ფორმას (მაგ. JSON) კი Temperature კი არა, **structured output** იცავს (ლექცია 3).
+```
+  
 ### Reasoning მოდელები — ჯერ ფიქრობენ, მერე პასუხობენ
 
 ჩვეულებრივი მოდელი პასუხის წერას მაშინვე იწყებს. **Reasoning მოდელი** ჯერ წერს შიდა „ფიქრს“ — ნაბიჯ-ნაბიჯ მსჯელობას (ე.წ. reasoning ან thinking ტოკენებს) — და მხოლოდ ამის შემდეგ საბოლოო პასუხს. ეს ისევ next-token prediction-ია, უბრალოდ მოდელი გაწვრთნილია, რომ პასუხამდე „ხმამაღლა იფიქროს“.
@@ -1488,8 +1353,42 @@ The numbers are a guide, not a law — the right values are found by experiment 
 - 🎛️ **პარამეტრები** — ზოგი reasoning მოდელი Temperature-ს არ იღებს, სამაგიეროდ აქვს „ფიქრის რაოდენობის“ პარამეტრი (მაგ. reasoning effort).
 
 **წესი:** მარტივ კითხვაზე („რა ღირს ხინკალი?“, „ღიაა კვირას?“) reasoning მოდელი ზედმეტი ხარჯია. რეალურ სისტემაში ხშირად ორ მოდელს იყენებენ: სწრაფ და იაფს — უმეტესი მოთხოვნისთვის, reasoning-ს — მხოლოდ რთულისთვის.
+  
+  
+### ❓ შეამოწმე თავი · ნაწილი 3
+
+```check
+? კლიენტის შეტყობინებიდან ვიღებთ თარიღს და სტუმრების რაოდენობას. რა Temperature-ს დააყენებდი?
+= ჩვეულებრივ მოდელზე — 0 (ან ძალიან დაბალს): ერთი სწორი პასუხი არსებობს და ყოველ ჯერზე ერთნაირი შედეგი გვინდა. Gemini 3-ზე (reasoning) — ნაგულისხმევი 1.0; ფორმას structured output იცავს (ლექცია 3).
+? პასუხი სიტყვის შუაში წყდება. რა მოხდა და სად ჩანს?
+= მოდელმა Max Tokens-ის ლიმიტს მიაღწია. პასუხში `finish_reason` = `length` (C#-ში `ChatFinishReason.Length`).
+? მენიუს FAQ-ბოტისთვის („ღიაა კვირას?“) reasoning მოდელს აიღებდი?
+= არა. კითხვა მარტივია; reasoning მოდელი ნელია და ფიქრის ტოკენებსაც ვიხდით. სწრაფი, იაფი მოდელი სრულიად საკმარისია.
+? რით განსხვავდება Top-P Temperature-სგან?
+= Temperature განაწილების ფორმას ცვლის (მკვეთრი ↔ ბრტყელი), Top-P კი ჭრის სუსტ ტოკენებს: ტოვებს ყველაზე სავარაუდოებს, სანამ ჯამი P-ს არ მიაღწევს.
+```
+  
   </aside>
   <aside class="study-en">
+### One project — different parameters
+
+In RestaurantApi the LLM will do several different jobs, and each needs its own parameters:
+
+| Task | Temperature | Max Tokens | Why |
+|---|---|---|---|
+| Detecting the message type (order / reservation / question) | 0 | ~10 | one correct answer; one word |
+| “Four of us tomorrow at 8” → date, time, party size | 0 | ~100 | exact data extraction (lecture 3: structured output) |
+| Chat with a customer, recommendations | 0.5–0.8 | ~300 | natural tone, but no fantasy |
+| Description of a new dish for the menu | 0.9–1.2 | ~200 | creative text |
+
+The numbers are a guide, not a law — the right values are found by experiment (lectures 12 and 20: evaluation/evals).
+
+**The key point:** a parameter belongs to **an individual request**. The same model is called with 0 in one endpoint and with 0.8 in another.
+
+```note
+**An exception — reasoning models.** The table is about regular models. Gemini 3 “thinks” before answering, and Google recommends leaving Temperature at the default (1.0) — at low values quality may drop. We use Gemini, so in code (lecture 2) we mostly don't change Temperature. An exact shape (e.g. JSON) is protected not by Temperature but by **structured output** (lecture 3).
+```
+  
 ### Reasoning models — they think first, then answer
 
 A regular model starts writing the answer right away. A **reasoning model** first writes an internal “thought” — step-by-step reasoning (so-called reasoning or thinking tokens) — and only then the final answer. It's still next-token prediction; the model is simply trained to “think out loud” before answering.
@@ -1503,35 +1402,13 @@ A regular model starts writing the answer right away. A **reasoning model** firs
 - 🎛️ **Parameters** — some reasoning models don't accept Temperature, but have a “how much to think” parameter instead (e.g. reasoning effort).
 
 **Rule:** for a simple question (“How much is khinkali?”, “Open on Sunday?”) a reasoning model is wasted money. Real systems often use two models: a fast, cheap one for most requests, and a reasoning one only for the hard ones.
-  </aside>
-</section>
-
-<section class="slide" data-section="3 · პარამეტრები">
-  <div class="kicker">❓ კითხვები · ნაწილი 3</div>
-  <h2>რას აირჩევდით? <span class="c-net">3 სიტუაცია</span></h2>
-  <div class="qa"><span class="n">1</span><span class="q">კლიენტის შეტყობინებიდან ვიღებთ თარიღს და სტუმრების რაოდენობას. Temperature?</span><span class="a step">0 — ერთი სწორი პასუხია, ყოველ ჯერზე ერთნაირი გვინდა</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">პასუხი სიტყვის შუაში წყდება. რა მოხდა და სად ჩანს?</span><span class="a step">Max Tokens-ს მიაღწია · <code class="i">finish_reason</code> = <b>length</b></span></div>
-  <div class="qa"><span class="n">3</span><span class="q">მენიუს FAQ-ბოტი („ღიაა კვირას?“) — reasoning მოდელი ავიღოთ?</span><span class="a step">არა — მარტივი კითხვაა; reasoning ნელია და ფიქრის ტოკენებს ვიხდით</span></div>
-  <aside class="study">
-### ❓ შეამოწმე თავი · ნაწილი 3
-
-```check
-? კლიენტის შეტყობინებიდან ვიღებთ თარიღს და სტუმრების რაოდენობას. რა Temperature-ს დააყენებდი?
-= 0 (ან ძალიან დაბალს). ერთი სწორი პასუხი არსებობს და ყოველ ჯერზე ერთნაირი შედეგი გვინდა.
-? პასუხი სიტყვის შუაში წყდება. რა მოხდა და სად ჩანს?
-= მოდელმა Max Tokens-ის ლიმიტს მიაღწია. პასუხში `finish_reason` = `length` (C#-ში `ChatFinishReason.Length`).
-? მენიუს FAQ-ბოტისთვის („ღიაა კვირას?“) reasoning მოდელს აიღებდი?
-= არა. კითხვა მარტივია; reasoning მოდელი ნელია და ფიქრის ტოკენებსაც ვიხდით. სწრაფი, იაფი მოდელი სრულიად საკმარისია.
-? რით განსხვავდება Top-P Temperature-სგან?
-= Temperature განაწილების ფორმას ცვლის (მკვეთრი ↔ ბრტყელი), Top-P კი ჭრის სუსტ ტოკენებს: ტოვებს ყველაზე სავარაუდოებს, სანამ ჯამი P-ს არ მიაღწევს.
-```
-  </aside>
-  <aside class="study-en">
+  
+  
 ### ❓ Check yourself · part 3
 
 ```check
 ? We extract the date and party size from a customer's message. Which Temperature would you set?
-= 0 (or very low). There is one correct answer and we want the same result every time.
+= On a regular model — 0 (or very low): there is one correct answer and we want the same result every time. On Gemini 3 (reasoning) — the default 1.0; the shape is protected by structured output (lecture 3).
 ? The answer stops mid-word. What happened and where do you see it?
 = The model hit the Max Tokens limit. The response has `finish_reason` = `length` (in C# `ChatFinishReason.Length`).
 ? Would you use a reasoning model for the menu FAQ bot (“Open on Sunday?”)?
@@ -1539,6 +1416,7 @@ A regular model starts writing the answer right away. A **reasoning model** firs
 ? How is Top-P different from Temperature?
 = Temperature changes the shape of the distribution (sharp ↔ flat), while Top-P cuts weak tokens: it keeps the most likely ones until their sum reaches P.
 ```
+  
   </aside>
 </section>
 
@@ -1591,6 +1469,23 @@ The model has to run on someone's server — in the provider's cloud or on our o
 ```note
 მოდელების კონკრეტული ვერსიები და სახელები თვეობით იცვლება, ამიტომ ამ ლექციაში მათ არ ვიმახსოვრებთ. მიმდინარე სიას ყოველთვის პროვაიდერის დოკუმენტაციაში ვამოწმებთ.
 ```
+  
+### Cloud API თუ ლოკალური მოდელი?
+
+| | ☁️ Cloud | 💻 ლოკალური (Ollama) |
+|---|---|---|
+| ფასი | ტოკენზე ვიხდით | უფასო — ვიხდით კომპიუტერის რესურსით |
+| ხარისხი | ყველაზე ძლიერი მოდელები | პატარა მოდელები სუსტია, განსაკუთრებით ქართულად |
+| სიჩქარე | სწრაფი; ქსელზეა დამოკიდებული | შენს GPU/CPU-ზეა დამოკიდებული |
+| მონაცემი | პროვაიდერთან მიდის | კომპიუტერს არ ტოვებს |
+| სწავლისთვის | API key, ლიმიტები, ზოგჯერ ბარათი | key არ სჭირდება, მაგრამ ძლიერი კომპიუტერი სჭირდება |
+
+**ჩვენი არჩევანი კურსზე:** ვიყენებთ **Google Gemini**-ს — ღრუბლოვანი მოდელია, ქართულად კარგად წერს და სწავლისთვის აქვს უფასო ლიმიტი (მეტი თუ დაგჭირდა — ფასიანი ტარიფი). ლოკალური მოდელი (Ollama) მაშინ ღირს, როცა მონაცემი კომპანიიდან არ უნდა გავიდეს. C# კოდი ორივესთვის თითქმის ერთნაირი იქნება — ამას კოდის ლექციებზე ვნახავთ.
+
+```tip
+რეალურ კომპანიაში არჩევანს ხშირად **მონაცემი** წყვეტს: ბანკი ან კლინიკა შეიძლება ვერ აგზავნიდეს კლიენტის მონაცემს გარე პროვაიდერთან. მაშინ ღია მოდელი საკუთარ სერვერზე ეშვება.
+```
+  
   </aside>
   <aside class="study-en">
 ### Providers — whose model, whose server
@@ -1609,40 +1504,7 @@ An **open (open-weight) model** means the model's “weights” (learned paramet
 ```note
 Specific model versions and names change month by month, so we don't memorise them in this lecture. We always check the current list in the provider's documentation.
 ```
-  </aside>
-</section>
-
-<section class="slide" data-section="4 · პროვაიდერები">
-  <div class="kicker">ღრუბელი vs ლოკალური</div>
-  <h2>☁️ Cloud API თუ 💻 <span class="c-net">ლოკალური?</span></h2>
-  <table class="t" style="margin-top:10px">
-    <tr><th></th><th>☁️ Cloud (OpenAI, Claude, Gemini, Groq)</th><th>💻 ლოკალური (მაგ. Ollama)</th></tr>
-    <tr class="fade"><td>ფასი</td><td>ვიხდით <b>ტოკენზე</b></td><td><b>უფასო</b> — ვიხდით კომპიუტერით და დენით</td></tr>
-    <tr class="fade"><td>ხარისხი</td><td><b>ყველაზე ძლიერი</b> მოდელები</td><td>პატარა მოდელები — სუსტი, განსაკუთრებით <b>ქართულად</b></td></tr>
-    <tr class="fade"><td>სიჩქარე</td><td>სწრაფი, მაგრამ ქსელზეა დამოკიდებული</td><td>შენს GPU/CPU-ზეა დამოკიდებული</td></tr>
-    <tr class="fade"><td>მონაცემი</td><td>მიდის <b>პროვაიდერთან</b></td><td><b>არ ტოვებს</b> კომპიუტერს</td></tr>
-    <tr class="fade"><td>სწავლისთვის</td><td>API key, ლიმიტები</td><td>key არ სჭირდება, მაგრამ <b>ძლიერი კომპიუტერი</b> სჭირდება</td></tr>
-  </table>
-  <div class="callout ask mt">🙋 რესტორნის ასისტენტისთვის რომელს აირჩევდით და <b>რატომ</b>?</div>
-  <div class="callout step mt" style="--a:var(--mvc);font-size:22px">ჩვენ ვიყენებთ <b>Gemini-ს</b> (ღრუბელი, უფასო ლიმიტით) — ლოკალური საჭიროა, როცა მონაცემი <b>არ უნდა გავიდეს</b></div>
-  <aside class="study">
-### Cloud API თუ ლოკალური მოდელი?
-
-| | ☁️ Cloud | 💻 ლოკალური (Ollama) |
-|---|---|---|
-| ფასი | ტოკენზე ვიხდით | უფასო — ვიხდით კომპიუტერის რესურსით |
-| ხარისხი | ყველაზე ძლიერი მოდელები | პატარა მოდელები სუსტია, განსაკუთრებით ქართულად |
-| სიჩქარე | სწრაფი; ქსელზეა დამოკიდებული | შენს GPU/CPU-ზეა დამოკიდებული |
-| მონაცემი | პროვაიდერთან მიდის | კომპიუტერს არ ტოვებს |
-| სწავლისთვის | API key, ლიმიტები, ზოგჯერ ბარათი | key არ სჭირდება, მაგრამ ძლიერი კომპიუტერი სჭირდება |
-
-**ჩვენი არჩევანი კურსზე:** ვიყენებთ **Google Gemini**-ს — ღრუბლოვანი მოდელია, ქართულად კარგად წერს და სწავლისთვის აქვს უფასო ლიმიტი (მეტი თუ დაგჭირდა — ფასიანი ტარიფი). ლოკალური მოდელი (Ollama) მაშინ ღირს, როცა მონაცემი კომპანიიდან არ უნდა გავიდეს. C# კოდი ორივესთვის თითქმის ერთნაირი იქნება — ამას კოდის ლექციებზე ვნახავთ.
-
-```tip
-რეალურ კომპანიაში არჩევანს ხშირად **მონაცემი** წყვეტს: ბანკი ან კლინიკა შეიძლება ვერ აგზავნიდეს კლიენტის მონაცემს გარე პროვაიდერთან. მაშინ ღია მოდელი საკუთარ სერვერზე ეშვება.
-```
-  </aside>
-  <aside class="study-en">
+  
 ### Cloud API or a local model?
 
 | | ☁️ Cloud | 💻 Local (Ollama) |
@@ -1658,6 +1520,7 @@ Specific model versions and names change month by month, so we don't memorise th
 ```tip
 In a real company the choice is often decided by **data**: a bank or a clinic may not be allowed to send customer data to an external provider. Then an open model runs on their own server.
 ```
+  
   </aside>
 </section>
 
@@ -1755,6 +1618,18 @@ Prices change often. For a real cost estimate always open the provider's **prici
 3. 🧠 B: 18 × 3 + 2.7 × 15 = **≈ $94.5 თვეში** — 22-ჯერ მეტი
 
 **დასაფიქრებელი:** ქართულის გამო ტოკენები ×1.5 → ხარჯიც ×1.5. საუბრის ისტორია ყოველ ახალ შეტყობინებაზე თავიდან იგზავნება (stateless!) — input სწრაფად იზრდება (ლექცია 7). reasoning მოდელი output-ს ფიქრის ტოკენებით ზრდის.
+  
+### ❓ შეამოწმე თავი · ნაწილი 4
+
+```check
+? რატომ არის output ტოკენი input-ზე ძვირი?
+= input-ის ტოკენებს მოდელი ერთად ამუშავებს, output-ის თითო ტოკენი კი მოდელის ცალკე სრული გაშვებაა (next-token prediction).
+? მფლობელი ამბობს: „კლიენტების მონაცემი გარეთ არ უნდა გავიდეს“. რას შესთავაზებდი?
+= ღია მოდელს, რომელიც საკუთარ სერვერზე ეშვება (მაგ. Ollama-თი ან სხვა inference სერვერით). მონაცემი სისტემას არ ტოვებს; სამაგიეროდ, ხარისხი შეიძლება ღრუბლოვანზე დაბალი იყოს და სერვერი უფრო ძლიერი დაგვჭირდეს.
+? რა ზრდის ყველაზე მეტად ხარჯს ჩატში?
+= ძვირი მოდელის არჩევა და მზარდი საუბრის ისტორია, რომელიც ყოველ მოთხოვნაზე თავიდან იგზავნება. ქართული ტექსტიც ზრდის ტოკენების რაოდენობას.
+```
+  
   </aside>
   <aside class="study-en">
 ### 🎮 What will an AI assistant cost the restaurant?
@@ -1770,28 +1645,7 @@ First calculate it yourself, then check with the calculator on the slide (it's p
 3. 🧠 B: 18 × 3 + 2.7 × 15 = **≈ $94.5 per month** — 22 times more
 
 **Something to think about:** because of Georgian, tokens ×1.5 → cost ×1.5 too. The chat history is sent again with every new message (stateless!) — input grows fast (lecture 7). A reasoning model increases output with thinking tokens.
-  </aside>
-</section>
-
-<section class="slide" data-section="4 · პროვაიდერები">
-  <div class="kicker">❓ კითხვები · ნაწილი 4</div>
-  <h2>რას ეტყოდით <span class="c-net">რესტორნის მფლობელს?</span></h2>
-  <div class="qa"><span class="n">1</span><span class="q">რატომ არის output ტოკენი input-ზე ძვირი?</span><span class="a step">თითო output ტოკენი მოდელის ცალკე გაშვებაა; input ერთად მუშავდება</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">მფლობელი ამბობს: „კლიენტების მონაცემი გარეთ არ უნდა გავიდეს“. რას შესთავაზებდით?</span><span class="a step">ღია მოდელი საკუთარ სერვერზე (მაგ. Ollama) — მონაცემი სისტემას არ ტოვებს</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">რა ორი რამ ზრდის ყველაზე მეტად ხარჯს ჩვენს ჩატში?</span><span class="a step">ძვირი მოდელი და მზარდი ისტორია (ყოველ ჯერზე თავიდან იგზავნება); ქართულიც მატებს</span></div>
-  <aside class="study">
-### ❓ შეამოწმე თავი · ნაწილი 4
-
-```check
-? რატომ არის output ტოკენი input-ზე ძვირი?
-= input-ის ტოკენებს მოდელი ერთად ამუშავებს, output-ის თითო ტოკენი კი მოდელის ცალკე სრული გაშვებაა (next-token prediction).
-? მფლობელი ამბობს: „კლიენტების მონაცემი გარეთ არ უნდა გავიდეს“. რას შესთავაზებდი?
-= ღია მოდელს, რომელიც საკუთარ სერვერზე ეშვება (მაგ. Ollama-თი ან სხვა inference სერვერით). მონაცემი სისტემას არ ტოვებს; სამაგიეროდ, ხარისხი შეიძლება ღრუბლოვანზე დაბალი იყოს და სერვერი უფრო ძლიერი დაგვჭირდეს.
-? რა ზრდის ყველაზე მეტად ხარჯს ჩატში?
-= ძვირი მოდელის არჩევა და მზარდი საუბრის ისტორია, რომელიც ყოველ მოთხოვნაზე თავიდან იგზავნება. ქართული ტექსტიც ზრდის ტოკენების რაოდენობას.
-```
-  </aside>
-  <aside class="study-en">
+  
 ### ❓ Check yourself · part 4
 
 ```check
@@ -1802,10 +1656,9 @@ First calculate it yourself, then check with the calculator on the slide (it's p
 ? What increases the cost of a chat the most?
 = Choosing an expensive model and a growing chat history that is sent again with every request. Georgian text also increases the number of tokens.
 ```
+  
   </aside>
 </section>
-
-
 
 <section class="slide" data-section="პრაქტიკა">
   <div class="kicker">👨‍🏫 ჯერ ერთად · ნიმუში</div>

@@ -806,5 +806,8 @@
 "🙋 ჯერ გამოიცანით: 0-ზე სამივე ერთნაირი იქნება? 2-ზე?": "🙋 Guess first: at 0, will all three be the same? At 2?",
 "0 → თითქმის ერთნაირი · 2 → ყოველ ჯერზე სხვა, ზოგჯერ უცნაური.": "0 → almost identical · 2 → different every time, sometimes weird.",
 "ის, რაც სლაიდერზე ვნახეთ": "What we saw on the slider",
-"— ახლა ნამდვილ მოდელზე": "— now on a real model"
+"— ახლა ნამდვილ მოდელზე": "— now on a real model",
+"0 — ერთი სწორი პასუხი, ყოველ ჯერზე ერთნაირი (Gemini 3-ზე — ნაგულისხმევი, ლექცია 2) · length — Max Tokens-ს მიაღწია, პასუხი მოიჭრა": "0 — one correct answer, the same every time (on Gemini 3 — the default, lecture 2) · length — it hit Max Tokens, the answer was cut off",
+"⚠️ გამონაკლისი:": "⚠️ Exception:",
+"(ფიქრობს პასუხამდე) — Temperature ნაგულისხმევზე (1.0) ვტოვებთ · ლექცია 2": "(thinks before answering) — we leave Temperature at the default (1.0) · lecture 2"
 }
