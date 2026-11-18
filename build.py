@@ -535,7 +535,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
     has_lecturer = write_lecturer(out, course, meta, num, title, ldir)
     print(f'  {cdir.name}/{ldir.name}: {len(slides)} slides' + (f', study {sum(1 for s in study if s["html"])} blocks' if has_study else ''))
     return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study,
-            'classwork': (ldir / 'classwork.md').exists(), 'homework': (ldir / 'homework.md').exists(), 'quiz': len(meta.get('quiz', [])), 'lecturer': has_lecturer, 'study_en': has_study_en}, []
+            'classwork': (ldir / 'classwork.md').exists(), 'homework': (ldir / 'homework.md').exists(), 'quiz': len(meta.get('quiz', [])), 'lecturer': has_lecturer, 'study_en': has_study_en, 'deck_en': (out / 'index.en.html').exists()}, []
 
 # ლექტორის გვერდი. lecturer.md:
 #   ## სათაური                       ზოგადი ნაწილი (მიმოხილვა, ადგილი მოდულში, შეფასება…)

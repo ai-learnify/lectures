@@ -56,6 +56,9 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .btn:hover{border-color:var(--ink)}
 .btn.play{flex:1.6;background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:var(--on)}
 .btn.play:hover{filter:brightness(.92)}
+.btn.dl{position:relative;z-index:1;display:block;width:100%;margin-top:12px;cursor:pointer;color:var(--muted);background:transparent;border-style:dashed}
+.btn.dl:hover{color:var(--ink);border-style:solid}
+.btn.dl:disabled{cursor:progress;opacity:.7}
 .empty{display:none;color:var(--muted);text-align:center;padding:40px 0}
 .hidden{display:none!important}
 footer{color:var(--muted);font-size:14px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
@@ -98,6 +101,7 @@ const card = c => l => {
     ${mats}
     <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}${l.study_en ? `<a class="btn en" href="${href}study.en.html" title="Study notes in English">EN</a>` : ``}</div>
     ${l.study ? `<div class="links">${l.classwork ? `<a href="${href}study.html#classwork">📝 კლასის დავალება</a>` : ''}${l.homework ? `<a href="${href}study.html#homework">🏠 საშინაო</a>` : ''}${l.quiz ? `<a href="${href}study.html#quiz">✅ ტესტი · ${l.quiz}</a>` : ''}${l.lecturer ? `<a class="lect" href="${href}lecturer.html">🎓 ლექტორისთვის</a>` : ''}</div>` : ''}
+    ${(() => { const f = [ 'index.html', l.deck_en && 'index.en.html', l.study && 'study.html', l.study_en && 'study.en.html', l.lecturer && 'lecturer.html' ].filter(Boolean); return `<button class="btn dl" type="button" data-dl="${href}" data-files="${f.join(',')}" title="${f.join(', ')}">⬇ გადმოწერა · ${f.length} HTML</button>`; })()}
   </article>`;
 };
 document.getElementById('courses').innerHTML = courses.map(c => `
@@ -150,6 +154,23 @@ function applyFilter() {
   document.getElementById('empty').style.display = any ? 'none' : 'block';
   lastEl.classList.toggle('hidden', !!words.length);
 }
+// ⬇ გადმოწერა: ლექციის ყველა გვერდი ცალკე HTML ფაილად (სახელები უცვლელია — ერთ საქაღალდეში ერთმანეთს ხსნიან)
+document.addEventListener('click', async e => {
+  const b = e.target.closest('.btn.dl'); if (!b) return;
+  const label = b.textContent; b.disabled = true;
+  try {
+    for (const f of b.dataset.files.split(',')) {
+      b.textContent = `⬇ ${f}…`;
+      const r = await fetch(b.dataset.dl + f); if (!r.ok) throw new Error(f + ': ' + r.status);
+      const url = URL.createObjectURL(await r.blob());
+      const a = document.createElement('a'); a.href = url; a.download = f; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      await new Promise(res => setTimeout(res, 350));
+    }
+    b.textContent = '✓ გადმოწერილია';
+  } catch (err) { b.textContent = '✗ ვერ გადმოიწერა'; console.error(err); }
+  setTimeout(() => { b.textContent = label; b.disabled = false; }, 2500);
+});
 q.addEventListener('input', applyFilter);
 showCat(location.hash.slice(1));
 addEventListener('hashchange', () => showCat(location.hash.slice(1)));
