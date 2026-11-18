@@ -63,7 +63,6 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .btn:hover{border-color:var(--ink)}
 .btn.play{flex:1.5;background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:var(--on);box-shadow:0 4px 12px -4px color-mix(in srgb,var(--c,var(--accent)) 60%,transparent)}
 .btn.play:hover{filter:brightness(.93)}
-.btn.en{flex:0 0 46px;padding:10px 0;font:700 13px var(--mono)}
 .foot{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px -20px 0;padding:11px 20px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 60%,var(--card))}
 .foot a,.foot button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font:600 13px var(--sans);color:var(--muted);padding:4px 8px;margin:-4px -8px;border-radius:8px}
 .foot a:hover,.foot button:hover{color:var(--ink);background:var(--card)}
@@ -109,7 +108,7 @@ const card = c => l => {
     <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
     ${mats}
     ${chips ? `<div class="chips">${chips}</div>` : ''}
-    <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}${l.study_en ? `<a class="btn en" href="${href}study.en.html" title="Study notes in English">EN</a>` : ``}</div>
+    <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
     <div class="foot">${l.lecturer ? `<a href="${href}lecturer.html">🎓 ლექტორისთვის</a>` : '<span></span>'}<button class="dl" type="button" data-dl="${href}" data-files="${files.join(',')}" title="${files.join(', ')}">⬇ გადმოწერა · ${files.length} HTML</button></div>
   </article>`;
 };
