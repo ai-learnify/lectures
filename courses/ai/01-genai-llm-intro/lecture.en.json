@@ -147,14 +147,14 @@
       "explain": "Reasoning is worth it for multi-step tasks, not simple questions."
     },
     {
-      "q": "10M input and 1M output tokens a month. Price: $0.15 / $0.60 (per 1M). Cost?",
+      "q": "10M input and 1M output tokens a month. The model is Gemini 3.8 Flash ($0.75 / $3.75 per 1M). Cost?",
       "options": [
-        "$0.75",
-        "$2.10",
-        "$7.50",
-        "$1.50"
+        "$4.50",
+        "$11.25",
+        "$75.00",
+        "$7.50"
       ],
-      "explain": "10 × 0.15 + 1 × 0.60 = 1.50 + 0.60 = $2.10."
+      "explain": "10 × 0.75 + 1 × 3.75 = 7.50 + 3.75 = $11.25."
     },
     {
       "q": "When is a local model (running on our own server) the better choice?",

@@ -547,8 +547,10 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 .cc-in label{display:flex;flex-direction:column;gap:5px;font-size:15px;color:var(--muted)}
 .cc-in input{font:700 22px var(--mono);color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:6px 10px;width:100%;box-sizing:border-box}
 .cc-pre{grid-column:1/-1;display:flex;gap:10px}
-.cc-pre button{font-size:17px}
+.cc-pre button{font:700 16px var(--font);padding:8px 14px;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--ink);cursor:pointer}
+.cc-pre button:hover{border-color:var(--asp);color:var(--asp)}
 .cc-res{display:flex;flex-direction:column;gap:16px}
+.cc-model{font-size:18px;color:var(--muted)}.cc-model b{color:var(--ink)}
 .cc-big{display:flex;flex-direction:column;align-items:center;background:color-mix(in srgb,var(--mvc) 9%,var(--card));border:2px solid color-mix(in srgb,var(--mvc) 40%,var(--card));border-radius:18px;padding:18px}
 .cc-big span{font:800 64px var(--mono);color:var(--mvc)}
 .cc-big small{font-size:18px;color:var(--muted)}
@@ -980,11 +982,11 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
     <div class="card accent" style="--a:var(--mvc)"><div class="big-emoji">♻️</div><h3 class="mt">Cached input</h3><p>იგივე დასაწყისი ხშირად? ზოგი პროვაიდერი <b>ფასდაკლებას</b> აკეთებს</p></div>
   </div>
   <table class="t mt2">
-    <tr><th>საილუსტრაციო კლასი</th><th>Input · 1M ტოკენი</th><th>Output · 1M ტოკენი</th></tr>
-    <tr><td>⚡ A · პატარა, სწრაფი</td><td class="mono">$0.15</td><td class="mono">$0.60</td></tr>
-    <tr><td>🧠 B · დიდი, ძლიერი</td><td class="mono">$3.00</td><td class="mono">$15.00</td></tr>
+    <tr><th>მოდელი</th><th>Input · 1M ტოკენი</th><th>Output · 1M ტოკენი</th></tr>
+    <tr><td>⚡ <b>Gemini 3.8 Flash</b> · ჩვენი მოდელი</td><td class="mono">$0.75</td><td class="mono">$3.75</td></tr>
+    <tr><td>🧠 <b>Gemini 3.1 Pro</b> · ძლიერი</td><td class="mono">$2.00</td><td class="mono">$12.00</td></tr>
   </table>
-  <p class="tiny" style="margin-top:8px;color:var(--muted)">ფასები მიახლოებითი რიგია და იცვლება — რეალური ფასი ყოველთვის პროვაიდერის pricing გვერდზე</p>
+  <p class="tiny" style="margin-top:8px;color:var(--muted)">Google-ის ფასები, 2026 წლის ნოემბერი. Flash — სარეკლამო ფასი 31 დეკემბრამდე, 2027-დან $1.50 / $7.50. ფასები იცვლება — ამოწმე ai.google.dev/pricing</p>
 </section>
 
 <section class="slide" data-section="4 · პროვაიდერები">
@@ -996,17 +998,18 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
       <label>input ტოკენი საუბარზე<input type="number" data-k="in" value="2000" min="0"></label>
       <label>output ტოკენი საუბარზე<input type="number" data-k="out" value="300" min="0"></label>
       <label>დღე<input type="number" data-k="d" value="30" min="1"></label>
-      <label>$ / 1M input<input type="number" data-k="pin" value="0.15" step="0.01" min="0"></label>
-      <label>$ / 1M output<input type="number" data-k="pout" value="0.60" step="0.01" min="0"></label>
+      <label>$ / 1M input<input type="number" data-k="pin" value="0.75" step="0.01" min="0"></label>
+      <label>$ / 1M output<input type="number" data-k="pout" value="3.75" step="0.01" min="0"></label>
       <label>ქართულის გამო ტოკენები ×<input type="number" data-k="ka" value="1" step="0.1" min="1"></label>
-      <div class="cc-pre"><button type="button" data-p="0.15,0.60">⚡ A · პატარა</button><button type="button" data-p="3,15">🧠 B · დიდი</button></div>
+      <div class="cc-pre"><button type="button" data-p="0.75,3.75" data-name="⚡ Gemini 3.8 Flash">⚡ 3.8 Flash</button><button type="button" data-p="2,12" data-name="🧠 Gemini 3.1 Pro">🧠 3.1 Pro</button></div>
     </div>
     <div class="cc-res">
+      <div class="cc-model">ვითვლით: <b data-model>⚡ Gemini 3.8 Flash</b><span hidden data-custom>✏️ საკუთარი ფასი</span></div>
       <div class="calc" data-calc></div>
       <div class="cc-big"><span data-total>–</span><small>თვეში</small></div>
     </div>
   </div>
-  <div class="callout ask mt">🙋 გამოიცანით: A და B მოდელით თვეში <b>რამდენი</b> გამოვა? მერე ერთად დავითვლით</div>
+  <div class="callout ask mt">🙋 გამოიცანით: თვეში <b>რამდენი</b> გამოვა Flash-ით და Pro-თი? მერე ერთად დავითვლით</div>
 </section>
 
 <section class="slide" data-section="პრაქტიკა">
@@ -1157,9 +1160,15 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
         `${M(tin)} × ${g('pin')} + ${M(tout)} × ${g('pout')} = <span class="r">${money(cin + cout)}</span>`;
       w.querySelector('[data-total]').textContent = money(cin + cout);
     };
-    w.querySelectorAll('input').forEach(x => x.addEventListener('input', calc));
+    const model = w.querySelector('[data-model]');
+    w.querySelectorAll('input').forEach(x => x.addEventListener('input', () => {
+      if (model && (x.dataset.k === 'pin' || x.dataset.k === 'pout')) model.textContent = w.querySelector('[data-custom]').textContent;
+      calc();
+    }));
     w.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => {
-      const [a, c] = b.dataset.p.split(','); w.querySelector('[data-k="pin"]').value = a; w.querySelector('[data-k="pout"]').value = c; calc();
+      const [a, c] = b.dataset.p.split(','); w.querySelector('[data-k="pin"]').value = a; w.querySelector('[data-k="pout"]').value = c;
+      if (model) model.textContent = b.dataset.name;
+      calc();
     }));
     calc();
   }

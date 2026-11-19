@@ -126,8 +126,10 @@
 .cc-in label{display:flex;flex-direction:column;gap:5px;font-size:15px;color:var(--muted)}
 .cc-in input{font:700 22px var(--mono);color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:6px 10px;width:100%;box-sizing:border-box}
 .cc-pre{grid-column:1/-1;display:flex;gap:10px}
-.cc-pre button{font-size:17px}
+.cc-pre button{font:700 16px var(--font);padding:8px 14px;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--ink);cursor:pointer}
+.cc-pre button:hover{border-color:var(--asp);color:var(--asp)}
 .cc-res{display:flex;flex-direction:column;gap:16px}
+.cc-model{font-size:18px;color:var(--muted)}.cc-model b{color:var(--ink)}
 .cc-big{display:flex;flex-direction:column;align-items:center;background:color-mix(in srgb,var(--mvc) 9%,var(--card));border:2px solid color-mix(in srgb,var(--mvc) 40%,var(--card));border-radius:18px;padding:18px}
 .cc-big span{font:800 64px var(--mono);color:var(--mvc)}
 .cc-big small{font-size:18px;color:var(--muted)}
@@ -1533,11 +1535,11 @@ In a real company the choice is often decided by **data**: a bank or a clinic ma
     <div class="card accent" style="--a:var(--mvc)"><div class="big-emoji">♻️</div><h3 class="mt">Cached input</h3><p>იგივე დასაწყისი ხშირად? ზოგი პროვაიდერი <b>ფასდაკლებას</b> აკეთებს</p></div>
   </div>
   <table class="t mt2">
-    <tr><th>საილუსტრაციო კლასი</th><th>Input · 1M ტოკენი</th><th>Output · 1M ტოკენი</th></tr>
-    <tr><td>⚡ A · პატარა, სწრაფი</td><td class="mono">$0.15</td><td class="mono">$0.60</td></tr>
-    <tr><td>🧠 B · დიდი, ძლიერი</td><td class="mono">$3.00</td><td class="mono">$15.00</td></tr>
+    <tr><th>მოდელი</th><th>Input · 1M ტოკენი</th><th>Output · 1M ტოკენი</th></tr>
+    <tr><td>⚡ <b>Gemini 3.8 Flash</b> · ჩვენი მოდელი</td><td class="mono">$0.75</td><td class="mono">$3.75</td></tr>
+    <tr><td>🧠 <b>Gemini 3.1 Pro</b> · ძლიერი</td><td class="mono">$2.00</td><td class="mono">$12.00</td></tr>
   </table>
-  <p class="tiny" style="margin-top:8px;color:var(--muted)">ფასები მიახლოებითი რიგია და იცვლება — რეალური ფასი ყოველთვის პროვაიდერის pricing გვერდზე</p>
+  <p class="tiny" style="margin-top:8px;color:var(--muted)">Google-ის ფასები, 2026 წლის ნოემბერი. Flash — სარეკლამო ფასი 31 დეკემბრამდე, 2027-დან $1.50 / $7.50. ფასები იცვლება — ამოწმე ai.google.dev/pricing</p>
   <aside class="study">
 ### ფასი — ვიხდით ტოკენზე, და არა თანაბრად
 
@@ -1547,14 +1549,14 @@ In a real company the choice is often decided by **data**: a bank or a clinic ma
 - 📤 **Output** — რასაც მოდელი წერს. ჩვეულებრივ **რამდენჯერმე ძვირია** input-ზე, რადგან თითო output ტოკენი მოდელის ცალკე გაშვებაა. reasoning მოდელის „ფიქრის“ ტოკენებიც output-ად ფასდება.
 - ♻️ **Cached input** — თუ ბევრ მოთხოვნას ერთნაირი დასაწყისი აქვს (მაგ. გრძელი system prompt), ზოგი პროვაიდერი მის განმეორებას იაფად ითვლის.
 
-**საილუსტრაციო ფასები** (რიგის გასაგებად — **არა** რეალური ფასები):
+**Google Gemini-ს ფასები** (2026 წლის ნოემბერი, 1M ტოკენზე):
 
-| კლასი | Input / 1M | Output / 1M |
+| მოდელი | Input / 1M | Output / 1M |
 |---|---|---|
-| ⚡ A · პატარა, სწრაფი მოდელი | $0.15 | $0.60 |
-| 🧠 B · დიდი, ძლიერი მოდელი | $3.00 | $15.00 |
+| ⚡ **Gemini 3.8 Flash** — ჩვენი მოდელი, სწრაფი და იაფი | $0.75 | $3.75 |
+| 🧠 **Gemini 3.1 Pro** — ძლიერი, რთული ამოცანებისთვის | $2.00 | $12.00 |
 
-განსხვავება მოდელებს შორის ათჯერადი და მეტია. ამიტომ „ყველაზე ჭკვიანი მოდელი ყველაფრისთვის“ ხშირად ცუდი გადაწყვეტილებაა.
+Flash-ის ფასი სარეკლამოა 2026 წლის 31 დეკემბრამდე; 2027 წლის 1 იანვრიდან — $1.50 / $7.50. ერთი პროვაიდერის შიგნითაც ფასი რამდენჯერმე განსხვავდება, სხვადასხვა პროვაიდერს შორის კი — ათჯერ და მეტად. ამიტომ „ყველაზე ჭკვიანი მოდელი ყველაფრისთვის“ ხშირად ცუდი გადაწყვეტილებაა.
 
 ```warn
 ფასები ხშირად იცვლება. ხარჯის რეალური გათვლისთვის ყოველთვის გახსენი პროვაიდერის **pricing** გვერდი — საშინაო დავალებაში ამას გააკეთებ.
@@ -1569,14 +1571,14 @@ Providers list prices **per 1 million tokens** (sometimes per 1000), and count t
 - 📤 **Output** — what the model writes. Usually **several times more expensive** than input, because each output token is a separate run of the model. A reasoning model's “thinking” tokens are billed as output too.
 - ♻️ **Cached input** — if many requests share the same beginning (e.g. a long system prompt), some providers bill its repetition cheaply.
 
-**Illustrative prices** (to show the order of magnitude — **not** real prices):
+**Google Gemini prices** (November 2026, per 1M tokens):
 
-| Class | Input / 1M | Output / 1M |
+| Model | Input / 1M | Output / 1M |
 |---|---|---|
-| ⚡ A · small, fast model | $0.15 | $0.60 |
-| 🧠 B · large, strong model | $3.00 | $15.00 |
+| ⚡ **Gemini 3.8 Flash** — our model, fast and cheap | $0.75 | $3.75 |
+| 🧠 **Gemini 3.1 Pro** — strong, for complex tasks | $2.00 | $12.00 |
 
-The difference between models is tenfold or more. That's why “the smartest model for everything” is often a bad decision.
+The Flash price is an introductory one until December 31, 2026; from January 1, 2027 — $1.50 / $7.50. Even within one provider prices differ several times, and between providers — tenfold or more. That's why “the smartest model for everything” is often a bad decision.
 
 ```warn
 Prices change often. For a real cost estimate always open the provider's **pricing** page — you'll do this in the homework.
@@ -1593,29 +1595,30 @@ Prices change often. For a real cost estimate always open the provider's **prici
       <label>input ტოკენი საუბარზე<input type="number" data-k="in" value="2000" min="0"></label>
       <label>output ტოკენი საუბარზე<input type="number" data-k="out" value="300" min="0"></label>
       <label>დღე<input type="number" data-k="d" value="30" min="1"></label>
-      <label>$ / 1M input<input type="number" data-k="pin" value="0.15" step="0.01" min="0"></label>
-      <label>$ / 1M output<input type="number" data-k="pout" value="0.60" step="0.01" min="0"></label>
+      <label>$ / 1M input<input type="number" data-k="pin" value="0.75" step="0.01" min="0"></label>
+      <label>$ / 1M output<input type="number" data-k="pout" value="3.75" step="0.01" min="0"></label>
       <label>ქართულის გამო ტოკენები ×<input type="number" data-k="ka" value="1" step="0.1" min="1"></label>
-      <div class="cc-pre"><button type="button" data-p="0.15,0.60">⚡ A · პატარა</button><button type="button" data-p="3,15">🧠 B · დიდი</button></div>
+      <div class="cc-pre"><button type="button" data-p="0.75,3.75" data-name="⚡ Gemini 3.8 Flash">⚡ 3.8 Flash</button><button type="button" data-p="2,12" data-name="🧠 Gemini 3.1 Pro">🧠 3.1 Pro</button></div>
     </div>
     <div class="cc-res">
+      <div class="cc-model">ვითვლით: <b data-model>⚡ Gemini 3.8 Flash</b><span hidden data-custom>✏️ საკუთარი ფასი</span></div>
       <div class="calc" data-calc></div>
       <div class="cc-big"><span data-total>–</span><small>თვეში</small></div>
     </div>
   </div>
-  <div class="callout ask mt">🙋 გამოიცანით: A და B მოდელით თვეში <b>რამდენი</b> გამოვა? მერე ერთად დავითვლით</div>
+  <div class="callout ask mt">🙋 გამოიცანით: თვეში <b>რამდენი</b> გამოვა Flash-ით და Pro-თი? მერე ერთად დავითვლით</div>
   <aside class="study">
 ### 🎮 რა დაუჯდება რესტორანს AI ასისტენტი?
 
-**მოცემულია:** 300 საუბარი დღეში; თითოზე 2 000 input და 300 output ტოკენი; 30 დღე. ფასები 1M ტოკენზე (საილუსტრაციო): ⚡ A — $0.15 / $0.60, 🧠 B — $3 / $15.
+**მოცემულია:** 300 საუბარი დღეში; თითოზე 2 000 input და 300 output ტოკენი; 30 დღე. ფასები 1M ტოკენზე (Google, 2026 წლის ნოემბერი): ⚡ **Gemini 3.8 Flash** — $0.75 / $3.75, 🧠 **Gemini 3.1 Pro** — $2 / $12.
 
 ჯერ თვითონ დაითვალე, მერე შეამოწმე სლაიდის კალკულატორში (ის საჯაროა — სახლშიც გამოიყენე).
 
 **ამოხსნა:**
 
 1. input: 300 × 2 000 × 30 = **18M** ტოკენი; output: 300 × 300 × 30 = **2.7M**
-2. ⚡ A: 18 × 0.15 + 2.7 × 0.60 = **≈ $4.3 თვეში**
-3. 🧠 B: 18 × 3 + 2.7 × 15 = **≈ $94.5 თვეში** — 22-ჯერ მეტი
+2. ⚡ Gemini 3.8 Flash: 18 × 0.75 + 2.7 × 3.75 = **≈ $23.6 თვეში** (2027-დან, $1.50 / $7.50 ფასით — ≈ $47.3)
+3. 🧠 Gemini 3.1 Pro: 18 × 2 + 2.7 × 12 = **≈ $68.4 თვეში** — თითქმის 3-ჯერ მეტი
 
 **დასაფიქრებელი:** ქართულის გამო ტოკენები ×1.5 → ხარჯიც ×1.5. საუბრის ისტორია ყოველ ახალ შეტყობინებაზე თავიდან იგზავნება (stateless!) — input სწრაფად იზრდება (ლექცია 7). reasoning მოდელი output-ს ფიქრის ტოკენებით ზრდის.
   
@@ -1634,15 +1637,15 @@ Prices change often. For a real cost estimate always open the provider's **prici
   <aside class="study-en">
 ### 🎮 What will an AI assistant cost the restaurant?
 
-**Given:** 300 conversations a day; 2 000 input and 300 output tokens each; 30 days. Prices per 1M tokens (illustrative): ⚡ A — $0.15 / $0.60, 🧠 B — $3 / $15.
+**Given:** 300 conversations a day; 2 000 input and 300 output tokens each; 30 days. Prices per 1M tokens (Google, November 2026): ⚡ **Gemini 3.8 Flash** — $0.75 / $3.75, 🧠 **Gemini 3.1 Pro** — $2 / $12.
 
 First calculate it yourself, then check with the calculator on the slide (it's public — use it at home too).
 
 **Solution:**
 
 1. input: 300 × 2 000 × 30 = **18M** tokens; output: 300 × 300 × 30 = **2.7M**
-2. ⚡ A: 18 × 0.15 + 2.7 × 0.60 = **≈ $4.3 per month**
-3. 🧠 B: 18 × 3 + 2.7 × 15 = **≈ $94.5 per month** — 22 times more
+2. ⚡ Gemini 3.8 Flash: 18 × 0.75 + 2.7 × 3.75 = **≈ $23.6 per month** (from 2027, at $1.50 / $7.50 — ≈ $47.3)
+3. 🧠 Gemini 3.1 Pro: 18 × 2 + 2.7 × 12 = **≈ $68.4 per month** — almost 3 times more
 
 **Something to think about:** because of Georgian, tokens ×1.5 → cost ×1.5 too. The chat history is sent again with every new message (stateless!) — input grows fast (lecture 7). A reasoning model increases output with thinking tokens.
   
@@ -1839,9 +1842,15 @@ Ask me 8 questions one at a time, from easy to hard, including 2 practical situa
         `${M(tin)} × ${g('pin')} + ${M(tout)} × ${g('pout')} = <span class="r">${money(cin + cout)}</span>`;
       w.querySelector('[data-total]').textContent = money(cin + cout);
     };
-    w.querySelectorAll('input').forEach(x => x.addEventListener('input', calc));
+    const model = w.querySelector('[data-model]');
+    w.querySelectorAll('input').forEach(x => x.addEventListener('input', () => {
+      if (model && (x.dataset.k === 'pin' || x.dataset.k === 'pout')) model.textContent = w.querySelector('[data-custom]').textContent;
+      calc();
+    }));
     w.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => {
-      const [a, c] = b.dataset.p.split(','); w.querySelector('[data-k="pin"]').value = a; w.querySelector('[data-k="pout"]').value = c; calc();
+      const [a, c] = b.dataset.p.split(','); w.querySelector('[data-k="pin"]').value = a; w.querySelector('[data-k="pout"]').value = c;
+      if (model) model.textContent = b.dataset.name;
+      calc();
     }));
     calc();
   }

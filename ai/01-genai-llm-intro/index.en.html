@@ -547,8 +547,10 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
 .cc-in label{display:flex;flex-direction:column;gap:5px;font-size:15px;color:var(--muted)}
 .cc-in input{font:700 22px var(--mono);color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:6px 10px;width:100%;box-sizing:border-box}
 .cc-pre{grid-column:1/-1;display:flex;gap:10px}
-.cc-pre button{font-size:17px}
+.cc-pre button{font:700 16px var(--font);padding:8px 14px;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--ink);cursor:pointer}
+.cc-pre button:hover{border-color:var(--asp);color:var(--asp)}
 .cc-res{display:flex;flex-direction:column;gap:16px}
+.cc-model{font-size:18px;color:var(--muted)}.cc-model b{color:var(--ink)}
 .cc-big{display:flex;flex-direction:column;align-items:center;background:color-mix(in srgb,var(--mvc) 9%,var(--card));border:2px solid color-mix(in srgb,var(--mvc) 40%,var(--card));border-radius:18px;padding:18px}
 .cc-big span{font:800 64px var(--mono);color:var(--mvc)}
 .cc-big small{font-size:18px;color:var(--muted)}
@@ -599,7 +601,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
     <div class="step" data-with>
       <div class="term"><div class="bar"><i></i><i></i><i></i><span>Inside the agent · our code</span></div>
         <div class="body" style="font-size:16px"><div class="out">🔎 SearchMenu(vegetarian: true, light: true)</div><div class="ok">   ← pkhali 14₾, eggplant 20₾  (PostgreSQL)</div><div class="out">📅 BookTable(date: 2026-11-13 20:00, guests: 2)</div><div class="ok">   ← table #5 ✓</div><div class="out">🛡️ guardrail: prompt injection → refused</div><div class="out">📊 1 840 tokens · $0.002 · 1.4 s</div></div></div>
-      <div class="callout mt" style="--a:var(--net)">The model <b>decides</b> what to do — <b>doing it is</b> our C# code</div>
+      <div class="callout mt" style="--a:var(--net)">Model <b>decides</b> what to do — <b>doing it is</b> our C# code</div>
     </div>
   </div>
 </section>
@@ -773,7 +775,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
       <p class="small" style="margin-bottom:10px">🇬🇧 <b>Book a table for two</b> → <b class="c-api">5 tokens</b></p>
       <div class="toks"><span class="tk">Book<small>6904</small></span><span class="tk"> a<small>261</small></span><span class="tk"> table<small>3293</small></span><span class="tk"> for<small>395</small></span><span class="tk"> two<small>1920</small></span></div>
     </div>
-    <div class="callout ask">🙋 In Georgian — „დაჯავშნე მაგიდა ორისთვის“ — <b>how many</b> will it be?</div>
+    <div class="callout ask">🙋 In Georgian — „დაჯავშნე მაგიდა ორისთვის“ — <b>how much</b> will it be?</div>
     <div class="step">
       <p class="small" style="margin-bottom:10px">🇬🇪 <b>დაჯავშნე მაგიდა ორისთვის</b> → <b class="c-red">10 tokens</b></p>
       <div class="toks"><span class="tk">დ<small>3797</small></span><span class="tk">აჯ<small>169408</small></span><span class="tk">ავშ<small>31895</small></span><span class="tk">ნ<small>4173</small></span><span class="tk">ე<small>794</small></span><span class="tk"> მაგ<small>26296</small></span><span class="tk">იდა<small>53557</small></span><span class="tk"> ო<small>14205</small></span><span class="tk">რის<small>32565</small></span><span class="tk">თვის<small>23487</small></span></div>
@@ -885,7 +887,7 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
   <div class="vcenter">
     <div class="kicker in">Break</div>
     <h1 class="in" style="--d:.1s">10 <span class="grad">minutes</span> ☕</h1>
-    <p class="lead mt in" style="--d:.3s">Next: how to control <b>which token it picks</b> The model</p>
+    <p class="lead mt in" style="--d:.3s">Next: how to control <b>which token it picks</b> Model</p>
   </div>
   <div class="big-num">☕</div>
 </section>
@@ -980,11 +982,11 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
     <div class="card accent" style="--a:var(--mvc)"><div class="big-emoji">♻️</div><h3 class="mt">Cached input</h3><p>Same beginning every time? Some providers give a <b>The discount is checked by</b> doing it is</p></div>
   </div>
   <table class="t mt2">
-    <tr><th>Illustrative class</th><th>Input · 1M tokens</th><th>Output · 1M tokens</th></tr>
-    <tr><td>⚡ A · small, fast</td><td class="mono">$0.15</td><td class="mono">$0.60</td></tr>
-    <tr><td>🧠 B · large, strong</td><td class="mono">$3.00</td><td class="mono">$15.00</td></tr>
+    <tr><th>Model</th><th>Input · 1M tokens</th><th>Output · 1M tokens</th></tr>
+    <tr><td>⚡ <b>Gemini 3.8 Flash</b> · our model</td><td class="mono">$0.75</td><td class="mono">$3.75</td></tr>
+    <tr><td>🧠 <b>Gemini 3.1 Pro</b> · strong</td><td class="mono">$2.00</td><td class="mono">$12.00</td></tr>
   </table>
-  <p class="tiny" style="margin-top:8px;color:var(--muted)">Prices are an approximate order of magnitude and change — the real price is always on the provider's pricing page</p>
+  <p class="tiny" style="margin-top:8px;color:var(--muted)">Google prices, November 2026. Flash — introductory price until December 31, from 2027 $1.50 / $7.50. Prices change — check ai.google.dev/pricing</p>
 </section>
 
 <section class="slide" data-section="4 · Providers">
@@ -996,17 +998,18 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
       <label>input tokens per chat<input type="number" data-k="in" value="2000" min="0"></label>
       <label>output tokens per chat<input type="number" data-k="out" value="300" min="0"></label>
       <label>days<input type="number" data-k="d" value="30" min="1"></label>
-      <label>$ / 1M input<input type="number" data-k="pin" value="0.15" step="0.01" min="0"></label>
-      <label>$ / 1M output<input type="number" data-k="pout" value="0.60" step="0.01" min="0"></label>
+      <label>$ / 1M input<input type="number" data-k="pin" value="0.75" step="0.01" min="0"></label>
+      <label>$ / 1M output<input type="number" data-k="pout" value="3.75" step="0.01" min="0"></label>
       <label>Georgian text: tokens ×<input type="number" data-k="ka" value="1" step="0.1" min="1"></label>
-      <div class="cc-pre"><button type="button" data-p="0.15,0.60">⚡ A · small</button><button type="button" data-p="3,15">🧠 B · large</button></div>
+      <div class="cc-pre"><button type="button" data-p="0.75,3.75" data-name="⚡ Gemini 3.8 Flash">⚡ 3.8 Flash</button><button type="button" data-p="2,12" data-name="🧠 Gemini 3.1 Pro">🧠 3.1 Pro</button></div>
     </div>
     <div class="cc-res">
+      <div class="cc-model">Calculating with: <b data-model>⚡ Gemini 3.8 Flash</b><span hidden data-custom>✏️ custom price</span></div>
       <div class="calc" data-calc></div>
       <div class="cc-big"><span data-total>–</span><small>per month</small></div>
     </div>
   </div>
-  <div class="callout ask mt">🙋 Guess: with models A and B, per month, <b>how many</b> will it be? Then we'll calculate together</div>
+  <div class="callout ask mt">🙋 Guess: <b>how much</b> per month with Flash and with Pro? Then we calculate together</div>
 </section>
 
 <section class="slide" data-section="Practice">
@@ -1157,9 +1160,15 @@ body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{righ
         `${M(tin)} × ${g('pin')} + ${M(tout)} × ${g('pout')} = <span class="r">${money(cin + cout)}</span>`;
       w.querySelector('[data-total]').textContent = money(cin + cout);
     };
-    w.querySelectorAll('input').forEach(x => x.addEventListener('input', calc));
+    const model = w.querySelector('[data-model]');
+    w.querySelectorAll('input').forEach(x => x.addEventListener('input', () => {
+      if (model && (x.dataset.k === 'pin' || x.dataset.k === 'pout')) model.textContent = w.querySelector('[data-custom]').textContent;
+      calc();
+    }));
     w.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => {
-      const [a, c] = b.dataset.p.split(','); w.querySelector('[data-k="pin"]').value = a; w.querySelector('[data-k="pout"]').value = c; calc();
+      const [a, c] = b.dataset.p.split(','); w.querySelector('[data-k="pin"]').value = a; w.querySelector('[data-k="pout"]').value = c;
+      if (model) model.textContent = b.dataset.name;
+      calc();
     }));
     calc();
   }
