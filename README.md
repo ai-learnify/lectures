@@ -39,6 +39,9 @@ build.py                     აწყობს საიტს
 | 01 | შესავალი Generative AI-სა და LLM API-ებში | `courses/ai/01-genai-llm-intro/` |
 | 02 | პირველი გამოძახება და Prompt Engineering | `courses/ai/02-prompt-engineering/` |
 | 03 | Microsoft.Extensions.AI: DI და Structured Output | `courses/ai/03-meai-structured-output/` |
+| 04 | Tools და Function Calling | `courses/ai/04-tools-function-calling/` |
+| 05 | Chat Client Pipeline და Middleware | `courses/ai/05-pipeline-middleware/` |
+| 06 | Streaming და Real-time AI პასუხები | `courses/ai/06-streaming/` |
 
 ## ლექციის სტრუქტურა
 

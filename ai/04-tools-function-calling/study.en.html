@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Tools and Function Calling — study notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ Correct.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← Lectures</a>
+  <div class="ttl"><small>📖 AI Agents in .NET · 4</small>Tools and Function Calling</div>
+  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
+  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
+  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.en.html">▶ Presentation</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>Contents</summary>
+    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">The model and our database: the function-calling loop</span><span class="nm">5′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">The first tool: the menu from the database</span><span class="nm">4′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Parameters and a good tool</span><span class="nm">5′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: your tool in your project</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">4</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 4</div>
+      <h1>Tools and Function Calling</h1>
+      <p>The whole lecture in chapters, ~23 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li><strong>The model can't see our database</strong> — it either makes things up or refuses. Putting the whole database in the prompt is expensive and goes stale.</li><li><strong>Function calling:</strong> we send the question + the list of tools → the model <strong>asks</strong> for a call → <strong>our code</strong> runs the method → the result goes to the model → a text answer.</li><li><strong>A tool</strong> = name + description (<code>[Description]</code>) + the parameters' JSON Schema. <code>AIFunctionFactory.Create(method, name: "...")</code> creates it from a C# method, <code>ChatOptions.Tools</code> sends it with the request.</li><li><strong><code>.UseFunctionInvocation()</code></strong> in <code>Program.cs</code> runs the loop automatically. <code>response.Messages</code> shows which tool was called.</li><li><strong>A good tool:</strong> name = verb + what, a description, typed parameters, one job. Today only read tools — writing needs confirmation.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~23 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 11 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/ichatclient" target="_blank" rel="noopener">IChatClient — tool calling</a> — AIFunction, AIFunctionFactory, FunctionInvokingChatClient — with examples</li><li><a href="https://learn.microsoft.com/dotnet/ai/quickstarts/use-function-calling" target="_blank" rel="noopener">Function calling — .NET quickstart</a> — Your first tool in C#, step by step</li><li><a href="https://ai.google.dev/gemini-api/docs/function-calling" target="_blank" rel="noopener">Gemini — Function calling</a> — How it works on Gemini, tips on tool design</li><li><a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank" rel="noopener">Anthropic — Writing tools for agents</a> — Practical tips on a good tool's name, description and parameters</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
+<p>Lecture 3 — <strong>Microsoft.Extensions.AI: DI and Structured Output</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../03-meai-structured-output/study.en.html">the previous lecture's notes</a>.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What's wrong with <code>new Client(...).AsIChatClient(...)</code> inside a Controller, and how do we fix it?</summary><div class="ans">A new client on every request · the model name is in the code · we can't plug a fake client into a test → <code>AddChatClient</code> in <code>Program.cs</code> (Singleton) + constructor injection in the Controller</div></details><details><summary>Where do we keep the Gemini key and where the model name? Why in different places?</summary><div class="ans">The key — in User Secrets (it's a secret, it must not get into Git; on a server — an environment variable) · the model — in <code>appsettings.json</code> (not a secret; change it without changing code)</div></details><details><summary>How does few-shot differ from structured output?</summary><div class="ans">Few-shot <strong>asks</strong> for a shape with examples — by probability · structured output <strong>forces</strong> it: a JSON Schema from the C# type goes with the request, the model can't write outside the schema, <code>.Result</code> is already a C# type</div></details><details><summary>Why <code>int? Guests</code> and not <code>int</code> in <code>BookingRequest</code>? And why do we put today's date in the prompt?</summary><div class="ans"><code>?</code> gives the model the right to say “I don't know” (null); with <code>int</code> it's forced to write something and will make it up · the model doesn't know today's date (stateless, training date) — we provide it for “tomorrow”</div></details><details><summary>Structured output gave us a <code>BookingRequest</code>. Can we write it straight to the database?</summary><div class="ans">No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
+<p>The previous lecture's homework: <strong>A typed classifier and a record from text</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>DI:</strong> no <code>new Client(...)</code> in any Controller — <code>IChatClient</code> only through <code>AddChatClient</code>; the key in User Secrets, the model in <code>appsettings.json</code></li>
+<li><strong>classify with an enum:</strong> rewrite homework 2's <code>POST /api/ai-lab/classify</code> with <code>GetResponseAsync&lt;your enum&gt;</code> (without few-shot examples)</li>
+<li><strong>A comparison in the README:</strong> the same 5 texts — few-shot (homework 2) vs enum. Table: text · few-shot answer · enum answer · <code>inputTokens</code> for both</li>
+<li><strong>A record from text:</strong> one endpoint in a <strong>real</strong> Controller of your project (not ai-lab): text → <code>record</code> → a C# check (a required field is <code>null</code> → <code>400</code> with a question) → saved <strong>to the database</strong> with your existing logic</li>
+<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>
+</ul>
+<h3>Solution</h3>
+<p>A sample — the library API (a continuation of homework 2).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Classify</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">RequestType</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Search</span><span class="p">,</span><span class="w"> </span><span class="n">Reserve</span><span class="p">,</span><span class="w"> </span><span class="n">Question</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("classify")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Classify</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the library user's request."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">RequestType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">RequestType</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/ReservationsController.cs · FromText</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ReservationDraft</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Book title")]</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Title</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Hold until which day")]</span><span class="w"> </span><span class="n">DateOnly</span><span class="o">?</span><span class="w"> </span><span class="n">Until</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("from-text")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">FromText</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            Extract the book reservation details from the text.</span></span><span class="ln"><span class="na">            Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">            Leave null whatever is not in the text.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">ReservationDraft</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">ReservationDraft</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ReservationDraft</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"Which book?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">Until</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"Until which day should we hold it?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Reservation</span><span class="w"> </span><span class="n">created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_reservations</span><span class="p">.</span><span class="n">CreateAsync</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">Until</span><span class="p">.</span><span class="n">Value</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">created</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Text</th>
+<th>few-shot</th>
+<th>enum</th>
+<th><code>inputTokens</code> few-shot / enum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“Where are your detective novels?”</td>
+<td><code>Search</code></td>
+<td><code>Search</code></td>
+<td>~95 / ~35</td>
+</tr>
+<tr>
+<td>“Hold this book for me until Monday”</td>
+<td><code>Reserve.</code></td>
+<td><code>Reserve</code></td>
+<td>~95 / ~35</td>
+</tr>
+<tr>
+<td>“How much is it to replace a card?”</td>
+<td><code>Question</code></td>
+<td><code>Question</code></td>
+<td>~95 / ~35</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>The enum version has no examples — so <code>inputTokens</code> drops, and an answer like <code>Reserve.</code> can't appear anymore. <code>from-text</code> creates a record only after the check: the model gives the shape, C# checks what must hold. <code>_reservations</code> is the service you already create reservations with in the library API; in the Controller it comes through the constructor, next to <code>IChatClient</code>.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~5 min read</div><h2>The model and our database: the function-calling loop</h2><p class="goal">🎯 <b>After this</b> You'll explain why the model can't see our database and how it asks for our method to be called, in four steps.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · The model and our database</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
+<p>The model only “sees” what we sent in the request (lecture 1: stateless, knowledge up to its training date). Our database, today's bookings and the menu prices are not part of its knowledge. In this part we'll see how function calling gives the model access to this data while only our code talks to the database.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>The model can&#x27;t see our database</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
+<p>A user writes: “There are four of us, tomorrow at 8 — do you have a table?”. On lecture 2's <code>/ask</code> the model doesn't have our database, so it does one of two things:</p>
+<table>
+<thead>
+<tr>
+<th>Answer</th>
+<th>Problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“Yes, of course! We're expecting you”</td>
+<td>It <strong>made it up</strong> (hallucination): it hasn't seen the bookings but answers confidently. The user comes and the table is taken</td>
+</tr>
+<tr>
+<td>“I don't have access to bookings”</td>
+<td>Honest, but it doesn't help the user at all</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Idea 1: the whole database in the prompt?</strong> All tables and all bookings as text. That's a bad idea:</p>
+<ul>
+<li><strong>Many tokens.</strong> Thousands of input tokens on every question, even on “hello” (cost, lecture 1).</li>
+<li><strong>It goes stale.</strong> The prompt is a snapshot from the moment it was sent, while bookings change every minute.</li>
+<li><strong>Unneeded.</strong> “How much is khinkali?” doesn't need the bookings at all.</li>
+</ul>
+<p><strong>Idea 2 (the right one):</strong> the model itself <strong>asks us</strong> for the data it needs, and only when it needs it. This is called <strong>function calling</strong> (or <strong>tool calling</strong>).</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Function calling: the loop in four steps</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
+<p>The main idea: <strong>the model can't call our method.</strong> It runs on Google's servers, while our database is with us. The model only <strong>asks</strong>; our code <strong>runs</strong> the method.</p>
+<ol>
+<li><strong>We → the model:</strong> we send the question and <strong>the list of tools</strong>. For each tool: a name (<code>check_availability</code>), a description (“checks for a free table”) and parameters (<code>at</code>, <code>guests</code>).</li>
+<li><strong>The model → us:</strong> the model realises it needs data for the answer and, instead of text, returns <strong>a call request</strong>: “call <code>check_availability</code>, <code>at</code> = tomorrow 20:00, <code>guests</code> = 4”. It filled in the parameters from the user's text by itself.</li>
+<li><strong>We → the model:</strong> our code calls the real C# method, the method reads the database, and we send the result (<code>{ available: true, freeTables: 2 }</code>) to the model. This is the <strong>second</strong> request to Gemini, and it carries the whole history: the question, the request and the result.</li>
+<li><strong>The model → us:</strong> based on the result, the model writes an ordinary text answer.</li>
+</ol>
+<p><strong>We made two requests to Gemini</strong> (steps 1 and 3). If the model needs several tools, the loop repeats, so there can be more requests.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>The model <strong>never</strong> connects to our database. Our code decides which methods exist, what they do and what they return. The model only chooses which tool to call and with which parameters.</p></div></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Tool</dt><dd>our function described for the model: name, description, parameters. The model can ask for it to be called</dd><dt>Function calling (tool calling)</dt><dd>instead of text, the model returns a request to call a tool; we run it and send back the result</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>What goes over the wire</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
+<p>Above is Gemini's format, simplified. We don't write it by hand — Microsoft.Extensions.AI builds it. But it helps to know what happens inside:</p>
+<ol>
+<li><strong>The tool description</strong> goes with the request: <code>name</code>, <code>description</code> and <code>parameters</code>. <code>parameters</code> is a <strong>JSON Schema</strong>, just like the one created from <code>BookingRequest</code> in lecture 3. The schema is created automatically from the C# method's parameters: <code>DateTime at</code> → <code>"type": "string", "format": "date-time"</code>, <code>int guests</code> → <code>"type": "integer"</code>.</li>
+<li><strong>The model's answer</strong> is not text but a <code>functionCall</code>: the tool name and the arguments (<code>args</code>), filled in according to the schema.</li>
+<li><strong>Our result</strong> goes back as a <code>functionResponse</code>. The object the method returned is turned into JSON.</li>
+</ol>
+<p><strong>Who runs the method?</strong> Our server. Gemini only writes the name and the arguments, just as it filled in the <code>BookingRequest</code> fields in lecture 3.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>This shows why the <strong>description</strong> matters so much: the model can't see the tool's code. It learns what the tool does and when to call it only from the name and the description.</p></div></div></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~4 min read</div><h2>The first tool: the menu from the database</h2><p class="goal">🎯 <b>After this</b> You'll turn a C# method into a tool, switch on <code>UseFunctionInvocation</code> and see in Swagger that the answer comes from your database.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Part 2 · The first tool: the menu</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<p>We start with the simplest tool, one without parameters: the menu from the database. There are three steps: a C# method with a description, turning it into a tool, and one line in <code>Program.cs</code> that runs the four-step loop for us.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>RestaurantTools: the methods the model will call</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
+<p>A tool is an ordinary C# method. We create a separate class where all the tools will live:</p>
+<div class="codebox"><div class="ch"><span>Ai/RestaurantTools.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">System.ComponentModel</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">MenuItemInfo</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">RestaurantTools</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">RestaurantTools</span><span class="p">(</span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[Description("Returns the restaurant menu: dish name and price in GEL")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">MenuItemInfo</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">GetMenu</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MenuItemInfo</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>And the registration in <code>Program.cs</code>:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddScoped</span><span class="o">&lt;</span><span class="n">RestaurantTools</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>AppDbContext</code> through the constructor.</strong> Exactly as in the API course services. <code>RestaurantTools</code> is <strong>Scoped</strong> because <code>DbContext</code> is Scoped too: one request, one <code>DbContext</code>.</li>
+<li><strong><code>[Description(...)]</code> on the method.</strong> This description goes to the model as the tool's <code>description</code>. The model can't see the code, so this is the only place it learns what the tool does.</li>
+<li><strong><code>MenuItemInfo</code>.</strong> We don't return the entity to the model, only the fields it needs. Fewer fields mean fewer tokens and less unneeded information (e.g. internal ids).</li>
+<li><strong>Ordinary LINQ inside.</strong> There's nothing AI-related in the tool. It's our ordinary code.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p><code>_db.Products</code>, <code>p.Name</code>, <code>p.Price</code> are RestaurantApi names. In your project use your own entities and fields. If you already read the menu through a service (from the API course), take that service through the constructor instead of <code>AppDbContext</code>.</p></div></div></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>The Controller: the list of tools and UseFunctionInvocation</h3><a class="chip" href="index.en.html#/12" data-go="12" target="_blank" title="This part in the presentation">Slide 12</a></div>
+<p><strong>The Controller</strong> receives <code>RestaurantTools</code> through its constructor, next to <code>IChatClient</code>:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="p">;</span></span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">RestaurantTools</span><span class="w"> </span><span class="n">_tools</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">AiLabController</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">chat</span><span class="p">,</span><span class="w"> </span><span class="n">RestaurantTools</span><span class="w"> </span><span class="n">tools</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chat</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_tools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tools</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>A new endpoint <code>/chat</code>:</strong></p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("chat")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Chat</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, """</span></span><span class="ln"><span class="na">            You are a restaurant assistant. Answer briefly.</span></span><span class="ln"><span class="na">            Take menu data only from the tool, don't make anything up.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatOptions</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Tools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">AIFunctionFactory</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">_tools</span><span class="p">.</span><span class="n">GetMenu</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"get_menu"</span><span class="p">)</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">toolCalls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">SelectMany</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Contents</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OfType</span><span class="o">&lt;</span><span class="n">FunctionCallContent</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span><span class="w"> </span><span class="n">ToolCalls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toolCalls</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")</code></strong> — creates a tool from a C# method: a name (<code>get_menu</code>), a description (from <code>[Description]</code>) and the JSON Schema of the parameters. We pass the method <strong>without parentheses</strong>: we give the method itself, not the result of calling it.</li>
+<li><strong><code>ChatOptions.Tools</code></strong> — the list of tools sent with this request.</li>
+<li><strong><code>response.Messages</code></strong> — the whole history created during this request: the call request (<code>FunctionCallContent</code>), the result (<code>FunctionResultContent</code>) and the final answer. In <code>toolCalls</code> we collect which tools the model called, so we can see it in Swagger.</li>
+</ul>
+<p><strong>One line is added to <code>Program.cs</code>:</strong></p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>Without <code>.UseFunctionInvocation()</code>, <code>GetResponseAsync</code> would stop at step 2: the answer would contain a call request instead of text, and we'd have to write the tool call and the second request ourselves. This line runs the loop <strong>for us</strong>: it sees the request, calls the method, sends the result and returns only the final answer. What this line really is, we'll see in lecture 5.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>The second line in the <code>System</code> prompt (“take it only from the tool”) matters: without it the model may make the menu up from its own “knowledge” and not call the tool.</p></div></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>AIFunctionFactory.Create</dt><dd>creates a tool (AIFunction) from a C# method: name, description, JSON Schema of the parameters</dd><dt>UseFunctionInvocation</dt><dd>runs the function-calling loop automatically: request → method call → result to the model → final answer</dd></dl></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>The result: /ask vs /chat</h3><a class="chip" href="index.en.html#/13" data-go="13" target="_blank" title="This part in the presentation">Slide 13</a></div>
+<p>The same question on two endpoints: “What dishes do you have under 15 GEL?”</p>
+<table>
+<thead>
+<tr>
+<th>endpoint</th>
+<th>Answer</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/ask</code> (lecture 2)</td>
+<td>“We have khachapuri, khinkali, mtsvadi…”</td>
+<td>The model made up a “typical Georgian restaurant” menu. It doesn't know our menu</td>
+</tr>
+<tr>
+<td><code>/chat</code> (today)</td>
+<td>“Under 15 GEL: lobio in a clay pot (12 ₾) and mchadi (4 ₾)”, <code>toolCalls: ["get_menu"]</code></td>
+<td>The model called <code>get_menu</code>, got the whole menu and filtered it to under 15 GEL <strong>itself</strong></td>
+</tr>
+</tbody>
+</table>
+<p>We didn't need a separate tool for the filter: the model received the whole menu and picked the right items for the question. For a small menu that's fine. With 500 dishes it's better for the tool to have a parameter (e.g. <code>maxPrice</code>), so we don't feed the whole list to the model.</p>
+<p><strong>On “Hello!”</strong> <code>toolCalls</code> is empty: the model decided it doesn't need the menu. <strong>Whether to call a tool and which one</strong> is the model's decision, based on the name and the description.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>The exact text will differ for you: your database has other dishes and the model works with probabilities. What matters is seeing <code>get_menu</code> in <code>toolCalls</code> and the prices coming from your database.</p></div></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~5 min read</div><h2>Parameters and a good tool</h2><p class="goal">🎯 <b>After this</b> You'll write a tool with parameters that the model fills in from the text, and tell a good tool from a bad one.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>Part 3 · Parameters and a good tool</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
+<p><code>get_menu</code> had no parameters. Now we add a tool whose parameters the model fills in <strong>from the user's text</strong>: checking for a free table by date and number of guests. Then we'll see what separates a good tool from a bad one.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>CheckAvailability: a tool with parameters</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
+<div class="codebox"><div class="ch"><span>Ai/RestaurantTools.cs · CheckAvailability</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AvailabilityInfo</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">Available</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">FreeTables</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[Description("Checks whether a table is free at the given time")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">AvailabilityInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">CheckAvailability</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[Description("Booking date and time")]</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">at</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[Description("Number of guests")]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">guests</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">busyTableIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Bookings</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">at</span><span class="p">.</span><span class="n">AddHours</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">at</span><span class="p">.</span><span class="n">AddHours</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">TableId</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Tables</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">CountAsync</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">Seats</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">guests</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">busyTableIds</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">AvailabilityInfo</span><span class="p">(</span><span class="n">free</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">free</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>[Description]</code> on the parameters.</strong> They go into the schema as each parameter's description, exactly like on the <code>BookingRequest</code> fields in lecture 3. The <code>[property: ...]</code> form isn't needed here, because this is a method parameter, not a <code>record</code> one.</li>
+<li><strong>The logic is ours.</strong> A table counts as busy if it has a booking within ±2 hours, and it must seat <code>guests</code> people. It's a simple rule. In your project use your own booking rule.</li>
+<li><strong>The result is <code>AvailabilityInfo</code>.</strong> A short object the model uses to build its answer.</li>
+</ul>
+<p><strong>In the Controller</strong> a second tool is added to the list, and today's date to the <code>System</code> prompt, like in lecture 3:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">System</span><span class="p">,</span><span class="w"> </span><span class="s">$"""</span></span><span class="ln"><span class="s">    You are a restaurant assistant. Answer briefly.</span></span><span class="ln"><span class="s">    Take menu and free-table data only from the tools, don't make anything up.</span></span><span class="ln"><span class="s">    Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="s">    """</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="c1">// ...</span></span><span class="ln"><span class="n">ChatOptions</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Tools</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu"),</span></span><span class="ln"><span class="na">        AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")</span></span><span class="ln"><span class="na">    ]</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span></code></pre></div>
+<p><strong>Why the date?</strong> “Tomorrow at 8” → <code>at</code> = <code>2026-11-26T20:00</code>. Without today's date the model can't work out “tomorrow” (lecture 3).</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>If you also want to see the parameters in <code>toolCalls</code>, write <code>.Select(c =&gt; $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary&lt;string, object?&gt;())})")</code> instead of <code>.Select(c =&gt; c.Name)</code>. Swagger will show <code>check_availability([at, 2026-11-26T20:00:00], [guests, 4])</code>.</p></div></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Which tool will it call?</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
+<p>Four texts on <code>/chat</code>. Guess first, then check in Swagger:</p>
+<table>
+<thead>
+<tr>
+<th>Text</th>
+<th>What it calls</th>
+<th>What to notice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“There are four of us, tomorrow at 8 — do you have a table?”</td>
+<td><code>check_availability(at: …T20:00, guests: 4)</code></td>
+<td>Parameters from the text. “8” → 20:00 or 08:00: still the model's guess (lecture 3)</td>
+</tr>
+<tr>
+<td>“How much is lobio?”</td>
+<td><code>get_menu()</code></td>
+<td>The price comes from the database</td>
+</tr>
+<tr>
+<td>“Hi, until what time are you open?”</td>
+<td>none</td>
+<td>We have no opening-hours tool. The right answer is “I don't have that information” (that's why the System prompt says “don't make anything up”)</td>
+</tr>
+<tr>
+<td>“Two of us are coming on Saturday at 7. What vegetarian dishes do you have?”</td>
+<td><code>check_availability</code> <strong>and</strong> <code>get_menu</code></td>
+<td>Two tools for one question. <code>UseFunctionInvocation</code> runs both</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The model chooses</strong>: no tool, one, or several. And it fills in the parameters from the text itself.</p>
+<p><strong>What if data is missing?</strong> “There are four of us, do you have a table?”: no day is given. A good model will <strong>ask a question first</strong> (“Which day and what time?”) and won't call the tool. In a bad case it picks a day itself. That's why a C# check inside the tool is still needed (e.g. <code>at</code> is in the past → the result says “the date is in the past”).</p>
+<div class="callout note"><span class="ci">💡</span><div><p>The exact result may differ for you: the model chooses with probabilities. If the model doesn't call a tool when it should, improve the description first (next slide).</p></div></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>A good tool: 4 rules</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
+<p>The model knows a tool only by its name, its description and the schema of its parameters. It can't see the code. So these three decide the tool's quality.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Bad</th>
+<th>Good</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Name</strong> = verb + what</td>
+<td><code>Check</code>, <code>Func1</code>, <code>Data</code></td>
+<td><code>check_availability</code>, <code>get_menu</code></td>
+</tr>
+<tr>
+<td><strong>Description</strong>: what it does, what it returns, and when to use it if needed</td>
+<td>missing</td>
+<td>“Checks whether a table is free at the given time”</td>
+</tr>
+<tr>
+<td><strong>Typed parameters</strong> with descriptions</td>
+<td><code>string data</code> (“2026-11-26 20:00 4”?)</td>
+<td><code>DateTime at</code>, <code>int guests</code>, or an enum if the values come from a list</td>
+</tr>
+<tr>
+<td><strong>One tool, one job</strong></td>
+<td><code>DoEverything(string action, string data)</code></td>
+<td>separate <code>get_menu</code> and <code>check_availability</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why typed parameters?</strong> With <code>string data</code> the model has to guess the format, and we have to parse that string. <code>DateTime</code> and <code>int</code> go into the schema as exact types, and <code>AIFunctionFactory</code> converts the model's JSON into C# types by itself.</p>
+<p><strong>Why only reading today (read-only)?</strong> If we give the model <code>create_booking</code>, the model <strong>decides</strong> the booking by itself: it may take “8” for 8 in the morning and create the booking without asking the user. A tool that writes to the database needs the user's <strong>confirmation</strong> (“Shall I book tomorrow at 20:00 for 4?”). This is called human-in-the-loop, and we'll see it in lecture 15.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>If the model calls a tool at the wrong time or doesn't call it at all, don't change the code. Improve the <strong>description</strong> first: often one sentence is enough (“use it when the user asks about a price or a dish”).</p></div></div></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: your tool in your project</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Classwork: Your tool — in your project</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
+<p>Your project or RestaurantApi · with code · in Swagger</p>
+<h3>Steps</h3>
+<ul>
+<li><strong>1 · Tools class</strong> — <code>Ai/&lt;Your&gt;Tools.cs</code>: <code>DbContext</code> (or your service) through the constructor, <code>AddScoped</code> in <code>Program.cs</code></li>
+<li><strong>2 · A tool with a parameter</strong> — one <strong>read</strong> method over your database, <strong>with at least 1 parameter</strong>; <code>[Description]</code> on the method and on the parameter; name = verb + what</li>
+<li><strong>3 · <code>/chat</code> endpoint</strong> — System: who the assistant is + “data only from the tool, don't make anything up” → <code>ChatOptions.Tools</code> → <code>GetResponseAsync(messages, options)</code> → <code>Ok(new { response.Text, ToolCalls })</code>. <code>.UseFunctionInvocation()</code> in <code>Program.cs</code></li>
+<li><strong>4 · 3 texts in Swagger:</strong> one where the tool should be called · one where it should <strong>not</strong> be called · one where the parameter is written in the text in other words</li>
+</ul>
+<h3>✓ Done when</h3>
+<p>On the first text your tool shows up in <code>toolCalls</code> and the answer contains data from your database; on the second <code>toolCalls</code> is empty; on the third the parameter is filled in correctly</p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li>Show the parameters in <code>toolCalls</code> too: <code>c.Arguments</code> (there's a tip in the study notes)</li>
+<li>Add a second tool and write a text where both get called</li>
+<li>A C# check inside the tool: on a wrong parameter (e.g. the date is in the past) the tool returns an object with an explanation, not an exception</li>
+</ul>
+<h3>💡 If you're stuck</h3>
+<ul>
+<li><strong>Ideas:</strong> library — <code>find_books(string author)</code>, <code>is_book_available(string title)</code> · gym — <code>get_classes(DayOfWeek day)</code> · shop — <code>get_products_under(decimal maxPrice)</code>, <code>get_stock(string productName)</code></li>
+<li><strong>The tool isn't called?</strong> Check: did you pass <code>options</code> to <code>GetResponseAsync</code>? Is <code>.UseFunctionInvocation()</code> in <code>Program.cs</code>? Does the System prompt say “only from the tool”?</li>
+<li><strong><code>toolCalls</code> is empty and <code>text</code> is empty?</strong> You forgot <code>.UseFunctionInvocation()</code> — the model asked for a call, but nobody ran it</li>
+<li><strong><code>Cannot resolve scoped service</code>?</strong> Register the Tools class with <code>AddScoped</code>, not <code>AddSingleton</code> (<code>DbContext</code> is Scoped)</li>
+<li><strong>A date parameter?</strong> In the System prompt: <code>Today is {DateTime.Now:yyyy-MM-dd, dddd}.</code></li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
+<p>These questions will also be asked at the start of the next lecture.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Does the model call our C# method itself? Describe the loop step by step.</summary><div class="ans">No · 1) us: the question + the list of tools · 2) the model: a call request (name + arguments) · 3) our code runs the method and sends the result · 4) the model: a text answer · at least 2 requests to Gemini</div></details><details><summary>The model can't see a tool's code. How does it learn what the tool does and when to call it?</summary><div class="ans">From the name, the description (<code>[Description]</code>) and the parameters' JSON Schema · so a bad description = the tool is called at the wrong time or not at all</div></details><details><summary>What does <code>.UseFunctionInvocation()</code> do? What would happen without it?</summary><div class="ans">It runs the loop for us: sees the request, calls the method, sends the result, returns the final answer · without it <code>GetResponseAsync</code> would return a call request instead of text and we'd have to write the rest ourselves</div></details><details><summary>Why <code>CheckAvailability(DateTime at, int guests)</code> and not <code>Check(string data)</code>?</summary><div class="ans">The name says what it does · typed parameters go into the schema as exact types — the model doesn't have to guess a format and we don't have to parse a string · <code>[Description]</code> on each parameter</div></details><details><summary>Why did we give the model only read tools today? What would be the problem with <code>create_booking</code>?</summary><div class="ans">The model would call a writing tool by itself — it might take “8” as 8 a.m. and not ask the user · writing needs confirmation (human-in-the-loop, lecture 15)</div></details></div></article><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/21" data-go="21" target="_blank" title="This part in the presentation">Slide 21</a></div>
+<ul>
+<li><strong>A tool</strong> is our C# method described to the model: a name, a description and the JSON Schema of its parameters. The model can't see the code.</li>
+<li><strong>The loop:</strong> we send the question and the list of tools → the model <strong>asks</strong> for a call → <strong>our code</strong> runs the method → the result goes back to the model → the model writes a text answer. There are at least two requests to Gemini.</li>
+<li><strong><code>AIFunctionFactory.Create(method, name: "...")</code></strong> creates a tool from a C# method. <strong><code>ChatOptions.Tools</code></strong> is the list of tools for a request. <strong><code>[Description]</code></strong> goes on the method and the parameters.</li>
+<li><strong><code>.UseFunctionInvocation()</code></strong> — one line in <code>Program.cs</code> that runs the loop automatically.</li>
+<li><strong>The model chooses</strong> whether to call a tool, which one and how many, and <strong>fills in</strong> the parameters from the text.</li>
+<li><strong>A good tool:</strong> name = verb + what, a description, typed parameters, one job. Today only read-only tools. Writing needs confirmation.</li>
+</ul>
+<h3>Next lecture</h3>
+<p><code>.UseFunctionInvocation()</code> was one line, yet it ran the whole loop. In fact it's a <strong>layer</strong> (middleware) around the client, just like ASP.NET Core's <code>app.Use…()</code>. In lecture 5: <strong>the Chat Client Pipeline and Middleware</strong>: logging, caching and our own layer that counts tokens on every request.</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>Homework: An assistant with tools</h3><a class="chip" href="index.en.html#/22" data-go="22" target="_blank" title="This part in the presentation">Slide 22</a></div>
+<p>With code · your project · a table in the README</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>Tools class:</strong> <code>Ai/&lt;Your&gt;Tools.cs</code>, <code>AddScoped</code>, data <strong>from your database</strong> (or your existing service)</li>
+<li><strong>2 tools:</strong> one <strong>without parameters</strong>, one <strong>with at least 2 parameters</strong>; both <strong>only read</strong>; <code>[Description]</code> on the methods and parameters; names are verb + what</li>
+<li><strong><code>POST /api/ai-lab/chat</code>:</strong> System — the assistant's role, “data only from the tools”, today's date (if you have a date parameter); the response has <code>Text</code> and <code>ToolCalls</code> <strong>with parameters</strong></li>
+<li><strong>A table in the README — 5 texts:</strong> no tool · the first tool · the second tool · both together · one where a parameter is missing. Columns: text · <code>toolCalls</code> (with arguments) · is the answer correct? · what you noticed</li>
+<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>
+</ul>
+<h3>✓ Done when</h3>
+<p>All 5 texts are in the table; data from the database shows up in the answer and isn't made up; on the “no tool” text <code>toolCalls</code> is empty; for the “parameter missing” text you describe what the model did (did it ask? pick something itself?)</p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li><strong>Bad-description experiment:</strong> remove one tool's description and name it <code>Data</code> → the same 5 texts. What changed? Put it back and note it in the table</li>
+<li>A C# check in the tool: on a wrong parameter (a past date, a negative count) return an object with an explanation, not an exception</li>
+<li><strong>Think:</strong> which <strong>writing</strong> tool would be useful in your project and what confirmation would it need? 2–3 sentences in the README (no code needed)</li>
+</ul>
+<h3>💡 Details</h3>
+<ul>
+<li>Don't return an entity as a tool result — a <code>record</code> with only the needed fields (fewer tokens, no navigation cycles)</li>
+<li>Pass the method to <code>AIFunctionFactory.Create</code> <strong>without parentheses</strong>: <code>_tools.GetMenu</code>, not <code>_tools.GetMenu()</code></li>
+<li>For arguments in <code>ToolCalls</code>: <code>.Select(c =&gt; $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary&lt;string, object?&gt;())})")</code></li>
+<li>If a tool isn't called, fix the description first, the code second</li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 correct · <span id="qd">0</span> / 11 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>Who runs the <code>check_availability</code> method?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini, on Google's server</button><button type="button" class="opt" data-i="1">Our server — the model only asks for the call</button><button type="button" class="opt" data-i="2">The user's browser</button><button type="button" class="opt" data-i="3">The database directly</button></div><div class="qe"><span class="verdict"></span> The model only returns the tool's name and arguments. Our code calls the method and sends the result to the model. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>The model called <code>check_availability</code> and then wrote a text answer. How many requests went to Gemini?</div></div><div class="opts"><button type="button" class="opt" data-i="0">1</button><button type="button" class="opt" data-i="1">2</button><button type="button" class="opt" data-i="2">3</button><button type="button" class="opt" data-i="3">0 — a tool doesn't need Gemini</button></div><div class="qe"><span class="verdict"></span> The first — the question and the list of tools (answer: a request). The second — the history and the tool's result (answer: text). <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>How does the model learn what a tool does?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It reads the method's C# code</button><button type="button" class="opt" data-i="1">From the name, the description and the parameters' schema</button><button type="button" class="opt" data-i="2">From the database structure</button><button type="button" class="opt" data-i="3">It doesn't — it always calls every tool</button></div><div class="qe"><span class="verdict"></span> Only name, description and parameters (JSON Schema) go with the request. Never the code. <a class="chip" href="#s-9">Review · slide 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>What does <code>AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")</code> do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Calls GetMenu right away and stores the result</button><button type="button" class="opt" data-i="1">Creates a tool from a C# method: name, description and the parameters' schema</button><button type="button" class="opt" data-i="2">Creates a new table in the database</button><button type="button" class="opt" data-i="3">Uploads a function to Gemini</button></div><div class="qe"><span class="verdict"></span> We pass the method without parentheses — we give the method itself. The call happens later, when the model asks for it. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>You forgot <code>.UseFunctionInvocation()</code> in Program.cs. What does <code>/chat</code> return for “How much is lobio?”?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The same answer — this line is optional</button><button type="button" class="opt" data-i="1">Empty text: the model asked for a call, but nobody ran the method</button><button type="button" class="opt" data-i="2">A compile-time exception</button><button type="button" class="opt" data-i="3">The menu's JSON</button></div><div class="qe"><span class="verdict"></span> The loop stops at step 2: the answer contains only a FunctionCallContent, and Text is empty. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>Where can you see which tool the model called?</div></div><div class="opts"><button type="button" class="opt" data-i="0">In response.Text</button><button type="button" class="opt" data-i="1">In response.Messages — FunctionCallContent and FunctionResultContent</button><button type="button" class="opt" data-i="2">In ChatOptions.Tools</button><button type="button" class="opt" data-i="3">Nowhere — it's hidden</button></div><div class="qe"><span class="verdict"></span> response.Messages holds the whole history created during this request: the request, the result and the final answer. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>On “Hello!” <code>toolCalls</code> is empty. What does it mean?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The tools weren't registered</button><button type="button" class="opt" data-i="1">The model decided it doesn't need a tool — that's normal</button><button type="button" class="opt" data-i="2">Gemini returned an error</button><button type="button" class="opt" data-i="3">UseFunctionInvocation doesn't work</button></div><div class="qe"><span class="verdict"></span> Whether to call a tool and which one is the model's decision. <a class="chip" href="#s-13">Review · slide 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>“Four of us, tomorrow at 8” — why do we put today's date in the System prompt?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini's format requires it</button><button type="button" class="opt" data-i="1">So the model can work out the <code>at</code> parameter from “tomorrow” — it doesn't know today's date</button><button type="button" class="opt" data-i="2">To save tokens</button><button type="button" class="opt" data-i="3">For the tool's description</button></div><div class="qe"><span class="verdict"></span> The model is stateless and its knowledge stops at its training date (lectures 1, 3). <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>“Two of us are coming on Saturday at 7. What vegetarian dishes do you have?” — what happens?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The model calls only one tool — two is impossible</button><button type="button" class="opt" data-i="1">It may call both tools; UseFunctionInvocation runs both</button><button type="button" class="opt" data-i="2">An error</button><button type="button" class="opt" data-i="3">The model returns two separate answers</button></div><div class="qe"><span class="verdict"></span> The model chooses no tool, one, or several. <a class="chip" href="#s-17">Review · slide 17</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">10</span><div>Which is a good tool?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Check(string data)</button><button type="button" class="opt" data-i="1">DoEverything(string action, string json)</button><button type="button" class="opt" data-i="2">check_availability(DateTime at, int guests) with a description</button><button type="button" class="opt" data-i="3">Func1()</button></div><div class="qe"><span class="verdict"></span> Verb + what in the name, a description, typed parameters, one job. <a class="chip" href="#s-18">Review · slide 18</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>Why don't we give the model a <code>create_booking</code> tool today?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini can't write</button><button type="button" class="opt" data-i="1">The model would decide to write by itself, without confirmation — we need to learn human-in-the-loop first</button><button type="button" class="opt" data-i="2">EF Core doesn't allow it</button><button type="button" class="opt" data-i="3">Writing tools cost money</button></div><div class="qe"><span class="verdict"></span> An irreversible or paid action needs the user's confirmation — lecture 15. <a class="chip" href="#s-18">Review · slide 18</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Tool</dt><dd>our function described for the model: name, description, parameters. The model can ask for it to be called</dd><dt>Function calling (tool calling)</dt><dd>instead of text, the model returns a request to call a tool; we run it and send back the result</dd><dt>AIFunctionFactory.Create</dt><dd>creates a tool (AIFunction) from a C# method: name, description, JSON Schema of the parameters</dd><dt>UseFunctionInvocation</dt><dd>runs the function-calling loop automatically: request → method call → result to the model → final answer</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 4 — Tools და Function Calling";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
+      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>

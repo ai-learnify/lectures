@@ -1,0 +1,67 @@
+{
+  "title": "Streaming და Real-time AI პასუხები",
+  "why": "აქამდე ჩვენი endpoint-ები პასუხს მთლიანად აბრუნებდა: მომხმარებელი 2–8 წამს ცარიელ ეკრანს უყურებდა. ყველა თანამედროვე AI ჩატი პასუხს დაწერისთანავე აჩვენებს. დღეს Gemini-დან პასუხს ნაწილ-ნაწილ ვიღებთ, Server-Sent Events-ით მაშინვე ვუგზავნით კლიენტს და ვამატებთ გაუქმებას — რომ მომხმარებლის წასვლის შემდეგ Gemini-ს ტოკენებს არ ვიხდიდეთ. ეს ის უნარია, რომლის გარეშეც AI ჩატი პროდუქტად არ გამოიყურება.",
+  "outcomes": [
+    "ახსნი, რას ცვლის სტრიმინგი (TTFT) და რას არა (მთლიანი დრო)",
+    "`GetStreamingResponseAsync`-ით პასუხს ნაწილ-ნაწილ მიიღებ `await foreach`-ით და გაზომავ, როდის მოდის თითო ნაწილი",
+    "დაწერ SSE endpoint-ს `TypedResults.ServerSentEvents`-ით და async iterator-ით (`yield return`), და შეამოწმებ `curl -N`-ით",
+    "`CancellationToken`-ს სამ ადგილას გადასცემ, რომ კლიენტის წასვლისას Gemini-ს მოთხოვნაც შეწყდეს"
+  ],
+  "review": [
+    {"q": "სტრიმინგი პასუხს უფრო სწრაფს ხდის? რა იცვლება სინამდვილეში?", "a": "მთლიანი დრო თითქმის იგივეა · იცვლება TTFT — დრო პირველ სიტყვამდე (წამები → მილიწამები) · მომხმარებელი კითხვას მაშინვე იწყებს, ცარიელი ეკრანი აღარ არის"},
+    {"q": "რას აბრუნებს `GetStreamingResponseAsync` და როგორ ვკითხულობთ?", "a": "`IAsyncEnumerable<ChatResponseUpdate>` — ნაწილების ნაკადი · `await foreach` — შემდეგ ნაწილს ელოდება · `update.Text` — ტექსტის ნაჭერი; იგივე messages/options, tool-ებიც მუშაობს"},
+    {"q": "`/chat/chunks`-ში Gemini სტრიმავდა, Swagger-მა კი ყველაფერი ერთად აჩვენა. რატომ? როგორ გავასწორეთ?", "a": "ნაწილებს სიაში ვაგროვებდით და ბოლოს ვაბრუნებდით — სტრიმი Controller-ში წყდებოდა · async iterator (`yield return`) + `TypedResults.ServerSentEvents` — თითო ნაწილი მაშინვე მიდის კლიენტთან"},
+    {"q": "რა არის SSE და რატომ არის ის AI ჩატისთვის საკმარისი (WebSocket/SignalR-ის ნაცვლად)?", "a": "HTTP პასუხი `text/event-stream`-ით, რომელიც ღია რჩება; `data: …` + ცარიელი ხაზი · AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი) · WebSocket/SignalR ორმხრივისთვისაა"},
+    {"q": "სად და რატომ გადავეცით `CancellationToken`?", "a": "① action-ის პარამეტრი (RequestAborted) ② `[EnumeratorCancellation]` iterator-ში ③ `GetStreamingResponseAsync`-ს · კლიენტი წავიდა → Gemini-ს მოთხოვნა წყდება → ტოკენები აღარ იხარჯება"}
+  ],
+  "resources": [
+    {"title": "IChatClient — streaming", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "GetStreamingResponseAsync, ChatResponseUpdate, ToChatResponse"},
+    {"title": "TypedResults.ServerSentEvents", "url": "https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.typedresults.serversentevents", "note": ".NET 10 — SSE შედეგი ASP.NET Core-ში"},
+    {"title": "MDN — Using server-sent events", "url": "https://developer.mozilla.org/docs/Web/API/Server-sent_events/Using_server-sent_events", "note": "SSE-ის ფორმატი და EventSource ბრაუზერში"},
+    {"title": "Iterating with async enumerables", "url": "https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream", "note": "IAsyncEnumerable, await foreach, [EnumeratorCancellation]"}
+  ],
+  "quiz": [
+    {"q": "Gemini-ს პასუხს 6 წამი სჭირდება. სტრიმინგით რა შეიცვლება?", "options": ["პასუხი 3 წამში მოვა", "პირველი სიტყვა ~წამზე ადრე გამოჩნდება, მთლიანი დრო თითქმის იგივე დარჩება", "ტოკენები გაიაფდება", "არაფერი"], "answer": 1, "explain": "სტრიმინგი TTFT-ს ამცირებს — Gemini იგივე სისწრაფით წერს.", "slide": 7},
+    {"q": "რას აბრუნებს `GetStreamingResponseAsync`?", "options": ["`Task<ChatResponse>`", "`IAsyncEnumerable<ChatResponseUpdate>`", "`List<string>`", "`Stream`"], "answer": 1, "explain": "ნაწილების ასინქრონული ნაკადი — იკითხება await foreach-ით.", "slide": 8},
+    {"q": "რით განსხვავდება `await foreach` ჩვეულებრივი `foreach`-ისგან?", "options": ["უფრო სწრაფია", "შემდეგ ელემენტს ელოდება — ის ჯერ არ არსებობს, მოგვიანებით მოვა", "მხოლოდ string-ზე მუშაობს", "ელემენტებს უკუღმა გადის"], "answer": 1, "explain": "IAsyncEnumerable-ის ელემენტები ასინქრონულად ჩნდება — Gemini ჯერ წერს.", "slide": 8},
+    {"q": "სტრიმინგზე tool-ები (ლექცია 4) მუშაობს?", "options": ["არა — მხოლოდ GetResponseAsync-ზე", "კი — UseFunctionInvocation სტრიმინგშიც ასრულებს ციკლს", "მხოლოდ ერთი tool", "მხოლოდ OpenAI-ზე"], "answer": 1, "explain": "იგივე options, იგივე ციკლი; ტექსტი მოდის tool-ის შედეგის შემდეგ.", "slide": 8},
+    {"q": "`/chat/chunks`-ში Swagger-მა ყველა ნაწილი ერთბაშად აჩვენა. რატომ?", "options": ["Gemini არ სტრიმავდა", "ნაწილებს სიაში ვაგროვებდით და `Ok(chunks)`-ს ბოლოს ვაბრუნებდით", "Swagger-ის ბაგია", "Stopwatch აჩერებდა"], "answer": 1, "explain": "ms-ები აჩვენებს, რომ Gemini სტრიმავდა — სტრიმი Controller-ში წყდებოდა.", "slide": 9},
+    {"q": "SSE-ში რა ნიშნავს ცარიელი ხაზი?", "options": ["კავშირის დახურვას", "ერთი შეტყობინების ბოლოს", "შეცდომას", "არაფერს — იგნორირდება"], "answer": 1, "explain": "`data: …` + ცარიელი ხაზი = ერთი შეტყობინება. კავშირი ღია რჩება.", "slide": 12},
+    {"q": "რატომ არის SSE AI ჩატისთვის საკმარისი და SignalR არ არის აუცილებელი?", "options": ["SignalR ფასიანია", "AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი); SSE ჩვეულებრივი HTTP-ა, დამატებითი ბიბლიოთეკის გარეშე", "SSE უფრო უსაფრთხოა", "SignalR .NET 10-ში აღარ არის"], "answer": 1, "explain": "ორმხრივი კომუნიკაციისთვის (თამაში, ადამიანების ჩატი) — WebSocket/SignalR.", "slide": 12},
+    {"q": "რას აკეთებს `yield return update.Text` async iterator-ში?", "options": ["ტექსტს სიაში ამატებს", "ნაწილს მაშინვე აბრუნებს გამომძახებელს — ServerSentEvents კი კლიენტს უგზავნის", "მეთოდს ასრულებს", "Gemini-ს ახალ მოთხოვნას აგზავნის"], "answer": 1, "explain": "სია არ გვჭირდება — სტრიმი Gemini-დან კლიენტამდე არ წყდება.", "slide": 13},
+    {"q": "`/chat/stream`-ს Swagger-ში ცდი და პასუხი მაინც ერთბაშად ჩნდება. რა ხდება?", "options": ["endpoint არასწორია", "Swagger პასუხს ბოლომდე ელოდება — სტრიმის სანახავად curl -N ან EventSource", "SSE Windows-ზე არ მუშაობს", "CancellationToken აკლია"], "answer": 1, "explain": "endpoint სწორად სტრიმავს — კლიენტი აგროვებს.", "slide": 13},
+    {"q": "action-ის `CancellationToken` პარამეტრს ვინ ავსებს?", "options": ["ჩვენ — new CancellationToken()", "ASP.NET Core — HttpContext.RequestAborted, კლიენტის წასვლისას გაუქმდება", "Gemini", "Swagger"], "answer": 1, "explain": "ზუსტად ისე, როგორც API კურსის async endpoint-ებში.", "slide": 15},
+    {"q": "რა მოხდება, თუ `GetStreamingResponseAsync`-ს token არ გადავცემთ?", "options": ["კომპილაციის შეცდომა", "კლიენტის წასვლის შემდეგ Gemini-სთან მოთხოვნა შეიძლება ბოლომდე გაგრძელდეს — ტოკენებს ვიხდით ტყუილად", "პასუხი არ მოვა", "არაფერი — token არასავალდებულოა და ყოველთვის ზედმეტია"], "answer": 1, "explain": "token ყოველ async გამოძახებას გადაეცი — AI-სთან მოთხოვნები გრძელია და ფული ჯდება.", "slide": 15}
+  ],
+  "lecturer_quiz": [
+    {"q": "სტუდენტი: „curl -N-ით ვცდი, მაგრამ ტექსტი მაინც ბოლოს ჩნდება ერთად“. რას შეამოწმებ?", "options": ["Gemini-ს key-ს", "endpoint ნაწილებს სიაში ხომ არ აგროვებს (Ok(list)); `-N` დაწერა თუ არა; PowerShell-ში `curl.exe` თუ `curl` (Invoke-WebRequest)", "UseFunctionInvocation-ს", "appsettings-ს"], "answer": 1, "explain": "ყველაზე ხშირი: ჯერ კიდევ /chat/chunks-ის სტილით აგროვებს. მეორე: PowerShell-ის curl alias, რომელიც სტრიმს ბოლომდე ელოდება."},
+    {"q": "რატომ აჩვენებს Gemini ნაწილს რამდენიმე ტოკენით და არა თითო ტოკენს?", "options": ["Microsoft.Extensions.AI აერთებს", "პროვაიდერი თვითონ აჯგუფებს ტოკენებს ჩანკებად (ქსელის ეფექტურობისთვის); ზომა პროვაიდერზეა დამოკიდებული", "ქართულის გამო", "ბაგია"], "answer": 1, "explain": "OpenAI ჩვეულებრივ უფრო წვრილ ნაწილებს აგზავნის, Gemini — უფრო დიდს. UX-ისთვის ეს არ არის პრობლემა."},
+    {"q": "tool-იან სტრიმინგ მოთხოვნაზე პირველი ტექსტი 2–3 წამში ჩნდება, tool-ის გარეშე კი 0.6-ში. რატომ?", "options": ["SSE ნელია", "ჯერ tool-ის ციკლი სრულდება (Gemini → თხოვნა → მეთოდი → Gemini), და მხოლოდ მეორე მოთხოვნის პასუხი სტრიმავს ტექსტს", "ბაზა ნელია", "DbContext Scoped-ია"], "answer": 1, "explain": "TTFT tool-იან კითხვაზე = პირველი მოთხოვნა + tool + მეორე მოთხოვნის პირველი ნაწილი. UX-ში ამისთვის „ვამოწმებ მაგიდებს…“ სტატუსი იყენებენ (⭐)."},
+    {"q": "ლექცია 5-ის InputGuard სტრიმინგზე რატომ არ მუშაობს და რა უნდა დაემატოს?", "options": ["SSE ფენებს გვერდს უვლის", "DelegatingChatClient-ის GetStreamingResponseAsync უცვლელად გადასცემს შიდას — საჭიროა მისი override იგივე შემოწმებით (yield return ერთი ChatResponseUpdate და yield break)", "InputGuard Scoped-ია", "ვერასდროს იმუშავებს"], "answer": 1, "explain": "ეს საშინაოს მოთხოვნაა. TokenCounter-ის streaming override — ⭐ (updates.ToChatResponse().Usage)."},
+    {"q": "Ctrl+C-ის შემდეგ სერვერის კონსოლში წითელი exception ჩანს (`OperationCanceledException`/`TaskCanceledException`). ეს შეცდომაა?", "options": ["კი — კოდი გასასწორებელია", "არა — ეს გაუქმების ნორმალური სიგნალია: token-მა Gemini-ს მოთხოვნა შეწყვიტა. ASP.NET Core მას კლიენტის წასვლად ამუშავებს", "Gemini-ს key ამოიწურა", "SSE არ მუშაობს"], "answer": 1, "explain": "თუ ლოგი აწუხებს — ლოგის დონე ან try/catch OperationCanceledException-ზე iterator-ის გარეთ. ლექციაზე: „ესაა ის, რაც გვინდოდა“."},
+    {"q": "სტუდენტი ეკითხება: „EventSource POST-ს რატომ ვერ აგზავნის? ChatGPT ხომ POST-ით აგზავნის?“", "options": ["SSE მხოლოდ GET-ზე მუშაობს", "SSE ფორმატი ნებისმიერ მეთოდზე მუშაობს; შეზღუდვა ბრაუზერის EventSource API-შია. ChatGPT და მსგავსები fetch()-ით კითხულობენ ReadableStream-ს — POST-ითაც", "ChatGPT WebSocket-ს იყენებს", "POST სტრიმინგს არ უშვებს"], "answer": 1, "explain": "ჩვენ GET ავირჩიეთ, რომ EventSource და curl მარტივი იყოს. Angular/React-ში fetch + ReadableStream — POST ბოდით."}
+  ],
+  "lecturer_explain": [
+    {"task": "ახსენი, რატომ ჯობია სტრიმინგი — სიტყვა „ტოკენის“ გარეშე, რესტორნის ანალოგიით.", "points": ["მიმტანი ყველა კერძს ერთად მოიტანს — 20 წუთი ცარიელი მაგიდა", "ან სალათს მაშინვე, ცხელს მერე — სულ იგივე 20 წუთი, მაგრამ ჭამას მაშინვე იწყებ", "მთლიანი დრო იგივეა — იცვლება, როდის ხედავ პირველს", "ცარიელი ეკრანი „გაფუჭებულს“ ჰგავს; იწერებადი ტექსტი — არა"]},
+    {"task": "ახსენი, რატომ წყდებოდა სტრიმი /chat/chunks-ში და როგორ გავასწორეთ — ერთი ნახატით დაფაზე.", "points": ["Gemini → Controller: ნაწილ-ნაწილ (ms-ები ამტკიცებს)", "Controller: List.Add → ბოლოს Ok(list) — აქ წყდება", "yield return — თითო ნაწილი მაშინვე გადის", "ServerSentEvents — data: … და flush კლიენტამდე"]},
+    {"task": "ახსენი CancellationToken-ის „სამი ადგილი“ ისე, რომ სტუდენტმა გაიგოს, რომელი რატომ სჭირდება.", "points": ["① ASP.NET Core-მა იცის, როცა კლიენტი წავიდა — action-ის პარამეტრით გვეუბნება", "② iterator ცალკე მეთოდია — token-ი [EnumeratorCancellation]-ით აბამს", "③ Gemini-ს HTTP მოთხოვნამ უნდა იცოდეს — GetStreamingResponseAsync-ს გადავცემთ", "ერთი ჯაჭვი: ბრაუზერი დაიხურა → … → Gemini შეჩერდა"]}
+  ],
+  "study": {
+    "summary": [
+      "**სტრიმინგი** პასუხს დაწერისთანავე აჩვენებს: მთლიანი დრო იგივეა, მაგრამ **TTFT** (დრო პირველ სიტყვამდე) წამებიდან მილიწამებამდე მცირდება.",
+      "**`GetStreamingResponseAsync`** → `IAsyncEnumerable<ChatResponseUpdate>` → **`await foreach`**. იგივე messages და options; tool-ებიც მუშაობს.",
+      "ნაწილების **სიაში შეგროვება** სტრიმს Controller-ში წყვეტს. **`yield return`** (async iterator) თითო ნაწილს მაშინვე აბრუნებს.",
+      "**SSE**: `text/event-stream`, `data: …` + ცარიელი ხაზი, ღია კავშირი. **`TypedResults.ServerSentEvents`** (.NET 10). Swagger სტრიმს ვერ აჩვენებს — **`curl -N`**.",
+      "**`CancellationToken`** სამ ადგილას: action-ის პარამეტრი, `[EnumeratorCancellation]`, `GetStreamingResponseAsync`. მომხმარებელი წავიდა → Gemini ჩერდება."
+    ],
+    "skip": ["დღის თემა", "შესავალი"],
+    "chapters": {
+      "1 · სტრიმი Gemini-დან": {"title": "სტრიმი Gemini-დან: GetStreamingResponseAsync", "goal": "ახსნი, რას ცვლის სტრიმინგი, და Gemini-დან პასუხს ნაწილ-ნაწილ მიიღებ, თითო ნაწილის დროის გაზომვით."},
+      "2 · SSE": {"title": "Server-Sent Events: სტრიმი კლიენტამდე", "goal": "დაწერ SSE endpoint-ს `TypedResults.ServerSentEvents`-ით და `curl -N`-ით დაინახავ, როგორ ჩნდება პასუხი ნაწილ-ნაწილ."},
+      "3 · გაუქმება": {"title": "გაუქმება: CancellationToken", "goal": "token-ს სამ ადგილას გადასცემ და შეამოწმებ, რომ კლიენტის წასვლისას Gemini-ს მოთხოვნაც წყდება."},
+      "პრაქტიკა": {"title": "კლასის დავალება: შენი ჩატის სტრიმინგ ვერსია"},
+      "შეჯამება": {"title": "შეჯამება"},
+      "საშინაო": {"title": "საშინაო დავალება"}
+    }
+  }
+}

@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Tools და Function Calling — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ სწორია.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 4</small>Tools და Function Calling</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
+  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
+    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">1′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">მოდელი და ჩვენი ბაზა: function calling-ის ციკლი</span><span class="nm">3′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">პირველი tool: მენიუ ბაზიდან</span><span class="nm">3′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">პარამეტრები და კარგი tool</span><span class="nm">4′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: შენი tool შენს პროექტში</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება</span><span class="nm">1′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">4</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 4</div>
+      <h1>Tools და Function Calling</h1>
+      <p>ლექციის სრული მასალა თავებად, ~17 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li><strong>მოდელი ჩვენს ბაზას ვერ ხედავს</strong> — ან იგონებს, ან უარს ამბობს. მთელი ბაზის prompt-ში ჩაწერა ძვირია და ძველდება.</li><li><strong>Function calling:</strong> ჩვენ ვაგზავნით შეკითხვას + tool-ების სიას → მოდელი <strong>ითხოვს</strong> გამოძახებას → <strong>ჩვენი კოდი</strong> ასრულებს მეთოდს → შედეგი მოდელს → ტექსტური პასუხი.</li><li><strong>Tool</strong> = სახელი + აღწერა (<code>[Description]</code>) + პარამეტრების JSON Schema. <code>AIFunctionFactory.Create(method, name: "...")</code> C# მეთოდიდან ქმნის, <code>ChatOptions.Tools</code> მოთხოვნასთან აგზავნის.</li><li><strong><code>.UseFunctionInvocation()</code></strong> <code>Program.cs</code>-ში ციკლს ავტომატურად ატრიალებს. <code>response.Messages</code>-ში ჩანს, რომელი tool გამოიძახა.</li><li><strong>კარგი tool:</strong> სახელი = ზმნა + რა, აღწერა, ტიპიზებული პარამეტრები, ერთი საქმე. დღეს მხოლოდ კითხვის tool-ები — ჩანაწერს დადასტურება სჭირდება.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~17 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 11 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/ichatclient" target="_blank" rel="noopener">IChatClient — tool calling</a> — AIFunction, AIFunctionFactory, FunctionInvokingChatClient — მაგალითებით</li><li><a href="https://learn.microsoft.com/dotnet/ai/quickstarts/use-function-calling" target="_blank" rel="noopener">Function calling — .NET quickstart</a> — პირველი tool C#-ში ნაბიჯ-ნაბიჯ</li><li><a href="https://ai.google.dev/gemini-api/docs/function-calling" target="_blank" rel="noopener">Gemini — Function calling</a> — როგორ მუშაობს Gemini-ზე, რჩევები tool-ის დიზაინზე</li><li><a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank" rel="noopener">Anthropic — Writing tools for agents</a> — კარგი tool-ის სახელი, აღწერა და პარამეტრები — პრაქტიკული რჩევები</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
+<p>ლექცია 3 — <strong>Microsoft.Extensions.AI: DI და Structured Output</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-meai-structured-output/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის ცუდი <code>new Client(...).AsIChatClient(...)</code>-ში Controller-ის შიგნით და როგორ ვასწორებთ?</summary><div class="ans">ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → <code>AddChatClient</code> <code>Program.cs</code>-ში (Singleton) + Controller-ში constructor injection</div></details><details><summary>სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?</summary><div class="ans">key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — <code>appsettings.json</code>-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)</div></details><details><summary>რით განსხვავდება few-shot structured output-ისგან?</summary><div class="ans">few-shot ფორმას <strong>სთხოვს</strong> მაგალითებით — ალბათობით · structured output <strong>აიძულებს</strong>: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, <code>.Result</code> უკვე C# ტიპია</div></details><details><summary><code>BookingRequest</code>-ში რატომ <code>int? Guests</code> და არა <code>int</code>? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?</summary><div class="ans"><code>?</code> მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); <code>int</code>-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით</div></details><details><summary>structured output-ით მივიღეთ <code>BookingRequest</code>. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?</summary><div class="ans">არა · ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ → 08:00, აკლია სტუმრები (null) · ბაზამდე C# ამოწმებს ველებს</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>ტიპიზებული კლასიფიკატორი და ტექსტიდან ჩანაწერი</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><strong>DI:</strong> Controller-ებში <code>new Client(...)</code> არსად — <code>IChatClient</code> მხოლოდ <code>AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code>appsettings.json</code>-ში</li>
+<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code>POST /api/ai-lab/classify</code> გადაწერე <code>GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>
+<li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · <code>inputTokens</code> ორივეზე</li>
+<li><strong>ტექსტიდან ჩანაწერი:</strong> ერთი endpoint შენი პროექტის <strong>ნამდვილ</strong> Controller-ში (არა ai-lab): ტექსტი → <code>record</code> → C# შემოწმება (სავალდებულო ველი <code>null</code> → <code>400</code> კითხვით) → შენი არსებული ლოგიკით <strong>ბაზაში</strong> ჩაწერა</li>
+<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
+</ul>
+<h3>ამოხსნა</h3>
+<p>ნიმუში — ბიბლიოთეკის API (საშინაო 2-ის გაგრძელება).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Classify</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">RequestType</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Search</span><span class="p">,</span><span class="w"> </span><span class="n">Reserve</span><span class="p">,</span><span class="w"> </span><span class="n">Question</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("classify")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Classify</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "დაახარისხე ბიბლიოთეკის მომხმარებლის მოთხოვნა."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">RequestType</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">RequestType</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/ReservationsController.cs · FromText</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ReservationDraft</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("წიგნის სათაური")]</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Title</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("რომელ დღემდე შევინახოთ")]</span><span class="w"> </span><span class="n">DateOnly</span><span class="o">?</span><span class="w"> </span><span class="n">Until</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("from-text")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">FromText</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            ამოიღე წიგნის დაჯავშნის მონაცემები ტექსტიდან.</span></span><span class="ln"><span class="na">            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">            რაც ტექსტში არ წერია, დატოვე null.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">ReservationDraft</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">ReservationDraft</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ReservationDraft</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"რომელი წიგნი?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">Until</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"რომელ დღემდე შევინახოთ?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Reservation</span><span class="w"> </span><span class="n">created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_reservations</span><span class="p">.</span><span class="n">CreateAsync</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">Until</span><span class="p">.</span><span class="n">Value</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">created</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ტექსტი</th>
+<th>few-shot</th>
+<th>enum</th>
+<th><code>inputTokens</code> few-shot / enum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„დეტექტივები სად გაქვთ?“</td>
+<td><code>Search</code></td>
+<td><code>Search</code></td>
+<td>~95 / ~35</td>
+</tr>
+<tr>
+<td>„ორშაბათამდე შემინახეთ ეს წიგნი“</td>
+<td><code>Reserve.</code></td>
+<td><code>Reserve</code></td>
+<td>~95 / ~35</td>
+</tr>
+<tr>
+<td>„ბარათის აღდგენა რა ღირს?“</td>
+<td><code>Question</code></td>
+<td><code>Question</code></td>
+<td>~95 / ~35</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>enum-ის ვერსიაში მაგალითები აღარ არის — ამიტომ <code>inputTokens</code> მცირდება, და <code>Reserve.</code>-ის მსგავსი პასუხი ვეღარ მოვა. <code>from-text</code> ჩანაწერს მხოლოდ შემოწმების შემდეგ ქმნის: მოდელი ფორმას იძლევა, აუცილებელს C# ამოწმებს. <code>_reservations</code> — ის სერვისი, რომლითაც ბიბლიოთეკის API-ში ჯავშანს უკვე ქმნი; Controller-ში ის <code>IChatClient</code>-ის გვერდით, constructor-ით მოდის.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~3 წთ კითხვა</div><h2>მოდელი და ჩვენი ბაზა: function calling-ის ციკლი</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> ახსნი, რატომ ვერ ხედავს მოდელი ჩვენს ბაზას და როგორ ითხოვს ის ჩვენი მეთოდის გამოძახებას ოთხ ნაბიჯად.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · მოდელი და ჩვენი ბაზა</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
+<p>მოდელი მხოლოდ იმას „ხედავს“, რაც მოთხოვნაში გავუგზავნეთ (ლექცია 1: stateless, ცოდნა ვარჯიშის თარიღამდე). ჩვენი ბაზა, დღევანდელი ჯავშნები და მენიუს ფასები მის ცოდნაში არ არის. ამ ნაწილში ვნახავთ, როგორ აძლევს function calling მოდელს წვდომას ამ მონაცემებზე ისე, რომ ბაზასთან კავშირი მაინც მხოლოდ ჩვენს კოდს აქვს.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>მოდელი ჩვენს ბაზას ვერ ხედავს</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
+<p>მომხმარებელი წერს: „ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?“. ლექცია 2-ის <code>/ask</code>-ზე მოდელს ჩვენი ბაზა არ აქვს, ამიტომ ორიდან ერთს აკეთებს:</p>
+<table>
+<thead>
+<tr>
+<th>პასუხი</th>
+<th>პრობლემა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„დიახ, რა თქმა უნდა! გელოდებით“</td>
+<td><strong>მოიგონა</strong> (hallucination): ჯავშნები არ უნახავს, მაგრამ დამაჯერებლად პასუხობს. მომხმარებელი მოვა და მაგიდა დაკავებული იქნება</td>
+</tr>
+<tr>
+<td>„ჯავშნებზე წვდომა არ მაქვს“</td>
+<td>პატიოსანია, მაგრამ მომხმარებელს არაფერში ეხმარება</td>
+</tr>
+</tbody>
+</table>
+<p><strong>იდეა 1: მთელი ბაზა prompt-ში?</strong> ყველა მაგიდა და ყველა ჯავშანი ტექსტად. ეს ცუდი იდეაა:</p>
+<ul>
+<li><strong>ბევრი ტოკენი.</strong> ყოველ კითხვაზე, თუნდაც „გამარჯობა“-ზე, ათასობით ტოკენი input-ში (ფასი, ლექცია 1).</li>
+<li><strong>ძველდება.</strong> prompt გაგზავნის მომენტის ასლია, ჯავშნები კი წუთში იცვლება.</li>
+<li><strong>ზედმეტი.</strong> „ხინკალი რა ღირს?“-ზე ჯავშნები საერთოდ არ სჭირდება.</li>
+</ul>
+<p><strong>იდეა 2 (სწორი):</strong> მოდელმა თვითონ <strong>გვთხოვოს</strong> ის მონაცემი, რომელიც სჭირდება, და მხოლოდ მაშინ, როცა სჭირდება. ამას ჰქვია <strong>function calling</strong> (ან <strong>tool calling</strong>).</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Function calling: ციკლი ოთხ ნაბიჯად</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
+<p>მთავარი იდეა: <strong>მოდელი ჩვენს მეთოდს ვერ იძახებს.</strong> ის Google-ის სერვერზეა, ჩვენი ბაზა კი ჩვენთან. მოდელი მხოლოდ <strong>ითხოვს</strong>, ჩვენი კოდი <strong>ასრულებს</strong>.</p>
+<ol>
+<li><strong>ჩვენ → მოდელი:</strong> ვაგზავნით შეკითხვას და <strong>tool-ების სიას</strong>. თითო tool-ზე: სახელი (<code>check_availability</code>), აღწერა („ამოწმებს თავისუფალ მაგიდას“) და პარამეტრები (<code>at</code>, <code>guests</code>).</li>
+<li><strong>მოდელი → ჩვენ:</strong> მოდელი ხვდება, რომ პასუხისთვის მონაცემი სჭირდება, და ტექსტის ნაცვლად <strong>გამოძახების თხოვნას</strong> აბრუნებს: „გამოიძახე <code>check_availability</code>, <code>at</code> = ხვალ 20:00, <code>guests</code> = 4“. პარამეტრები მომხმარებლის ტექსტიდან თვითონ შეავსო.</li>
+<li><strong>ჩვენ → მოდელი:</strong> ჩვენი კოდი იძახებს ნამდვილ C# მეთოდს, მეთოდი ბაზას კითხულობს, და შედეგს (<code>{ available: true, freeTables: 2 }</code>) მოდელს ვუგზავნით. ეს <strong>მეორე</strong> მოთხოვნაა Gemini-სთან, და მასში მთელი ისტორიაა: შეკითხვა, თხოვნა და შედეგი.</li>
+<li><strong>მოდელი → ჩვენ:</strong> შედეგის საფუძველზე მოდელი ჩვეულებრივ ტექსტურ პასუხს წერს.</li>
+</ol>
+<p><strong>Gemini-სთან ორი მოთხოვნა გვქონდა</strong> (ნაბიჯი 1 და 3). თუ მოდელს რამდენიმე tool სჭირდება, ციკლი მეორდება, ასე რომ მოთხოვნა შეიძლება მეტიც იყოს.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>მოდელი ჩვენს ბაზას <strong>არასდროს</strong> უკავშირდება. რა მეთოდი არსებობს, რას აკეთებს და რა დააბრუნოს, ჩვენი კოდი წყვეტს. მოდელი მხოლოდ ირჩევს, რომელი tool გამოიძახოს და რა პარამეტრებით.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Tool (ხელსაწყო)</dt><dd>მოდელისთვის აღწერილი ჩვენი ფუნქცია: სახელი, აღწერა, პარამეტრები. მოდელს შეუძლია მისი გამოძახება ითხოვოს</dd><dt>Function calling (tool calling)</dt><dd>მოდელი ტექსტის ნაცვლად tool-ის გამოძახების თხოვნას აბრუნებს; ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>რა მიდის ქსელში</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
+<p>ზემოთ Gemini-ს ფორმატია, გამარტივებული. ხელით ამას არ ვწერთ, Microsoft.Extensions.AI აწყობს. მაგრამ სასარგებლოა იცოდე, რა ხდება შიგნით:</p>
+<ol>
+<li><strong>Tool-ის აღწერა</strong> მოთხოვნასთან მიდის: <code>name</code>, <code>description</code> და <code>parameters</code>. <code>parameters</code> <strong>JSON Schema</strong>-ა, ისეთივე, როგორიც ლექცია 3-ზე <code>BookingRequest</code>-იდან შეიქმნა. ეს სქემა C# მეთოდის პარამეტრებიდან ავტომატურად იქმნება: <code>DateTime at</code> → <code>"type": "string", "format": "date-time"</code>, <code>int guests</code> → <code>"type": "integer"</code>.</li>
+<li><strong>მოდელის პასუხი</strong> ტექსტი კი არა, <code>functionCall</code>-ია: tool-ის სახელი და არგუმენტები (<code>args</code>), შევსებული სქემის მიხედვით.</li>
+<li><strong>ჩვენი შედეგი</strong> <code>functionResponse</code>-ად ბრუნდება. მეთოდის დაბრუნებული ობიექტი JSON-ად იქცევა.</li>
+</ol>
+<p><strong>ვინ ასრულებს მეთოდს?</strong> ჩვენი სერვერი. Gemini მხოლოდ სახელს და არგუმენტებს წერს, ისევე, როგორც ლექცია 3-ზე <code>BookingRequest</code>-ის ველებს ავსებდა.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>აქედან ჩანს, რატომ არის <strong>აღწერა</strong> ასეთი მნიშვნელოვანი: tool-ის კოდს მოდელი ვერ ხედავს. რას აკეთებს tool და როდის გამოიძახოს, მოდელი მხოლოდ სახელიდან და აღწერიდან იგებს.</p></div></div></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~3 წთ კითხვა</div><h2>პირველი tool: მენიუ ბაზიდან</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> C# მეთოდს tool-ად აქცევ, <code>UseFunctionInvocation</code>-ს ჩართავ და Swagger-ში დაინახავ, რომ პასუხი შენი ბაზიდან მოდის.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · პირველი tool: მენიუ</h3><a class="chip" href="index.html#/10" data-go="10" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 10</a></div>
+<p>ვიწყებთ ყველაზე მარტივი tool-ით, რომელსაც პარამეტრი არ აქვს: მენიუ ბაზიდან. სამი ნაბიჯია: C# მეთოდი აღწერით, მისი tool-ად გადაქცევა და ერთი ხაზი <code>Program.cs</code>-ში, რომელიც ოთხნაბიჯიან ციკლს ჩვენ მაგივრად ასრულებს.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>RestaurantTools: მეთოდები, რომლებსაც მოდელი გამოიძახებს</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
+<p>Tool ჩვეულებრივი C# მეთოდია. ვქმნით ცალკე კლასს, სადაც ყველა tool ერთად იქნება:</p>
+<div class="codebox"><div class="ch"><span>Ai/RestaurantTools.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">System.ComponentModel</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">MenuItemInfo</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">RestaurantTools</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">RestaurantTools</span><span class="p">(</span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[Description("აბრუნებს რესტორნის მენიუს: კერძის სახელი და ფასი ლარში")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">MenuItemInfo</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">GetMenu</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MenuItemInfo</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>და რეგისტრაცია <code>Program.cs</code>-ში:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddScoped</span><span class="o">&lt;</span><span class="n">RestaurantTools</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>AppDbContext</code> constructor-ით.</strong> ზუსტად ისე, როგორც API კურსის სერვისებში. <code>RestaurantTools</code> <strong>Scoped</strong>-ია, რადგან <code>DbContext</code>-იც Scoped-ია: ერთი მოთხოვნა, ერთი <code>DbContext</code>.</li>
+<li><strong><code>[Description(...)]</code> მეთოდზე.</strong> ეს აღწერა მოდელთან tool-ის <code>description</code>-ად მიდის. მოდელი კოდს ვერ ხედავს, ამიტომ რას აკეთებს tool, მხოლოდ აქედან იგებს.</li>
+<li><strong><code>MenuItemInfo</code>.</strong> მოდელს entity-ს კი არა, მხოლოდ საჭირო ველებს ვუბრუნებთ. ნაკლები ველი ნიშნავს ნაკლებ ტოკენს და ნაკლებ ზედმეტ ინფორმაციას (მაგ. შიდა id-ებს).</li>
+<li><strong>შიგნით ჩვეულებრივი LINQ.</strong> tool-ში AI-სთან დაკავშირებული არაფერია. ეს ჩვენი ჩვეულებრივი კოდია.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p><code>_db.Products</code>, <code>p.Name</code>, <code>p.Price</code> — RestaurantApi-ის სახელებია. შენს პროექტში შენი entity-ები და ველები გამოიყენე. თუ მენიუს უკვე სერვისით კითხულობ (API კურსიდან), <code>AppDbContext</code>-ის ნაცვლად ის სერვისი მიიღე constructor-ით.</p></div></div></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Controller: tool-ების სია და UseFunctionInvocation</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
+<p><strong>Controller-ი</strong> <code>RestaurantTools</code>-ს constructor-ით იღებს, <code>IChatClient</code>-ის გვერდით:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="p">;</span></span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">RestaurantTools</span><span class="w"> </span><span class="n">_tools</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">AiLabController</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">chat</span><span class="p">,</span><span class="w"> </span><span class="n">RestaurantTools</span><span class="w"> </span><span class="n">tools</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chat</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_tools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tools</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>ახალი endpoint <code>/chat</code>:</strong></p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("chat")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Chat</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, """</span></span><span class="ln"><span class="na">            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.</span></span><span class="ln"><span class="na">            მენიუზე მონაცემი მხოლოდ tool-იდან აიღე, არაფერი მოიგონო.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatOptions</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Tools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">AIFunctionFactory</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">_tools</span><span class="p">.</span><span class="n">GetMenu</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"get_menu"</span><span class="p">)</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">toolCalls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">SelectMany</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Contents</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OfType</span><span class="o">&lt;</span><span class="n">FunctionCallContent</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span><span class="w"> </span><span class="n">ToolCalls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">toolCalls</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")</code></strong> — C# მეთოდიდან tool-ს ქმნის: სახელი (<code>get_menu</code>), აღწერა (<code>[Description]</code>-იდან) და პარამეტრების JSON Schema. მეთოდს ვაწვდით <strong>ფრჩხილების გარეშე</strong>: ვაძლევთ თავად მეთოდს და არა მისი გამოძახების შედეგს.</li>
+<li><strong><code>ChatOptions.Tools</code></strong> — tool-ების სია, რომელიც ამ მოთხოვნასთან მიდის.</li>
+<li><strong><code>response.Messages</code></strong> — მთელი ისტორია, რაც ამ მოთხოვნაზე შეიქმნა: გამოძახების თხოვნა (<code>FunctionCallContent</code>), შედეგი (<code>FunctionResultContent</code>) და ბოლო პასუხი. <code>toolCalls</code>-ში ვაგროვებთ, რომელი tool-ები გამოიძახა მოდელმა, რომ Swagger-ში დავინახოთ.</li>
+</ul>
+<p><strong><code>Program.cs</code>-ში ერთი ხაზი ემატება:</strong></p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><code>.UseFunctionInvocation()</code>-ის გარეშე <code>GetResponseAsync</code> ნაბიჯ 2-ზე დაბრუნდებოდა: პასუხში ტექსტის ნაცვლად გამოძახების თხოვნა იქნებოდა, და tool-ის გამოძახება და მეორე მოთხოვნა ჩვენ თვითონ უნდა დაგვეწერა. ეს ხაზი ციკლს <strong>ჩვენ მაგივრად</strong> ატრიალებს: ხედავს თხოვნას, იძახებს მეთოდს, აგზავნის შედეგს და აბრუნებს მხოლოდ საბოლოო პასუხს. რა არის ეს ხაზი სინამდვილეში, ლექცია 5-ზე ვნახავთ.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>System</code> prompt-ში მეორე ხაზი („მხოლოდ tool-იდან აიღე“) მნიშვნელოვანია: მის გარეშე მოდელმა შეიძლება მენიუ თავისი „ცოდნიდან“ მოიგონოს და tool არ გამოიძახოს.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>AIFunctionFactory.Create</dt><dd>C# მეთოდიდან ქმნის tool-ს (AIFunction): სახელი, აღწერა, პარამეტრების JSON Schema</dd><dt>UseFunctionInvocation</dt><dd>function calling-ის ციკლს ავტომატურად ასრულებს: თხოვნა → მეთოდის გამოძახება → შედეგი მოდელს → საბოლოო პასუხი</dd></dl></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>შედეგი: /ask vs /chat</h3><a class="chip" href="index.html#/13" data-go="13" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 13</a></div>
+<p>ერთი და იგივე კითხვა ორ endpoint-ზე: „რა კერძები გაქვთ 15 ლარამდე?“</p>
+<table>
+<thead>
+<tr>
+<th>endpoint</th>
+<th>პასუხი</th>
+<th>რატომ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/ask</code> (ლექცია 2)</td>
+<td>„გვაქვს ხაჭაპური, ხინკალი, მწვადი…“</td>
+<td>მოდელმა „ტიპური ქართული რესტორნის“ მენიუ მოიგონა. ჩვენი მენიუ არ იცის</td>
+</tr>
+<tr>
+<td><code>/chat</code> (დღეს)</td>
+<td>„15 ლარამდე: ლობიო ქოთანში (12 ₾) და მჭადი (4 ₾)“, <code>toolCalls: ["get_menu"]</code></td>
+<td>მოდელმა <code>get_menu</code> გამოიძახა, მთელი მენიუ მიიღო და <strong>თვითონ</strong> გაფილტრა 15 ლარამდე</td>
+</tr>
+</tbody>
+</table>
+<p>ფილტრისთვის ცალკე tool არ დაგვჭირდა: მოდელმა მთელი მენიუ მიიღო და კითხვის მიხედვით თვითონ ამოარჩია. პატარა მენიუსთვის ეს ნორმალურია. 500 კერძზე ჯობია tool-ს პარამეტრი ჰქონდეს (მაგ. <code>maxPrice</code>), რომ მოდელს მთელი სია არ მივაწოდოთ.</p>
+<p><strong>„გამარჯობა!“-ზე</strong> <code>toolCalls</code> ცარიელია: მოდელმა გადაწყვიტა, რომ მენიუ არ სჭირდება. <strong>გამოიძახოს თუ არა და რომელი</strong>, მოდელი წყვეტს, სახელისა და აღწერის მიხედვით.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ზუსტი ტექსტი შენთან სხვა იქნება: შენს ბაზაში სხვა კერძებია და მოდელი ალბათობით მუშაობს. მთავარია <code>toolCalls</code>-ში <code>get_menu</code>-ს დანახვა და ის, რომ ფასები შენი ბაზიდან მოდის.</p></div></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~4 წთ კითხვა</div><h2>პარამეტრები და კარგი tool</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> დაწერ tool-ს პარამეტრებით, რომლებსაც მოდელი ტექსტიდან ავსებს, და გაარჩევ კარგ tool-ს ცუდისგან.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · პარამეტრები და კარგი tool</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
+<p><code>get_menu</code>-ს პარამეტრი არ ჰქონდა. ახლა ვამატებთ tool-ს, რომელსაც მოდელი პარამეტრებს <strong>მომხმარებლის ტექსტიდან</strong> უვსებს: თავისუფალი მაგიდის შემოწმება თარიღით და სტუმრების რაოდენობით. მერე ვნახავთ, რით განსხვავდება კარგი tool ცუდისგან.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>CheckAvailability: tool პარამეტრებით</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
+<div class="codebox"><div class="ch"><span>Ai/RestaurantTools.cs · CheckAvailability</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AvailabilityInfo</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">Available</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">FreeTables</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[Description("ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">AvailabilityInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">CheckAvailability</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[Description("ჯავშნის თარიღი და დრო")]</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">at</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[Description("სტუმრების რაოდენობა")]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">guests</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">busyTableIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Bookings</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">at</span><span class="p">.</span><span class="n">AddHours</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">at</span><span class="p">.</span><span class="n">AddHours</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">TableId</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Tables</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">CountAsync</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">Seats</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">guests</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">busyTableIds</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">AvailabilityInfo</span><span class="p">(</span><span class="n">free</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">free</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>[Description]</code> პარამეტრებზე.</strong> ისინი სქემაში თითო პარამეტრის აღწერად ჯდება, ზუსტად ისე, როგორც ლექცია 3-ზე <code>BookingRequest</code>-ის ველებზე. ჩანაწერი <code>[property: ...]</code> აქ არ სჭირდება, რადგან ეს მეთოდის პარამეტრია და არა <code>record</code>-ის.</li>
+<li><strong>ლოგიკა ჩვენია.</strong> მაგიდა დაკავებულად ითვლება, თუ მასზე ჯავშანი ±2 საათშია, და უნდა ეტეოდეს <code>guests</code> სტუმარი. ეს მარტივი წესია. შენს პროექტში შენი ჯავშნის წესი გამოიყენე.</li>
+<li><strong>შედეგი <code>AvailabilityInfo</code>.</strong> მოკლე ობიექტი, რომლითაც მოდელი პასუხს აწყობს.</li>
+</ul>
+<p><strong>Controller-ში</strong> tool-ების სიას მეორე tool ემატება, ხოლო <code>System</code> prompt-ს დღევანდელი თარიღი, ლექცია 3-ის მსგავსად:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">System</span><span class="p">,</span><span class="w"> </span><span class="s">$"""</span></span><span class="ln"><span class="s">    შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.</span></span><span class="ln"><span class="s">    მენიუზე და თავისუფალ მაგიდებზე მონაცემი მხოლოდ tool-ებიდან აიღე, არაფერი მოიგონო.</span></span><span class="ln"><span class="s">    დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="s">    """</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="c1">// ...</span></span><span class="ln"><span class="n">ChatOptions</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Tools</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu"),</span></span><span class="ln"><span class="na">        AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")</span></span><span class="ln"><span class="na">    ]</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span></code></pre></div>
+<p><strong>რატომ თარიღი?</strong> „ხვალ 8-ზე“ → <code>at</code> = <code>2026-11-26T20:00</code>. დღევანდელი თარიღის გარეშე მოდელი „ხვალ“-ს ვერ გამოთვლის (ლექცია 3).</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>თუ <code>toolCalls</code>-ში პარამეტრებიც გინდა დაინახო, <code>.Select(c =&gt; c.Name)</code>-ის ნაცვლად დაწერე <code>.Select(c =&gt; $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary&lt;string, object?&gt;())})")</code>. Swagger-ში გამოჩნდება <code>check_availability([at, 2026-11-26T20:00:00], [guests, 4])</code>.</p></div></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>რომელ tool-ს გამოიძახებს?</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
+<p>ოთხი ტექსტი <code>/chat</code>-ზე. ჯერ გამოიცანი, მერე Swagger-ში შეამოწმე:</p>
+<table>
+<thead>
+<tr>
+<th>ტექსტი</th>
+<th>რას იძახებს</th>
+<th>რა უნდა შენიშნო</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?“</td>
+<td><code>check_availability(at: …T20:00, guests: 4)</code></td>
+<td>პარამეტრები ტექსტიდან. „8“ → 20:00 ან 08:00: ეს ისევ მოდელის ვარაუდია (ლექცია 3)</td>
+</tr>
+<tr>
+<td>„ლობიო რა ღირს?“</td>
+<td><code>get_menu()</code></td>
+<td>ფასი ბაზიდან</td>
+</tr>
+<tr>
+<td>„გამარჯობა, რამდენ საათამდე მუშაობთ?“</td>
+<td>არცერთი</td>
+<td>საათების tool არ გვაქვს. სწორი პასუხია „ინფორმაცია არ მაქვს“ (System-ის „არაფერი მოიგონო“ ამიტომ წერია)</td>
+</tr>
+<tr>
+<td>„შაბათს 7-ზე ორნი მოვალთ. ვეგეტარიანული რა გაქვთ?“</td>
+<td><code>check_availability</code> <strong>და</strong> <code>get_menu</code></td>
+<td>ერთ კითხვაზე ორი tool. <code>UseFunctionInvocation</code> ორივეს ასრულებს</td>
+</tr>
+</tbody>
+</table>
+<p><strong>მოდელი ირჩევს</strong>: tool არცერთი, ერთი ან რამდენიმე. და თვითონ ავსებს პარამეტრებს ტექსტიდან.</p>
+<p><strong>თუ მონაცემი აკლია?</strong> „ოთხნი ვართ, ადგილი გაქვთ?“: დღე არ წერია. კარგი მოდელი ჯერ <strong>დაგისვამს კითხვას</strong> („რომელ დღეს და რომელ საათზე?“) და tool-ს არ გამოიძახებს. ცუდ შემთხვევაში დღეს თვითონ აირჩევს. ამიტომ tool-ის შიგნით C# შემოწმება მაინც საჭიროა (მაგ. <code>at</code> წარსულშია → შედეგი „თარიღი წარსულშია“).</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ზუსტი შედეგი შენთან შეიძლება განსხვავდებოდეს: მოდელი ალბათობით ირჩევს. თუ მოდელი tool-ს მაშინ არ იძახებს, როცა უნდა, ჯერ აღწერა გააუმჯობესე (შემდეგი სლაიდი).</p></div></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>კარგი tool: 4 წესი</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
+<p>მოდელი tool-ს მხოლოდ სახელით, აღწერით და პარამეტრების სქემით იცნობს. კოდს ვერ ხედავს. ამიტომ tool-ის ხარისხს სწორედ ეს სამი წყვეტს.</p>
+<table>
+<thead>
+<tr>
+<th>წესი</th>
+<th>ცუდი</th>
+<th>კარგი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>სახელი</strong> = ზმნა + რა</td>
+<td><code>Check</code>, <code>Func1</code>, <code>Data</code></td>
+<td><code>check_availability</code>, <code>get_menu</code></td>
+</tr>
+<tr>
+<td><strong>აღწერა</strong>: რას აკეთებს, რას აბრუნებს, საჭიროების შემთხვევაში როდის გამოიყენოს</td>
+<td>არ არის</td>
+<td>„ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს“</td>
+</tr>
+<tr>
+<td><strong>ტიპიზებული პარამეტრები</strong> აღწერით</td>
+<td><code>string data</code> („2026-11-26 20:00 4“?)</td>
+<td><code>DateTime at</code>, <code>int guests</code>, ან enum, თუ მნიშვნელობები სიიდანაა</td>
+</tr>
+<tr>
+<td><strong>ერთი tool, ერთი საქმე</strong></td>
+<td><code>DoEverything(string action, string data)</code></td>
+<td>ცალკე <code>get_menu</code> და <code>check_availability</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>რატომ ტიპიზებული პარამეტრები?</strong> <code>string data</code>-ში მოდელს ფორმატი თვითონ უნდა გამოიცნოს, ჩვენ კი ეს string უნდა დავპარსოთ. <code>DateTime</code> და <code>int</code> სქემაში ზუსტ ტიპად მიდის, და <code>AIFunctionFactory</code> მოდელის JSON-ს C# ტიპებად თვითონ გარდაქმნის.</p>
+<p><strong>რატომ დღეს მხოლოდ კითხვა (read-only)?</strong> თუ მოდელს <code>create_booking</code>-ს მივცემთ, ჯავშანს მოდელი <strong>თვითონ გადაწყვეტს</strong>: შეიძლება „8“ დილის 8 ეგონოს და ჯავშანი ისე შექმნას, რომ მომხმარებელს არ ჰკითხოს. ბაზაში ჩამწერ tool-ს მომხმარებლის <strong>დადასტურება</strong> სჭირდება („ვაჯავშნო ხვალ 20:00-ზე 4 კაცზე?“). ამას human-in-the-loop ჰქვია და ლექცია 15-ზე ვნახავთ.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>თუ მოდელი tool-ს არასწორ დროს იძახებს ან საერთოდ არ იძახებს, კოდს ნუ შეცვლი. ჯერ <strong>აღწერა</strong> გააუმჯობესე: ხშირად ერთი წინადადება საკმარისია („გამოიყენე, როცა მომხმარებელი ფასს ან კერძს კითხულობს“).</p></div></div></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>კლასის დავალება: შენი tool შენს პროექტში</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>კლასში დავალება: შენი tool — შენს პროექტში</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
+<p>შენი პროექტი ან RestaurantApi · კოდით · Swagger-ში</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li><strong>1 · Tools კლასი</strong> — <code>Ai/&lt;შენი&gt;Tools.cs</code>: constructor-ით <code>DbContext</code> (ან შენი სერვისი), <code>Program.cs</code>-ში <code>AddScoped</code></li>
+<li><strong>2 · tool პარამეტრით</strong> — ერთი <strong>კითხვის</strong> მეთოდი შენი ბაზიდან, <strong>მინიმუმ 1 პარამეტრით</strong>; <code>[Description]</code> მეთოდზე და პარამეტრზე; სახელი = ზმნა + რა</li>
+<li><strong>3 · <code>/chat</code> endpoint</strong> — System: ვინ არის ასისტენტი + „მონაცემი მხოლოდ tool-იდან, არაფერი მოიგონო“ → <code>ChatOptions.Tools</code> → <code>GetResponseAsync(messages, options)</code> → <code>Ok(new { response.Text, ToolCalls })</code>. <code>Program.cs</code>-ში <code>.UseFunctionInvocation()</code></li>
+<li><strong>4 · Swagger-ში 3 ტექსტი:</strong> ისეთი, რომელზეც tool უნდა გამოიძახოს · ისეთი, რომელზეც <strong>არ</strong> უნდა გამოიძახოს · ისეთი, სადაც პარამეტრი ტექსტში წერია სხვა სიტყვებით</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>პირველ ტექსტზე <code>toolCalls</code>-ში შენი tool ჩანს და პასუხში შენი ბაზის მონაცემია; მეორეზე <code>toolCalls</code> ცარიელია; მესამეზე პარამეტრი სწორად შეივსო</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>toolCalls</code>-ში პარამეტრებიც აჩვენე: <code>c.Arguments</code> (კონსპექტში tip-ია)</li>
+<li>მეორე tool დაამატე და დაწერე ტექსტი, რომელზეც ორივე გამოიძახება</li>
+<li>tool-ის შიგნით C# შემოწმება: არასწორ პარამეტრზე (მაგ. თარიღი წარსულშია) tool აბრუნებს ობიექტს ახსნით და არა exception-ს</li>
+</ul>
+<h3>💡 თუ გაიჭედე</h3>
+<ul>
+<li><strong>იდეები:</strong> ბიბლიოთეკა — <code>find_books(string author)</code>, <code>is_book_available(string title)</code> · სპორტდარბაზი — <code>get_classes(DayOfWeek day)</code> · მაღაზია — <code>get_products_under(decimal maxPrice)</code>, <code>get_stock(string productName)</code></li>
+<li><strong>tool არ იძახება?</strong> შეამოწმე: <code>options</code> გადაეცი <code>GetResponseAsync</code>-ს? <code>Program.cs</code>-ში <code>.UseFunctionInvocation()</code> არის? System prompt-ში წერია „მხოლოდ tool-იდან“?</li>
+<li><strong><code>toolCalls</code> ცარიელია, <code>text</code> ცარიელია?</strong> <code>.UseFunctionInvocation()</code> დაგავიწყდა — მოდელმა გამოძახება ითხოვა, მაგრამ არავინ შეასრულა</li>
+<li><strong><code>Cannot resolve scoped service</code>?</strong> Tools კლასი <code>AddScoped</code>-ით დაარეგისტრირე, არა <code>AddSingleton</code>-ით (<code>DbContext</code> Scoped-ია)</li>
+<li><strong>თარიღიანი პარამეტრი?</strong> System prompt-ში: <code>დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.</code></li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>შეჯამება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/20" data-go="20" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 20</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>მოდელი ჩვენს C# მეთოდს თვითონ იძახებს? აღწერე ციკლი ნაბიჯებად.</summary><div class="ans">არა · 1) ჩვენ: შეკითხვა + tool-ების სია · 2) მოდელი: გამოძახების თხოვნა (სახელი + არგუმენტები) · 3) ჩვენი კოდი ასრულებს მეთოდს და შედეგს უგზავნის · 4) მოდელი: ტექსტური პასუხი · Gemini-სთან მინიმუმ 2 მოთხოვნაა</div></details><details><summary>მოდელი tool-ის კოდს ვერ ხედავს. საიდან იგებს, რას აკეთებს tool და როდის გამოიძახოს?</summary><div class="ans">სახელიდან, აღწერიდან (<code>[Description]</code>) და პარამეტრების JSON Schema-დან · ამიტომ ცუდი აღწერა = tool არასწორ დროს ან საერთოდ არ გამოიძახება</div></details><details><summary>რას აკეთებს <code>.UseFunctionInvocation()</code>? რა მოხდებოდა მის გარეშე?</summary><div class="ans">ციკლს ჩვენ მაგივრად ატრიალებს: ხედავს თხოვნას, იძახებს მეთოდს, აგზავნის შედეგს, აბრუნებს საბოლოო პასუხს · მის გარეშე <code>GetResponseAsync</code> ტექსტის ნაცვლად გამოძახების თხოვნას დააბრუნებდა და დანარჩენი ჩვენ უნდა დაგვეწერა</div></details><details><summary>რატომ <code>CheckAvailability(DateTime at, int guests)</code> და არა <code>Check(string data)</code>?</summary><div class="ans">სახელი ამბობს, რას აკეთებს · ტიპიზებული პარამეტრები სქემაში ზუსტ ტიპად მიდის — მოდელს ფორმატი არ უნდა გამოიცნოს, ჩვენ კი string არ უნდა დავპარსოთ · <code>[Description]</code> თითო პარამეტრზე</div></details><details><summary>რატომ მივეცით მოდელს დღეს მხოლოდ კითხვის tool-ები? რა იქნება <code>create_booking</code>-ის პრობლემა?</summary><div class="ans">ჩამწერ tool-ს მოდელი თვითონ გამოიძახებს — შეიძლება „8“ დილის 8 ეგონოს და მომხმარებელს არ ჰკითხოს · ჩანაწერს დადასტურება სჭირდება (human-in-the-loop, ლექცია 15)</div></details></div></article><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/21" data-go="21" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 21</a></div>
+<ul>
+<li><strong>Tool</strong> — ჩვენი C# მეთოდი, რომელიც მოდელს აღწერილი აქვს: სახელი, აღწერა და პარამეტრების JSON Schema. კოდს მოდელი ვერ ხედავს.</li>
+<li><strong>ციკლი:</strong> ჩვენ ვაგზავნით შეკითხვას და tool-ების სიას → მოდელი <strong>ითხოვს</strong> გამოძახებას → <strong>ჩვენი კოდი</strong> ასრულებს მეთოდს → შედეგი მოდელს უბრუნდება → მოდელი ტექსტურ პასუხს წერს. Gemini-სთან მინიმუმ ორი მოთხოვნაა.</li>
+<li><strong><code>AIFunctionFactory.Create(method, name: "...")</code></strong> — C# მეთოდიდან tool-ს ქმნის. <strong><code>ChatOptions.Tools</code></strong> — tool-ების სია მოთხოვნისთვის. <strong><code>[Description]</code></strong> — მეთოდზე და პარამეტრებზე.</li>
+<li><strong><code>.UseFunctionInvocation()</code></strong> — <code>Program.cs</code>-ში ერთი ხაზი, რომელიც ციკლს ავტომატურად ატრიალებს.</li>
+<li><strong>მოდელი ირჩევს</strong>, გამოიძახოს თუ არა tool, რომელი და რამდენი, და <strong>ავსებს</strong> პარამეტრებს ტექსტიდან.</li>
+<li><strong>კარგი tool:</strong> სახელი = ზმნა + რა, აღწერა, ტიპიზებული პარამეტრები, ერთი საქმე. დღეს მხოლოდ კითხვის (read-only) tool-ები. ჩანაწერს დადასტურება სჭირდება.</li>
+</ul>
+<h3>შემდეგ ლექციაზე</h3>
+<p><code>.UseFunctionInvocation()</code> ერთი ხაზი იყო, მაგრამ ციკლი მთლიანად შეასრულა. სინამდვილეში ეს client-ის გარშემო <strong>ფენაა</strong> (middleware), ისეთივე, როგორიც ASP.NET Core-ის <code>app.Use…()</code>. ლექცია 5-ზე: <strong>Chat Client Pipeline და Middleware</strong>: ლოგირება, ქეში და საკუთარი ფენა, რომელიც ყოველ მოთხოვნაზე ტოკენებს ითვლის.</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>საშინაო დავალება: ასისტენტი tool-ებით</h3><a class="chip" href="index.html#/22" data-go="22" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 22</a></div>
+<p>კოდით · შენი პროექტი · README-ში ცხრილი</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><strong>Tools კლასი:</strong> <code>Ai/&lt;შენი&gt;Tools.cs</code>, <code>AddScoped</code>, მონაცემი <strong>შენი ბაზიდან</strong> (ან შენი არსებული სერვისიდან)</li>
+<li><strong>2 tool:</strong> ერთი <strong>პარამეტრის გარეშე</strong>, ერთი <strong>მინიმუმ 2 პარამეტრით</strong>; ორივე <strong>მხოლოდ კითხულობს</strong>; <code>[Description]</code> მეთოდებზე და პარამეტრებზე; სახელები ზმნა + რა</li>
+<li><strong><code>POST /api/ai-lab/chat</code>:</strong> System — ასისტენტის როლი, „მონაცემი მხოლოდ tool-ებიდან“, დღევანდელი თარიღი (თუ თარიღიანი პარამეტრი გაქვს); პასუხში <code>Text</code> და <code>ToolCalls</code> <strong>პარამეტრებით</strong></li>
+<li><strong>README-ში ცხრილი — 5 ტექსტი:</strong> tool-ის გარეშე · პირველი tool · მეორე tool · ორივე ერთად · ისეთი, სადაც პარამეტრი აკლია. სვეტები: ტექსტი · <code>toolCalls</code> (არგუმენტებით) · პასუხი სწორია? · რა შენიშნე</li>
+<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>5-ვე ტექსტი ცხრილშია; ბაზის მონაცემი პასუხში ჩანს და არ არის მოგონილი; „tool-ის გარეშე“ ტექსტზე <code>toolCalls</code> ცარიელია; „პარამეტრი აკლია“ ტექსტზე აღწერილია, რა გააკეთა მოდელმა (ჰკითხა? თვითონ აირჩია?)</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><strong>ცუდი აღწერის ექსპერიმენტი:</strong> ერთ tool-ს აღწერა წაუშალე და სახელი <code>Data</code> დაარქვი → იგივე 5 ტექსტი. რა შეიცვალა? დააბრუნე და ცხრილში ჩაწერე</li>
+<li>tool-ში C# შემოწმება: არასწორ პარამეტრზე (წარსული თარიღი, უარყოფითი რაოდენობა) ობიექტი ახსნით, არა exception</li>
+<li><strong>ფიქრი:</strong> შენს პროექტში რომელი <strong>ჩამწერი</strong> tool იქნებოდა სასარგებლო და რა დადასტურება დასჭირდებოდა? 2–3 წინადადება README-ში (კოდი არ სჭირდება)</li>
+</ul>
+<h3>💡 დეტალები</h3>
+<ul>
+<li>tool-ის შედეგად entity-ს ნუ დააბრუნებ — <code>record</code> მხოლოდ საჭირო ველებით (ნაკლები ტოკენი, ნავიგაციის ციკლები არ ჩნდება)</li>
+<li><code>AIFunctionFactory.Create</code>-ს მეთოდს <strong>ფრჩხილების გარეშე</strong> აწვდი: <code>_tools.GetMenu</code>, არა <code>_tools.GetMenu()</code></li>
+<li><code>ToolCalls</code>-ში არგუმენტებისთვის: <code>.Select(c =&gt; $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary&lt;string, object?&gt;())})")</code></li>
+<li>ჯერ აღწერას ასწორებ, მერე კოდს — თუ tool არ იძახება</li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 სწორი · <span id="qd">0</span> / 11 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>ვინ ასრულებს <code>check_availability</code> მეთოდს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini, Google-ის სერვერზე</button><button type="button" class="opt" data-i="1">ჩვენი სერვერი — მოდელი მხოლოდ ითხოვს გამოძახებას</button><button type="button" class="opt" data-i="2">მომხმარებლის ბრაუზერი</button><button type="button" class="opt" data-i="3">ბაზა პირდაპირ</button></div><div class="qe"><span class="verdict"></span> მოდელი მხოლოდ tool-ის სახელს და არგუმენტებს აბრუნებს. მეთოდს ჩვენი კოდი იძახებს და შედეგს მოდელს უგზავნის. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>მოდელმა <code>check_availability</code> გამოიძახა და მერე ტექსტური პასუხი დაწერა. რამდენი მოთხოვნა წავიდა Gemini-სთან?</div></div><div class="opts"><button type="button" class="opt" data-i="0">1</button><button type="button" class="opt" data-i="1">2</button><button type="button" class="opt" data-i="2">3</button><button type="button" class="opt" data-i="3">0 — tool-ს Gemini არ სჭირდება</button></div><div class="qe"><span class="verdict"></span> პირველი — შეკითხვა და tool-ების სია (პასუხი: თხოვნა). მეორე — ისტორია და tool-ის შედეგი (პასუხი: ტექსტი). <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>საიდან იგებს მოდელი, რას აკეთებს tool?</div></div><div class="opts"><button type="button" class="opt" data-i="0">კითხულობს მეთოდის C# კოდს</button><button type="button" class="opt" data-i="1">სახელიდან, აღწერიდან და პარამეტრების სქემიდან</button><button type="button" class="opt" data-i="2">ბაზის სტრუქტურიდან</button><button type="button" class="opt" data-i="3">არ იგებს — ყოველთვის ყველა tool-ს იძახებს</button></div><div class="qe"><span class="verdict"></span> მოთხოვნასთან მიდის მხოლოდ name, description და parameters (JSON Schema). კოდი არასდროს. <a class="chip" href="#s-9">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>რას აკეთებს <code>AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">უმალ იძახებს GetMenu-ს და შედეგს ინახავს</button><button type="button" class="opt" data-i="1">C# მეთოდიდან ქმნის tool-ს: სახელი, აღწერა და პარამეტრების სქემა</button><button type="button" class="opt" data-i="2">ბაზაში ახალ ცხრილს ქმნის</button><button type="button" class="opt" data-i="3">Gemini-ზე ფუნქციას ატვირთავს</button></div><div class="qe"><span class="verdict"></span> მეთოდს ფრჩხილების გარეშე ვაწვდით — ვაძლევთ თავად მეთოდს. გამოძახება მოგვიანებით ხდება, როცა მოდელი ითხოვს. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>Program.cs-ში <code>.UseFunctionInvocation()</code> დაგავიწყდა. რას დააბრუნებს <code>/chat</code> „ლობიო რა ღირს?“-ზე?</div></div><div class="opts"><button type="button" class="opt" data-i="0">იგივე პასუხს — ეს ხაზი არასავალდებულოა</button><button type="button" class="opt" data-i="1">ცარიელ ტექსტს: მოდელმა გამოძახება ითხოვა, მაგრამ მეთოდი არავინ გამოიძახა</button><button type="button" class="opt" data-i="2">exception-ს კომპილაციისას</button><button type="button" class="opt" data-i="3">მენიუს JSON-ს</button></div><div class="qe"><span class="verdict"></span> ციკლი ნაბიჯ 2-ზე ჩერდება: პასუხში მხოლოდ FunctionCallContent-ია, Text ცარიელია. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>სად ჩანს, რომელი tool გამოიძახა მოდელმა?</div></div><div class="opts"><button type="button" class="opt" data-i="0">response.Text-ში</button><button type="button" class="opt" data-i="1">response.Messages-ში — FunctionCallContent და FunctionResultContent</button><button type="button" class="opt" data-i="2">ChatOptions.Tools-ში</button><button type="button" class="opt" data-i="3">არსად — ეს დამალულია</button></div><div class="qe"><span class="verdict"></span> response.Messages მთელ ისტორიას შეიცავს, რაც ამ მოთხოვნაზე შეიქმნა: თხოვნას, შედეგს და ბოლო პასუხს. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>„გამარჯობა!“-ზე <code>toolCalls</code> ცარიელია. რას ნიშნავს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">tool-ები არ დარეგისტრირდა</button><button type="button" class="opt" data-i="1">მოდელმა გადაწყვიტა, რომ tool არ სჭირდება — ეს ნორმალურია</button><button type="button" class="opt" data-i="2">Gemini-მ შეცდომა დააბრუნა</button><button type="button" class="opt" data-i="3">UseFunctionInvocation არ მუშაობს</button></div><div class="qe"><span class="verdict"></span> გამოიძახოს თუ არა და რომელი, მოდელი წყვეტს. <a class="chip" href="#s-13">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>„ხვალ 8-ზე ოთხნი ვართ“ — რატომ ვწერთ System prompt-ში დღევანდელ თარიღს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini-ს ფორმატი ამას მოითხოვს</button><button type="button" class="opt" data-i="1">რომ მოდელმა „ხვალ“-იდან at პარამეტრი გამოთვალოს — დღევანდელი თარიღი არ იცის</button><button type="button" class="opt" data-i="2">ტოკენების დასაზოგად</button><button type="button" class="opt" data-i="3">tool-ის აღწერისთვის</button></div><div class="qe"><span class="verdict"></span> მოდელი stateless-ია და მისი ცოდნა ვარჯიშის დღეზე ჩერდება (ლექცია 1, 3). <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>„შაბათს 7-ზე ორნი მოვალთ. ვეგეტარიანული რა გაქვთ?“ — რა მოხდება?</div></div><div class="opts"><button type="button" class="opt" data-i="0">მოდელი მხოლოდ ერთ tool-ს გამოიძახებს — ორი შეუძლებელია</button><button type="button" class="opt" data-i="1">შეიძლება ორივე tool გამოიძახოს; UseFunctionInvocation ორივეს ასრულებს</button><button type="button" class="opt" data-i="2">შეცდომა</button><button type="button" class="opt" data-i="3">მოდელი ორ ცალკე პასუხს დააბრუნებს</button></div><div class="qe"><span class="verdict"></span> მოდელი ირჩევს არცერთს, ერთს ან რამდენიმე tool-ს. <a class="chip" href="#s-17">გაიმეორე · სლაიდი 17</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">10</span><div>რომელია კარგი tool?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Check(string data)</button><button type="button" class="opt" data-i="1">DoEverything(string action, string json)</button><button type="button" class="opt" data-i="2">check_availability(DateTime at, int guests) აღწერით</button><button type="button" class="opt" data-i="3">Func1()</button></div><div class="qe"><span class="verdict"></span> ზმნა + რა სახელში, აღწერა, ტიპიზებული პარამეტრები, ერთი საქმე. <a class="chip" href="#s-18">გაიმეორე · სლაიდი 18</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>რატომ არ ვაძლევთ მოდელს დღეს <code>create_booking</code> tool-ს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini ჩაწერას ვერ აკეთებს</button><button type="button" class="opt" data-i="1">ჩაწერას მოდელი თვითონ გადაწყვეტდა, დადასტურების გარეშე — ჯერ human-in-the-loop უნდა ვისწავლოთ</button><button type="button" class="opt" data-i="2">EF Core ამას არ უშვებს</button><button type="button" class="opt" data-i="3">ჩამწერი tool-ები ფასიანია</button></div><div class="qe"><span class="verdict"></span> შეუქცევადი ან ფულიანი ქმედება მომხმარებლის დადასტურებას მოითხოვს — ლექცია 15. <a class="chip" href="#s-18">გაიმეორე · სლაიდი 18</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Tool (ხელსაწყო)</dt><dd>მოდელისთვის აღწერილი ჩვენი ფუნქცია: სახელი, აღწერა, პარამეტრები. მოდელს შეუძლია მისი გამოძახება ითხოვოს</dd><dt>Function calling (tool calling)</dt><dd>მოდელი ტექსტის ნაცვლად tool-ის გამოძახების თხოვნას აბრუნებს; ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ</dd><dt>AIFunctionFactory.Create</dt><dd>C# მეთოდიდან ქმნის tool-ს (AIFunction): სახელი, აღწერა, პარამეტრების JSON Schema</dd><dt>UseFunctionInvocation</dt><dd>function calling-ის ციკლს ავტომატურად ასრულებს: თხოვნა → მეთოდის გამოძახება → შედეგი მოდელს → საბოლოო პასუხი</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 4 — Tools და Function Calling";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
+      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>

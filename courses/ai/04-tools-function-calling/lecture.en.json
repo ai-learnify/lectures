@@ -1,0 +1,53 @@
+{
+  "title": "Tools and Function Calling",
+  "why": "In lecture 3 the model extracted a booking from text, but it couldn't tell us whether a table is free: it can't see our database, so it either makes things up or refuses. Today we give the model tools — our C# methods: the model asks for a call, our code runs it, and the answer is built on real data from our database. This is the foundation of every AI assistant and agent.",
+  "outcomes": [
+    "You'll explain the function-calling loop: list of tools → call request → our code runs it → result → answer",
+    "You'll turn a C# method into a tool with `AIFunctionFactory.Create` and `[Description]` and pass it in `ChatOptions.Tools`",
+    "You'll run the loop automatically with `UseFunctionInvocation` and see in `response.Messages` which tool the model called",
+    "You'll write a good tool: a verb name, a description, typed parameters; and explain why today's tools only read"
+  ],
+  "review": [
+    {"q": "Does the model call our C# method itself? Describe the loop step by step.", "a": "No · 1) us: the question + the list of tools · 2) the model: a call request (name + arguments) · 3) our code runs the method and sends the result · 4) the model: a text answer · at least 2 requests to Gemini"},
+    {"q": "The model can't see a tool's code. How does it learn what the tool does and when to call it?", "a": "From the name, the description (`[Description]`) and the parameters' JSON Schema · so a bad description = the tool is called at the wrong time or not at all"},
+    {"q": "What does `.UseFunctionInvocation()` do? What would happen without it?", "a": "It runs the loop for us: sees the request, calls the method, sends the result, returns the final answer · without it `GetResponseAsync` would return a call request instead of text and we'd have to write the rest ourselves"},
+    {"q": "Why `CheckAvailability(DateTime at, int guests)` and not `Check(string data)`?", "a": "The name says what it does · typed parameters go into the schema as exact types — the model doesn't have to guess a format and we don't have to parse a string · `[Description]` on each parameter"},
+    {"q": "Why did we give the model only read tools today? What would be the problem with `create_booking`?", "a": "The model would call a writing tool by itself — it might take “8” as 8 a.m. and not ask the user · writing needs confirmation (human-in-the-loop, lecture 15)"}
+  ],
+  "resources": [
+    {"title": "IChatClient — tool calling", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "AIFunction, AIFunctionFactory, FunctionInvokingChatClient — with examples"},
+    {"title": "Function calling — .NET quickstart", "url": "https://learn.microsoft.com/dotnet/ai/quickstarts/use-function-calling", "note": "Your first tool in C#, step by step"},
+    {"title": "Gemini — Function calling", "url": "https://ai.google.dev/gemini-api/docs/function-calling", "note": "How it works on Gemini, tips on tool design"},
+    {"title": "Anthropic — Writing tools for agents", "url": "https://www.anthropic.com/engineering/writing-tools-for-agents", "note": "Practical tips on a good tool's name, description and parameters"}
+  ],
+  "quiz": [
+    {"q": "Who runs the `check_availability` method?", "options": ["Gemini, on Google's server", "Our server — the model only asks for the call", "The user's browser", "The database directly"], "explain": "The model only returns the tool's name and arguments. Our code calls the method and sends the result to the model."},
+    {"q": "The model called `check_availability` and then wrote a text answer. How many requests went to Gemini?", "options": ["1", "2", "3", "0 — a tool doesn't need Gemini"], "explain": "The first — the question and the list of tools (answer: a request). The second — the history and the tool's result (answer: text)."},
+    {"q": "How does the model learn what a tool does?", "options": ["It reads the method's C# code", "From the name, the description and the parameters' schema", "From the database structure", "It doesn't — it always calls every tool"], "explain": "Only name, description and parameters (JSON Schema) go with the request. Never the code."},
+    {"q": "What does `AIFunctionFactory.Create(_tools.GetMenu, name: \"get_menu\")` do?", "options": ["Calls GetMenu right away and stores the result", "Creates a tool from a C# method: name, description and the parameters' schema", "Creates a new table in the database", "Uploads a function to Gemini"], "explain": "We pass the method without parentheses — we give the method itself. The call happens later, when the model asks for it."},
+    {"q": "You forgot `.UseFunctionInvocation()` in Program.cs. What does `/chat` return for “How much is lobio?”?", "options": ["The same answer — this line is optional", "Empty text: the model asked for a call, but nobody ran the method", "A compile-time exception", "The menu's JSON"], "explain": "The loop stops at step 2: the answer contains only a FunctionCallContent, and Text is empty."},
+    {"q": "Where can you see which tool the model called?", "options": ["In response.Text", "In response.Messages — FunctionCallContent and FunctionResultContent", "In ChatOptions.Tools", "Nowhere — it's hidden"], "explain": "response.Messages holds the whole history created during this request: the request, the result and the final answer."},
+    {"q": "On “Hello!” `toolCalls` is empty. What does it mean?", "options": ["The tools weren't registered", "The model decided it doesn't need a tool — that's normal", "Gemini returned an error", "UseFunctionInvocation doesn't work"], "explain": "Whether to call a tool and which one is the model's decision."},
+    {"q": "“Four of us, tomorrow at 8” — why do we put today's date in the System prompt?", "options": ["Gemini's format requires it", "So the model can work out the `at` parameter from “tomorrow” — it doesn't know today's date", "To save tokens", "For the tool's description"], "explain": "The model is stateless and its knowledge stops at its training date (lectures 1, 3)."},
+    {"q": "“Two of us are coming on Saturday at 7. What vegetarian dishes do you have?” — what happens?", "options": ["The model calls only one tool — two is impossible", "It may call both tools; UseFunctionInvocation runs both", "An error", "The model returns two separate answers"], "explain": "The model chooses no tool, one, or several."},
+    {"q": "Which is a good tool?", "options": ["Check(string data)", "DoEverything(string action, string json)", "check_availability(DateTime at, int guests) with a description", "Func1()"], "explain": "Verb + what in the name, a description, typed parameters, one job."},
+    {"q": "Why don't we give the model a `create_booking` tool today?", "options": ["Gemini can't write", "The model would decide to write by itself, without confirmation — we need to learn human-in-the-loop first", "EF Core doesn't allow it", "Writing tools cost money"], "explain": "An irreversible or paid action needs the user's confirmation — lecture 15."}
+  ],
+  "study": {
+    "summary": [
+      "**The model can't see our database** — it either makes things up or refuses. Putting the whole database in the prompt is expensive and goes stale.",
+      "**Function calling:** we send the question + the list of tools → the model **asks** for a call → **our code** runs the method → the result goes to the model → a text answer.",
+      "**A tool** = name + description (`[Description]`) + the parameters' JSON Schema. `AIFunctionFactory.Create(method, name: \"...\")` creates it from a C# method, `ChatOptions.Tools` sends it with the request.",
+      "**`.UseFunctionInvocation()`** in `Program.cs` runs the loop automatically. `response.Messages` shows which tool was called.",
+      "**A good tool:** name = verb + what, a description, typed parameters, one job. Today only read tools — writing needs confirmation."
+    ],
+    "chapters": {
+      "1 · მოდელი და ჩვენი ბაზა": {"title": "The model and our database: the function-calling loop", "goal": "You'll explain why the model can't see our database and how it asks for our method to be called, in four steps."},
+      "2 · პირველი tool": {"title": "The first tool: the menu from the database", "goal": "You'll turn a C# method into a tool, switch on `UseFunctionInvocation` and see in Swagger that the answer comes from your database."},
+      "3 · პარამეტრები და დიზაინი": {"title": "Parameters and a good tool", "goal": "You'll write a tool with parameters that the model fills in from the text, and tell a good tool from a bad one."},
+      "პრაქტიკა": {"title": "Classwork: your tool in your project"},
+      "შეჯამება": {"title": "Summary"},
+      "საშინაო": {"title": "Homework"}
+    }
+  }
+}

@@ -1,0 +1,946 @@
+<style>
+.mono{font-family:var(--mono)}
+.swr{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.swr .rh{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #e5e5e5;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.swr .rh .m{font:800 14px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:5px 0;width:78px;text-align:center}
+.swr .rh .p{font:700 17px var(--mono);color:#3b4151}
+.swr .lab{font:700 13px var(--font);color:#3b4151;padding:10px 16px 2px;opacity:.8}
+.swr .rb{background:#41444e;color:#fff;font:600 16px/1.5 var(--mono);padding:10px 14px;border-radius:6px;white-space:pre;margin:4px 16px 14px}
+.swr .rb .k{color:#a5d6ff}.swr .rb .s{color:#a2fca2}.swr .rb .n{color:#fcc28c}.swr .rb .z{color:#c9c9c9;font-style:italic}
+.c-post{--c:#49cc90}
+.game{display:inline-flex;align-items:center;gap:10px;font:800 15px var(--mono);letter-spacing:.08em;color:#fff;background:var(--pink);padding:6px 14px;border-radius:99px}
+.ask{--a:var(--pink);font-size:22px;color:var(--ink)}
+.ask b{color:var(--pink)}
+.route{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:22px}
+.stop{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--a);border-radius:16px;padding:22px 24px 18px;box-shadow:var(--shadow)}
+.stop .sn{position:absolute;top:-22px;left:18px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font:800 20px var(--mono)}
+.stop h3{margin:10px 0 0;font-size:26px}
+.stop p{margin:0;font-size:19px;color:var(--ink2);line-height:1.45}
+.stop .from{margin-top:auto;font:700 15px var(--mono);color:var(--a)}
+.prob{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:12px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 8%,var(--card));border-left:6px solid var(--a)}
+.prob .pi{font-size:30px;text-align:center}
+.prob b{display:block;font-size:20px;color:var(--ink)}
+.prob span{font-size:17px;color:var(--ink2);line-height:1.4}
+.lab-out{display:flex;flex-wrap:wrap;gap:8px}
+.lab-out span{font:700 17px var(--mono);padding:6px 12px;border-radius:9px;background:var(--card);border:1px solid var(--line2);color:var(--ink)}
+.lab-out span.bad{background:color-mix(in srgb,var(--red) 9%,var(--card));border-color:color-mix(in srgb,var(--red) 35%,var(--card))}
+.lab-out span.good{background:color-mix(in srgb,var(--mvc) 12%,var(--card));border-color:color-mix(in srgb,var(--mvc) 40%,var(--card))}
+.ifc{font:700 19px var(--mono);color:var(--ink);background:var(--bg2);border-radius:10px;padding:10px 14px}
+.ifc .kw{color:var(--net)}.ifc .st{color:#15803d}.ifc .ty{color:var(--api)}
+.flow{display:grid;grid-template-columns:1fr 46px 1.25fr 46px 1fr 46px 1fr;align-items:center;gap:6px;margin-top:18px}
+.flow .arr{font:800 30px var(--mono);color:var(--muted);text-align:center}
+.fbox{border-radius:14px;padding:14px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,var(--card));min-height:170px;display:flex;flex-direction:column;gap:8px}
+.fbox h4{margin:0;font:800 15px var(--mono);letter-spacing:.04em;color:var(--a);text-transform:uppercase}
+.fbox pre{margin:0;font:600 15px/1.45 var(--mono);color:var(--ink);white-space:pre}
+.fbox pre .k{color:var(--net)}.fbox pre .s{color:#15803d}.fbox pre .t{color:var(--api)}
+.fbox p{margin:0;font-size:16px;color:var(--ink2);line-height:1.4}
+.txt{font-size:21px;line-height:1.4;background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 6px;padding:12px 18px;box-shadow:var(--shadow);color:var(--ink)}
+.txt .who{display:block;font:600 13px var(--mono);color:var(--muted);margin-bottom:3px}
+.obj{font:600 16px/1.5 var(--mono);white-space:pre;background:var(--bg2);border-radius:10px;padding:10px 14px;color:var(--ink);border-left:5px solid var(--a)}
+.obj .k{color:var(--api)}.obj .n{color:#c2410c}.obj .z{color:var(--red);font-weight:800}
+.sec-l{font:700 15px var(--mono);color:var(--muted);margin:0 0 6px}
+
+.pipe{display:flex;align-items:stretch;gap:10px;margin-top:10px}
+.pipe .ar{display:flex;align-items:center;font:800 26px var(--mono);color:var(--muted)}
+.layer{flex:1;display:flex;flex-direction:column;gap:6px;justify-content:center;text-align:center;padding:14px 10px;border-radius:14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 9%,var(--card));min-height:120px}
+.layer b{font:800 16px var(--mono);color:var(--a)}
+.layer span{font-size:15px;color:var(--ink2);line-height:1.35}
+.layer.ext{border-style:dashed}
+.con{font:600 15px/1.55 var(--mono);white-space:pre;background:#1e2132;color:#d7dae6;border-radius:12px;padding:12px 16px;overflow:hidden}
+.con .d{color:#8b93b0}.con .c{color:#93c5fd}.con .y{color:#fcd34d}.con .g{color:#86efac}
+.metric{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.metric .m{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow)}
+.metric .m .v{font:800 30px var(--mono);color:var(--a)}
+.metric .m .l{font-size:15px;color:var(--muted)}
+.pred{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+.tl2{display:grid;grid-template-columns:150px 1fr;gap:10px 16px;align-items:center}
+.tl2 .lb{font:800 16px var(--mono);color:var(--a);text-align:right}
+.bar{position:relative;height:56px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);overflow:hidden}
+.bar .seg{position:absolute;top:8px;bottom:8px;border-radius:8px;display:flex;align-items:center;padding:0 10px;font:700 15px var(--mono);color:#fff;white-space:nowrap;overflow:hidden}
+.ticks{display:flex;justify-content:space-between;font:600 13px var(--mono);color:var(--muted);padding:0 2px}
+.sse{font:600 16px/1.6 var(--mono);white-space:pre;background:#1e2132;color:#d7dae6;border-radius:12px;padding:12px 16px}
+.sse .k{color:#fcd34d}.sse .d{color:#8b93b0}
+.cmp3{width:100%;border-collapse:separate;border-spacing:0;font-size:17px}
+.cmp3 th,.cmp3 td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:left}
+.cmp3 th{font:800 15px var(--mono);color:var(--muted)}
+.cmp3 td:first-child{font-weight:700;color:var(--ink)}
+.cmp3 tr.on td{background:color-mix(in srgb,var(--mvc) 9%,var(--card))}
+</style>
+
+
+<!-- =========================================================
+     AI · ლექცია 6 — Streaming და Real-time AI პასუხები
+     დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
+     ფერები: LLM/მოდელი = იისფერი · სტრიმი/SSE = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
+             სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
+     პროექტი: RestaurantApi — AiLabController: chat/chunks, chat/stream
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:740px">
+    <div class="kicker in" style="color:var(--net)">AI · ლექცია 6 · Streaming</div>
+    <h1 class="in" style="--d:.15s">პასუხი —<br><span class="grad">სიტყვა-სიტყვა</span></h1>
+    <p class="lead in mt" style="--d:.35s">GetStreamingResponseAsync · Server-Sent Events · გაუქმება</p>
+  </div>
+  <div class="abs" style="right:90px;top:260px;width:540px">
+    <div class="sse in" style="--d:.5s"><span class="d">$</span> curl -N …/api/ai-lab/chat/stream?prompt=…
+
+<span class="k">data:</span> ხვალ 20:00-ზე
+<span class="k">data:</span>  ოთხი კაცისთვის
+<span class="k">data:</span>  ორი მაგიდაა
+<span class="k">data:</span>  თავისუფალი ▍</div>
+  </div>
+  <aside class="study">
+## ლექცია 6: Streaming და Real-time AI პასუხები
+
+აქამდე ჩვენი endpoint-ები პასუხს **მთლიანად** აბრუნებდა: მომხმარებელი 2–8 წამს ცარიელ ეკრანს უყურებდა, მერე კი მთელი ტექსტი ერთბაშად ჩნდებოდა. ChatGPT, Claude და Gemini პასუხს **ნაწილ-ნაწილ** აჩვენებენ, დაწერისთანავე. დღეს იგივეს ვაკეთებთ: Gemini-დან პასუხს ნაწილებად ვიღებთ (`GetStreamingResponseAsync`), კლიენტს **Server-Sent Events**-ით ვუგზავნით და ვამატებთ **გაუქმებას**: თუ მომხმარებელი წავიდა, Gemini-ც ჩერდება და ტოკენები აღარ იხარჯება.
+  </aside>
+  <aside class="study-en">
+## Lecture 6: Streaming and Real-time AI Responses
+
+Until now our endpoints returned the answer **whole**: the user stared at an empty screen for 2–8 seconds, and then all the text appeared at once. ChatGPT, Claude and Gemini show the answer **in pieces**, as it's being written. Today we do the same: we get the answer from Gemini in pieces (`GetStreamingResponseAsync`), send it to the client with **Server-Sent Events**, and add **cancellation**: if the user leaves, Gemini stops too and no more tokens are spent.
+  </aside>
+</section>
+
+<lecture-review/>
+
+<lecture-homework-review/>
+
+<lecture-intro/>
+
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">დღის გზა</div>
+  <h2>3 ნაბიჯი: <span class="c-net">Gemini-დან</span> → <span class="c-asp">კლიენტამდე</span> → <span class="c-red">გაუქმება</span></h2>
+  <div class="route" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>🌊 სტრიმი Gemini-დან</h3><p>პასუხს ნაწილ-ნაწილ ვიღებთ: IAsyncEnumerable და await foreach. პირველი სიტყვა წამზე ადრე</p><span class="from">GetStreamingResponseAsync · ChatResponseUpdate</span></div>
+    <div class="stop" style="--a:var(--asp)"><span class="sn">2</span><h3>📡 SSE კლიენტამდე</h3><p>ნაწილებს მაშინვე ვუგზავნით: ერთი HTTP პასუხი, რომელიც ღია რჩება. .NET 10-ში ერთი ხაზი</p><span class="from">TypedResults.ServerSentEvents</span></div>
+    <div class="stop" style="--a:var(--red)"><span class="sn">3</span><h3>✋ გაუქმება</h3><p>მომხმარებელმა ფანჯარა დახურა? Gemini-ც უნდა გაჩერდეს, ფული აღარ უნდა დაიხარჯოს</p><span class="from">CancellationToken</span></div>
+  </div>
+  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>შენი ჩატი</b>, რომელიც წერს, როგორც ChatGPT</div>
+  <aside class="study">
+### ლექციის გეგმა: 3 ნაბიჯი
+
+1. 🌊 **სტრიმი Gemini-დან.** `GetStreamingResponseAsync` პასუხს ნაწილებად აბრუნებს (`IAsyncEnumerable<ChatResponseUpdate>`), ჩვენ კი `await foreach`-ით ვკითხულობთ. პირველი ნაწილი წამზე ადრე მოდის.
+2. 📡 **SSE კლიენტამდე.** ნაწილებს მომხმარებელს მაშინვე ვუგზავნით, Server-Sent Events-ით: ერთი HTTP პასუხი, რომელიც ღია რჩება. .NET 10-ში ამისთვის `TypedResults.ServerSentEvents` გვაქვს.
+3. ✋ **გაუქმება.** თუ მომხმარებელმა კავშირი გაწყვიტა, `CancellationToken` Gemini-ს მოთხოვნასაც აჩერებს.
+
+ბოლოს კლასის დავალებაა: შენი ჩატის სტრიმინგ ვერსია.
+  </aside>
+  <aside class="study-en">
+### Lecture plan: 3 steps
+
+1. 🌊 **A stream from Gemini.** `GetStreamingResponseAsync` returns the answer in pieces (`IAsyncEnumerable<ChatResponseUpdate>`), and we read it with `await foreach`. The first piece arrives in under a second.
+2. 📡 **SSE to the client.** We send the pieces to the user right away, with Server-Sent Events: one HTTP response that stays open. In .NET 10 we have `TypedResults.ServerSentEvents` for this.
+3. ✋ **Cancellation.** If the user drops the connection, a `CancellationToken` stops the Gemini request too.
+
+At the end there's classwork: a streaming version of your chat.
+  </aside>
+</section>
+
+<!-- ================= 1 · სტრიმი Gemini-დან ================= -->
+<section class="slide divider" data-section="1 · სტრიმი Gemini-დან">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">სტრიმი<br><span class="grad">Gemini-დან</span></h1>
+    <p class="lead mt in" style="--d:.3s">რატომ · IAsyncEnumerable · ChatResponseUpdate</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · სტრიმი Gemini-დან
+
+ჯერ ვხედავთ, რატომ გვჭირდება სტრიმინგი: პრობლემა UX-შია, არა სიჩქარეში. მერე ვიღებთ პასუხს Gemini-დან ნაწილ-ნაწილ და ვზომავთ, როდის მოდის თითოეული ნაწილი.
+  </aside>
+  <aside class="study-en">
+## Part 1 · A stream from Gemini
+
+First we see why we need streaming: the problem is UX, not speed. Then we get the answer from Gemini piece by piece and measure when each piece arrives.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · სტრიმი Gemini-დან">
+  <div class="kicker">პრობლემა · ცარიელი ეკრანი</div>
+  <h2>ერთი პასუხი — <span class="c-red">8 წამი</span> ლოდინი თუ <span class="c-mvc">0.6 წამი</span>?</h2>
+  <div class="col" style="gap:14px;margin-top:10px">
+    <div class="ticks" style="margin-left:166px"><span>0 s</span><span>2 s</span><span>4 s</span><span>6 s</span><span>8 s</span></div>
+    <div class="tl2" style="--a:var(--red)"><div class="lb">GetResponseAsync</div>
+      <div class="bar"><div class="seg" style="left:1%;width:86%;background:color-mix(in srgb,var(--muted) 35%,transparent);color:var(--ink2)">⏳ ცარიელი ეკრანი…</div><div class="seg" style="left:88%;width:11%;background:var(--red)">ყველაფერი</div></div></div>
+    <div class="tl2 step" style="--a:var(--mvc)"><div class="lb">Streaming</div>
+      <div class="bar"><div class="seg" style="left:1%;width:7%;background:color-mix(in srgb,var(--muted) 35%,transparent)"></div><div class="seg" style="left:8%;width:91%;background:linear-gradient(90deg,var(--mvc),color-mix(in srgb,var(--mvc) 55%,#fff))">ხვალ 20:00-ზე ▸ ოთხი კაცისთვის ▸ ორი მაგიდაა ▸ …</div></div></div>
+  </div>
+  <div class="grid2 mt2" style="grid-template-columns:1fr 1fr;gap:22px">
+    <div class="col" style="gap:12px">
+      <div class="callout step" style="--a:var(--asp);font-size:20px"><b>მთლიანი დრო იგივეა</b>. იცვლება, <b>როდის</b> ხედავს მომხმარებელი პირველ სიტყვას</div>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><b>TTFT</b> (time to first token): დრო პირველ სიტყვამდე</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask step">🙋 სად გინახავთ, რომ პასუხი „იწერება“?</div>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ChatGPT, Claude, Gemini, Copilot: <b>ყველა</b> სტრიმავს</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: ცარიელი ეკრანი
+
+Gemini პასუხს **ტოკენ-ტოკენ** წერს (ლექცია 1: next-token prediction), და გრძელ პასუხს, ფიქრის ჩათვლით, რამდენიმე წამი სჭირდება. აქამდე ვიყენებდით `GetResponseAsync`-ს, რომელიც **ბოლომდე ელოდება** და მერე მთელ ტექსტს ერთბაშად აბრუნებს:
+
+| | რას ხედავს მომხმარებელი |
+|---|---|
+| `GetResponseAsync` | ~8 წამი ცარიელ ეკრანს, მერე მთელ ტექსტს ერთად |
+| **Streaming** | ~0.6 წამში პირველ სიტყვებს, მერე ტექსტი თანდათან „იწერება“ |
+
+**მთლიანი დრო თითქმის იგივეა**: Gemini ორივე შემთხვევაში ერთი და იმავე სისწრაფით წერს. იცვლება მხოლოდ ის, **როდის** ხედავს მომხმარებელი პირველ სიტყვას. 8 წამი ცარიელ ეკრანზე „გაფუჭებულს“ ჰგავს, 8 წამი იწერებადი ტექსტი კი ნორმალურია: კითხვას მაშინვე იწყებ.
+
+ამიტომ ყველა AI ჩატი (ChatGPT, Claude, Gemini, Copilot) სტრიმავს.
+
+```terms
+Streaming — პასუხის მიღება და ჩვენება ნაწილ-ნაწილ, დაწერისთანავე, და არა ბოლოს მთლიანად
+TTFT (time to first token) — დრო მოთხოვნიდან პირველი ტოკენის მიღებამდე; სტრიმინგი სწორედ ამას აუმჯობესებს
+```
+  </aside>
+  <aside class="study-en">
+### The problem: an empty screen
+
+Gemini writes the answer **token by token** (lecture 1: next-token prediction), and a long answer, thinking included, takes several seconds. Until now we used `GetResponseAsync`, which **waits until the end** and then returns all the text at once:
+
+| | What the user sees |
+|---|---|
+| `GetResponseAsync` | ~8 seconds of an empty screen, then all the text together |
+| **Streaming** | the first words in ~0.6 seconds, then the text gradually “gets written” |
+
+**The total time is almost the same**: Gemini writes at the same speed in both cases. The only thing that changes is **when** the user sees the first word. 8 seconds of an empty screen looks “broken”, while 8 seconds of text being written is normal: you start reading right away.
+
+That's why every AI chat (ChatGPT, Claude, Gemini, Copilot) streams.
+
+```terms
+Streaming — getting and showing the answer in pieces, as it's written, rather than all at the end
+TTFT (time to first token) — the time from the request to the first token; streaming improves exactly this
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · სტრიმი Gemini-დან">
+  <div class="kicker">🧑‍💻 GetStreamingResponseAsync</div>
+  <h2><span class="mono c-api">Task&lt;T&gt;</span> → <span class="mono c-asp">IAsyncEnumerable&lt;T&gt;</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:4px">
+    <div class="col" style="gap:12px">
+      <p class="sec-l">ერთი პასუხი, ბოლოს:</p>
+      <code-block lang="csharp" cls="sm">
+ChatResponse response =
+    await _chat.GetResponseAsync(messages);
+Console.Write(response.Text);
+      </code-block>
+      <p class="sec-l step">ბევრი ნაწილი, მოსვლისთანავე:</p>
+      <div class="step" data-with><code-block lang="csharp" cls="sm">
+await foreach (ChatResponseUpdate update in
+    _chat.GetStreamingResponseAsync(messages))
+{
+    Console.Write(update.Text);
+}
+      </code-block></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">🔁</span><div><b>IAsyncEnumerable&lt;T&gt;</b><span>როგორც IEnumerable, მაგრამ შემდეგ ელემენტს <b>ელოდება</b>: await foreach</span></div></div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">🧩</span><div><b>ChatResponseUpdate</b><span>პასუხის ერთი ნაწილი: Text, Role, ბოლოს Usage და FinishReason</span></div></div>
+      <div class="callout step" style="--a:var(--mvc);font-size:19px">იგივე <b>messages</b>, იგივე <b>options</b>, tool-ებიც მუშაობს. იცვლება მხოლოდ <b>როგორ</b> ვიღებთ</div>
+    </div>
+  </div>
+  <aside class="study">
+### `GetStreamingResponseAsync`: პასუხი ნაწილ-ნაწილ
+
+`IChatClient`-ს ორი მეთოდი აქვს. აქამდე მხოლოდ პირველს ვიყენებდით:
+
+```csharp
+// 1) ერთი პასუხი, ბოლოს
+ChatResponse response = await _chat.GetResponseAsync(messages);
+
+// 2) ბევრი ნაწილი, მოსვლისთანავე
+await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(messages))
+{
+    Console.Write(update.Text);
+}
+```
+
+- **`IAsyncEnumerable<T>`** — `IEnumerable<T>`-ის ასინქრონული ვერსია. `foreach` ჩვეულებრივ სიას გადის, ხოლო **`await foreach`** შემდეგ ელემენტს **ელოდება**, რადგან ის ჯერ არ არსებობს: Gemini ჯერ წერს. ციკლის სხეული თითო ნაწილზე მაშინვე სრულდება, როგორც კი ნაწილი მოვიდა.
+- **`ChatResponseUpdate`** — პასუხის ერთი ნაწილი: `Text` (ტექსტის ნაჭერი), `Role`, ხოლო ბოლო ნაწილებში `FinishReason` და ტოკენები (`UsageContent`).
+- **არგუმენტები იგივეა:** `messages`, `options` (tool-ების ჩათვლით), `cancellationToken`. `UseFunctionInvocation` სტრიმინგშიც მუშაობს: tool-ის ციკლი ჯერ შიგნით სრულდება, მერე ტექსტი იწყებს მოსვლას.
+
+```terms
+IAsyncEnumerable<T> — ელემენტების ნაკადი, რომლის თითო ელემენტი ასინქრონულად მოდის; იკითხება await foreach-ით
+ChatResponseUpdate — სტრიმინგ პასუხის ერთი ნაწილი: ტექსტის ნაჭერი და მეტამონაცემები
+```
+  </aside>
+  <aside class="study-en">
+### `GetStreamingResponseAsync`: the answer in pieces
+
+`IChatClient` has two methods. Until now we've only used the first one:
+
+```csharp
+// 1) one answer, at the end
+ChatResponse response = await _chat.GetResponseAsync(messages);
+
+// 2) many pieces, as they arrive
+await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(messages))
+{
+    Console.Write(update.Text);
+}
+```
+
+- **`IAsyncEnumerable<T>`** — the asynchronous version of `IEnumerable<T>`. A `foreach` walks an ordinary list, while **`await foreach`** **waits** for the next item, because it doesn't exist yet: Gemini is still writing. The loop body runs for each piece right away, as soon as it arrives.
+- **`ChatResponseUpdate`** — one piece of the answer: `Text` (a chunk of text), `Role`, and in the last pieces `FinishReason` and the tokens (`UsageContent`).
+- **The arguments are the same:** `messages`, `options` (tools included), `cancellationToken`. `UseFunctionInvocation` works with streaming too: the tool loop finishes inside first, then the text starts arriving.
+
+```terms
+IAsyncEnumerable<T> — a stream of items where each item arrives asynchronously; read with await foreach
+ChatResponseUpdate — one piece of a streaming answer: a chunk of text and metadata
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · სტრიმი Gemini-დან">
+  <div class="kicker">🧑‍💻 ვზომავთ · POST /api/ai-lab/chat/chunks</div>
+  <h2>როდის მოდის <span class="c-asp">თითო ნაწილი</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:22px">
+    <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ChatChunks">
+[HttpPost("chat/chunks")]
+public async Task<IActionResult> ChatChunks(AskRequest request)
+{
+    Stopwatch sw = Stopwatch.StartNew();
+    List<object> chunks = [];
+
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(request.Prompt))
+    {
+        chunks.Add(new { Ms = sw.ElapsedMilliseconds, update.Text });
+    }
+
+    return Ok(chunks);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="swr c-post step">
+        <div class="rh"><span class="m">POST</span><span class="p">/chat/chunks</span></div>
+        <pre class="rb">[
+  { <span class="k">"ms"</span>: <span class="n">640</span>,  <span class="k">"text"</span>: <span class="s">"ქართული სამზარეულო"</span> },
+  { <span class="k">"ms"</span>: <span class="n">910</span>,  <span class="k">"text"</span>: <span class="s">" ცნობილია ხინკლით…"</span> },
+  { <span class="k">"ms"</span>: <span class="n">1180</span>, <span class="k">"text"</span>: <span class="s">" და ხაჭაპურით…"</span> },
+  …
+  { <span class="k">"ms"</span>: <span class="n">5420</span>, <span class="k">"text"</span>: <span class="s">"."</span> }
+]</pre>
+      </div>
+      <div class="callout step" style="--a:var(--net);font-size:18px">პირველი ნაწილი <b>640 ms</b>-ზე, ბოლო <b>5.4 s</b>-ზე. ნაწილი = რამდენიმე ტოკენი</div>
+      <div class="callout ask step">🙋 მაშინ Swagger-მა პასუხი ნაწილ-ნაწილ რატომ <b>არ</b> აჩვენა?</div>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px">ჩვენ <b>ვაგროვებთ</b> სიაში და ბოლოს ვაბრუნებთ: სტრიმი Controller-ში წყდება</div>
+    </div>
+  </div>
+  <aside class="study">
+### ვზომავთ: როდის მოდის თითო ნაწილი
+
+```csharp Controllers/AiLabController.cs · ChatChunks
+[HttpPost("chat/chunks")]
+public async Task<IActionResult> ChatChunks(AskRequest request)
+{
+    Stopwatch sw = Stopwatch.StartNew();
+    List<object> chunks = [];
+
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(request.Prompt))
+    {
+        chunks.Add(new { Ms = sw.ElapsedMilliseconds, update.Text });
+    }
+
+    return Ok(chunks);
+}
+```
+
+`Stopwatch` (`using System.Diagnostics;`) ზომავს, რამდენი მილიწამი გავიდა თითო ნაწილის მოსვლამდე. „მოგვიყევი ქართულ სამზარეულოზე“-ს ნიმუშად შედეგი ასეთია:
+
+| ms | text |
+|---|---|
+| 640 | „ქართული სამზარეულო“ |
+| 910 | „ ცნობილია ხინკლით…“ |
+| 1180 | „ და ხაჭაპურით…“ |
+| … | … |
+| 5420 | „.“ |
+
+- **პირველი ნაწილი ~0.6 წამზე** (TTFT), ბოლო ~5.4 წამზე. სტრიმინგის გარეშე მომხმარებელი 5.4 წამს დაელოდებოდა.
+- **ნაწილი ≠ ერთი ტოკენი.** Gemini რამდენიმე ტოკენს ერთად აგზავნის. ნაწილის ზომა პროვაიდერზეა დამოკიდებული.
+
+**მაგრამ Swagger-მა ყველაფერი ერთბაშად აჩვენა. რატომ?** ჩვენ ნაწილებს **ვაგროვებთ** `chunks` სიაში და `Ok(chunks)`-ს **ბოლოს** ვაბრუნებთ. სტრიმი Gemini-დან Controller-მდე მოდის, მაგრამ Controller-ში წყდება. კლიენტამდე რომ მივიდეს, ყოველი ნაწილი **მაშინვე** უნდა გავაგზავნოთ. ეს მეორე ნაწილის თემაა.
+  </aside>
+  <aside class="study-en">
+### Measuring: when does each piece arrive
+
+```csharp Controllers/AiLabController.cs · ChatChunks
+[HttpPost("chat/chunks")]
+public async Task<IActionResult> ChatChunks(AskRequest request)
+{
+    Stopwatch sw = Stopwatch.StartNew();
+    List<object> chunks = [];
+
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(request.Prompt))
+    {
+        chunks.Add(new { Ms = sw.ElapsedMilliseconds, update.Text });
+    }
+
+    return Ok(chunks);
+}
+```
+
+`Stopwatch` (`using System.Diagnostics;`) measures how many milliseconds passed before each piece arrived. For “tell us about Georgian cuisine”, a sample result looks like this:
+
+| ms | text |
+|---|---|
+| 640 | “Georgian cuisine” |
+| 910 | “ is famous for khinkali…” |
+| 1180 | “ and khachapuri…” |
+| … | … |
+| 5420 | “.” |
+
+- **The first piece at ~0.6 seconds** (TTFT), the last at ~5.4 seconds. Without streaming the user would wait 5.4 seconds.
+- **A piece ≠ one token.** Gemini sends several tokens together. The size of a piece depends on the provider.
+
+**But Swagger showed everything at once. Why?** We **collect** the pieces in the `chunks` list and return `Ok(chunks)` **at the end**. The stream comes from Gemini to the Controller but stops in the Controller. For it to reach the client, every piece has to be sent **right away**. That's the topic of part two.
+  </aside>
+</section>
+
+<section class="slide divider" data-section="შესვენება">
+  <div class="vcenter">
+    <div class="kicker in">შესვენება</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">წუთი</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">შემდეგ: ნაწილები <b>კლიენტამდე</b>, მოსვლისთანავე</p>
+  </div>
+  <div class="big-num">☕</div>
+</section>
+
+<!-- ================= 2 · SSE ================= -->
+<section class="slide divider" data-section="2 · SSE">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">Server-Sent<br><span class="grad">Events</span></h1>
+    <p class="lead mt in" style="--d:.3s">text/event-stream · TypedResults.ServerSentEvents · curl -N</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Server-Sent Events
+
+სტრიმი Controller-მდე მოდის. ახლა ის კლიენტამდე უნდა მივიდეს: ყოველი ნაწილი მაშინვე, ერთი HTTP პასუხის შიგნით. ამისთვის არსებობს მარტივი სტანდარტი, **Server-Sent Events (SSE)**, და .NET 10-ში მისთვის მზა `TypedResults.ServerSentEvents` გვაქვს.
+  </aside>
+  <aside class="study-en">
+## Part 2 · Server-Sent Events
+
+The stream reaches the Controller. Now it has to reach the client: every piece right away, inside one HTTP response. There's a simple standard for this, **Server-Sent Events (SSE)**, and in .NET 10 we have a ready-made `TypedResults.ServerSentEvents` for it.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · SSE">
+  <div class="kicker">📡 SSE · ერთი პასუხი, რომელიც ღია რჩება</div>
+  <h2>HTTP-ზე, <span class="c-asp">ნაწილ-ნაწილ</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:10px">
+      <p class="sec-l">სერვერის პასუხი (ქსელში):</p>
+      <div class="sse">HTTP/1.1 200 OK
+<span class="k">Content-Type: text/event-stream</span>
+
+<span class="k">data:</span> ხვალ 20:00-ზე
+<span class="d">                    ← ცარიელი ხაზი = შეტყობინების ბოლო</span>
+<span class="k">data:</span>  ოთხი კაცისთვის
+
+<span class="k">data:</span>  ორი მაგიდაა თავისუფალი
+</div>
+      <div class="callout step" style="--a:var(--asp);font-size:18px">კავშირი <b>ღია რჩება</b>. სერვერი წერს, როცა ნაწილი მოვა</div>
+    </div>
+    <div class="col step" style="gap:10px">
+      <table class="cmp3">
+        <tr><th></th><th>მიმართულება</th><th>როდის</th></tr>
+        <tr class="on"><td>SSE</td><td>სერვერი → კლიენტი</td><td>AI ჩატი, შეტყობინებები, პროგრესი</td></tr>
+        <tr><td>WebSocket</td><td>ორივე მხარეს</td><td>თამაში, ერთობლივი რედაქტირება</td></tr>
+        <tr><td>SignalR</td><td>ორივე მხარეს + ჯგუფები</td><td>ჩატი ადამიანებს შორის, live დაშბორდი</td></tr>
+      </table>
+      <div class="callout" style="--a:var(--mvc);font-size:18px">AI-ს პასუხი <b>ცალმხრივია</b>: მომხმარებელი ერთხელ კითხულობს, სერვერი დიდხანს წერს. SSE საკმარისია</div>
+    </div>
+  </div>
+  <aside class="study">
+### Server-Sent Events: ერთი პასუხი, რომელიც ღია რჩება
+
+SSE ჩვეულებრივი HTTP-ა. სერვერი პასუხს აბრუნებს `Content-Type: text/event-stream`-ით, კავშირს **არ ხურავს** და ტექსტს ნაწილ-ნაწილ წერს:
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+
+data: ხვალ 20:00-ზე
+
+data:  ოთხი კაცისთვის
+
+data:  ორი მაგიდაა თავისუფალი
+
+```
+
+- **`data: …`** — ერთი შეტყობინება. **ცარიელი ხაზი** მის ბოლოს ნიშნავს.
+- სერვერი თითო ნაწილს მაშინვე წერს და **flush**-ავს (გზავნის), ბუფერში არ აგროვებს.
+- ბრაუზერს ამისთვის ჩაშენებული `EventSource` აქვს, ტერმინალში კი `curl -N` საკმარისია.
+
+**SSE, WebSocket თუ SignalR?**
+
+| | მიმართულება | როდის |
+|---|---|---|
+| **SSE** | სერვერი → კლიენტი | AI ჩატის პასუხი, შეტყობინებები, პროგრესის ზოლი |
+| WebSocket | ორივე მხარეს | თამაში, ერთობლივი რედაქტირება |
+| SignalR | ორივე მხარეს + ჯგუფები, ავტომატური გადაერთება | ადამიანებს შორის ჩატი, live დაშბორდი |
+
+AI-ს პასუხი **ცალმხრივია**: მომხმარებელი კითხვას ერთხელ აგზავნის (ჩვეულებრივი მოთხოვნით), სერვერი კი პასუხს დიდხანს წერს. SSE ზუსტად ამისთვისაა: ჩვეულებრივი HTTP, დამატებითი ბიბლიოთეკისა და პროტოკოლის გარეშე. ამიტომ OpenAI, Anthropic და Gemini-ს API-ებიც თავიანთ სტრიმს SSE-თი აბრუნებენ. SignalR კარგია, როცა სერვერსა და კლიენტს ორივე მხარეს ბევრი აქვთ სათქმელი.
+
+```terms
+Server-Sent Events (SSE) — HTTP პასუხი text/event-stream ტიპით, რომელიც ღია რჩება და სერვერი მასში შეტყობინებებს ნაწილ-ნაწილ წერს
+```
+  </aside>
+  <aside class="study-en">
+### Server-Sent Events: one response that stays open
+
+SSE is ordinary HTTP. The server returns a response with `Content-Type: text/event-stream`, **doesn't close** the connection and writes the text piece by piece:
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+
+data: Tomorrow at 20:00
+
+data:  for four people
+
+data:  two tables are free
+
+```
+
+- **`data: …`** — one message. An **empty line** marks its end.
+- The server writes each piece right away and **flushes** it (sends it), instead of collecting it in a buffer.
+- Browsers have a built-in `EventSource` for this, and in a terminal `curl -N` is enough.
+
+**SSE, WebSocket or SignalR?**
+
+| | Direction | When |
+|---|---|---|
+| **SSE** | server → client | an AI chat answer, notifications, a progress bar |
+| WebSocket | both ways | a game, collaborative editing |
+| SignalR | both ways + groups, automatic fallback | chat between people, a live dashboard |
+
+An AI answer is **one-way**: the user sends the question once (with an ordinary request), and the server writes the answer for a long time. SSE is made exactly for this: plain HTTP, without an extra library or protocol. That's why the OpenAI, Anthropic and Gemini APIs also return their streams over SSE. SignalR is good when the server and the client both have a lot to say to each other.
+
+```terms
+Server-Sent Events (SSE) — an HTTP response of type text/event-stream that stays open, and the server writes messages into it piece by piece
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · SSE">
+  <div class="kicker">🧑‍💻 ვწერთ · GET /api/ai-lab/chat/stream</div>
+  <h2><span class="mono c-asp">TypedResults.ServerSentEvents</span> — .NET 10</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start;gap:22px">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ChatStream">
+[HttpGet("chat/stream")]
+public IResult ChatStream(string prompt, CancellationToken cancellationToken)
+{
+    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+}
+
+private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+    [EnumeratorCancellation] CancellationToken cancellationToken)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, $"""
+            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
+            მენიუზე და მაგიდებზე მონაცემი მხოლოდ tool-ებიდან აიღე.
+            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+            """),
+        new(ChatRole.User, prompt)
+    ];
+
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+    {
+        if (!string.IsNullOrEmpty(update.Text))
+            yield return update.Text;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="c2" data-lines="4"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>ServerSentEvents</b>: Content-Type, data:, flush. ყველაფერს თვითონ აკეთებს</div>
+      <i class="codestep" data-for="c2" data-lines="7,24"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px"><b>yield return</b>: ნაწილს მაშინვე აბრუნებს, სია არ გვჭირდება</div>
+      <div class="sse step" style="font-size:14px"><span class="d">$</span> curl -N "http://localhost:5080/api/ai-lab/chat/stream?prompt=..."
+<span class="k">data:</span> ხვალ 20:00-ზე
+<span class="k">data:</span>  ოთხი კაცისთვის ▍</div>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:17px"><b>-N</b> = curl-მა არ დააგროვოს. ტექსტი ჩნდება ნაწილ-ნაწილ</div>
+    </div>
+  </div>
+  <aside class="study">
+### `TypedResults.ServerSentEvents`: სტრიმი კლიენტამდე
+
+```csharp Controllers/AiLabController.cs · ChatStream
+[HttpGet("chat/stream")]
+public IResult ChatStream(string prompt, CancellationToken cancellationToken)
+{
+    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+}
+
+private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+    [EnumeratorCancellation] CancellationToken cancellationToken)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, $"""
+            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
+            მენიუზე და მაგიდებზე მონაცემი მხოლოდ tool-ებიდან აიღე.
+            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+            """),
+        new(ChatRole.User, prompt)
+    ];
+
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+    {
+        if (!string.IsNullOrEmpty(update.Text))
+            yield return update.Text;
+    }
+}
+```
+
+`ChatToolOptions()` — ლექცია 4-ის `ChatOptions` tool-ებით, ცალკე მეთოდში გატანილი, რომ `/chat`-მაც და `/chat/stream`-მაც ერთი და იგივე გამოიყენონ:
+
+```csharp Controllers/AiLabController.cs
+private ChatOptions ChatToolOptions() => new()
+{
+    Tools =
+    [
+        AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu"),
+        AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")
+    ]
+};
+```
+
+**რა ხდება:**
+
+- **`TypedResults.ServerSentEvents(...)`** — .NET 10-ის ახალი შედეგი (Controller-შიც მუშაობს). `IAsyncEnumerable<string>`-ს იღებს და ყველაფერს თვითონ აკეთებს: `Content-Type: text/event-stream`, თითო ელემენტი `data: …`-ად და მაშინვე flush.
+- **`StreamAnswer`** — **async iterator** მეთოდი (`async IAsyncEnumerable<string>` + `yield return`). Gemini-ს ყოველ ნაწილს **მაშინვე** აბრუნებს, სიაში არ აგროვებს. ასე სტრიმი Gemini-დან კლიენტამდე არ წყდება.
+- **`if (!string.IsNullOrEmpty(update.Text))`** — ზოგ ნაწილში ტექსტი არ არის (მაგ. tool-ის გამოძახება ან ბოლო ნაწილი ტოკენებით). ცარიელს არ ვაგზავნით.
+- **`[HttpGet]` და `string prompt`** — query string-იდან (`?prompt=...`). GET იმიტომ, რომ ბრაუზერის `EventSource` მხოლოდ GET-ს უშვებს.
+- **`CancellationToken`** და **`[EnumeratorCancellation]`** — მესამე ნაწილის თემაა.
+
+`using System.Runtime.CompilerServices;` — `[EnumeratorCancellation]`-ისთვის.
+
+**შემოწმება ტერმინალში** (პორტი შენი `launchSettings.json`-იდან):
+
+```bash
+curl -N "http://localhost:5080/api/ai-lab/chat/stream?prompt=What%20do%20you%20have%20under%2015%20GEL%3F"
+```
+
+**`-N`** (no buffer) — curl-მა მიღებული მონაცემი არ დააგროვოს და მაშინვე აჩვენოს. Windows-ზე PowerShell-ში **`curl.exe`** დაწერე (უბრალო `curl` PowerShell-ში სხვა ბრძანებაა).
+
+```warn
+Swagger-ში ეს endpoint **არ გამოგადგება**: Swagger პასუხს ბოლომდე ელოდება და ერთბაშად აჩვენებს. სტრიმი რომ დაინახო, გამოიყენე `curl -N` ან ბრაუზერის `EventSource` (⭐ ქვემოთ).
+```
+
+**⭐ ბრაუზერში — `EventSource`.** სურვილისამებრ: პატარა გვერდი, რომელიც პასუხს ბრაუზერში ნაწილ-ნაწილ აჩვენებს. `Program.cs`-ში `app.UseStaticFiles();`, ფაილი კი `wwwroot/chat.html`:
+
+```html wwwroot/chat.html
+<!doctype html>
+<meta charset="utf-8">
+<input id="q" size="60" placeholder="შეკითხვა">
+<button onclick="ask()">გაგზავნა</button>
+<pre id="out"></pre>
+<script>
+  function ask() {
+    out.textContent = '';
+    const es = new EventSource('/api/ai-lab/chat/stream?prompt=' + encodeURIComponent(q.value));
+    es.onmessage = e => out.textContent += e.data;
+    es.onerror = () => es.close();   // სტრიმი დასრულდა — ხელახლა აღარ დაუკავშირდეს
+  }
+</script>
+```
+
+`EventSource` ბრაუზერის ჩაშენებული კლასია: `text/event-stream`-ს თვითონ კითხულობს და ყოველ `data:`-ზე `onmessage`-ს იძახებს. კავშირის დახურვისას ის ავტომატურად ხელახლა უკავშირდება, ამიტომ `onerror`-ში ვხურავთ.
+
+```note
+ლექცია 5-ის ჩვენი ფენები (`TokenCounter`, `InputGuard`) მხოლოდ `GetResponseAsync`-ს ფარავს. სტრიმინგზე `DelegatingChatClient` მოთხოვნას **უცვლელად** გადასცემს, ანუ ტოკენები არ ითვლება და **დაცვაც არ მუშაობს**. საშინაოში `InputGuard`-ს `GetStreamingResponseAsync`-საც დაუმატებ.
+```
+  </aside>
+  <aside class="study-en">
+### `TypedResults.ServerSentEvents`: the stream to the client
+
+```csharp Controllers/AiLabController.cs · ChatStream
+[HttpGet("chat/stream")]
+public IResult ChatStream(string prompt, CancellationToken cancellationToken)
+{
+    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+}
+
+private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+    [EnumeratorCancellation] CancellationToken cancellationToken)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, $"""
+            You are a restaurant assistant. Answer briefly.
+            Take menu and table data only from the tools.
+            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+            """),
+        new(ChatRole.User, prompt)
+    ];
+
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+    {
+        if (!string.IsNullOrEmpty(update.Text))
+            yield return update.Text;
+    }
+}
+```
+
+`ChatToolOptions()` — lecture 4's `ChatOptions` with tools, moved into its own method so that `/chat` and `/chat/stream` use the same one:
+
+```csharp Controllers/AiLabController.cs
+private ChatOptions ChatToolOptions() => new()
+{
+    Tools =
+    [
+        AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu"),
+        AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")
+    ]
+};
+```
+
+**What happens:**
+
+- **`TypedResults.ServerSentEvents(...)`** — a new result in .NET 10 (it works in Controllers too). It takes an `IAsyncEnumerable<string>` and does everything itself: `Content-Type: text/event-stream`, each item as `data: …`, and an immediate flush.
+- **`StreamAnswer`** — an **async iterator** method (`async IAsyncEnumerable<string>` + `yield return`). It returns each Gemini piece **right away**, without collecting it in a list. This way the stream doesn't break between Gemini and the client.
+- **`if (!string.IsNullOrEmpty(update.Text))`** — some pieces have no text (e.g. a tool call or the last piece with tokens). We don't send empty ones.
+- **`[HttpGet]` and `string prompt`** — from the query string (`?prompt=...`). GET because the browser's `EventSource` only allows GET.
+- **`CancellationToken`** and **`[EnumeratorCancellation]`** — the topic of part three.
+
+`using System.Runtime.CompilerServices;` — for `[EnumeratorCancellation]`.
+
+**Checking it in a terminal** (the port from your `launchSettings.json`):
+
+```bash
+curl -N "http://localhost:5080/api/ai-lab/chat/stream?prompt=What%20do%20you%20have%20under%2015%20GEL%3F"
+```
+
+**`-N`** (no buffer) — curl shouldn't collect the data it receives but show it right away. On Windows in PowerShell write **`curl.exe`** (a plain `curl` is a different command in PowerShell).
+
+```warn
+Swagger **won't work** for this endpoint: Swagger waits for the response to finish and shows it all at once. To see the stream, use `curl -N` or the browser's `EventSource` (⭐ below).
+```
+
+**⭐ In the browser — `EventSource`.** Optional: a small page that shows the answer in the browser piece by piece. `app.UseStaticFiles();` in `Program.cs`, and the file `wwwroot/chat.html`:
+
+```html wwwroot/chat.html
+<!doctype html>
+<meta charset="utf-8">
+<input id="q" size="60" placeholder="question">
+<button onclick="ask()">Send</button>
+<pre id="out"></pre>
+<script>
+  function ask() {
+    out.textContent = '';
+    const es = new EventSource('/api/ai-lab/chat/stream?prompt=' + encodeURIComponent(q.value));
+    es.onmessage = e => out.textContent += e.data;
+    es.onerror = () => es.close();   // the stream ended — don't reconnect
+  }
+</script>
+```
+
+`EventSource` is a built-in browser class: it reads `text/event-stream` by itself and calls `onmessage` for every `data:`. When the connection closes it reconnects automatically, which is why we close it in `onerror`.
+
+```note
+Our lecture 5 layers (`TokenCounter`, `InputGuard`) only cover `GetResponseAsync`. With streaming, `DelegatingChatClient` passes the request through **unchanged**: tokens aren't counted and **the guard doesn't work either**. In the homework you'll add `GetStreamingResponseAsync` to `InputGuard` too.
+```
+  </aside>
+</section>
+
+<!-- ================= 3 · გაუქმება ================= -->
+<section class="slide divider" data-section="3 · გაუქმება">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">მომხმარებელი<br><span class="grad">წავიდა</span></h1>
+    <p class="lead mt in" style="--d:.3s">CancellationToken · [EnumeratorCancellation] · Ctrl+C</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · გაუქმება
+
+სტრიმი დიდხანს გრძელდება. თუ მომხმარებელმა შუაში ფანჯარა დახურა, სერვერმა ეს უნდა გაიგოს და Gemini-ს მოთხოვნაც უნდა შეწყვიტოს. თორემ Gemini ცარიელ ოთახში წერს, ჩვენ კი მის ტოკენებს ვიხდით.
+  </aside>
+  <aside class="study-en">
+## Part 3 · Cancellation
+
+A stream lasts a long time. If the user closes the window halfway through, the server has to notice and stop the Gemini request too. Otherwise Gemini writes to an empty room, and we pay for its tokens.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · გაუქმება">
+  <div class="kicker">✋ CancellationToken · ფანჯარა დაიხურა</div>
+  <h2>კლიენტი წავიდა — <span class="c-red">Gemini-ც</span> უნდა გაჩერდეს</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <div class="prob" style="--a:var(--red)"><span class="pi">💸</span><div><b>token-ის გარეშე</b><span>მომხმარებელმა 2 წამში დახურა, Gemini კი 30 წამი წერს. ტოკენებს ვიხდით, პასუხს არავინ კითხულობს</span></div></div>
+      <div class="prob step" style="--a:var(--mvc)"><span class="pi">✋</span><div><b>token-ით</b><span>ASP.NET Core კავშირის გაწყვეტას ხედავს → token → Gemini-ს მოთხოვნა წყდება</span></div></div>
+      <div class="sse step" style="font-size:14px"><span class="d">$</span> curl -N ".../chat/stream?prompt=..."
+<span class="k">data:</span> ქართული სამზარეულო
+<span class="k">data:</span>  ცნობილია…
+^C
+<span class="d">dbug: LoggingChatClient</span>
+      GetStreamingResponseAsync <span class="k">canceled</span>.</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block id="c3" lang="csharp" cls="sm" title="ChatStream · ერთი token, სამი ადგილი">
+public IResult ChatStream(string prompt,
+    CancellationToken cancellationToken)          // ①
+…
+private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+    [EnumeratorCancellation] CancellationToken cancellationToken)  // ②
+…
+_chat.GetStreamingResponseAsync(messages, options,
+    cancellationToken)                            // ③
+      </code-block>
+      <div class="callout step" style="--a:var(--api);font-size:17px">① ASP.NET Core ავსებს: <b>HttpContext.RequestAborted</b></div>
+      <div class="callout step" style="--a:var(--asp);font-size:17px">② iterator-ში token-ს ეს ატრიბუტი აწვდის</div>
+      <div class="callout step" style="--a:var(--net);font-size:17px">③ Gemini-ს HTTP მოთხოვნამდე. <b>ყოველ</b> async გამოძახებას</div>
+      <div class="callout ask step">🙋 Ctrl+C curl-ში → ლოგში რა გამოჩნდება?</div>
+    </div>
+  </div>
+  <aside class="study">
+### გაუქმება: კლიენტი წავიდა, Gemini-ც ჩერდება
+
+**პრობლემა:** მომხმარებელმა კითხვა დასვა და 2 წამში ფანჯარა დახურა, Gemini კი პასუხს 30 წამი წერს. თუ სერვერმა ეს არ გაიგო, Gemini-სთან მოთხოვნა შეიძლება ბოლომდე გაგრძელდეს: ტოკენებს ვიხდით, პასუხს კი არავინ კითხულობს.
+
+**გამოსავალი — `CancellationToken`, სამ ადგილას:**
+
+```csharp
+[HttpGet("chat/stream")]
+public IResult ChatStream(string prompt, CancellationToken cancellationToken)   // ①
+{
+    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+}
+
+private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+    [EnumeratorCancellation] CancellationToken cancellationToken)               // ②
+{
+    // ...
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))   // ③
+    // ...
+}
+```
+
+1. **Action-ის პარამეტრი.** ASP.NET Core მას თვითონ ავსებს `HttpContext.RequestAborted`-ით: token „გაუქმდება“, როცა კლიენტი კავშირს წყვეტს. API კურსიდან იცი: ყველა async endpoint-ში ასე გადაეცემა `ToListAsync(cancellationToken)`-საც.
+2. **`[EnumeratorCancellation]`** — async iterator-ის token-ის პარამეტრზე. ის აკავშირებს iterator-ის token-ს იმ token-თან, რომელსაც `ServerSentEvents` იტერაციისას გადასცემს. ატრიბუტის გარეშე კომპილატორი გაფრთხილებას წერს.
+3. **`GetStreamingResponseAsync(..., cancellationToken)`** — token Gemini-ს HTTP მოთხოვნამდე მიდის. გაუქმებისას კავშირი წყდება და Gemini აღარ წერს.
+
+**შემოწმება:** `curl -N`-ით გრძელი პასუხი („მოგვიყევი ქართულ სამზარეულოზე დეტალურად“), შუაში **Ctrl+C**. სერვერის ლოგში (`UseLogging`, ლექცია 5) გამოჩნდება, რომ მოთხოვნა გაუქმდა (`canceled`), და არა ჩვეულებრივად დასრულდა (`completed`).
+
+```tip
+წესი API კურსიდან: **ყოველ** async გამოძახებას, რომელიც `CancellationToken`-ს იღებს, token გადაეცი: `ToListAsync`, `GetResponseAsync`, `GetStreamingResponseAsync`. AI-სთან ეს განსაკუთრებით მნიშვნელოვანია, რადგან მოთხოვნები გრძელია და ფული ჯდება.
+```
+
+```terms
+CancellationToken — სიგნალი „შეწყვიტე“; ASP.NET Core-ში action-ის პარამეტრად მოდის და კლიენტის წასვლისას გაუქმდება
+[EnumeratorCancellation] — ატრიბუტი async iterator-ის token-ის პარამეტრზე, რომ იტერაციის token მასთან მივიდეს
+```
+  </aside>
+  <aside class="study-en">
+### Cancellation: the client left, Gemini stops too
+
+**The problem:** a user asked a question and closed the window 2 seconds later, while Gemini writes the answer for 30 seconds. If the server doesn't notice, the request to Gemini may go on to the end: we pay for the tokens, and nobody reads the answer.
+
+**The solution — a `CancellationToken`, in three places:**
+
+```csharp
+[HttpGet("chat/stream")]
+public IResult ChatStream(string prompt, CancellationToken cancellationToken)   // ①
+{
+    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+}
+
+private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+    [EnumeratorCancellation] CancellationToken cancellationToken)               // ②
+{
+    // ...
+    await foreach (ChatResponseUpdate update in
+        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))   // ③
+    // ...
+}
+```
+
+1. **The action's parameter.** ASP.NET Core fills it in itself with `HttpContext.RequestAborted`: the token gets “cancelled” when the client drops the connection. You know this from the API course: in every async endpoint it's passed on to `ToListAsync(cancellationToken)` too.
+2. **`[EnumeratorCancellation]`** — on the token parameter of an async iterator. It connects the iterator's token with the token `ServerSentEvents` passes while iterating. Without the attribute the compiler shows a warning.
+3. **`GetStreamingResponseAsync(..., cancellationToken)`** — the token goes all the way to Gemini's HTTP request. On cancellation the connection is dropped and Gemini stops writing.
+
+**Checking it:** a long answer with `curl -N` (“tell us about Georgian cuisine in detail”), and **Ctrl+C** halfway through. The server log (`UseLogging`, lecture 5) will show that the request was cancelled (`canceled`) rather than finished normally (`completed`).
+
+```tip
+A rule from the API course: pass the token to **every** async call that accepts a `CancellationToken`: `ToListAsync`, `GetResponseAsync`, `GetStreamingResponseAsync`. With AI this matters even more, because requests are long and cost money.
+```
+
+```terms
+CancellationToken — a “stop” signal; in ASP.NET Core it comes as an action parameter and gets cancelled when the client leaves
+[EnumeratorCancellation] — an attribute on an async iterator's token parameter, so the iteration's token reaches it
+```
+  </aside>
+</section>
+
+<lecture-classwork/>
+
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--net)">დღეს</div>
+  <h2 class="in" style="--d:.1s">პასუხი <span class="grad">ნაწილ-ნაწილ</span> — Gemini-დან კლიენტამდე</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
+      <li>სტრიმინგი ამცირებს <b>TTFT</b>-ს, მთლიან დროს — არა</li>
+      <li><b>GetStreamingResponseAsync</b> → IAsyncEnumerable&lt;ChatResponseUpdate&gt; → <b>await foreach</b></li>
+      <li>სიაში შეგროვება = სტრიმი წყდება; <b>yield return</b> = გრძელდება</li>
+      <li><b>SSE</b>: text/event-stream, data:, ღია კავშირი; AI-სთვის საკმარისი</li>
+      <li><b>TypedResults.ServerSentEvents</b> (.NET 10); შემოწმება — <b>curl -N</b></li>
+      <li><b>CancellationToken</b> სამ ადგილას: მომხმარებელი წავიდა → Gemini ჩერდება</li></ul></div>
+    <div class="col" style="gap:14px">
+      <div class="txt"><span class="who">1-ლი შეკითხვა</span>ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?</div>
+      <div class="txt"><span class="who">მე-2 შეკითხვა</span>და 9-ზე?</div>
+      <div class="callout ask">🙋 მეორე შეკითხვას მოდელი <b>გაიგებს</b>?</div>
+      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 7</h3>
+        <p class="small">არა: ყოველი მოთხოვნა ცალკეა, მოდელი stateless-ია. <b>Context Engineering</b>: საუბრის ისტორია, ტოკენების ბიუჯეტი და ისტორია PostgreSQL-ში</p></div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება
+
+- **სტრიმინგი** პასუხს დაწერისთანავე აჩვენებს. მთლიან დროს არ ამცირებს, მაგრამ **TTFT**-ს (დროს პირველ სიტყვამდე) წამებიდან მილიწამებამდე ამცირებს. ცარიელი ეკრანი აღარ არის.
+- **`GetStreamingResponseAsync`** აბრუნებს `IAsyncEnumerable<ChatResponseUpdate>`-ს. ვკითხულობთ **`await foreach`**-ით. იგივე `messages` და `options`, tool-ებიც მუშაობს.
+- თუ ნაწილებს **სიაში ვაგროვებთ**, სტრიმი Controller-ში წყდება. **`yield return`** (async iterator) თითო ნაწილს მაშინვე აბრუნებს.
+- **SSE** — HTTP პასუხი `text/event-stream`-ით, რომელიც ღია რჩება; `data: …` + ცარიელი ხაზი. AI-ს ცალმხრივი პასუხისთვის საკმარისია. WebSocket/SignalR ორმხრივი კომუნიკაციისთვისაა.
+- **`TypedResults.ServerSentEvents`** (.NET 10) SSE-ს თვითონ აწყობს. Swagger სტრიმს ვერ აჩვენებს, ამიტომ ვამოწმებთ **`curl -N`**-ით.
+- **`CancellationToken`** სამ ადგილას: action-ის პარამეტრი, `[EnumeratorCancellation]` და `GetStreamingResponseAsync`. მომხმარებელი წავიდა → Gemini ჩერდება → ტოკენები აღარ იხარჯება.
+
+### შემდეგ ლექციაზე
+
+ჩვენი ჩატი სტრიმავს, მაგრამ ყოველი შეკითხვა ცალკეა: „ხვალ 8-ზე ოთხნი ვართ?“ და მერე „და 9-ზე?“. მეორეს მოდელი ვერ გაიგებს, რადგან პირველი არ ახსოვს (stateless, ლექცია 1). ლექცია 7-ზე: **Context Engineering**. რა შედის მოდელის კონტექსტში, საუბრის ისტორია, ტოკენების ბიუჯეტი და ისტორიის შენახვა PostgreSQL-ში.
+  </aside>
+  <aside class="study-en">
+## Summary
+
+- **Streaming** shows the answer as it's written. It doesn't reduce the total time, but it cuts the **TTFT** (time to the first word) from seconds to milliseconds. No more empty screen.
+- **`GetStreamingResponseAsync`** returns an `IAsyncEnumerable<ChatResponseUpdate>`. We read it with **`await foreach`**. The same `messages` and `options`; tools work too.
+- If we **collect** the pieces in a list, the stream stops in the Controller. **`yield return`** (an async iterator) returns each piece right away.
+- **SSE** — an HTTP response with `text/event-stream` that stays open; `data: …` + an empty line. Enough for an AI's one-way answer. WebSocket/SignalR are for two-way communication.
+- **`TypedResults.ServerSentEvents`** (.NET 10) builds the SSE itself. Swagger can't show a stream, so we check with **`curl -N`**.
+- **`CancellationToken`** in three places: the action parameter, `[EnumeratorCancellation]` and `GetStreamingResponseAsync`. The user left → Gemini stops → no more tokens are spent.
+
+### Next lecture
+
+Our chat streams, but every question is separate: “Four of us tomorrow at 8?” and then “And at 9?”. The model won't understand the second one, because it doesn't remember the first (stateless, lecture 1). In lecture 7: **Context Engineering**. What goes into the model's context, the conversation history, the token budget, and storing the history in PostgreSQL.
+  </aside>
+</section>
+
+<lecture-homework/>

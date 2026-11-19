@@ -1,0 +1,1116 @@
+<style>
+.mono{font-family:var(--mono)}
+.swr{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.swr .rh{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #e5e5e5;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.swr .rh .m{font:800 14px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:5px 0;width:78px;text-align:center}
+.swr .rh .p{font:700 17px var(--mono);color:#3b4151}
+.swr .lab{font:700 13px var(--font);color:#3b4151;padding:10px 16px 2px;opacity:.8}
+.swr .rb{background:#41444e;color:#fff;font:600 16px/1.5 var(--mono);padding:10px 14px;border-radius:6px;white-space:pre;margin:4px 16px 14px}
+.swr .rb .k{color:#a5d6ff}.swr .rb .s{color:#a2fca2}.swr .rb .n{color:#fcc28c}.swr .rb .z{color:#c9c9c9;font-style:italic}
+.c-post{--c:#49cc90}
+.game{display:inline-flex;align-items:center;gap:10px;font:800 15px var(--mono);letter-spacing:.08em;color:#fff;background:var(--pink);padding:6px 14px;border-radius:99px}
+.ask{--a:var(--pink);font-size:22px;color:var(--ink)}
+.ask b{color:var(--pink)}
+.route{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:22px}
+.stop{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--a);border-radius:16px;padding:22px 24px 18px;box-shadow:var(--shadow)}
+.stop .sn{position:absolute;top:-22px;left:18px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font:800 20px var(--mono)}
+.stop h3{margin:10px 0 0;font-size:26px}
+.stop p{margin:0;font-size:19px;color:var(--ink2);line-height:1.45}
+.stop .from{margin-top:auto;font:700 15px var(--mono);color:var(--a)}
+.prob{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:12px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 8%,var(--card));border-left:6px solid var(--a)}
+.prob .pi{font-size:30px;text-align:center}
+.prob b{display:block;font-size:20px;color:var(--ink)}
+.prob span{font-size:17px;color:var(--ink2);line-height:1.4}
+.lab-out{display:flex;flex-wrap:wrap;gap:8px}
+.lab-out span{font:700 17px var(--mono);padding:6px 12px;border-radius:9px;background:var(--card);border:1px solid var(--line2);color:var(--ink)}
+.lab-out span.bad{background:color-mix(in srgb,var(--red) 9%,var(--card));border-color:color-mix(in srgb,var(--red) 35%,var(--card))}
+.lab-out span.good{background:color-mix(in srgb,var(--mvc) 12%,var(--card));border-color:color-mix(in srgb,var(--mvc) 40%,var(--card))}
+.ifc{font:700 19px var(--mono);color:var(--ink);background:var(--bg2);border-radius:10px;padding:10px 14px}
+.ifc .kw{color:var(--net)}.ifc .st{color:#15803d}.ifc .ty{color:var(--api)}
+.flow{display:grid;grid-template-columns:1fr 46px 1.25fr 46px 1fr 46px 1fr;align-items:center;gap:6px;margin-top:18px}
+.flow .arr{font:800 30px var(--mono);color:var(--muted);text-align:center}
+.fbox{border-radius:14px;padding:14px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,var(--card));min-height:170px;display:flex;flex-direction:column;gap:8px}
+.fbox h4{margin:0;font:800 15px var(--mono);letter-spacing:.04em;color:var(--a);text-transform:uppercase}
+.fbox pre{margin:0;font:600 15px/1.45 var(--mono);color:var(--ink);white-space:pre}
+.fbox pre .k{color:var(--net)}.fbox pre .s{color:#15803d}.fbox pre .t{color:var(--api)}
+.fbox p{margin:0;font-size:16px;color:var(--ink2);line-height:1.4}
+.txt{font-size:21px;line-height:1.4;background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 6px;padding:12px 18px;box-shadow:var(--shadow);color:var(--ink)}
+.txt .who{display:block;font:600 13px var(--mono);color:var(--muted);margin-bottom:3px}
+.obj{font:600 16px/1.5 var(--mono);white-space:pre;background:var(--bg2);border-radius:10px;padding:10px 14px;color:var(--ink);border-left:5px solid var(--a)}
+.obj .k{color:var(--api)}.obj .n{color:#c2410c}.obj .z{color:var(--red);font-weight:800}
+.sec-l{font:700 15px var(--mono);color:var(--muted);margin:0 0 6px}
+
+.lane{display:grid;grid-template-columns:150px 1fr 150px;gap:12px;align-items:center}
+.lane .who{font:800 17px var(--mono);text-align:center;padding:10px 6px;border-radius:12px;background:color-mix(in srgb,var(--a) 10%,var(--card));border:2px solid var(--a);color:var(--a)}
+.msg{display:flex;align-items:center;gap:12px;font-size:19px;padding:10px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--ink)}
+.msg .n{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font:800 17px var(--mono)}
+.msg code{font:700 16px var(--mono);color:var(--a)}
+.msg.r{flex-direction:row-reverse;text-align:right}
+.tc{font:700 16px var(--mono);padding:6px 12px;border-radius:9px;background:color-mix(in srgb,var(--asp) 12%,var(--card));border:1px solid color-mix(in srgb,var(--asp) 40%,var(--card));color:var(--ink);display:inline-block}
+.tc.none{background:var(--bg2);border-color:var(--line2);color:var(--muted)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.vs .card h3{margin:0 0 8px}
+</style>
+
+
+<!-- =========================================================
+     AI · ლექცია 4 — Tools და Function Calling
+     დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
+     ფერები: LLM/მოდელი = იისფერი · tool/გამოძახება = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
+             სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
+     პროექტი: RestaurantApi — AiLabController (ლექცია 3-დან) + RestaurantTools
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:760px">
+    <div class="kicker in" style="color:var(--net)">AI · ლექცია 4 · Tools</div>
+    <h1 class="in" style="--d:.15s">მოდელი იძახებს<br><span class="grad">ჩვენს C# მეთოდს</span></h1>
+    <p class="lead in mt" style="--d:.35s">Function calling: მოდელი ითხოვს, ჩვენი კოდი ასრულებს, პასუხი ჩვენი ბაზიდან მოდის</p>
+  </div>
+  <div class="abs" style="right:90px;top:230px;width:520px">
+    <div class="col" style="gap:12px">
+      <div class="txt in" style="--d:.5s"><span class="who">მომხმარებელი</span>ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?</div>
+      <div class="tc in" style="--d:.8s">📞 check_availability(at: …T20:00, guests: 4)</div>
+      <div class="tc in" style="--d:1s;--asp:var(--mvc)">📦 { available: true, freeTables: 2 }</div>
+      <div class="txt in" style="--d:1.2s"><span class="who">ასისტენტი</span>დიახ, ხვალ 20:00-ზე ოთხი კაცისთვის ორი მაგიდაა თავისუფალი.</div>
+    </div>
+  </div>
+  <aside class="study">
+## ლექცია 4: Tools და Function Calling
+
+ლექცია 3-ზე მოდელმა ტექსტიდან ჯავშანი ამოიღო (`BookingRequest`), მაგრამ ვერ გვითხრა, თავისუფალია თუ არა მაგიდა: ჩვენს ბაზას ის ვერ ხედავს. დღეს მოდელს ვაძლევთ **tool-ებს**: ჩვენს C# მეთოდებს, რომელთა გამოძახებასაც ის თვითონ **ითხოვს**, როცა პასუხისთვის მონაცემი სჭირდება. მეთოდს ჩვენი კოდი ასრულებს, შედეგი მოდელს უბრუნდება, და მოდელი პასუხს ჩვენი ბაზის ნამდვილი მონაცემით წერს.
+  </aside>
+  <aside class="study-en">
+## Lecture 4: Tools and Function Calling
+
+In lecture 3 the model extracted a booking from text (`BookingRequest`), but it couldn't tell us whether a table is free: it can't see our database. Today we give the model **tools**: our C# methods that it **asks** us to call when it needs data for an answer. Our code runs the method, the result goes back to the model, and the model writes its answer with real data from our database.
+  </aside>
+</section>
+
+<lecture-review/>
+
+<lecture-homework-review/>
+
+<lecture-intro/>
+
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">დღის გზა</div>
+  <h2>3 ნაბიჯი: <span class="c-net">ციკლი</span> → <span class="c-asp">პირველი tool</span> → <span class="c-api">კარგი tool</span></h2>
+  <div class="route" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>🔄 როგორ მუშაობს</h3><p>მოდელი მეთოდს არ იძახებს, ის გამოძახებას ითხოვს. ოთხი ნაბიჯი: სია → თხოვნა → შედეგი → პასუხი</p><span class="from">FunctionCallContent · FunctionResultContent</span></div>
+    <div class="stop" style="--a:var(--asp)"><span class="sn">2</span><h3>🍽️ პირველი tool</h3><p>მენიუ ბაზიდან: C# მეთოდი → tool, და ერთი ხაზი, რომელიც ციკლს ჩვენ მაგივრად ატრიალებს</p><span class="from">AIFunctionFactory · UseFunctionInvocation</span></div>
+    <div class="stop" style="--a:var(--api)"><span class="sn">3</span><h3>🪑 პარამეტრები</h3><p>თავისუფალი მაგიდის შემოწმება: მოდელი პარამეტრებს ტექსტიდან ავსებს. რით განსხვავდება კარგი tool ცუდისგან</p><span class="from">[Description] · სახელი · აღწერა</span></div>
+  </div>
+  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>შენი tool</b> — შენს პროექტში, შენი ბაზიდან</div>
+  <aside class="study">
+### ლექციის გეგმა: 3 ნაბიჯი
+
+1. 🔄 **როგორ მუშაობს function calling.** მოდელი ჩვენს მეთოდს თვითონ ვერ იძახებს. ის **ითხოვს** გამოძახებას, ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ.
+2. 🍽️ **პირველი tool: მენიუ.** C# მეთოდს tool-ად ვაქცევთ (`AIFunctionFactory.Create`) და `UseFunctionInvocation`-ით ციკლს ავტომატურად ვატრიალებთ.
+3. 🪑 **პარამეტრები და კარგი tool.** თავისუფალი მაგიდის შემოწმება `DateTime at` და `int guests` პარამეტრებით. რა ხდის tool-ს კარგს: სახელი, აღწერა, პარამეტრები.
+
+ბოლოს კლასის დავალებაა: საკუთარი tool შენს პროექტში.
+  </aside>
+  <aside class="study-en">
+### Lecture plan: 3 steps
+
+1. 🔄 **How function calling works.** The model can't call our method itself. It **asks** for the call, we run it and give the result back.
+2. 🍽️ **The first tool: the menu.** We turn a C# method into a tool (`AIFunctionFactory.Create`) and let `UseFunctionInvocation` run the loop automatically.
+3. 🪑 **Parameters and a good tool.** Checking for a free table with `DateTime at` and `int guests` parameters. What makes a tool good: the name, the description, the parameters.
+
+At the end there's classwork: your own tool in your project.
+  </aside>
+</section>
+
+<!-- ================= 1 · მოდელი და ჩვენი ბაზა ================= -->
+<section class="slide divider" data-section="1 · მოდელი და ჩვენი ბაზა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">მოდელი ბაზას<br><span class="grad">ვერ ხედავს</span></h1>
+    <p class="lead mt in" style="--d:.3s">ითხოვს → ვასრულებთ → ვუბრუნებთ → პასუხობს</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · მოდელი და ჩვენი ბაზა
+
+მოდელი მხოლოდ იმას „ხედავს“, რაც მოთხოვნაში გავუგზავნეთ (ლექცია 1: stateless, ცოდნა ვარჯიშის თარიღამდე). ჩვენი ბაზა, დღევანდელი ჯავშნები და მენიუს ფასები მის ცოდნაში არ არის. ამ ნაწილში ვნახავთ, როგორ აძლევს function calling მოდელს წვდომას ამ მონაცემებზე ისე, რომ ბაზასთან კავშირი მაინც მხოლოდ ჩვენს კოდს აქვს.
+  </aside>
+  <aside class="study-en">
+## Part 1 · The model and our database
+
+The model only “sees” what we sent in the request (lecture 1: stateless, knowledge up to its training date). Our database, today's bookings and the menu prices are not part of its knowledge. In this part we'll see how function calling gives the model access to this data while only our code talks to the database.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · მოდელი და ჩვენი ბაზა">
+  <div class="kicker">ლექცია 3-ის კითხვა</div>
+  <h2>„ხვალ 8-ზე ოთხნი ვართ, <span class="c-red">ადგილი გაქვთ?</span>“</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:32px;align-items:start;margin-top:8px">
+    <div class="col" style="gap:14px">
+      <p class="sec-l">/ask — მოდელი მარტო:</p>
+      <div class="txt step"><span class="who">ვარიანტი 1</span>დიახ, რა თქმა უნდა! გელოდებით ხვალ 20:00-ზე 😊</div>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px">მოიგონა: ჯავშნები არ უნახავს — <b>hallucination</b></div>
+      <div class="txt step"><span class="who">ვარიანტი 2</span>სამწუხაროდ, რესტორნის ჯავშნებზე წვდომა არ მაქვს.</div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">პატიოსანია, მაგრამ <b>უსარგებლო</b></div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="callout ask step">🙋 როგორ მივაწოდოთ მოდელს ჩვენი ბაზის მონაცემი?</div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">📚</span><div><b>მთელი ბაზა prompt-ში?</b><span>ყველა მაგიდა, ყველა ჯავშანი, ყველა დღე: ათასობით ტოკენი ყოველ მოთხოვნაზე</span></div></div>
+      <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">⏳</span><div><b>და ის ძველდება</b><span>ჯავშანი წუთში იცვლება, prompt კი გაგზავნის მომენტის ასლია</span></div></div>
+      <div class="callout step" style="--a:var(--mvc);font-size:21px">ჯობია, მოდელმა <b>თვითონ გვთხოვოს</b> ის, რაც სჭირდება, და მხოლოდ მაშინ, როცა სჭირდება</div>
+    </div>
+  </div>
+  <aside class="study">
+### მოდელი ჩვენს ბაზას ვერ ხედავს
+
+მომხმარებელი წერს: „ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?“. ლექცია 2-ის `/ask`-ზე მოდელს ჩვენი ბაზა არ აქვს, ამიტომ ორიდან ერთს აკეთებს:
+
+| პასუხი | პრობლემა |
+|---|---|
+| „დიახ, რა თქმა უნდა! გელოდებით“ | **მოიგონა** (hallucination): ჯავშნები არ უნახავს, მაგრამ დამაჯერებლად პასუხობს. მომხმარებელი მოვა და მაგიდა დაკავებული იქნება |
+| „ჯავშნებზე წვდომა არ მაქვს“ | პატიოსანია, მაგრამ მომხმარებელს არაფერში ეხმარება |
+
+**იდეა 1: მთელი ბაზა prompt-ში?** ყველა მაგიდა და ყველა ჯავშანი ტექსტად. ეს ცუდი იდეაა:
+
+- **ბევრი ტოკენი.** ყოველ კითხვაზე, თუნდაც „გამარჯობა“-ზე, ათასობით ტოკენი input-ში (ფასი, ლექცია 1).
+- **ძველდება.** prompt გაგზავნის მომენტის ასლია, ჯავშნები კი წუთში იცვლება.
+- **ზედმეტი.** „ხინკალი რა ღირს?“-ზე ჯავშნები საერთოდ არ სჭირდება.
+
+**იდეა 2 (სწორი):** მოდელმა თვითონ **გვთხოვოს** ის მონაცემი, რომელიც სჭირდება, და მხოლოდ მაშინ, როცა სჭირდება. ამას ჰქვია **function calling** (ან **tool calling**).
+  </aside>
+  <aside class="study-en">
+### The model can't see our database
+
+A user writes: “There are four of us, tomorrow at 8 — do you have a table?”. On lecture 2's `/ask` the model doesn't have our database, so it does one of two things:
+
+| Answer | Problem |
+|---|---|
+| “Yes, of course! We're expecting you” | It **made it up** (hallucination): it hasn't seen the bookings but answers confidently. The user comes and the table is taken |
+| “I don't have access to bookings” | Honest, but it doesn't help the user at all |
+
+**Idea 1: the whole database in the prompt?** All tables and all bookings as text. That's a bad idea:
+
+- **Many tokens.** Thousands of input tokens on every question, even on “hello” (cost, lecture 1).
+- **It goes stale.** The prompt is a snapshot from the moment it was sent, while bookings change every minute.
+- **Unneeded.** “How much is khinkali?” doesn't need the bookings at all.
+
+**Idea 2 (the right one):** the model itself **asks us** for the data it needs, and only when it needs it. This is called **function calling** (or **tool calling**).
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · მოდელი და ჩვენი ბაზა">
+  <div class="kicker">🔄 ციკლი · 4 ნაბიჯი</div>
+  <h2>მოდელი <span class="c-net">ითხოვს</span>, ჩვენი კოდი <span class="c-api">ასრულებს</span></h2>
+  <div class="col" style="gap:12px;margin-top:6px">
+    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg" style="--a:var(--api)"><span class="n">1</span><span>შეკითხვა <b>+ tool-ების სია</b>: <code>check_availability(at, guests)</code> — „ამოწმებს თავისუფალ მაგიდას“</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
+    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg r" style="--a:var(--asp)"><span class="n">2</span><span>ტექსტის ნაცვლად <b>თხოვნა</b>: „გამოიძახე <code>check_availability</code>, at = ხვალ 20:00, guests = 4“</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
+    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg" style="--a:var(--mvc)"><span class="n">3</span><span><b>ჩვენ</b> ვიძახებთ C# მეთოდს → ბაზა → შედეგს ვუგზავნით: <code>{ available: true, freeTables: 2 }</code></span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
+    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg r" style="--a:var(--net)"><span class="n">4</span><span>ახლა უკვე <b>ტექსტური პასუხი</b>: „დიახ, ხვალ 20:00-ზე ორი მაგიდაა თავისუფალი“</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
+  </div>
+  <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
+    <div class="callout ask step">🙋 რამდენჯერ მივმართეთ <b>Gemini</b>-ს?</div>
+    <div class="callout step" data-with style="--a:var(--asp);font-size:20px"><b>ორჯერ</b> (1 და 3). მოდელს ბაზაზე წვდომა <b>არასდროს</b> აქვს</div>
+  </div>
+  <aside class="study">
+### Function calling: ციკლი ოთხ ნაბიჯად
+
+მთავარი იდეა: **მოდელი ჩვენს მეთოდს ვერ იძახებს.** ის Google-ის სერვერზეა, ჩვენი ბაზა კი ჩვენთან. მოდელი მხოლოდ **ითხოვს**, ჩვენი კოდი **ასრულებს**.
+
+1. **ჩვენ → მოდელი:** ვაგზავნით შეკითხვას და **tool-ების სიას**. თითო tool-ზე: სახელი (`check_availability`), აღწერა („ამოწმებს თავისუფალ მაგიდას“) და პარამეტრები (`at`, `guests`).
+2. **მოდელი → ჩვენ:** მოდელი ხვდება, რომ პასუხისთვის მონაცემი სჭირდება, და ტექსტის ნაცვლად **გამოძახების თხოვნას** აბრუნებს: „გამოიძახე `check_availability`, `at` = ხვალ 20:00, `guests` = 4“. პარამეტრები მომხმარებლის ტექსტიდან თვითონ შეავსო.
+3. **ჩვენ → მოდელი:** ჩვენი კოდი იძახებს ნამდვილ C# მეთოდს, მეთოდი ბაზას კითხულობს, და შედეგს (`{ available: true, freeTables: 2 }`) მოდელს ვუგზავნით. ეს **მეორე** მოთხოვნაა Gemini-სთან, და მასში მთელი ისტორიაა: შეკითხვა, თხოვნა და შედეგი.
+4. **მოდელი → ჩვენ:** შედეგის საფუძველზე მოდელი ჩვეულებრივ ტექსტურ პასუხს წერს.
+
+**Gemini-სთან ორი მოთხოვნა გვქონდა** (ნაბიჯი 1 და 3). თუ მოდელს რამდენიმე tool სჭირდება, ციკლი მეორდება, ასე რომ მოთხოვნა შეიძლება მეტიც იყოს.
+
+```note
+მოდელი ჩვენს ბაზას **არასდროს** უკავშირდება. რა მეთოდი არსებობს, რას აკეთებს და რა დააბრუნოს, ჩვენი კოდი წყვეტს. მოდელი მხოლოდ ირჩევს, რომელი tool გამოიძახოს და რა პარამეტრებით.
+```
+
+```terms
+Tool (ხელსაწყო) — მოდელისთვის აღწერილი ჩვენი ფუნქცია: სახელი, აღწერა, პარამეტრები. მოდელს შეუძლია მისი გამოძახება ითხოვოს
+Function calling (tool calling) — მოდელი ტექსტის ნაცვლად tool-ის გამოძახების თხოვნას აბრუნებს; ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ
+```
+  </aside>
+  <aside class="study-en">
+### Function calling: the loop in four steps
+
+The main idea: **the model can't call our method.** It runs on Google's servers, while our database is with us. The model only **asks**; our code **runs** the method.
+
+1. **We → the model:** we send the question and **the list of tools**. For each tool: a name (`check_availability`), a description (“checks for a free table”) and parameters (`at`, `guests`).
+2. **The model → us:** the model realises it needs data for the answer and, instead of text, returns **a call request**: “call `check_availability`, `at` = tomorrow 20:00, `guests` = 4”. It filled in the parameters from the user's text by itself.
+3. **We → the model:** our code calls the real C# method, the method reads the database, and we send the result (`{ available: true, freeTables: 2 }`) to the model. This is the **second** request to Gemini, and it carries the whole history: the question, the request and the result.
+4. **The model → us:** based on the result, the model writes an ordinary text answer.
+
+**We made two requests to Gemini** (steps 1 and 3). If the model needs several tools, the loop repeats, so there can be more requests.
+
+```note
+The model **never** connects to our database. Our code decides which methods exist, what they do and what they return. The model only chooses which tool to call and with which parameters.
+```
+
+```terms
+Tool — our function described for the model: name, description, parameters. The model can ask for it to be called
+Function calling (tool calling) — instead of text, the model returns a request to call a tool; we run it and send back the result
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · მოდელი და ჩვენი ბაზა">
+  <div class="kicker">რა მიდის ქსელში · გამარტივებული</div>
+  <h2>tool = <span class="c-api">სახელი</span> + <span class="c-asp">აღწერა</span> + <span class="c-net">JSON Schema</span></h2>
+  <div class="grid3" style="gap:18px;margin-top:6px;align-items:start">
+    <div class="col" style="gap:8px">
+      <p class="sec-l">1 · ჩვენ ვაგზავნით</p>
+      <div class="obj" style="--a:var(--api)">"tools": [{
+  <span class="k">"name"</span>: <span class="n">"check_availability"</span>,
+  <span class="k">"description"</span>: <span class="n">"ამოწმებს…"</span>,
+  <span class="k">"parameters"</span>: {
+    <span class="k">"at"</span>: { "type": "string",
+            "format": "date-time" },
+    <span class="k">"guests"</span>: { "type": "integer" }
+  }
+}]</div>
+    </div>
+    <div class="col step" style="gap:8px">
+      <p class="sec-l">2 · მოდელი აბრუნებს</p>
+      <div class="obj" style="--a:var(--asp)">"functionCall": {
+  <span class="k">"name"</span>: <span class="n">"check_availability"</span>,
+  <span class="k">"args"</span>: {
+    <span class="k">"at"</span>: <span class="n">"2026-11-26T20:00"</span>,
+    <span class="k">"guests"</span>: <span class="n">4</span>
+  }
+}</div>
+      <div class="callout" style="--a:var(--asp);font-size:17px">ტექსტი არ არის, მხოლოდ <b>თხოვნა</b></div>
+    </div>
+    <div class="col step" style="gap:8px">
+      <p class="sec-l">3 · ჩვენ ვაგზავნით</p>
+      <div class="obj" style="--a:var(--mvc)">"functionResponse": {
+  <span class="k">"name"</span>: <span class="n">"check_availability"</span>,
+  <span class="k">"response"</span>: {
+    <span class="k">"available"</span>: <span class="n">true</span>,
+    <span class="k">"freeTables"</span>: <span class="n">2</span>
+  }
+}</div>
+    </div>
+  </div>
+  <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
+    <div class="callout step" style="--a:var(--net);font-size:20px">პარამეტრები = <b>JSON Schema</b>, ზუსტად ისე, როგორც ლექცია 3-ის <code class="i">BookingRequest</code></div>
+    <div class="callout ask step">🙋 ვინ ასრულებს მეთოდს: <b>Gemini</b> თუ <b>ჩვენი სერვერი</b>?</div>
+  </div>
+  <aside class="study">
+### რა მიდის ქსელში
+
+ზემოთ Gemini-ს ფორმატია, გამარტივებული. ხელით ამას არ ვწერთ, Microsoft.Extensions.AI აწყობს. მაგრამ სასარგებლოა იცოდე, რა ხდება შიგნით:
+
+1. **Tool-ის აღწერა** მოთხოვნასთან მიდის: `name`, `description` და `parameters`. `parameters` **JSON Schema**-ა, ისეთივე, როგორიც ლექცია 3-ზე `BookingRequest`-იდან შეიქმნა. ეს სქემა C# მეთოდის პარამეტრებიდან ავტომატურად იქმნება: `DateTime at` → `"type": "string", "format": "date-time"`, `int guests` → `"type": "integer"`.
+2. **მოდელის პასუხი** ტექსტი კი არა, `functionCall`-ია: tool-ის სახელი და არგუმენტები (`args`), შევსებული სქემის მიხედვით.
+3. **ჩვენი შედეგი** `functionResponse`-ად ბრუნდება. მეთოდის დაბრუნებული ობიექტი JSON-ად იქცევა.
+
+**ვინ ასრულებს მეთოდს?** ჩვენი სერვერი. Gemini მხოლოდ სახელს და არგუმენტებს წერს, ისევე, როგორც ლექცია 3-ზე `BookingRequest`-ის ველებს ავსებდა.
+
+```tip
+აქედან ჩანს, რატომ არის **აღწერა** ასეთი მნიშვნელოვანი: tool-ის კოდს მოდელი ვერ ხედავს. რას აკეთებს tool და როდის გამოიძახოს, მოდელი მხოლოდ სახელიდან და აღწერიდან იგებს.
+```
+  </aside>
+  <aside class="study-en">
+### What goes over the wire
+
+Above is Gemini's format, simplified. We don't write it by hand — Microsoft.Extensions.AI builds it. But it helps to know what happens inside:
+
+1. **The tool description** goes with the request: `name`, `description` and `parameters`. `parameters` is a **JSON Schema**, just like the one created from `BookingRequest` in lecture 3. The schema is created automatically from the C# method's parameters: `DateTime at` → `"type": "string", "format": "date-time"`, `int guests` → `"type": "integer"`.
+2. **The model's answer** is not text but a `functionCall`: the tool name and the arguments (`args`), filled in according to the schema.
+3. **Our result** goes back as a `functionResponse`. The object the method returned is turned into JSON.
+
+**Who runs the method?** Our server. Gemini only writes the name and the arguments, just as it filled in the `BookingRequest` fields in lecture 3.
+
+```tip
+This shows why the **description** matters so much: the model can't see the tool's code. It learns what the tool does and when to call it only from the name and the description.
+```
+  </aside>
+</section>
+
+<!-- ================= 2 · პირველი tool ================= -->
+<section class="slide divider" data-section="2 · პირველი tool">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">პირველი tool:<br><span class="grad">მენიუ</span></h1>
+    <p class="lead mt in" style="--d:.3s">RestaurantTools · AIFunctionFactory · UseFunctionInvocation</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · პირველი tool: მენიუ
+
+ვიწყებთ ყველაზე მარტივი tool-ით, რომელსაც პარამეტრი არ აქვს: მენიუ ბაზიდან. სამი ნაბიჯია: C# მეთოდი აღწერით, მისი tool-ად გადაქცევა და ერთი ხაზი `Program.cs`-ში, რომელიც ოთხნაბიჯიან ციკლს ჩვენ მაგივრად ასრულებს.
+  </aside>
+  <aside class="study-en">
+## Part 2 · The first tool: the menu
+
+We start with the simplest tool, one without parameters: the menu from the database. There are three steps: a C# method with a description, turning it into a tool, and one line in `Program.cs` that runs the four-step loop for us.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · პირველი tool">
+  <div class="kicker">🧑‍💻 ვწერთ · Ai/RestaurantTools.cs</div>
+  <h2>tool = ჩვეულებრივი <span class="c-api">C# მეთოდი</span> + <span class="c-asp">აღწერა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:24px">
+    <code-block id="c1" lang="csharp" cls="sm" title="Ai/RestaurantTools.cs">
+using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
+
+public record MenuItemInfo(string Name, decimal Price);
+
+public class RestaurantTools
+{
+    private readonly AppDbContext _db;
+
+    public RestaurantTools(AppDbContext db)
+    {
+        _db = db;
+    }
+
+    [Description("აბრუნებს რესტორნის მენიუს: კერძის სახელი და ფასი ლარში")]
+    public async Task<List<MenuItemInfo>> GetMenu()
+    {
+        return await _db.Products
+            .Select(p => new MenuItemInfo(p.Name, p.Price))
+            .ToListAsync();
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm" title="Program.cs">
+builder.Services.AddScoped<RestaurantTools>();
+      </code-block>
+      <i class="codestep" data-for="c1" data-lines="8-13"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:19px"><b>DbContext</b> — DI-დან, როგორც API კურსზე. <b>Scoped</b>, რადგან DbContext Scoped-ია</div>
+      <i class="codestep" data-for="c1" data-lines="15"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><b>Description</b> — მოდელისთვის: <b>რას</b> აკეთებს. კოდს მოდელი ვერ ხედავს</div>
+      <i class="codestep" data-for="c1" data-lines="16-21"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:19px">შიგნით <b>ჩვეულებრივი LINQ</b>. AI აქ არაფერია</div>
+    </div>
+  </div>
+  <aside class="study">
+### `RestaurantTools`: მეთოდები, რომლებსაც მოდელი გამოიძახებს
+
+Tool ჩვეულებრივი C# მეთოდია. ვქმნით ცალკე კლასს, სადაც ყველა tool ერთად იქნება:
+
+```csharp Ai/RestaurantTools.cs
+using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
+
+public record MenuItemInfo(string Name, decimal Price);
+
+public class RestaurantTools
+{
+    private readonly AppDbContext _db;
+
+    public RestaurantTools(AppDbContext db)
+    {
+        _db = db;
+    }
+
+    [Description("აბრუნებს რესტორნის მენიუს: კერძის სახელი და ფასი ლარში")]
+    public async Task<List<MenuItemInfo>> GetMenu()
+    {
+        return await _db.Products
+            .Select(p => new MenuItemInfo(p.Name, p.Price))
+            .ToListAsync();
+    }
+}
+```
+
+და რეგისტრაცია `Program.cs`-ში:
+
+```csharp Program.cs
+builder.Services.AddScoped<RestaurantTools>();
+```
+
+- **`AppDbContext` constructor-ით.** ზუსტად ისე, როგორც API კურსის სერვისებში. `RestaurantTools` **Scoped**-ია, რადგან `DbContext`-იც Scoped-ია: ერთი მოთხოვნა, ერთი `DbContext`.
+- **`[Description(...)]` მეთოდზე.** ეს აღწერა მოდელთან tool-ის `description`-ად მიდის. მოდელი კოდს ვერ ხედავს, ამიტომ რას აკეთებს tool, მხოლოდ აქედან იგებს.
+- **`MenuItemInfo`.** მოდელს entity-ს კი არა, მხოლოდ საჭირო ველებს ვუბრუნებთ. ნაკლები ველი ნიშნავს ნაკლებ ტოკენს და ნაკლებ ზედმეტ ინფორმაციას (მაგ. შიდა id-ებს).
+- **შიგნით ჩვეულებრივი LINQ.** tool-ში AI-სთან დაკავშირებული არაფერია. ეს ჩვენი ჩვეულებრივი კოდია.
+
+```note
+`_db.Products`, `p.Name`, `p.Price` — RestaurantApi-ის სახელებია. შენს პროექტში შენი entity-ები და ველები გამოიყენე. თუ მენიუს უკვე სერვისით კითხულობ (API კურსიდან), `AppDbContext`-ის ნაცვლად ის სერვისი მიიღე constructor-ით.
+```
+  </aside>
+  <aside class="study-en">
+### `RestaurantTools`: the methods the model will call
+
+A tool is an ordinary C# method. We create a separate class where all the tools will live:
+
+```csharp Ai/RestaurantTools.cs
+using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
+
+public record MenuItemInfo(string Name, decimal Price);
+
+public class RestaurantTools
+{
+    private readonly AppDbContext _db;
+
+    public RestaurantTools(AppDbContext db)
+    {
+        _db = db;
+    }
+
+    [Description("Returns the restaurant menu: dish name and price in GEL")]
+    public async Task<List<MenuItemInfo>> GetMenu()
+    {
+        return await _db.Products
+            .Select(p => new MenuItemInfo(p.Name, p.Price))
+            .ToListAsync();
+    }
+}
+```
+
+And the registration in `Program.cs`:
+
+```csharp Program.cs
+builder.Services.AddScoped<RestaurantTools>();
+```
+
+- **`AppDbContext` through the constructor.** Exactly as in the API course services. `RestaurantTools` is **Scoped** because `DbContext` is Scoped too: one request, one `DbContext`.
+- **`[Description(...)]` on the method.** This description goes to the model as the tool's `description`. The model can't see the code, so this is the only place it learns what the tool does.
+- **`MenuItemInfo`.** We don't return the entity to the model, only the fields it needs. Fewer fields mean fewer tokens and less unneeded information (e.g. internal ids).
+- **Ordinary LINQ inside.** There's nothing AI-related in the tool. It's our ordinary code.
+
+```note
+`_db.Products`, `p.Name`, `p.Price` are RestaurantApi names. In your project use your own entities and fields. If you already read the menu through a service (from the API course), take that service through the constructor instead of `AppDbContext`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · პირველი tool">
+  <div class="kicker">🧑‍💻 ვწერთ · Program.cs + AiLabController</div>
+  <h2>tool-ების სია და <span class="c-asp">ერთი ხაზი</span>, რომელიც ციკლს ატრიალებს</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start;gap:22px">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Chat">
+[HttpPost("chat")]
+public async Task<IActionResult> Chat(AskRequest request)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, """
+            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
+            მენიუზე მონაცემი მხოლოდ tool-იდან აიღე, არაფერი მოიგონო.
+            """),
+        new(ChatRole.User, request.Prompt)
+    ];
+
+    ChatOptions options = new()
+    {
+        Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
+    };
+
+    ChatResponse response = await _chat.GetResponseAsync(messages, options);
+
+    List<string> toolCalls = response.Messages
+        .SelectMany(m => m.Contents)
+        .OfType<FunctionCallContent>()
+        .Select(c => c.Name)
+        .ToList();
+
+    return Ok(new { response.Text, ToolCalls = toolCalls });
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block id="c3" lang="csharp" cls="sm" title="Program.cs">
+builder.Services.AddChatClient(
+        new Client(apiKey: apiKey).AsIChatClient(model))
+    .UseFunctionInvocation();
+      </code-block>
+      <i class="codestep" data-for="c2" data-lines="13-16"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>AIFunctionFactory.Create</b>: მეთოდი → tool (სახელი, აღწერა, სქემა)</div>
+      <i class="codestep" data-for="c3" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px">ციკლის 2–3 ნაბიჯს <b>ეს ხაზი</b> ასრულებს. რა არის შიგნით — ლექცია 5</div>
+      <i class="codestep" data-for="c2" data-lines="20-24"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px">ისტორიაში ჩანს, <b>რომელი tool</b> გამოიძახა</div>
+    </div>
+  </div>
+  <aside class="study">
+### Controller: tool-ების სია და `UseFunctionInvocation`
+
+**Controller-ი** `RestaurantTools`-ს constructor-ით იღებს, `IChatClient`-ის გვერდით:
+
+```csharp Controllers/AiLabController.cs
+private readonly IChatClient _chat;
+private readonly RestaurantTools _tools;
+
+public AiLabController(IChatClient chat, RestaurantTools tools)
+{
+    _chat = chat;
+    _tools = tools;
+}
+```
+
+**ახალი endpoint `/chat`:**
+
+```csharp Controllers/AiLabController.cs · Chat
+[HttpPost("chat")]
+public async Task<IActionResult> Chat(AskRequest request)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, """
+            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
+            მენიუზე მონაცემი მხოლოდ tool-იდან აიღე, არაფერი მოიგონო.
+            """),
+        new(ChatRole.User, request.Prompt)
+    ];
+
+    ChatOptions options = new()
+    {
+        Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
+    };
+
+    ChatResponse response = await _chat.GetResponseAsync(messages, options);
+
+    List<string> toolCalls = response.Messages
+        .SelectMany(m => m.Contents)
+        .OfType<FunctionCallContent>()
+        .Select(c => c.Name)
+        .ToList();
+
+    return Ok(new { response.Text, ToolCalls = toolCalls });
+}
+```
+
+- **`AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")`** — C# მეთოდიდან tool-ს ქმნის: სახელი (`get_menu`), აღწერა (`[Description]`-იდან) და პარამეტრების JSON Schema. მეთოდს ვაწვდით **ფრჩხილების გარეშე**: ვაძლევთ თავად მეთოდს და არა მისი გამოძახების შედეგს.
+- **`ChatOptions.Tools`** — tool-ების სია, რომელიც ამ მოთხოვნასთან მიდის.
+- **`response.Messages`** — მთელი ისტორია, რაც ამ მოთხოვნაზე შეიქმნა: გამოძახების თხოვნა (`FunctionCallContent`), შედეგი (`FunctionResultContent`) და ბოლო პასუხი. `toolCalls`-ში ვაგროვებთ, რომელი tool-ები გამოიძახა მოდელმა, რომ Swagger-ში დავინახოთ.
+
+**`Program.cs`-ში ერთი ხაზი ემატება:**
+
+```csharp Program.cs
+builder.Services.AddChatClient(
+        new Client(apiKey: apiKey).AsIChatClient(model))
+    .UseFunctionInvocation();
+```
+
+`.UseFunctionInvocation()`-ის გარეშე `GetResponseAsync` ნაბიჯ 2-ზე დაბრუნდებოდა: პასუხში ტექსტის ნაცვლად გამოძახების თხოვნა იქნებოდა, და tool-ის გამოძახება და მეორე მოთხოვნა ჩვენ თვითონ უნდა დაგვეწერა. ეს ხაზი ციკლს **ჩვენ მაგივრად** ატრიალებს: ხედავს თხოვნას, იძახებს მეთოდს, აგზავნის შედეგს და აბრუნებს მხოლოდ საბოლოო პასუხს. რა არის ეს ხაზი სინამდვილეში, ლექცია 5-ზე ვნახავთ.
+
+```warn
+`System` prompt-ში მეორე ხაზი („მხოლოდ tool-იდან აიღე“) მნიშვნელოვანია: მის გარეშე მოდელმა შეიძლება მენიუ თავისი „ცოდნიდან“ მოიგონოს და tool არ გამოიძახოს.
+```
+
+```terms
+AIFunctionFactory.Create — C# მეთოდიდან ქმნის tool-ს (AIFunction): სახელი, აღწერა, პარამეტრების JSON Schema
+UseFunctionInvocation — function calling-ის ციკლს ავტომატურად ასრულებს: თხოვნა → მეთოდის გამოძახება → შედეგი მოდელს → საბოლოო პასუხი
+```
+  </aside>
+  <aside class="study-en">
+### The Controller: the list of tools and `UseFunctionInvocation`
+
+**The Controller** receives `RestaurantTools` through its constructor, next to `IChatClient`:
+
+```csharp Controllers/AiLabController.cs
+private readonly IChatClient _chat;
+private readonly RestaurantTools _tools;
+
+public AiLabController(IChatClient chat, RestaurantTools tools)
+{
+    _chat = chat;
+    _tools = tools;
+}
+```
+
+**A new endpoint `/chat`:**
+
+```csharp Controllers/AiLabController.cs · Chat
+[HttpPost("chat")]
+public async Task<IActionResult> Chat(AskRequest request)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, """
+            You are a restaurant assistant. Answer briefly.
+            Take menu data only from the tool, don't make anything up.
+            """),
+        new(ChatRole.User, request.Prompt)
+    ];
+
+    ChatOptions options = new()
+    {
+        Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
+    };
+
+    ChatResponse response = await _chat.GetResponseAsync(messages, options);
+
+    List<string> toolCalls = response.Messages
+        .SelectMany(m => m.Contents)
+        .OfType<FunctionCallContent>()
+        .Select(c => c.Name)
+        .ToList();
+
+    return Ok(new { response.Text, ToolCalls = toolCalls });
+}
+```
+
+- **`AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")`** — creates a tool from a C# method: a name (`get_menu`), a description (from `[Description]`) and the JSON Schema of the parameters. We pass the method **without parentheses**: we give the method itself, not the result of calling it.
+- **`ChatOptions.Tools`** — the list of tools sent with this request.
+- **`response.Messages`** — the whole history created during this request: the call request (`FunctionCallContent`), the result (`FunctionResultContent`) and the final answer. In `toolCalls` we collect which tools the model called, so we can see it in Swagger.
+
+**One line is added to `Program.cs`:**
+
+```csharp Program.cs
+builder.Services.AddChatClient(
+        new Client(apiKey: apiKey).AsIChatClient(model))
+    .UseFunctionInvocation();
+```
+
+Without `.UseFunctionInvocation()`, `GetResponseAsync` would stop at step 2: the answer would contain a call request instead of text, and we'd have to write the tool call and the second request ourselves. This line runs the loop **for us**: it sees the request, calls the method, sends the result and returns only the final answer. What this line really is, we'll see in lecture 5.
+
+```warn
+The second line in the `System` prompt (“take it only from the tool”) matters: without it the model may make the menu up from its own “knowledge” and not call the tool.
+```
+
+```terms
+AIFunctionFactory.Create — creates a tool (AIFunction) from a C# method: name, description, JSON Schema of the parameters
+UseFunctionInvocation — runs the function-calling loop automatically: request → method call → result to the model → final answer
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · პირველი tool">
+  <div class="kicker">🧪 Swagger · POST /api/ai-lab/chat</div>
+  <h2>იგივე კითხვა: <span class="c-red">/ask</span> vs <span class="c-mvc">/chat</span></h2>
+  <div class="vs" style="margin-top:8px">
+    <div class="col" style="gap:12px">
+      <div class="txt"><span class="who">prompt</span>რა კერძები გაქვთ 15 ლარამდე?</div>
+      <div class="swr c-post step" style="--c:#f93e3e">
+        <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/ask</span></div>
+        <pre class="rb">{
+  <span class="k">"text"</span>: <span class="s">"გვაქვს ხაჭაპური, ხინკალი,
+    მწვადი, ლობიანი…"</span>
+}</pre>
+      </div>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px">„ტიპური ქართული მენიუ“ — <b>ჩვენი არ არის</b></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="swr c-post step">
+        <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/chat</span></div>
+        <pre class="rb">{
+  <span class="k">"text"</span>: <span class="s">"15 ლარამდე: ლობიო ქოთანში
+    (12 ₾) და მჭადი (4 ₾)."</span>,
+  <span class="k">"toolCalls"</span>: [ <span class="s">"get_menu"</span> ]
+}</pre>
+      </div>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ფასები <b>ჩვენი ბაზიდან</b>. ფილტრი (15 ₾) მოდელმა თვითონ გააკეთა</div>
+      <div class="callout ask step">🙋 „გამარჯობა!“-ზე გამოიძახებს get_menu-ს?</div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">არა: <code class="i">toolCalls: []</code>. <b>როდის</b> გამოიძახოს, მოდელი წყვეტს</div>
+    </div>
+  </div>
+  <aside class="study">
+### შედეგი: `/ask` vs `/chat`
+
+ერთი და იგივე კითხვა ორ endpoint-ზე: „რა კერძები გაქვთ 15 ლარამდე?“
+
+| endpoint | პასუხი | რატომ |
+|---|---|---|
+| `/ask` (ლექცია 2) | „გვაქვს ხაჭაპური, ხინკალი, მწვადი…“ | მოდელმა „ტიპური ქართული რესტორნის“ მენიუ მოიგონა. ჩვენი მენიუ არ იცის |
+| `/chat` (დღეს) | „15 ლარამდე: ლობიო ქოთანში (12 ₾) და მჭადი (4 ₾)“, `toolCalls: ["get_menu"]` | მოდელმა `get_menu` გამოიძახა, მთელი მენიუ მიიღო და **თვითონ** გაფილტრა 15 ლარამდე |
+
+ფილტრისთვის ცალკე tool არ დაგვჭირდა: მოდელმა მთელი მენიუ მიიღო და კითხვის მიხედვით თვითონ ამოარჩია. პატარა მენიუსთვის ეს ნორმალურია. 500 კერძზე ჯობია tool-ს პარამეტრი ჰქონდეს (მაგ. `maxPrice`), რომ მოდელს მთელი სია არ მივაწოდოთ.
+
+**„გამარჯობა!“-ზე** `toolCalls` ცარიელია: მოდელმა გადაწყვიტა, რომ მენიუ არ სჭირდება. **გამოიძახოს თუ არა და რომელი**, მოდელი წყვეტს, სახელისა და აღწერის მიხედვით.
+
+```note
+ზუსტი ტექსტი შენთან სხვა იქნება: შენს ბაზაში სხვა კერძებია და მოდელი ალბათობით მუშაობს. მთავარია `toolCalls`-ში `get_menu`-ს დანახვა და ის, რომ ფასები შენი ბაზიდან მოდის.
+```
+  </aside>
+  <aside class="study-en">
+### The result: `/ask` vs `/chat`
+
+The same question on two endpoints: “What dishes do you have under 15 GEL?”
+
+| endpoint | Answer | Why |
+|---|---|---|
+| `/ask` (lecture 2) | “We have khachapuri, khinkali, mtsvadi…” | The model made up a “typical Georgian restaurant” menu. It doesn't know our menu |
+| `/chat` (today) | “Under 15 GEL: lobio in a clay pot (12 ₾) and mchadi (4 ₾)”, `toolCalls: ["get_menu"]` | The model called `get_menu`, got the whole menu and filtered it to under 15 GEL **itself** |
+
+We didn't need a separate tool for the filter: the model received the whole menu and picked the right items for the question. For a small menu that's fine. With 500 dishes it's better for the tool to have a parameter (e.g. `maxPrice`), so we don't feed the whole list to the model.
+
+**On “Hello!”** `toolCalls` is empty: the model decided it doesn't need the menu. **Whether to call a tool and which one** is the model's decision, based on the name and the description.
+
+```note
+The exact text will differ for you: your database has other dishes and the model works with probabilities. What matters is seeing `get_menu` in `toolCalls` and the prices coming from your database.
+```
+  </aside>
+</section>
+
+<section class="slide divider" data-section="შესვენება">
+  <div class="vcenter">
+    <div class="kicker in">შესვენება</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">წუთი</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">შემდეგ: tool <b>პარამეტრებით</b>: მოდელი მათ ტექსტიდან ავსებს</p>
+  </div>
+  <div class="big-num">☕</div>
+</section>
+
+<!-- ================= 3 · პარამეტრები და დიზაინი ================= -->
+<section class="slide divider" data-section="3 · პარამეტრები და დიზაინი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">პარამეტრები და<br><span class="grad">კარგი tool</span></h1>
+    <p class="lead mt in" style="--d:.3s">check_availability · [Description] პარამეტრზე · სახელი, აღწერა, ტიპები</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · პარამეტრები და კარგი tool
+
+`get_menu`-ს პარამეტრი არ ჰქონდა. ახლა ვამატებთ tool-ს, რომელსაც მოდელი პარამეტრებს **მომხმარებლის ტექსტიდან** უვსებს: თავისუფალი მაგიდის შემოწმება თარიღით და სტუმრების რაოდენობით. მერე ვნახავთ, რით განსხვავდება კარგი tool ცუდისგან.
+  </aside>
+  <aside class="study-en">
+## Part 3 · Parameters and a good tool
+
+`get_menu` had no parameters. Now we add a tool whose parameters the model fills in **from the user's text**: checking for a free table by date and number of guests. Then we'll see what separates a good tool from a bad one.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · პარამეტრები და დიზაინი">
+  <div class="kicker">🧑‍💻 ვწერთ · CheckAvailability</div>
+  <h2>tool <span class="c-asp">პარამეტრებით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:22px">
+    <code-block id="c4" lang="csharp" cls="sm" title="Ai/RestaurantTools.cs · CheckAvailability">
+public record AvailabilityInfo(bool Available, int FreeTables);
+
+[Description("ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს")]
+public async Task<AvailabilityInfo> CheckAvailability(
+    [Description("ჯავშნის თარიღი და დრო")] DateTime at,
+    [Description("სტუმრების რაოდენობა")] int guests)
+{
+    var busyTableIds = await _db.Bookings
+        .Where(b => b.At > at.AddHours(-2) && b.At < at.AddHours(2))
+        .Select(b => b.TableId)
+        .ToListAsync();
+
+    int free = await _db.Tables
+        .CountAsync(t => t.Seats >= guests && !busyTableIds.Contains(t.Id));
+
+    return new AvailabilityInfo(free > 0, free);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block id="c5" lang="csharp" cls="sm" title="AiLabController.cs · Chat">
+// System-ში: დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+Tools =
+[
+    AIFunctionFactory.Create(
+        _tools.GetMenu, name: "get_menu"),
+    AIFunctionFactory.Create(
+        _tools.CheckAvailability,
+        name: "check_availability")
+]
+      </code-block>
+      <i class="codestep" data-for="c4" data-lines="5-6"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>Description</b> პარამეტრზეც: სქემაში ჯდება, როგორც ლექცია 3-ის ველებზე</div>
+      <i class="codestep" data-for="c5" data-lines="1"></i>
+      <div class="callout ask step" data-with>🙋 რატომ გვჭირდება <b>დღევანდელი თარიღი</b>?</div>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px">„ხვალ“ → <code class="i">at</code>-ის შესავსებად. მოდელმა დღევანდელი თარიღი არ იცის (ლექცია 3)</div>
+    </div>
+  </div>
+  <aside class="study">
+### `CheckAvailability`: tool პარამეტრებით
+
+```csharp Ai/RestaurantTools.cs · CheckAvailability
+public record AvailabilityInfo(bool Available, int FreeTables);
+
+[Description("ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს")]
+public async Task<AvailabilityInfo> CheckAvailability(
+    [Description("ჯავშნის თარიღი და დრო")] DateTime at,
+    [Description("სტუმრების რაოდენობა")] int guests)
+{
+    var busyTableIds = await _db.Bookings
+        .Where(b => b.At > at.AddHours(-2) && b.At < at.AddHours(2))
+        .Select(b => b.TableId)
+        .ToListAsync();
+
+    int free = await _db.Tables
+        .CountAsync(t => t.Seats >= guests && !busyTableIds.Contains(t.Id));
+
+    return new AvailabilityInfo(free > 0, free);
+}
+```
+
+- **`[Description]` პარამეტრებზე.** ისინი სქემაში თითო პარამეტრის აღწერად ჯდება, ზუსტად ისე, როგორც ლექცია 3-ზე `BookingRequest`-ის ველებზე. ჩანაწერი `[property: ...]` აქ არ სჭირდება, რადგან ეს მეთოდის პარამეტრია და არა `record`-ის.
+- **ლოგიკა ჩვენია.** მაგიდა დაკავებულად ითვლება, თუ მასზე ჯავშანი ±2 საათშია, და უნდა ეტეოდეს `guests` სტუმარი. ეს მარტივი წესია. შენს პროექტში შენი ჯავშნის წესი გამოიყენე.
+- **შედეგი `AvailabilityInfo`.** მოკლე ობიექტი, რომლითაც მოდელი პასუხს აწყობს.
+
+**Controller-ში** tool-ების სიას მეორე tool ემატება, ხოლო `System` prompt-ს დღევანდელი თარიღი, ლექცია 3-ის მსგავსად:
+
+```csharp Controllers/AiLabController.cs · Chat
+new(ChatRole.System, $"""
+    შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
+    მენიუზე და თავისუფალ მაგიდებზე მონაცემი მხოლოდ tool-ებიდან აიღე, არაფერი მოიგონო.
+    დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+    """),
+// ...
+ChatOptions options = new()
+{
+    Tools =
+    [
+        AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu"),
+        AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")
+    ]
+};
+```
+
+**რატომ თარიღი?** „ხვალ 8-ზე“ → `at` = `2026-11-26T20:00`. დღევანდელი თარიღის გარეშე მოდელი „ხვალ“-ს ვერ გამოთვლის (ლექცია 3).
+
+```tip
+თუ `toolCalls`-ში პარამეტრებიც გინდა დაინახო, `.Select(c => c.Name)`-ის ნაცვლად დაწერე `.Select(c => $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary<string, object?>())})")`. Swagger-ში გამოჩნდება `check_availability([at, 2026-11-26T20:00:00], [guests, 4])`.
+```
+  </aside>
+  <aside class="study-en">
+### `CheckAvailability`: a tool with parameters
+
+```csharp Ai/RestaurantTools.cs · CheckAvailability
+public record AvailabilityInfo(bool Available, int FreeTables);
+
+[Description("Checks whether a table is free at the given time")]
+public async Task<AvailabilityInfo> CheckAvailability(
+    [Description("Booking date and time")] DateTime at,
+    [Description("Number of guests")] int guests)
+{
+    var busyTableIds = await _db.Bookings
+        .Where(b => b.At > at.AddHours(-2) && b.At < at.AddHours(2))
+        .Select(b => b.TableId)
+        .ToListAsync();
+
+    int free = await _db.Tables
+        .CountAsync(t => t.Seats >= guests && !busyTableIds.Contains(t.Id));
+
+    return new AvailabilityInfo(free > 0, free);
+}
+```
+
+- **`[Description]` on the parameters.** They go into the schema as each parameter's description, exactly like on the `BookingRequest` fields in lecture 3. The `[property: ...]` form isn't needed here, because this is a method parameter, not a `record` one.
+- **The logic is ours.** A table counts as busy if it has a booking within ±2 hours, and it must seat `guests` people. It's a simple rule. In your project use your own booking rule.
+- **The result is `AvailabilityInfo`.** A short object the model uses to build its answer.
+
+**In the Controller** a second tool is added to the list, and today's date to the `System` prompt, like in lecture 3:
+
+```csharp Controllers/AiLabController.cs · Chat
+new(ChatRole.System, $"""
+    You are a restaurant assistant. Answer briefly.
+    Take menu and free-table data only from the tools, don't make anything up.
+    Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+    """),
+// ...
+ChatOptions options = new()
+{
+    Tools =
+    [
+        AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu"),
+        AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")
+    ]
+};
+```
+
+**Why the date?** “Tomorrow at 8” → `at` = `2026-11-26T20:00`. Without today's date the model can't work out “tomorrow” (lecture 3).
+
+```tip
+If you also want to see the parameters in `toolCalls`, write `.Select(c => $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary<string, object?>())})")` instead of `.Select(c => c.Name)`. Swagger will show `check_availability([at, 2026-11-26T20:00:00], [guests, 4])`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · პარამეტრები და დიზაინი">
+  <div class="kicker"><span class="game">🔮 რომელ tool-ს გამოიძახებს?</span></div>
+  <h2>4 ტექსტი — <span class="c-asp">2 tool</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:18px 26px;margin-top:6px">
+    <div class="col" style="gap:8px">
+      <div class="txt"><span class="who">1</span>ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?</div>
+      <div class="step"><span class="tc">📞 check_availability(at: …26T20:00, guests: 4)</span></div>
+    </div>
+    <div class="col" style="gap:8px">
+      <div class="txt"><span class="who">2</span>ლობიო რა ღირს?</div>
+      <div class="step"><span class="tc">📞 get_menu()</span></div>
+    </div>
+    <div class="col" style="gap:8px">
+      <div class="txt"><span class="who">3</span>გამარჯობა, რამდენ საათამდე მუშაობთ?</div>
+      <div class="step"><span class="tc none">tool არ არის — „ამის შესახებ ინფორმაცია არ მაქვს“</span></div>
+    </div>
+    <div class="col" style="gap:8px">
+      <div class="txt"><span class="who">4</span>შაბათს 7-ზე ორნი მოვალთ. ვეგეტარიანული რა გაქვთ?</div>
+      <div class="step"><span class="tc">📞 check_availability(…)</span> <span class="tc">📞 get_menu()</span></div>
+    </div>
+  </div>
+  <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
+    <div class="callout step" style="--a:var(--net);font-size:19px">მოდელი <b>ირჩევს</b>: არცერთს, ერთს ან რამდენიმეს. პარამეტრებს ტექსტიდან ავსებს</div>
+    <div class="callout ask step">🙋 „ოთხნი ვართ“ — <b>რომელ დღეს</b>? რას იზამს მოდელი?</div>
+  </div>
+  <aside class="study">
+### რომელ tool-ს გამოიძახებს?
+
+ოთხი ტექსტი `/chat`-ზე. ჯერ გამოიცანი, მერე Swagger-ში შეამოწმე:
+
+| ტექსტი | რას იძახებს | რა უნდა შენიშნო |
+|---|---|---|
+| „ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?“ | `check_availability(at: …T20:00, guests: 4)` | პარამეტრები ტექსტიდან. „8“ → 20:00 ან 08:00: ეს ისევ მოდელის ვარაუდია (ლექცია 3) |
+| „ლობიო რა ღირს?“ | `get_menu()` | ფასი ბაზიდან |
+| „გამარჯობა, რამდენ საათამდე მუშაობთ?“ | არცერთი | საათების tool არ გვაქვს. სწორი პასუხია „ინფორმაცია არ მაქვს“ (System-ის „არაფერი მოიგონო“ ამიტომ წერია) |
+| „შაბათს 7-ზე ორნი მოვალთ. ვეგეტარიანული რა გაქვთ?“ | `check_availability` **და** `get_menu` | ერთ კითხვაზე ორი tool. `UseFunctionInvocation` ორივეს ასრულებს |
+
+**მოდელი ირჩევს**: tool არცერთი, ერთი ან რამდენიმე. და თვითონ ავსებს პარამეტრებს ტექსტიდან.
+
+**თუ მონაცემი აკლია?** „ოთხნი ვართ, ადგილი გაქვთ?“: დღე არ წერია. კარგი მოდელი ჯერ **დაგისვამს კითხვას** („რომელ დღეს და რომელ საათზე?“) და tool-ს არ გამოიძახებს. ცუდ შემთხვევაში დღეს თვითონ აირჩევს. ამიტომ tool-ის შიგნით C# შემოწმება მაინც საჭიროა (მაგ. `at` წარსულშია → შედეგი „თარიღი წარსულშია“).
+
+```note
+ზუსტი შედეგი შენთან შეიძლება განსხვავდებოდეს: მოდელი ალბათობით ირჩევს. თუ მოდელი tool-ს მაშინ არ იძახებს, როცა უნდა, ჯერ აღწერა გააუმჯობესე (შემდეგი სლაიდი).
+```
+  </aside>
+  <aside class="study-en">
+### Which tool will it call?
+
+Four texts on `/chat`. Guess first, then check in Swagger:
+
+| Text | What it calls | What to notice |
+|---|---|---|
+| “There are four of us, tomorrow at 8 — do you have a table?” | `check_availability(at: …T20:00, guests: 4)` | Parameters from the text. “8” → 20:00 or 08:00: still the model's guess (lecture 3) |
+| “How much is lobio?” | `get_menu()` | The price comes from the database |
+| “Hi, until what time are you open?” | none | We have no opening-hours tool. The right answer is “I don't have that information” (that's why the System prompt says “don't make anything up”) |
+| “Two of us are coming on Saturday at 7. What vegetarian dishes do you have?” | `check_availability` **and** `get_menu` | Two tools for one question. `UseFunctionInvocation` runs both |
+
+**The model chooses**: no tool, one, or several. And it fills in the parameters from the text itself.
+
+**What if data is missing?** “There are four of us, do you have a table?”: no day is given. A good model will **ask a question first** (“Which day and what time?”) and won't call the tool. In a bad case it picks a day itself. That's why a C# check inside the tool is still needed (e.g. `at` is in the past → the result says “the date is in the past”).
+
+```note
+The exact result may differ for you: the model chooses with probabilities. If the model doesn't call a tool when it should, improve the description first (next slide).
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · პარამეტრები და დიზაინი">
+  <div class="kicker">კარგი tool · 4 წესი</div>
+  <h2><span class="c-red">ცუდი</span> vs <span class="c-mvc">კარგი</span> tool</h2>
+  <div class="vs" style="margin-top:4px">
+    <div class="card accent" style="--a:var(--red)"><h3>✗ ასე არა</h3>
+      <code-block lang="csharp" cls="sm">
+public string Check(string data) { … }
+// name: "Check"
+// description: —
+      </code-block>
+      <ul class="clean small">
+        <li>რას ამოწმებს? <b>სახელი</b> არაფერს ამბობს</li>
+        <li><b>აღწერა არ არის</b>: როდის გამოიძახოს?</li>
+        <li><code class="i">string data</code>: რა ფორმატით? მოდელი გამოიცნობს</li>
+      </ul>
+    </div>
+    <div class="card accent step" style="--a:var(--mvc)"><h3>✓ ასე</h3>
+      <code-block lang="csharp" cls="sm">
+[Description("ამოწმებს თავისუფალ მაგიდას…")]
+Task<AvailabilityInfo> CheckAvailability(
+    [Description("…")] DateTime at,
+    [Description("…")] int guests)
+// name: "check_availability"
+      </code-block>
+      <ul class="clean small">
+        <li><b>სახელი</b> = ზმნა + რა: check_availability, get_menu</li>
+        <li><b>აღწერა</b>: რას აკეთებს და რას აბრუნებს</li>
+        <li><b>ტიპიზებული</b> პარამეტრები: DateTime, int, enum</li>
+        <li><b>ერთი tool, ერთი საქმე</b>. დღეს მხოლოდ <b>კითხვა</b></li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout ask step mt">🙋 რატომ <b>მხოლოდ კითხვა</b>? რა მოხდება, თუ მოდელს <code class="i">create_booking</code>-ს მივცემთ?</div>
+  <aside class="study">
+### კარგი tool: 4 წესი
+
+მოდელი tool-ს მხოლოდ სახელით, აღწერით და პარამეტრების სქემით იცნობს. კოდს ვერ ხედავს. ამიტომ tool-ის ხარისხს სწორედ ეს სამი წყვეტს.
+
+| წესი | ცუდი | კარგი |
+|---|---|---|
+| **სახელი** = ზმნა + რა | `Check`, `Func1`, `Data` | `check_availability`, `get_menu` |
+| **აღწერა**: რას აკეთებს, რას აბრუნებს, საჭიროების შემთხვევაში როდის გამოიყენოს | არ არის | „ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს“ |
+| **ტიპიზებული პარამეტრები** აღწერით | `string data` („2026-11-26 20:00 4“?) | `DateTime at`, `int guests`, ან enum, თუ მნიშვნელობები სიიდანაა |
+| **ერთი tool, ერთი საქმე** | `DoEverything(string action, string data)` | ცალკე `get_menu` და `check_availability` |
+
+**რატომ ტიპიზებული პარამეტრები?** `string data`-ში მოდელს ფორმატი თვითონ უნდა გამოიცნოს, ჩვენ კი ეს string უნდა დავპარსოთ. `DateTime` და `int` სქემაში ზუსტ ტიპად მიდის, და `AIFunctionFactory` მოდელის JSON-ს C# ტიპებად თვითონ გარდაქმნის.
+
+**რატომ დღეს მხოლოდ კითხვა (read-only)?** თუ მოდელს `create_booking`-ს მივცემთ, ჯავშანს მოდელი **თვითონ გადაწყვეტს**: შეიძლება „8“ დილის 8 ეგონოს და ჯავშანი ისე შექმნას, რომ მომხმარებელს არ ჰკითხოს. ბაზაში ჩამწერ tool-ს მომხმარებლის **დადასტურება** სჭირდება („ვაჯავშნო ხვალ 20:00-ზე 4 კაცზე?“). ამას human-in-the-loop ჰქვია და ლექცია 15-ზე ვნახავთ.
+
+```tip
+თუ მოდელი tool-ს არასწორ დროს იძახებს ან საერთოდ არ იძახებს, კოდს ნუ შეცვლი. ჯერ **აღწერა** გააუმჯობესე: ხშირად ერთი წინადადება საკმარისია („გამოიყენე, როცა მომხმარებელი ფასს ან კერძს კითხულობს“).
+```
+  </aside>
+  <aside class="study-en">
+### A good tool: 4 rules
+
+The model knows a tool only by its name, its description and the schema of its parameters. It can't see the code. So these three decide the tool's quality.
+
+| Rule | Bad | Good |
+|---|---|---|
+| **Name** = verb + what | `Check`, `Func1`, `Data` | `check_availability`, `get_menu` |
+| **Description**: what it does, what it returns, and when to use it if needed | missing | “Checks whether a table is free at the given time” |
+| **Typed parameters** with descriptions | `string data` (“2026-11-26 20:00 4”?) | `DateTime at`, `int guests`, or an enum if the values come from a list |
+| **One tool, one job** | `DoEverything(string action, string data)` | separate `get_menu` and `check_availability` |
+
+**Why typed parameters?** With `string data` the model has to guess the format, and we have to parse that string. `DateTime` and `int` go into the schema as exact types, and `AIFunctionFactory` converts the model's JSON into C# types by itself.
+
+**Why only reading today (read-only)?** If we give the model `create_booking`, the model **decides** the booking by itself: it may take “8” for 8 in the morning and create the booking without asking the user. A tool that writes to the database needs the user's **confirmation** (“Shall I book tomorrow at 20:00 for 4?”). This is called human-in-the-loop, and we'll see it in lecture 15.
+
+```tip
+If the model calls a tool at the wrong time or doesn't call it at all, don't change the code. Improve the **description** first: often one sentence is enough (“use it when the user asks about a price or a dish”).
+```
+  </aside>
+</section>
+
+<lecture-classwork/>
+
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--net)">დღეს</div>
+  <h2 class="in" style="--d:.1s">მოდელი <span class="grad">ითხოვს</span> — ჩვენი კოდი <span class="grad">ასრულებს</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
+      <li><b>Tool</b> = სახელი + აღწერა + პარამეტრების სქემა. კოდს მოდელი ვერ ხედავს</li>
+      <li>ციკლი: სია → <b>თხოვნა</b> → ჩვენ ვასრულებთ → შედეგი → პასუხი</li>
+      <li><b>AIFunctionFactory.Create</b> — C# მეთოდი → tool; <b>ChatOptions.Tools</b> — სია</li>
+      <li><b>UseFunctionInvocation</b> ციკლს ჩვენ მაგივრად ატრიალებს</li>
+      <li>მოდელი <b>ირჩევს</b> tool-ს და <b>ავსებს</b> პარამეტრებს ტექსტიდან</li>
+      <li>კარგი tool: ზმნა-სახელი, აღწერა, ტიპები; დღეს მხოლოდ <b>კითხვა</b></li></ul></div>
+    <div class="col" style="gap:14px">
+      <code-block lang="csharp" cls="sm" title="Program.cs">
+builder.Services.AddChatClient(…)
+    .UseFunctionInvocation();
+      </code-block>
+      <div class="callout ask">🙋 ეს <b>ერთი ხაზი</b> სინამდვილეში რა არის? სად კიდევ გინახავთ <code class="i">.Use…()</code>?</div>
+      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 5</h3>
+        <p class="small"><b>Pipeline და Middleware</b>: <code class="i">UseFunctionInvocation</code> client-ის გარშემო „ფენაა“. დავამატებთ ლოგირებას, ქეშს და <b>ჩვენს ფენას</b>, რომელიც ტოკენებს ითვლის</p></div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება
+
+- **Tool** — ჩვენი C# მეთოდი, რომელიც მოდელს აღწერილი აქვს: სახელი, აღწერა და პარამეტრების JSON Schema. კოდს მოდელი ვერ ხედავს.
+- **ციკლი:** ჩვენ ვაგზავნით შეკითხვას და tool-ების სიას → მოდელი **ითხოვს** გამოძახებას → **ჩვენი კოდი** ასრულებს მეთოდს → შედეგი მოდელს უბრუნდება → მოდელი ტექსტურ პასუხს წერს. Gemini-სთან მინიმუმ ორი მოთხოვნაა.
+- **`AIFunctionFactory.Create(method, name: "...")`** — C# მეთოდიდან tool-ს ქმნის. **`ChatOptions.Tools`** — tool-ების სია მოთხოვნისთვის. **`[Description]`** — მეთოდზე და პარამეტრებზე.
+- **`.UseFunctionInvocation()`** — `Program.cs`-ში ერთი ხაზი, რომელიც ციკლს ავტომატურად ატრიალებს.
+- **მოდელი ირჩევს**, გამოიძახოს თუ არა tool, რომელი და რამდენი, და **ავსებს** პარამეტრებს ტექსტიდან.
+- **კარგი tool:** სახელი = ზმნა + რა, აღწერა, ტიპიზებული პარამეტრები, ერთი საქმე. დღეს მხოლოდ კითხვის (read-only) tool-ები. ჩანაწერს დადასტურება სჭირდება.
+
+### შემდეგ ლექციაზე
+
+`.UseFunctionInvocation()` ერთი ხაზი იყო, მაგრამ ციკლი მთლიანად შეასრულა. სინამდვილეში ეს client-ის გარშემო **ფენაა** (middleware), ისეთივე, როგორიც ASP.NET Core-ის `app.Use…()`. ლექცია 5-ზე: **Chat Client Pipeline და Middleware**: ლოგირება, ქეში და საკუთარი ფენა, რომელიც ყოველ მოთხოვნაზე ტოკენებს ითვლის.
+  </aside>
+  <aside class="study-en">
+## Summary
+
+- **A tool** is our C# method described to the model: a name, a description and the JSON Schema of its parameters. The model can't see the code.
+- **The loop:** we send the question and the list of tools → the model **asks** for a call → **our code** runs the method → the result goes back to the model → the model writes a text answer. There are at least two requests to Gemini.
+- **`AIFunctionFactory.Create(method, name: "...")`** creates a tool from a C# method. **`ChatOptions.Tools`** is the list of tools for a request. **`[Description]`** goes on the method and the parameters.
+- **`.UseFunctionInvocation()`** — one line in `Program.cs` that runs the loop automatically.
+- **The model chooses** whether to call a tool, which one and how many, and **fills in** the parameters from the text.
+- **A good tool:** name = verb + what, a description, typed parameters, one job. Today only read-only tools. Writing needs confirmation.
+
+### Next lecture
+
+`.UseFunctionInvocation()` was one line, yet it ran the whole loop. In fact it's a **layer** (middleware) around the client, just like ASP.NET Core's `app.Use…()`. In lecture 5: **the Chat Client Pipeline and Middleware**: logging, caching and our own layer that counts tokens on every request.
+  </aside>
+</section>
+
+<lecture-homework/>
