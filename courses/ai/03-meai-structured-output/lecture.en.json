@@ -9,7 +9,7 @@
   ],
   "review": [
     {
-      "q": "What's wrong with `new Client().AsIChatClient(...)` inside a Controller, and how do we fix it?",
+      "q": "What's wrong with `new Client(...).AsIChatClient(...)` inside a Controller, and how do we fix it?",
       "a": "A new client on every request · the model name is in the code · we can't plug a fake client into a test → `AddChatClient` in `Program.cs` (Singleton) + constructor injection in the Controller"
     },
     {

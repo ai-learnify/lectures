@@ -8,11 +8,11 @@
 - ტოკენები — **[Tiktokenizer](https://tiktokenizer.vercel.app/)-ით** (მოდელი gpt-4o), ქართული ტექსტით
 - ერთ ფუნქციაზე **თვის ხარჯი**: Gemini-ს **რეალური** ფასით, ფორმულით
 - კონსპექტის ბოლოს **ტესტი** (12 კითხვა) — ქულა ჩაწერე
-- **Gemini API key** აიღე და `GEMINI_API_KEY` დააყენე — შემდეგ ლექციაზე კოდს ვწერთ
+- **Gemini API key** აიღე და შეინახე — შემდეგ ლექციაზე User Secrets-ში ჩავწერთ (`Gemini:ApiKey`) და კოდს ვწერთ
 
 ## ✓ მზადაა, როცა
 
-README-ში არის 3 ფუნქციის ცხრილი და ხარჯის გათვლა ფორმულით; ტესტის ქულა ჩაწერილია; key დაყენებულია
+README-ში არის 3 ფუნქციის ცხრილი და ხარჯის გათვლა ფორმულით; ტესტის ქულა ჩაწერილია; key აღებულია
 
 ## ⭐ ბონუსი
 
@@ -23,7 +23,7 @@ README-ში არის 3 ფუნქციის ცხრილი და 
 
 - Gemini-ს ფასები: [ai.google.dev/gemini-api/docs/pricing](https://ai.google.dev/gemini-api/docs/pricing) — დაუშვი, რომ უფასო ლიმიტი ამოიწურა
 - ხარჯის ფორმულა: `მოთხოვნები დღეში × ტოკენები × დღეები / 1 000 000 × ფასი` — input და output ცალ-ცალკე
-- key: [aistudio.google.com](https://aistudio.google.com) → Get API key; Windows: `setx GEMINI_API_KEY "…"`, შემდეგ Visual Studio გადატვირთე. key არავის გაუზიარო და არ ჩაწერო კოდში ან GitHub-ზე
+- key: [aistudio.google.com](https://aistudio.google.com) → Get API key; შემდეგ ლექციაზე პროექტში ჩავწერთ: VS → პროექტზე მარჯვენა → **Manage User Secrets** (ან `dotnet user-secrets set "Gemini:ApiKey" "…"`). key არავის გაუზიარო და არ ჩაწერო კოდში, `appsettings.json`-ში ან GitHub-ზე
 
 ## ამოხსნა
 

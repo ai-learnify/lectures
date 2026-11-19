@@ -58,9 +58,9 @@
   ],
   "quiz": [
     {
-      "q": "What does `new Client().AsIChatClient(\"gemini-3.8-flash\")` do?",
+      "q": "What does `new Client(apiKey: config[\"Gemini:ApiKey\"]).AsIChatClient(\"gemini-3.8-flash\")` do?",
       "options": [
-        "creates a Gemini client and turns it into an `IChatClient`; reads the key from the `GEMINI_API_KEY` variable",
+        "creates a Gemini client and turns it into an `IChatClient`; takes the key from configuration (User Secrets)",
         "downloads the model to our computer",
         "creates a Gemini account",
         "trains the model on our menu"
@@ -72,7 +72,7 @@
       "options": [
         "in `appsettings.json`",
         "in the Controller, as a const",
-        "in the `GEMINI_API_KEY` environment variable",
+        "in User Secrets, as `Gemini:ApiKey`",
         "in the README, so we don't forget it"
       ],
       "explain": "Every other place ends up in Git. Bots find a leaked key within minutes."
@@ -171,7 +171,7 @@
   "study": {
     "summary": [
       "`IChatClient` is the “DbContext” of LLMs: the code calls `GetResponseAsync`, and a provider talks to Gemini. Switching providers — one line.",
-      "The API key lives only in an **environment variable** (`GEMINI_API_KEY`), never in code or Git.",
+      "The API key lives in **User Secrets** (`Gemini:ApiKey`), never in code or Git.",
       "`ChatOptions` is set per request. In the response, **`Usage`** (input, output, thinking tokens) and **`FinishReason`** (`stop` / `length`) tell us what it cost and why it stopped.",
       "We send the model a **list of `ChatMessage`s**: **System** (our rules), **User** (the user), **Assistant** (the model's answer).",
       "A good **system prompt** = role + topics + format + what it must not do. **Few-shot** examples fix the answer to an exact format so C# code can use it."

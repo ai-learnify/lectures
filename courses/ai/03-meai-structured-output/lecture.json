@@ -9,7 +9,7 @@
   ],
   "review": [
     {
-      "q": "რა არის ცუდი `new Client().AsIChatClient(...)`-ში Controller-ის შიგნით და როგორ ვასწორებთ?",
+      "q": "რა არის ცუდი `new Client(...).AsIChatClient(...)`-ში Controller-ის შიგნით და როგორ ვასწორებთ?",
       "a": "ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → `AddChatClient` `Program.cs`-ში (Singleton) + Controller-ში constructor injection"
     },
     {

@@ -193,7 +193,7 @@
       "options": [
         "`appsettings.json`-ში",
         "კოდში, const-ად",
-        "გარემოს ცვლადში `GEMINI_API_KEY`",
+        "User Secrets-ში, როგორც `Gemini:ApiKey`",
         "`launchSettings.json`-ში"
       ],
       "answer": 2,

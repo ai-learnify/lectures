@@ -207,7 +207,7 @@ provider — a library that implements the common interface for a specific servi
   <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:30px;align-items:start">
     <div class="col" style="gap:16px">
       <div class="term"><div class="bar"><i></i><i></i><i></i><span>Terminal (Windows)</span></div>
-        <div class="body"><div class="cmd">echo %GEMINI_API_KEY%</div><div class="ok">AIzaSy…</div><div class="out"># ცარიელია? → setx GEMINI_API_KEY "…"</div><div class="out">#           → Visual Studio გადატვირთე</div></div></div>
+        <div class="body"><div class="cmd">dotnet user-secrets init</div><div class="cmd">dotnet user-secrets set "Gemini:ApiKey" "AIza…"</div><div class="ok">Successfully saved Gemini:ApiKey</div><div class="out"># ან VS: პროექტზე მარჯვენა → Manage User Secrets</div></div></div>
       <div class="callout ask">🙋 key <b>არ გაქვს?</b> დაჯექი key-იან მეზობელთან — სახლში აიღებ</div>
     </div>
     <div class="col" style="gap:14px">
@@ -219,19 +219,24 @@ provider — a library that implements the common interface for a specific servi
   <aside class="study">
 ### მომზადება: key და ორი NuGet package
 
-**1. key.** საშინაოში Gemini API key უკვე აიღე და გარემოს ცვლადში ჩაწერე. შეამოწმე ტერმინალში:
+**1. key → User Secrets.** Gemini API key საშინაოში აიღე ([aistudio.google.com](https://aistudio.google.com) → **Get API key**). ახლა ვინახავთ **User Secrets**-ში — .NET-ის ჩაშენებული საცავი დეველოპმენტისთვის. ტერმინალში, პროექტის საქაღალდეში:
 
 ```bash
-echo %GEMINI_API_KEY%
+dotnet user-secrets init
+dotnet user-secrets set "Gemini:ApiKey" "AIza..."
 ```
 
-თუ ცარიელია — key [aistudio.google.com](https://aistudio.google.com)-ზე აიღე (**Get API key**) და ჩაწერე:
+ან Visual Studio-ში: პროექტზე მარჯვენა ღილაკი → **Manage User Secrets** → იხსნება `secrets.json`:
 
-```bash
-setx GEMINI_API_KEY "AIza..."
+```json secrets.json
+{
+  "Gemini": {
+    "ApiKey": "AIza..."
+  }
+}
 ```
 
-`setx`-ის შემდეგ **Visual Studio გადატვირთე**: პროგრამა გარემოს ცვლადებს მხოლოდ გაშვებისას კითხულობს.
+`Gemini:ApiKey` — .NET კონფიგურაციის ჩანაწერია: `:` ნიშნავს ჩადგმულ სექციას (`Gemini` → `ApiKey`). კოდში ასე ვკითხულობთ: `config["Gemini:ApiKey"]`. `secrets.json` პროექტის გარეთ ინახება (შენი მომხმარებლის საქაღალდეში), ამიტომ Git-ში ვერ მოხვდება.
 
 ```warn
 **API key = პაროლი.** არასდროს ჩაწერო კოდში, `appsettings.json`-ში ან `launchSettings.json`-ში — ისინი Git-ში მიდის, და GitHub-ზე გაჟონილ key-ს ბოტები წუთებში პოულობენ.
@@ -254,19 +259,24 @@ dotnet add package Google.GenAI
   <aside class="study-en">
 ### Setup: the key and two NuGet packages
 
-**1. The key.** In the homework you already got a Gemini API key and put it in an environment variable. Check it in the terminal:
+**1. The key → User Secrets.** You got a Gemini API key in the homework ([aistudio.google.com](https://aistudio.google.com) → **Get API key**). Now we store it in **User Secrets** — .NET's built-in store for development. In the terminal, in the project folder:
 
 ```bash
-echo %GEMINI_API_KEY%
+dotnet user-secrets init
+dotnet user-secrets set "Gemini:ApiKey" "AIza..."
 ```
 
-If it's empty — get a key at [aistudio.google.com](https://aistudio.google.com) (**Get API key**) and set it:
+Or in Visual Studio: right-click the project → **Manage User Secrets** → `secrets.json` opens:
 
-```bash
-setx GEMINI_API_KEY "AIza..."
+```json secrets.json
+{
+  "Gemini": {
+    "ApiKey": "AIza..."
+  }
+}
 ```
 
-After `setx`, **restart Visual Studio**: a program reads environment variables only when it starts.
+`Gemini:ApiKey` is a .NET configuration key: `:` means a nested section (`Gemini` → `ApiKey`). In code we read it as `config["Gemini:ApiKey"]`. `secrets.json` lives outside the project (in your user folder), so it can't end up in Git.
 
 ```warn
 **An API key = a password.** Never put it in code, `appsettings.json` or `launchSettings.json` — they go to Git, and bots find a key leaked on GitHub within minutes.
@@ -301,9 +311,14 @@ using Microsoft.Extensions.AI;
 [Route("api/ai-lab")]
 public class AiLabController : ControllerBase
 {
+    private readonly IChatClient _chat;
+
     // დროებით აქვე ვქმნით — ლექცია 3-ზე DI-ში გადავა
-    private readonly IChatClient _chat =
-        new Client().AsIChatClient("gemini-3.8-flash");
+    public AiLabController(IConfiguration config)
+    {
+        _chat = new Client(apiKey: config["Gemini:ApiKey"])
+            .AsIChatClient("gemini-3.8-flash");
+    }
 
     [HttpPost("ask")]
     public async Task<IActionResult> Ask(AskRequest request)
@@ -315,11 +330,11 @@ public class AiLabController : ControllerBase
     </code-block>
     <div class="col" style="gap:14px">
       <div class="callout" style="--a:var(--muted);font-size:18px">📋 <b>AskDtos.cs</b> — მზა, კონსპექტიდან დააკოპირე</div>
-      <i class="codestep" data-for="c1" data-lines="10-11"></i>
-      <div class="callout step" data-with style="--a:var(--net)">ტიპი — <b>IChatClient</b>, ობიექტი — Gemini-ს. key-ს თვითონ კითხულობს <code class="i">GEMINI_API_KEY</code>-დან</div>
-      <i class="codestep" data-for="c1" data-lines="16"></i>
+      <i class="codestep" data-for="c1" data-lines="12-16"></i>
+      <div class="callout step" data-with style="--a:var(--net)">ტიპი — <b>IChatClient</b>, ობიექტი — Gemini-ს. key — კონფიგურაციიდან: <code class="i">config["Gemini:ApiKey"]</code></div>
+      <i class="codestep" data-for="c1" data-lines="21"></i>
       <div class="callout step" data-with style="--a:var(--api)">ერთი ხაზი = HTTP მოთხოვნა Google-ის სერვერზე</div>
-      <i class="codestep" data-for="c1" data-lines="17"></i>
+      <i class="codestep" data-for="c1" data-lines="22"></i>
       <div class="callout step" data-with style="--a:var(--mvc)">ტექსტი + <b>ტოკენები</b> + <b>finish reason</b> — ის, რაც ლექცია 1-ზე ვნახეთ</div>
     </div>
   </div>
@@ -364,9 +379,14 @@ using Microsoft.Extensions.AI;
 [Route("api/ai-lab")]
 public class AiLabController : ControllerBase
 {
+    private readonly IChatClient _chat;
+
     // დროებით აქვე ვქმნით — ლექცია 3-ზე DI-ში გადავა
-    private readonly IChatClient _chat =
-        new Client().AsIChatClient("gemini-3.8-flash");
+    public AiLabController(IConfiguration config)
+    {
+        _chat = new Client(apiKey: config["Gemini:ApiKey"])
+            .AsIChatClient("gemini-3.8-flash");
+    }
 
     [HttpPost("ask")]
     public async Task<IActionResult> Ask(AskRequest request)
@@ -379,14 +399,15 @@ public class AiLabController : ControllerBase
 
 ხაზ-ხაზ:
 
-- **`new Client()`** — Google-ის SDK-ის client. key-ს თვითონ კითხულობს `GEMINI_API_KEY` ცვლადიდან.
+- **`IConfiguration config`** — .NET-ის კონფიგურაცია (appsettings.json + User Secrets + …), DI გვაძლევს constructor-ში.
+- **`new Client(apiKey: config["Gemini:ApiKey"])`** — Google-ის SDK-ის client; key-ს User Secrets-იდან ვაწვდით.
 - **`.AsIChatClient("gemini-3.8-flash")`** — client-ს საერთო `IChatClient`-ად აქცევს; პარამეტრი მოდელის სახელია ([მოდელების სია](https://ai.google.dev/gemini-api/docs/models)). ცვლადის ტიპი interface-ია, ობიექტი კი Gemini-ს.
 - **`GetResponseAsync(request.Prompt)`** — აგზავნის HTTP მოთხოვნას და ელოდება პასუხს. `async`, რადგან ეს ქსელის ოპერაციაა.
 - **`ChatResponse`** — პასუხი: `Text`, `Usage` (ტოკენები), `FinishReason`.
 - **`?.`** — `Usage` და `FinishReason` შეიძლება `null` იყოს (ყველა provider ყოველთვის არ აბრუნებს).
 
 ```warn
-`new Client().AsIChatClient(...)` Controller-ის შიგნით — ესაა ის, რასაც DI-ზე **ვერიდებოდით**: Controller თვითონ ქმნის თავის დამოკიდებულებას. დღეს ეს შეგნებულად ასეა, რომ ყურადღება მოდელზე იყოს. ლექცია 3-ზე `IChatClient`-ს DI-ში დავარეგისტრირებთ.
+`new Client(...).AsIChatClient(...)` Controller-ის შიგნით — ესაა ის, რასაც DI-ზე **ვერიდებოდით**: Controller თვითონ ქმნის თავის დამოკიდებულებას. დღეს ეს შეგნებულად ასეა, რომ ყურადღება მოდელზე იყოს. ლექცია 3-ზე `IChatClient`-ს DI-ში დავარეგისტრირებთ.
 ```
   </aside>
   <aside class="study-en">
@@ -430,9 +451,14 @@ using Microsoft.Extensions.AI;
 [Route("api/ai-lab")]
 public class AiLabController : ControllerBase
 {
+    private readonly IChatClient _chat;
+
     // created here for now — moves to DI in lecture 3
-    private readonly IChatClient _chat =
-        new Client().AsIChatClient("gemini-3.8-flash");
+    public AiLabController(IConfiguration config)
+    {
+        _chat = new Client(apiKey: config["Gemini:ApiKey"])
+            .AsIChatClient("gemini-3.8-flash");
+    }
 
     [HttpPost("ask")]
     public async Task<IActionResult> Ask(AskRequest request)
@@ -445,14 +471,15 @@ public class AiLabController : ControllerBase
 
 Line by line:
 
-- **`new Client()`** — the Google SDK client. It reads the key itself from the `GEMINI_API_KEY` variable.
+- **`IConfiguration config`** — .NET configuration (appsettings.json + User Secrets + …); DI hands it to the constructor.
+- **`new Client(apiKey: config["Gemini:ApiKey"])`** — the Google SDK client; we pass it the key from User Secrets.
 - **`.AsIChatClient("gemini-3.8-flash")`** — turns the client into the common `IChatClient`; the parameter is the model name ([model list](https://ai.google.dev/gemini-api/docs/models)). The variable's type is the interface, the object is Gemini's.
 - **`GetResponseAsync(request.Prompt)`** — sends the HTTP request and waits for the answer. `async`, because it's a network operation.
 - **`ChatResponse`** — the answer: `Text`, `Usage` (tokens), `FinishReason`.
 - **`?.`** — `Usage` and `FinishReason` can be `null` (not every provider always returns them).
 
 ```warn
-`new Client().AsIChatClient(...)` inside the Controller is exactly what we **avoided** in the DI lecture: the Controller creates its own dependency. Today it's on purpose, so the focus stays on the model. In lecture 3 we register `IChatClient` in DI.
+`new Client(...).AsIChatClient(...)` inside the Controller is exactly what we **avoided** in the DI lecture: the Controller creates its own dependency. Today it's on purpose, so the focus stays on the model. In lecture 3 we register `IChatClient` in DI.
 ```
   </aside>
 </section>
@@ -1279,7 +1306,7 @@ Use examples about restaurant reviews. Explain in English, briefly.
   <h2 class="in" style="--d:.1s">მოდელი <span class="grad">ჩვენი API-დან</span> — და ჩვენი წესებით</h2>
   <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
     <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
-      <li><b>IChatClient</b> — ერთი API ყველა მოდელისთვის; key — მხოლოდ გარემოს ცვლადში</li>
+      <li><b>IChatClient</b> — ერთი API ყველა მოდელისთვის; key — User Secrets-ში (<code class="i">Gemini:ApiKey</code>)</li>
       <li><b>ChatOptions</b> — Temperature, Max Tokens ყოველ მოთხოვნაზე</li>
       <li><b>Usage · FinishReason</b> — რა დაჯდა (ფიქრიც!) და რატომ გაჩერდა</li>
       <li><b>System · User · Assistant</b> — ვუგზავნით სიას, არა ერთ ტექსტს</li>
@@ -1287,8 +1314,8 @@ Use examples about restaurant reviews. Explain in English, briefly.
       <li><b>few-shot</b> — მაგალითები ფორმატს აფიქსირებს</li></ul></div>
     <div class="col" style="gap:14px">
       <code-block lang="csharp" cls="sm" title="AiLabController.cs">
-private readonly IChatClient _chat =
-    new Client().AsIChatClient("gemini-3.8-flash");
+_chat = new Client(apiKey: config["Gemini:ApiKey"])
+    .AsIChatClient("gemini-3.8-flash");
       </code-block>
       <div class="callout ask">🙋 გაიხსენეთ DI-ის ლექცია: რა არის <b>ცუდი</b> ამ ორ ხაზში?</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 3</h3>
@@ -1300,7 +1327,7 @@ private readonly IChatClient _chat =
 
 **დაიმახსოვრე:**
 
-1. **`IChatClient`** — LLM-ის „DbContext“: ერთი API ყველა მოდელისთვის; პროვაიდერის შეცვლა — ერთი ხაზი. key — მხოლოდ გარემოს ცვლადში (`GEMINI_API_KEY`).
+1. **`IChatClient`** — LLM-ის „DbContext“: ერთი API ყველა მოდელისთვის; პროვაიდერის შეცვლა — ერთი ხაზი. key — User Secrets-ში (`Gemini:ApiKey`), არასდროს კოდში ან Git-ში.
 2. **`ChatOptions`** — Temperature და Max Tokens ყოველ მოთხოვნაზე ცალკე. Gemini 3-ზე Temperature-ს ნაგულისხმევზე ვტოვებთ; Max Tokens — მარაგით, რადგან ფიქრიც ამ ლიმიტშია.
 3. **`Usage` და `FinishReason`** — input, output და ფიქრის ტოკენები (ფიქრიც output-ის ფასით ფასდება); `stop` / `length`.
 4. **შეტყობინებების სია** — System (ჩვენი წესები), User (მომხმარებელი), Assistant (მოდელი).
@@ -1309,10 +1336,10 @@ private readonly IChatClient _chat =
 
 ### ⏭️ შემდეგ ლექციაზე
 
-დღევანდელი `new Client().AsIChatClient(...)` Controller-ის შიგნით DI-ის წესს არღვევს: Controller თვითონ ქმნის დამოკიდებულებას, მოდელის სახელი კოდშია ჩაწერილი. ლექცია 3-ზე `IChatClient`-ს **DI-ში** დავარეგისტრირებთ (`AddChatClient`) და კონფიგურაციიდან წავიკითხავთ. იქვე — **structured output**: პასუხი პირდაპირ C# ობიექტად (`GetResponseAsync<T>`), few-shot-ზე უფრო საიმედოდ.
+დღევანდელი `new Client(...).AsIChatClient(...)` Controller-ის შიგნით DI-ის წესს არღვევს: Controller თვითონ ქმნის დამოკიდებულებას, მოდელის სახელი კოდშია ჩაწერილი. ლექცია 3-ზე `IChatClient`-ს **DI-ში** დავარეგისტრირებთ (`AddChatClient`) და კონფიგურაციიდან წავიკითხავთ. იქვე — **structured output**: პასუხი პირდაპირ C# ობიექტად (`GetResponseAsync<T>`), few-shot-ზე უფრო საიმედოდ.
 
 ```prompt გამოცდა მთელ ლექციაზე
-ვსწავლობ AI-ს .NET-ში. მეორე ლექციაზე გავიარეთ: Microsoft.Extensions.AI და IChatClient (Gemini, Google.GenAI, AsIChatClient), API key გარემოს ცვლადში, ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning ტოკენები) და FinishReason, შეტყობინებების როლები (System, User, Assistant), system prompt-ის 4 ნაწილი, prompt-ის შაბლონი C#-ში, zero-shot და few-shot.
+ვსწავლობ AI-ს .NET-ში. მეორე ლექციაზე გავიარეთ: Microsoft.Extensions.AI და IChatClient (Gemini, Google.GenAI, AsIChatClient), API key User Secrets-ში (Gemini:ApiKey), ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning ტოკენები) და FinishReason, შეტყობინებების როლები (System, User, Assistant), system prompt-ის 4 ნაწილი, prompt-ის შაბლონი C#-ში, zero-shot და few-shot.
 დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ, მათ შორის 2 პრაქტიკული სიტუაცია რესტორნის API-ზე. ყოველ ჩემს პასუხზე მითხარი, სწორია თუ არა და რატომ, მერე დასვი შემდეგი. ბოლოს მითხარი, რა უნდა გავიმეორო. კომუნიკაცია ქართულად.
 ```
   </aside>
@@ -1321,7 +1348,7 @@ private readonly IChatClient _chat =
 
 **Remember:**
 
-1. **`IChatClient`** — the “DbContext” of LLMs: one API for every model; switching providers is one line. The key — only in an environment variable (`GEMINI_API_KEY`).
+1. **`IChatClient`** — the “DbContext” of LLMs: one API for every model; switching providers is one line. The key — in User Secrets (`Gemini:ApiKey`), never in code or Git.
 2. **`ChatOptions`** — Temperature and Max Tokens per request. On Gemini 3 we leave Temperature at the default; Max Tokens — with room to spare, because thinking is inside that limit too.
 3. **`Usage` and `FinishReason`** — input, output and thinking tokens (thinking is billed at the output price too); `stop` / `length`.
 4. **A list of messages** — System (our rules), User (the user), Assistant (the model).
@@ -1330,10 +1357,10 @@ private readonly IChatClient _chat =
 
 ### ⏭️ Next lecture
 
-Today's `new Client().AsIChatClient(...)` inside the Controller breaks the DI rule: the Controller creates its own dependency, and the model name is hard-coded. In lecture 3 we register `IChatClient` **in DI** (`AddChatClient`) and read it from configuration. Also — **structured output**: the answer directly as a C# object (`GetResponseAsync<T>`), more reliable than few-shot.
+Today's `new Client(...).AsIChatClient(...)` inside the Controller breaks the DI rule: the Controller creates its own dependency, and the model name is hard-coded. In lecture 3 we register `IChatClient` **in DI** (`AddChatClient`) and read it from configuration. Also — **structured output**: the answer directly as a C# object (`GetResponseAsync<T>`), more reliable than few-shot.
 
 ```prompt Test yourself on the whole lecture
-I'm learning AI in .NET. In the second lecture we covered: Microsoft.Extensions.AI and IChatClient (Gemini, Google.GenAI, AsIChatClient), the API key in an environment variable, ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning tokens) and FinishReason, message roles (System, User, Assistant), the 4 parts of a system prompt, a prompt template in C#, zero-shot and few-shot.
+I'm learning AI in .NET. In the second lecture we covered: Microsoft.Extensions.AI and IChatClient (Gemini, Google.GenAI, AsIChatClient), the API key in User Secrets (Gemini:ApiKey), ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning tokens) and FinishReason, message roles (System, User, Assistant), the 4 parts of a system prompt, a prompt template in C#, zero-shot and few-shot.
 Ask me 8 questions one at a time, from easy to hard, including 2 practical situations about a restaurant API. After each of my answers tell me whether it's right and why, then ask the next one. At the end tell me what I should review. Communicate in English.
 ```
   </aside>

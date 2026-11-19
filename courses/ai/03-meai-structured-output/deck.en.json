@@ -46,8 +46,8 @@
 "<li>Check the result in the endpoint with C#: a required field is <code class=\"i\">null</code> → <code class=\"i\">BadRequest</code> with a question (“which day?”)</li>"
 ],
 [
-"<span class=\"q\">რა არის ცუდი <code class=\"i\">new Client().AsIChatClient(...)</code>-ში Controller-ის შიგნით და როგორ ვასწორებთ?</span>",
-"<span class=\"q\">What's wrong with <code class=\"i\">new Client().AsIChatClient(...)</code> inside a Controller, and how do we fix it?</span>"
+"<span class=\"q\">რა არის ცუდი <code class=\"i\">new Client(...).AsIChatClient(...)</code>-ში Controller-ის შიგნით და როგორ ვასწორებთ?</span>",
+"<span class=\"q\">What's wrong with <code class=\"i\">new Client(...).AsIChatClient(...)</code> inside a Controller, and how do we fix it?</span>"
 ],
 [
 "<span class=\"a step\">ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → <code class=\"i\">AddChatClient</code> <code class=\"i\">Program.cs</code>-ში (Singleton) + Controller-ში constructor injection</span>",
@@ -86,8 +86,8 @@
 "<span class=\"a step\">No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database</span>"
 ],
 [
-"<li><strong>DI:</strong> პროექტში <code class=\"i\">new Client()</code> არსად — <code class=\"i\">IChatClient</code> მხოლოდ <code class=\"i\">AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
-"<li><strong>DI:</strong> no <code class=\"i\">new Client()</code> anywhere in the project — <code class=\"i\">IChatClient</code> only through <code class=\"i\">AddChatClient</code>; the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
+"<li><strong>DI:</strong> Controller-ებში <code class=\"i\">new Client(...)</code> არსად — <code class=\"i\">IChatClient</code> მხოლოდ <code class=\"i\">AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
+"<li><strong>DI:</strong> no <code class=\"i\">new Client(...)</code> in any Controller — <code class=\"i\">IChatClient</code> only through <code class=\"i\">AddChatClient</code>; the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
 ],
 [
 "<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code class=\"i\">POST /api/ai-lab/classify</code> გადაწერე <code class=\"i\">GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>",
@@ -413,5 +413,9 @@
 "მოგონების ნაცვლად —": "Instead of making things up —",
 "და": "and",
 "ლექცია 2:": "Lecture 2:",
-"— Google SDK-ის სახელი. .NET-ში: სექცია": "— the Google SDK's name. In .NET: the section"
+"— Google SDK-ის სახელი. .NET-ში: სექცია": "— the Google SDK's name. In .NET: the section",
+"secrets.json · ლექცია 2-დან": "secrets.json · from lecture 2",
+"ერთი სექცია": "One section",
+", ორი წყარო —": ", two sources —",
+"აერთიანებს": "merges them"
 }

@@ -184,7 +184,7 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 
 `"Gemini:ApiKey"` — `:` ჩადგმულ სექციას ნიშნავს (`{"Gemini": {"ApiKey": …}}`). გარემოს ცვლადში `:` ზოგ OS-ზე დაუშვებელია, ამიტომ იწერება `Gemini__ApiKey` (ორი `_`).
 
-**რატომ ვცვლით სახელს ლექცია 2-ის შემდეგ:** `GEMINI_API_KEY` Google-ის SDK-ის კონვენციაა — `new Client()` მას თვითონ ეძებდა. .NET-ის კონვენცია სექციებია: ერთ სექციაში (`Gemini`) ერთი სერვისის ყველა პარამეტრი — `Model`, `ApiKey`. ამიტომ 03-ზე key ერთხელ, გეგმით გადაგვაქვს User Secrets-ში `Gemini:ApiKey`-ად. სტუდენტებს ასე უთხარი: „ლექცია 2-ზე SDK-ის წესით ვმუშაობდით, დღეიდან — .NET-ის წესით“.
+**key უკვე ადგილზეა:** ლექცია 2-ზე სტუდენტებმა key User Secrets-ში ჩაწერეს, როგორც `Gemini:ApiKey`. დღეს მას `appsettings.json`-ის `Gemini:Model` ემატება — ერთი სექცია, ორი წყარო. `IConfiguration` მათ აერთიანებს.
 
 #### User Secrets — სად ინახება
 
@@ -199,9 +199,9 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 
 ალტერნატივა — `builder.Configuration["Gemini:ApiKey"]!` — key-ს გარეშეც ჩაირთვება, და პირველ მოთხოვნაზე Gemini `401`-ს ან `400 API key not valid`-ს დააბრუნებს. ეს უფრო გაუგებარია. **Fail fast:** კონფიგურაციის შეცდომა გაშვებისას ჩანს, გასაგები ტექსტით.
 
-#### `Client` vs `new Client()` (ლექცია 2)
+#### რა შეიცვალა ლექცია 2-თან შედარებით
 
-ლექცია 2-ზე `new Client()` key-ს თვითონ ეძებდა `GOOGLE_API_KEY`/`GEMINI_API_KEY` ცვლადებში. დღეს `new Client(apiKey: apiKey)` — key ცხადად. ეს უკეთესია: წყარო ერთია (კონფიგურაცია), და `GOOGLE_API_KEY`-ის ძველი მნიშვნელობა ვეღარ „ჩაერევა“.
+ლექცია 2-ზე Controller-ი `IConfiguration`-ს იღებდა და `new Client(apiKey: config["Gemini:ApiKey"])`-ს თვითონ ქმნიდა — ყოველ მოთხოვნაზე. დღეს იგივე ხაზი `Program.cs`-ში გადადის და ერთხელ სრულდება; Controller-ს `IConfiguration` აღარ სჭირდება — მხოლოდ `IChatClient`.
 
 ### 🔬 უფრო ღრმად — თუ ჰკითხავენ
 
@@ -232,8 +232,8 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 
 #### 8 · Program.cs · 4.5 წთ
 
-- **რას აკეთებ:** **ერთად წერთ.** ჯერ `appsettings.json` (მოდელი), მერე ტერმინალი (`user-secrets init`, `set`) — key-ს **შენ** ეკრანზე არ წერ, `AIza…` placeholder-ით აჩვენე. მერე `Program.cs` — `AddChatClient`.
-- **რას ეუბნები:** „ლექცია 2-ზე key Google-ის SDK-ის სახელით იყო (`GEMINI_API_KEY`). .NET-ში პარამეტრებს სექციებად ვალაგებთ — `Gemini:Model`, `Gemini:ApiKey` — ამიტომ key-ს ერთხელ გადავიტანთ.“ „მოდელის სახელი საიდუმლო არ არის — Git-ში მიდის. key საიდუმლოა — User Secrets-ში, Git-ის გარეთ. კოდი ორივეს ერთნაირად კითხულობს — `Configuration`-იდან.“ Singleton-ზე ერთი წინადადება: „ერთი client მთელ აპლიკაციაზე — როგორც `HttpClient`“.
+- **რას აკეთებ:** **ერთად წერთ.** ჯერ `appsettings.json` (მოდელი), მერე VS → **Manage User Secrets** — აჩვენე, რომ `Gemini:ApiKey` ლექცია 2-დან უკვე იქაა (key-ს ეკრანზე არ აჩვენებ — დახურე ფაილი სწრაფად ან placeholder-იანი პროექტით აჩვენე). მერე `Program.cs` — `AddChatClient`.
+- **რას ეუბნები:** „ერთი სექცია `Gemini` — `Model` appsettings-ში, `ApiKey` User Secrets-ში.“ „მოდელის სახელი საიდუმლო არ არის — Git-ში მიდის. key საიდუმლოა — User Secrets-ში, Git-ის გარეთ. კოდი ორივეს ერთნაირად კითხულობს — `Configuration`-იდან.“ Singleton-ზე ერთი წინადადება: „ერთი client მთელ აპლიკაციაზე — როგორც `HttpClient`“.
 - **გადასვლა:** „ახლა Controller-ი.“
 
 #### 9 · Controller · 2.5 წთ
@@ -269,8 +269,6 @@ builder.Services.AddChatClient(new Client(apiKey: apiKey).AsIChatClient(model));
 = `ChatClientBuilder`-ს. მასზე ლექცია 5-ზე „ფენებს“ დავამატებთ: logging, cache, telemetry. დღეს არაფერს ვამატებთ — client პირდაპირ რეგისტრირდება.
 ? „სერვერზე key საიდან მოვა?“
 = გარემოს ცვლადიდან `Gemini__ApiKey`. კოდი არ იცვლება — `Configuration` გარემოს ცვლადებსაც კითხულობს. DevOps-ში deploy-ზე ვნახავთ.
-? „`GEMINI_API_KEY` ცვლადი ახლა აღარ გვჭირდება?“
-= ჩვენი კოდისთვის — არა, ის `Gemini:ApiKey`-ს ეძებს. ცვლადი შეგიძლია დატოვო ან წაშალო — ხელს არ შეუშლის.
 ? „Program.cs-ში ორი სხვადასხვა მოდელი შეიძლება?“
 = კი — keyed client-ებით (`AddKeyedChatClient("cheap", …)`). ხარჯის ლექციაზე (8) დავუბრუნდებით.
 ```
@@ -683,7 +681,7 @@ public class FakeChatClient(string json) : IChatClient
 
 | კრიტერიუმი | წონა |
 |---|---|
-| DI: `new Client()` არსად; key User Secrets-ში, მოდელი `appsettings.json`-ში | 20% |
+| DI: Controller-ში `new Client(...)` არსად; key User Secrets-ში, მოდელი `appsettings.json`-ში | 20% |
 | `classify` enum-ით: `GetResponseAsync<T>`, 5 ტექსტზე enum-ის მნიშვნელობა | 25% |
 | ტექსტიდან ჩანაწერი: ნამდვილ Controller-ში, nullable ველები, C# შემოწმება (`400` კითხვით), ბაზაში ჩაწერა არსებული ლოგიკით | 35% |
 | შედარების ცხრილი README-ში (few-shot vs enum, `inputTokens`) და ტესტის ქულა | 20% |

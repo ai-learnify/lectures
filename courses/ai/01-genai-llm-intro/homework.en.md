@@ -8,11 +8,11 @@ No code · result — a document in your project's README
 - Tokens — **with [Tiktokenizer](https://tiktokenizer.vercel.app/)** (model gpt-4o), using Georgian text
 - For one feature, the **monthly cost**: with Gemini's **real** price, using the formula
 - The **quiz** at the end of the study notes (12 questions) — write down your score
-- Get a **Gemini API key** and set `GEMINI_API_KEY` — next lecture we write code
+- Get a **Gemini API key** and keep it — next lecture we put it in User Secrets (`Gemini:ApiKey`) and write code
 
 ## ✓ Done when
 
-The README has the table of 3 features and the cost calculation with the formula; the quiz score is written down; the key is set
+The README has the table of 3 features and the cost calculation with the formula; the quiz score is written down; you have the key
 
 ## ⭐ Bonus
 
@@ -23,7 +23,7 @@ The README has the table of 3 features and the cost calculation with the formula
 
 - Gemini prices: [ai.google.dev/gemini-api/docs/pricing](https://ai.google.dev/gemini-api/docs/pricing) — assume the free tier has run out
 - Cost formula: `requests per day × tokens × days / 1 000 000 × price` — input and output separately
-- Key: [aistudio.google.com](https://aistudio.google.com) → Get API key; on Windows: `setx GEMINI_API_KEY "…"`, then restart Visual Studio. Never share the key or put it in code or on GitHub
+- Key: [aistudio.google.com](https://aistudio.google.com) → Get API key; next lecture we add it to the project: VS → right-click the project → **Manage User Secrets** (or `dotnet user-secrets set "Gemini:ApiKey" "…"`). Never share the key or put it in code, `appsettings.json` or on GitHub
 
 ## Solution
 

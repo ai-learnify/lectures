@@ -10,7 +10,7 @@
 
 ### 📌 სტუდენტს აუცილებლად უნდა დარჩეს
 
-1. `IChatClient` ერთი API-ა ყველა მოდელისთვის; key მხოლოდ **გარემოს ცვლადშია**.
+1. `IChatClient` ერთი API-ა ყველა მოდელისთვის; key **User Secrets**-შია (`Gemini:ApiKey`), არასდროს კოდში ან Git-ში.
 2. `ChatOptions` ყოველ მოთხოვნას ეყენება; პასუხში `Usage` (მათ შორის **ფიქრის ტოკენები**, რომლებსაც output-ის ფასით ვიხდით) და `FinishReason`.
 3. მოდელს **შეტყობინებების სიას** ვუგზავნით: System (ჩვენი წესები), User, Assistant.
 4. კარგი system prompt = **როლი + თემები + ფორმა + საზღვრები**. ის ალბათობას ცვლის, არა გარანტიას.
@@ -81,7 +81,7 @@
 
 - **ლექცია 1:** ტოკენები, next-token prediction, hallucination, stateless, Temperature / Max Tokens, reasoning მოდელები, `finish_reason`. დღეს ყველაფერი ეს **კოდში** დასტურდება.
 - **API კურსი:** Controllers, DTO-ები `record`-ით, `async`/`await`, Swagger, DI (დღეს შეგნებულად ვარღვევთ).
-- **საშინაო 1:** Gemini key (`GEMINI_API_KEY`) — უამისოდ დღეს ვერ იმუშავებენ.
+- **საშინაო 1:** Gemini key აღებული აქვთ — დღეს User Secrets-ში ჩაწერენ (`Gemini:ApiKey`). უამისოდ ვერ იმუშავებენ.
 
 ### ➡️ რას ამზადებს
 
@@ -93,7 +93,7 @@
 ### 🚫 დღეს არ ვხსნით
 
 - **Structured output, JSON Schema** — ლექცია 3. თუ ჰკითხავენ „JSON-ად როგორ?“: „შესანიშნავი კითხვაა — ზუსტად ეს არის შემდეგი ლექცია“.
-- **DI-ში რეგისტრაცია, appsettings, User Secrets** — ლექცია 3.
+- **DI-ში რეგისტრაცია (`AddChatClient`), მოდელის სახელი კონფიგურაციაში** — ლექცია 3.
 - **Streaming** — ლექცია 6.
 - **ისტორია / „მეხსიერება“** — ლექცია 7 (თუ დრო დარჩა, ⭐ აქტივობაში ერთი მაგალითი).
 - **Prompt injection-ის დაცვა** — ლექცია 19. დღეს მხოლოდ ვასახელებთ.
@@ -137,7 +137,7 @@
 
 - **„DbContext“-ის ანალოგია არ მუშაობს →** კაბელის ადაპტერი: ლეპტოპი (ჩვენი კოდი) ერთი, ადაპტერი (provider) სხვადასხვა მონიტორზე (Gemini, OpenAI).
 - **NuGet ვერ ეძებნება →** ტერმინალიდან: `dotnet add package Microsoft.Extensions.AI` და `dotnet add package Google.GenAI`.
-- **401 / API key not valid →** Visual Studio `setx`-მდე იყო გახსნილი. დახურე და ხელახლა გახსენი.
+- **„API key must either be provided…“ →** `config["Gemini:ApiKey"]` null-ია: secret სხვა პროექტში ჩაიწერა ან სახელი არ ემთხვევა. VS → **Manage User Secrets** — `secrets.json`-ში უნდა ჩანდეს `"Gemini": { "ApiKey": … }`.
 - **`AskResponse.From` ვერ პოულობს →** DTO-ს ფაილში `using Microsoft.Extensions.AI;` აკლია.
 - **`async`/`await` დაავიწყდათ →** ერთი წინადადება: „ქსელის ოპერაციაა, ველოდებით და სანამ ველოდებით, სერვერი სხვა მოთხოვნებს ემსახურება“.
 
@@ -169,23 +169,30 @@ ChatResponse response = await _chat.GetResponseAsync(request.Prompt);
 
 ანუ ლექცია 1-ის „LLM = კიდევ ერთი HTTP API“ სიტყვასიტყვით ასეა — უბრალოდ HTTP-ს ხელით არ ვწერთ.
 
-#### key და გარემოს ცვლადები
+#### key: User Secrets და `Gemini:ApiKey`
 
-`new Client()` key-ს გარემოს ცვლადიდან კითხულობს. ეძებს ორს: `GOOGLE_API_KEY` და `GEMINI_API_KEY`. **თუ ორივე დაყენებულია, `GOOGLE_API_KEY`-ს იყენებს** (გაფრთხილებით). ეს იშვიათი, მაგრამ დამაბნეველი შეცდომაა: სტუდენტს ძველი, არასწორი `GOOGLE_API_KEY` აქვს და ახალი key „არ მუშაობს“.
+`Gemini:ApiKey` .NET კონფიგურაციის გასაღებია: `:` ჩადგმულ სექციას ნიშნავს. იგივე მნიშვნელობა შეიძლება მოვიდეს `appsettings.json`-იდან (`"Gemini": { "ApiKey": … }`), User Secrets-იდან ან გარემოდან — `IConfiguration` ყველას ერთ ადგილას აერთიანებს, ბოლო წყარო იგებს. Development-ში User Secrets ავტომატურად ერთვება (`WebApplication.CreateBuilder`).
 
-key შეიძლება პირდაპირაც გადაეცეს: `new Client(apiKey: "...")` — მაგრამ ლექციაზე ასე **არ** ვაკეთებთ, რომ key კოდში არ მოხვდეს. ლექცია 3-ზე კონფიგურაციიდან (User Secrets) წავიკითხავთ.
+რატომ User Secrets და არა `appsettings.json`: `secrets.json` პროექტის გარეთ ინახება (`%APPDATA%\Microsoft\UserSecrets\<UserSecretsId>\secrets.json`), `.csproj`-ში მხოლოდ `UserSecretsId` იწერება. ამიტომ Git-ში ვერ მოხვდება. ეს **დაშიფრული არ არის** — მხოლოდ დეველოპმენტისთვისაა; production-ში key სერვერის კონფიგურაციიდან/secret store-იდან მოდის.
 
-`setx` ცვლადს Windows-ის რეესტრში წერს, მაგრამ **უკვე გაშვებული პროცესები მას ვერ ხედავენ** — ამიტომ Visual Studio-ს გადატვირთვა სჭირდება. Rider/VS Code-ზეც იგივეა. macOS/Linux-ზე: `export GEMINI_API_KEY=...` shell-ის კონფიგურაციაში (`~/.zshrc`).
+`dotnet user-secrets` იმ პროექტში წერს, რომლის საქაღალდეშიც გაუშვი. თუ solution-ის საქაღალდეშია — „Could not find a MSBuild project file“. VS-ის **Manage User Secrets** ამ პრობლემას გვერდს უვლის.
+
+`new Client(apiKey: …)` key-ს პირდაპირ იღებს. თუ `apiKey` null-ია, SDK გარემოში ეძებს საკუთარ ცვლადს და, თუ ვერ იპოვა, აგდებს „API key must either be provided…“. ჩვენ ამ გზას **არ** ვიყენებთ — key ყოველთვის `Gemini:ApiKey`-დან მოდის.
 
 #### რატომ „ცუდია“ დღევანდელი კოდი (და რატომ ვტოვებთ ასე)
 
 ```csharp
-private readonly IChatClient _chat = new Client().AsIChatClient("gemini-3.8-flash");
+public AiLabController(IConfiguration config)
+{
+    _chat = new Client(apiKey: config["Gemini:ApiKey"])
+        .AsIChatClient("gemini-3.8-flash");
+}
 ```
 
 - Controller ASP.NET Core-ში **ყოველ მოთხოვნაზე** ახლიდან იქმნება, ე.ი. client-იც ყოველ მოთხოვნაზე იქმნება. Client-ს შიგნით HTTP კავშირი აქვს — სერვერზე ეს რესურსის ფლანგვაა.
 - მოდელის სახელი კოდშია ჩაწერილი.
 - Controller-ს ვერ გამოვცდით ყალბი მოდელით.
+- key-ს წაკითხვა Controller-ის საქმე არ არის — ის კონფიგურაციის ცოდნას ითხოვს მხოლოდ client-ის ასაწყობად.
 
 დღეს ეს შეგნებულად ასეა — 15 წუთში ყურადღება მოდელზე უნდა იყოს და არა DI-ზე. ლექცია 3-ის პირველივე კითხვაა: „რა არის ცუდი ამ ორ ხაზში?“
 
@@ -193,8 +200,9 @@ private readonly IChatClient _chat = new Client().AsIChatClient("gemini-3.8-flas
 
 | რას ხედავს | მიზეზი | გამოსწორება |
 |---|---|---|
-| `401` / `API key not valid` | VS `setx`-მდე იყო გახსნილი, ან key არასწორად ჩაკოპირდა | VS-ის გადატვირთვა; `echo %GEMINI_API_KEY%` |
-| „API key must either be provided or set…“ | ცვლადი საერთოდ არ ჩანს | იგივე; სახელი ზუსტად `GEMINI_API_KEY` |
+| `401` / `API key not valid` | key არასწორად ჩაკოპირდა (ზედმეტი სივრცე, ბრჭყალი) | VS → Manage User Secrets, შეამოწმე მნიშვნელობა |
+| „API key must either be provided or set…“ | `config["Gemini:ApiKey"]` null-ია | secret სხვა პროექტშია ან სახელი არ ემთხვევა; `dotnet user-secrets list` |
+| „Could not find a MSBuild project file“ | `user-secrets` solution-ის საქაღალდეში გაუშვა | `cd` პროექტის საქაღალდეში, ან VS → Manage User Secrets |
 | `404` … model not found | მოდელის სახელი არასწორია ან მოძველდა | [მოდელების სია](https://ai.google.dev/gemini-api/docs/models) |
 | `429` / `RESOURCE_EXHAUSTED` | უფასო ლიმიტი (წუთში/დღეში) ამოიწურა | დაელოდე წუთი; კლასში ერთი key ბევრს ნუ აქვს |
 | `ChatResponse` ვერ ცნო | `using Microsoft.Extensions.AI;` აკლია | using |
@@ -211,7 +219,8 @@ private readonly IChatClient _chat = new Client().AsIChatClient("gemini-3.8-flas
 ### 📚 წყაროები
 
 - [Microsoft.Extensions.AI — overview](https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai) — IChatClient, ChatOptions, middleware
-- [Google Gen AI .NET SDK](https://googleapis.github.io/dotnet-genai/) — `Client`, გარემოს ცვლადები, `AsIChatClient`
+- [Google Gen AI .NET SDK](https://googleapis.github.io/dotnet-genai/) — `Client`, `AsIChatClient`
+- [Safe storage of app secrets (User Secrets)](https://learn.microsoft.com/aspnet/core/security/app-secrets) — `dotnet user-secrets`, `secrets.json`
 - [Gemini models](https://ai.google.dev/gemini-api/docs/models) — მიმდინარე მოდელების სახელები
 
 ### 🎬 მსვლელობა
@@ -229,8 +238,8 @@ private readonly IChatClient _chat = new Client().AsIChatClient("gemini-3.8-flas
 
 #### 8 · key + package · 2 წთ
 
-- **რას აკეთებ:** ყველამ გაუშვას `echo %GEMINI_API_KEY%`. ხელის აწევა: „ვისთან ცარიელია?“ — ისინი მეზობელთან სხდებიან. Package-ებს ერთად აყენებთ.
-- **რას ეუბნები:** „key პაროლია. კოდში და Git-ში — არასდროს.“
+- **რას აკეთებ:** ყველა key-ს User Secrets-ში წერს: VS → პროექტზე მარჯვენა → **Manage User Secrets** (ან `dotnet user-secrets set "Gemini:ApiKey" "…"`). ხელის აწევა: „ვისაც key არ აქვს?“ — ისინი მეზობელთან სხდებიან. Package-ებს ერთად აყენებთ.
+- **რას ეუბნები:** „key პაროლია. კოდში და Git-ში — არასდროს. `Gemini:ApiKey` — ორწერტილი ნიშნავს სექციას `Gemini`, მასში `ApiKey`.“
 
 #### 9 · პირველი endpoint · 7 წთ
 
@@ -258,7 +267,7 @@ private readonly IChatClient _chat = new Client().AsIChatClient("gemini-3.8-flas
 ### ⚠️ ტიპური არასწორი წარმოდგენები
 
 - **„`AsIChatClient` მოდელს ჩამოტვირთავს“** → არა. მოდელი Google-ის სერვერზეა; ჩვენ მხოლოდ HTTP-ით ვიძახებთ.
-- **„key `appsettings.json`-ში ჩავწეროთ, მოსახერხებელია“** → ის Git-ში მიდის. დღეს — გარემოს ცვლადი, ლექცია 3-ზე — User Secrets.
+- **„key `appsettings.json`-ში ჩავწეროთ, მოსახერხებელია“** → ის Git-ში მიდის. key — User Secrets-ში; `appsettings.json`-ში მხოლოდ საიდუმლო არაფერი (მაგ. მოდელის სახელი — ლექცია 3).
 - **„IChatClient Gemini-ს კლასია“** → Microsoft-ისაა და ყველა პროვაიდერისთვის ერთია. Gemini-ს მხოლოდ მისი implementation აქვს.
 
 ### 💡 მაგალითები

@@ -58,9 +58,9 @@
   ],
   "quiz": [
     {
-      "q": "რას აკეთებს `new Client().AsIChatClient(\"gemini-3.8-flash\")`?",
+      "q": "რას აკეთებს `new Client(apiKey: config[\"Gemini:ApiKey\"]).AsIChatClient(\"gemini-3.8-flash\")`?",
       "options": [
-        "ქმნის Gemini-ს client-ს და აქცევს მას `IChatClient`-ად; key-ს `GEMINI_API_KEY` ცვლადიდან კითხულობს",
+        "ქმნის Gemini-ს client-ს და აქცევს მას `IChatClient`-ად; key-ს კონფიგურაციიდან (User Secrets) იღებს",
         "მოდელს ჩვენს კომპიუტერზე ჩამოტვირთავს",
         "Gemini-ს ანგარიშს ქმნის",
         "მოდელს ჩვენს მენიუზე ავარჯიშებს"
@@ -74,7 +74,7 @@
       "options": [
         "`appsettings.json`-ში",
         "Controller-ში, const-ად",
-        "გარემოს ცვლადში `GEMINI_API_KEY`",
+        "User Secrets-ში, როგორც `Gemini:ApiKey`",
         "README-ში, რომ არ დაგვავიწყდეს"
       ],
       "answer": 2,
@@ -192,15 +192,15 @@
   ],
   "lecturer_quiz": [
     {
-      "q": "სტუდენტთან `401 / API key not valid`, თუმცა `setx` გაუშვა. ყველაზე სავარაუდო მიზეზი?",
+      "q": "სტუდენტთან შეცდომა „API key must either be provided…“, თუმცა `user-secrets set` გაუშვა. ყველაზე სავარაუდო მიზეზი?",
       "options": [
         "Gemini დაბლოკილია",
-        "Visual Studio `setx`-მდე იყო გახსნილი და ცვლადს ვერ ხედავს — გადატვირთვა სჭირდება",
+        "secret სხვა პროექტში ჩაწერა, ან სახელი არ ემთხვევა (`Gemini:ApiKey` ≠ `Gemini:Apikey`/`GeminiApiKey`) — `config[...]` null-ს აბრუნებს",
         "მოდელის სახელი არასწორია",
         "NuGet package ძველია"
       ],
       "answer": 1,
-      "explain": "პროცესი გარემოს ცვლადებს გაშვებისას კითხულობს. `setx` მხოლოდ ახალ პროცესებზე მოქმედებს."
+      "explain": "`dotnet user-secrets` იმ პროექტში წერს, რომლის საქაღალდეშიც გაუშვი. შეამოწმე: `dotnet user-secrets list` ან VS → Manage User Secrets."
     },
     {
       "q": "Gemini 3.x-ზე Google რას ურჩევს Temperature-ზე?",
@@ -312,7 +312,7 @@
   "study": {
     "summary": [
       "`IChatClient` LLM-ის „DbContext“-ია: კოდი `GetResponseAsync`-ს იძახებს, Gemini-სთან კი provider ლაპარაკობს. პროვაიდერის შეცვლა — ერთი ხაზი.",
-      "API key მხოლოდ **გარემოს ცვლადშია** (`GEMINI_API_KEY`), არასდროს კოდში ან Git-ში.",
+      "API key **User Secrets**-შია (`Gemini:ApiKey`), არასდროს კოდში ან Git-ში.",
       "`ChatOptions` ყოველ მოთხოვნას ეყენება. პასუხში **`Usage`** (input, output, ფიქრის ტოკენები) და **`FinishReason`** (`stop` / `length`) გვეუბნება, რა დაჯდა და რატომ გაჩერდა.",
       "მოდელს **`ChatMessage`-ების სიას** ვუგზავნით: **System** (ჩვენი წესები), **User** (მომხმარებელი), **Assistant** (მოდელის პასუხი).",
       "კარგი **system prompt** = როლი + თემები + ფორმა + რა არ უნდა გააკეთოს. **Few-shot** მაგალითები პასუხს ზუსტ ფორმატში აფიქსირებს, რომ C# კოდმა გამოიყენოს."

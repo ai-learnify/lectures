@@ -136,8 +136,8 @@ Nothing new in this part — in the API course you registered `DbContext` and yo
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:34px;align-items:start;margin-top:10px">
     <div class="col" style="gap:16px">
       <code-block lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ლექცია 2">
-private readonly IChatClient _chat =
-    new Client().AsIChatClient("gemini-3.8-flash");
+_chat = new Client(apiKey: config["Gemini:ApiKey"])
+    .AsIChatClient("gemini-3.8-flash");
       </code-block>
       <div class="callout ask">🙋 API კურსზე <b>DbContext</b>-ს Controller-ში <b>new</b>-ით ქმნიდით?</div>
     </div>
@@ -154,8 +154,11 @@ private readonly IChatClient _chat =
 ლექცია 2-ზე `IChatClient` პირდაპირ Controller-ში შევქმენით, რომ ყურადღება მოდელზე ყოფილიყო:
 
 ```csharp Controllers/AiLabController.cs · ლექცია 2
-private readonly IChatClient _chat =
-    new Client().AsIChatClient("gemini-3.8-flash");
+public AiLabController(IConfiguration config)
+{
+    _chat = new Client(apiKey: config["Gemini:ApiKey"])
+        .AsIChatClient("gemini-3.8-flash");
+}
 ```
 
 ეს მუშაობს, მაგრამ სამი პრობლემა აქვს:
@@ -174,8 +177,11 @@ API კურსიდან ეს უკვე იცი: `DbContext`-ს Cont
 In lecture 2 we created `IChatClient` right inside the Controller, so that our attention stayed on the model:
 
 ```csharp Controllers/AiLabController.cs · lecture 2
-private readonly IChatClient _chat =
-    new Client().AsIChatClient("gemini-3.8-flash");
+public AiLabController(IConfiguration config)
+{
+    _chat = new Client(apiKey: config["Gemini:ApiKey"])
+        .AsIChatClient("gemini-3.8-flash");
+}
 ```
 
 It works, but it has three problems:
@@ -217,9 +223,12 @@ builder.Services.AddControllers();
   "Model": "gemini-3.8-flash"
 }
       </code-block>
-      <div class="term"><div class="bar"><i></i><i></i><i></i><span>Terminal · პროექტის საქაღალდეში</span></div>
-        <div class="body"><div class="cmd">dotnet user-secrets init</div><div class="cmd">dotnet user-secrets set "Gemini:ApiKey" "AIza…"</div></div></div>
-      <div class="callout" style="--a:var(--asp);font-size:18px">ლექცია 2: <code class="i">GEMINI_API_KEY</code> — Google SDK-ის სახელი. .NET-ში: სექცია <b>Gemini</b> → <code class="i">Gemini:ApiKey</code></div>
+      <code-block lang="json" cls="sm" title="secrets.json · ლექცია 2-დან">
+"Gemini": {
+  "ApiKey": "AIza…"
+}
+      </code-block>
+      <div class="callout" style="--a:var(--asp);font-size:18px">ერთი სექცია <b>Gemini</b>, ორი წყარო — <code class="i">Configuration</code> აერთიანებს</div>
       <i class="codestep" data-for="c1" data-lines="11-12"></i>
       <div class="callout step" data-with style="--a:var(--api)"><b>Singleton</b>: ერთი client მთელ აპლიკაციაზე</div>
     </div>
@@ -248,7 +257,7 @@ builder.Services.AddControllers();
 ```
 
 - **`AddChatClient(...)`** — `Microsoft.Extensions.AI`-ის extension. `IChatClient`-ს არეგისტრირებს **Singleton**-ად: მთელ აპლიკაციაზე ერთი client, ერთი HTTP კავშირების pool. Gemini-ს client thread-safe-ია, ამიტომ ერთდროულ მოთხოვნებს უპრობლემოდ ემსახურება.
-- **`new Client(apiKey: apiKey)`** — key-ს ახლა ცხადად გადავცემთ, კონფიგურაციიდან.
+- **`new Client(apiKey: apiKey)`** — იგივე ხაზი, რაც ლექცია 2-ის Controller-ში იყო, ოღონდ ახლა ერთხელ სრულდება, აპლიკაციის გაშვებისას.
 - **`?? throw`** — თუ key ან მოდელი არ წერია, აპლიკაცია **გაშვებისთანავე** ჩავარდება გასაგები შეცდომით, და არა პირველ მოთხოვნაზე, უცნაური 401-ით.
 
 **მოდელის სახელი** — `appsettings.json`-ში. ეს საიდუმლო არ არის, Git-შიც მიდის:
@@ -261,21 +270,23 @@ builder.Services.AddControllers();
 }
 ```
 
-**key** — **User Secrets**-ში, .NET-ის სახელით `Gemini:ApiKey`. ლექცია 2-ზე key `GEMINI_API_KEY` გარემოს ცვლადში ჩაწერე — ეს Google-ის SDK-ის სახელი იყო, რომელსაც `new Client()` თვითონ ეძებდა. ახლა key-ს .NET-ის კონფიგურაცია კითხულობს, და იქ პარამეტრები სექციებად ლაგდება: სექცია `Gemini`, მასში `Model` და `ApiKey`. ამიტომ key ერთხელ გადაგვაქვს ახალ ადგილას.
+**key** უკვე **User Secrets**-შია — ლექცია 2-ზე ჩავწერეთ, როგორც `Gemini:ApiKey`. `secrets.json`-ში ასე ჩანს (VS → პროექტზე მარჯვენა ღილაკი → **Manage User Secrets**):
 
-User Secrets ფაილი შენს კომპიუტერზე, პროექტის გარეთ ინახება და Git-ში არასდროს ხვდება. ტერმინალში, პროექტის საქაღალდეში:
+```json secrets.json
+{
+  "Gemini": {
+    "ApiKey": "AIza..."
+  }
+}
+```
+
+ორივე ფაილში ერთი სექციაა — `Gemini`: `appsettings.json`-ში `Model` (საიდუმლო არ არის, Git-ში მიდის), `secrets.json`-ში `ApiKey` (საიდუმლოა, პროექტის გარეთ ინახება). `IConfiguration` ორივეს ერთ სექციად აერთიანებს.
+
+თუ key ჯერ არ ჩაგიწერია — ტერმინალში, პროექტის საქაღალდეში:
 
 ```bash
 dotnet user-secrets init
 dotnet user-secrets set "Gemini:ApiKey" "AIza..."
-```
-
-Visual Studio-ში იგივე: პროექტზე მარჯვენა ღილაკი → **Manage User Secrets** → იხსნება `secrets.json`:
-
-```json secrets.json
-{
-  "Gemini:ApiKey": "AIza..."
-}
 ```
 
 `builder.Configuration["Gemini:ApiKey"]` ორივე ადგილიდან ერთნაირად კითხულობს — კოდმა არ იცის, სად წერია მნიშვნელობა.
@@ -313,7 +324,7 @@ builder.Services.AddControllers();
 ```
 
 - **`AddChatClient(...)`** — an extension from `Microsoft.Extensions.AI`. It registers `IChatClient` as a **Singleton**: one client for the whole application, one pool of HTTP connections. The Gemini client is thread-safe, so it serves concurrent requests without problems.
-- **`new Client(apiKey: apiKey)`** — now we pass the key explicitly, from configuration.
+- **`new Client(apiKey: apiKey)`** — the same line that was in the lecture 2 Controller, but now it runs once, when the app starts.
 - **`?? throw`** — if the key or the model is missing, the application fails **right at startup** with a clear error, not on the first request with a strange 401.
 
 **The model name** goes in `appsettings.json`. It isn't a secret, it goes to Git too:
@@ -326,21 +337,23 @@ builder.Services.AddControllers();
 }
 ```
 
-**The key** goes in **User Secrets**, under the .NET name `Gemini:ApiKey`. In lecture 2 you put the key in the `GEMINI_API_KEY` environment variable — that was the Google SDK's name, which `new Client()` looked up by itself. Now .NET configuration reads the key, and there settings are grouped into sections: the `Gemini` section with `Model` and `ApiKey` inside. So we move the key to its new place once.
+**The key** is already in **User Secrets** — we put it there in lecture 2 as `Gemini:ApiKey`. In `secrets.json` it looks like this (VS → right-click the project → **Manage User Secrets**):
 
-The User Secrets file is stored on your computer, outside the project, and never ends up in Git. In the terminal, in the project folder:
+```json secrets.json
+{
+  "Gemini": {
+    "ApiKey": "AIza..."
+  }
+}
+```
+
+Both files hold one section — `Gemini`: `Model` in `appsettings.json` (not a secret, goes to Git), `ApiKey` in `secrets.json` (a secret, stored outside the project). `IConfiguration` merges them into one section.
+
+If you haven't set the key yet — in the terminal, in the project folder:
 
 ```bash
 dotnet user-secrets init
 dotnet user-secrets set "Gemini:ApiKey" "AIza..."
-```
-
-The same in Visual Studio: right-click the project → **Manage User Secrets** → `secrets.json` opens:
-
-```json secrets.json
-{
-  "Gemini:ApiKey": "AIza..."
-}
 ```
 
 `builder.Configuration["Gemini:ApiKey"]` reads from both places the same way — the code doesn't know where the value is written.
@@ -387,7 +400,7 @@ public class AiLabController : ControllerBase
   <aside class="study">
 ### Controller: constructor injection
 
-`AiLabController`-ში იცვლება მხოლოდ client-ის მიღება. ველის სახელი იგივე რჩება — `_chat`, ამიტომ ლექცია 2-ის endpoint-ებს (`ask`, `assistant`, `review-sentiment`) არ ვეხებით:
+`AiLabController`-ში იცვლება მხოლოდ client-ის მიღება: constructor-ში `IConfiguration`-ის ნაცვლად პირდაპირ `IChatClient` შემოდის. ველის სახელი იგივე რჩება — `_chat`, ამიტომ ლექცია 2-ის endpoint-ებს (`ask`, `assistant`, `review-sentiment`) არ ვეხებით:
 
 ```csharp Controllers/AiLabController.cs
 [ApiController]
@@ -422,7 +435,7 @@ Controller-ს ამ სამიდან არცერთი არ ეხ�
   <aside class="study-en">
 ### Controller: constructor injection
 
-In `AiLabController` only the way we get the client changes. The field name stays the same — `_chat`, so we don't touch the lecture 2 endpoints (`ask`, `assistant`, `review-sentiment`):
+In `AiLabController` only the way we get the client changes: the constructor takes `IChatClient` directly instead of `IConfiguration`. The field name stays the same — `_chat`, so we don't touch the lecture 2 endpoints (`ask`, `assistant`, `review-sentiment`):
 
 ```csharp Controllers/AiLabController.cs
 [ApiController]

@@ -171,7 +171,7 @@
       "options": [
         "In `appsettings.json`",
         "In code, as a const",
-        "In the environment variable `GEMINI_API_KEY`",
+        "In User Secrets, as `Gemini:ApiKey`",
         "In `launchSettings.json`"
       ],
       "explain": "The other files go to Git — bots find a leaked key within minutes."
