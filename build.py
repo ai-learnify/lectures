@@ -151,15 +151,22 @@ def render_fence(kind, arg, body):
         return (f'<div class="prompt"><div class="ph"><span>🤖 {esc(arg or L("AI-სთვის — დააკოპირე და ჰკითხე", "For an AI — copy it and ask"))}</span>'
                 f'<button class="copy" type="button">{L("კოპირება", "Copy")}</button></div><div class="pb">{esc(body)}</div></div>')
     if kind == 'check':
-        items, cur = [], None
+        # ? კითხვა · = პასუხი · ! ახსნა (არასავალდებულო — ლექტორისთვის: რატომ, დეტალები)
+        items, cur, tgt = [], None, None
         for line in body.split('\n'):
             if line.startswith('?'):
-                cur = [line[1:].strip(), []]; items.append(cur)
+                cur = [line[1:].strip(), [], []]; items.append(cur); tgt = None
             elif line.startswith('=') and cur:
-                cur[1].append(line[1:].strip())
-            elif cur and cur[1] and line.strip():
-                cur[1].append(line.strip())
-        qs = ''.join(f'<details><summary>{md_inline(q)}</summary><div class="ans">{md_inline(" ".join(a))}</div></details>' for q, a in items)
+                tgt = cur[1]; tgt.append(line[1:].strip())
+            elif line.startswith('!') and cur:
+                tgt = cur[2]; tgt.append(line[1:].strip())
+            elif tgt is not None and line.strip():
+                tgt.append(line.strip())
+        def ans(a, w):
+            if not w: return md_inline(" ".join(a))
+            return (f'<div class="say"><b>💬 {L("უპასუხე", "Answer")}:</b> {md_inline(" ".join(a))}</div>'
+                    f'<div class="why"><b>🧠 {L("ახსნა", "Why")}:</b> {md_inline(" ".join(w))}</div>')
+        qs = ''.join(f'<details><summary>{md_inline(q)}</summary><div class="ans">{ans(a, w)}</div></details>' for q, a, w in items)
         return f'<div class="selfcheck"><div class="sh">✅ {L("შეამოწმე თავი", "Check yourself")} <small>{L("დაფიქრდი, მერე გახსენი პასუხი", "think first, then open the answer")}</small></div>{qs}</div>'
     if kind == 'terms':
         rows = [l.split('—', 1) for l in body.split('\n') if '—' in l]
