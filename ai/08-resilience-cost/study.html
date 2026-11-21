@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Error Handling, Resilience და ხარჯის კონტროლი — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ სწორია.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 8</small>Error Handling, Resilience და ხარჯის კონტროლი</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
+  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
+    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">1′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">რა ფუჭდება: შეცდომების რუკა</span><span class="nm">2′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">retry და timeout: Microsoft.Extensions.Http.Resilience</span><span class="nm">3′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">სარეზერვო მოდელი და ხარჯის აღრიცხვა</span><span class="nm">2′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: დღიური ლიმიტის ფენა</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება</span><span class="nm">1′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">13</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 8</div>
+      <h1>Error Handling, Resilience და ხარჯის კონტროლი</h1>
+      <p>ლექციის სრული მასალა თავებად, ~14 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li>შეცდომები: <strong>დროებითი</strong> (429, 5xx, timeout — retry შველის), <strong>მუდმივი</strong> (400, 401, 403, 404 — არა), <strong>შინაარსის</strong> (length, ცუდი JSON, tool-ის შეცდომა — კოდში).</li><li>სწორი retry: <strong>backoff + jitter</strong>, <code>Retry-After</code>, <strong>timeout</strong> თითო ცდაზე, <strong>circuit breaker</strong>. <code>AddStandardResilienceHandler</code> — HttpClient-ზე, LLM-ისთვის გაზრდილი დროით.</li><li>Google.GenAI ჩვენს HttpClient-ს იყენებს (<code>ClientOptions.HttpClientFactory</code>), მისი retry გამორთულია (<code>Attempts = 1</code>): retry <strong>ერთ</strong> ადგილას.</li><li><strong><code>FallbackChatClient</code></strong> — დროებით შეცდომაზე სარეზერვო მოდელი; pipeline-ში ყველაზე შიგნით; <code>catch … when</code>.</li><li>ტოკენები <strong>ბაზაში</strong> (<code>AiUsage</code>): <code>IServiceScopeFactory</code>, რადგან pipeline Singleton-ია; ფიქრის ტოკენები output-ს ემატება; ხარჯი = ტოკენები × ფასი.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~14 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 10 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/core/resilience/http-resilience" target="_blank" rel="noopener">Build resilient HTTP apps (.NET)</a> — AddStandardResilienceHandler, პარამეტრები, retry/timeout/circuit breaker</li><li><a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank" rel="noopener">Gemini — Rate limits</a> — RPM/TPM/RPD ლიმიტები და 429</li><li><a href="https://ai.google.dev/gemini-api/docs/troubleshooting" target="_blank" rel="noopener">Gemini — Troubleshooting</a> — შეცდომის კოდები: 400, 403, 404, 429, 500, 503</li><li><a href="https://googleapis.github.io/dotnet-genai/api/Google.GenAI.Types.HttpRetryOptions.html" target="_blank" rel="noopener">Google.GenAI — HttpRetryOptions</a> — SDK-ის საკუთარი retry და როგორ გამოვრთოთ</li><li><a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Gemini — ფასები</a> — input/output ფასი 1M ტოკენზე — საშინაოსთვის</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
+<p>ლექცია 7 — <strong>Context Engineering: კონტექსტისა და მეხსიერების მართვა</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../07-context-engineering/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>მოდელს წინა შეკითხვა რატომ არ ახსოვს და როგორ „ვახსენებთ“?</summary><div class="ans">მოდელი stateless-ია: მხოლოდ ამ მოთხოვნას ხედავს · ისტორიას ყოველ მოთხოვნაში ჩვენ ვუგზავნით — მეხსიერება ჩვენს კოდშია, არა მოდელში</div></details><details><summary>რა შედის კონტექსტში და რომელი ნაწილი იზრდება ყველაზე სწრაფად?</summary><div class="ans">System + tool-ების აღწერები + ისტორია + tool-ების შედეგები + ახალი შეკითხვა · ხშირად tool-ების შედეგები (მაგ. მთელი მენიუ), რომლებიც ისტორიაში რჩება</div></details><details><summary>რატომ ვინახავთ მთელ <code>ChatMessage</code>-ს jsonb-ში და არა Text სვეტს?</summary><div class="ans"><code>Contents</code> სხვადასხვა ტიპისაა: ტექსტი, functionCall, functionResult, ფიქრის ხელმოწერა · <code>AIJsonUtilities.DefaultOptions</code> <code>$type</code>-ით ინახავს · jsonb key-ებს ალაგებს → <code>AllowOutOfOrderMetadataProperties</code></div></details><details><summary>რატომ არ ვინახავთ System prompt-ს ბაზაში?</summary><div class="ans">ის ჩვენია, არა საუბრის ნაწილი: შიგ დღევანდელი თარიღია და წესები შეიძლება შეიცვალოს · ყოველ მოთხოვნაზე ახლიდან ვაწყობთ და სიის თავში ვსვამთ</div></details><details><summary>რას აკეთებს <code>MessageCountingChatReducer(10)</code> და რა რჩება ბაზაში?</summary><div class="ans">კონტექსტში ბოლო 10 შეტყობინებას ტოვებს და tool-ის შეტყობინებებს ამოყრის · ბაზაში ყველაფერი რჩება · ფასს მოდელი tool-ით თავიდან იღებს</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>ისტორია სტრიმინგ ჩატში და ბიუჯეტი</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><strong><code>/chat</code> ისტორიით</strong> შენს პროექტში: <code>ChatHistoryStore</code> (jsonb), <code>ChatRequest</code> <code>conversationId</code>-ით, ბაზაში ყველა შეტყობინება, System prompt — ბაზის გარეშე</li>
+<li><strong><code>GET /chat/stream</code> ისტორიით:</strong> პარამეტრები <code>Guid conversationId, string prompt</code> (id-ს კლიენტი ქმნის); iterator ჯერ ისტორიას ტვირთავს, ნაწილებს <code>yield return</code>-ით აგზავნის, <strong>სტრიმის ბოლოს</strong> კი <code>updates.ToChatResponse().Messages</code>-ს ინახავს</li>
+<li><strong>reducer:</strong> <code>MessageCountingChatReducer</code> ორივე endpoint-ში — ბაზაში ყველაფერი, კონტექსტში ბოლო N</li>
+<li><strong><code>GET /conversations/{id}</code></strong> — საუბარი UI-სთვის: მხოლოდ ტექსტიანი შეტყობინებები, <code>{ role, text }</code></li>
+<li><strong>README — ბიუჯეტის ცხრილი:</strong> ერთი საუბარი 6 შეკითხვით (2 მათგანზე tool-ი, რომელიც ბევრ მონაცემს აბრუნებს). სვეტები: შეკითხვა · InputTokenCount reducer-ის გარეშე · InputTokenCount <code>MessageCountingChatReducer(6)</code>-ით</li>
+<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (10 კითხვა) — ქულა ჩაწერე</li>
+</ul>
+<h3>ამოხსნა</h3>
+<p>ნიმუში — ბიბლიოთეკის API (საშინაო 6-ის გაგრძელება).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · StreamAnswer</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">recent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">Reducer</span><span class="p">.</span><span class="n">ReduceAsync</span><span class="p">(</span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatResponseUpdate</span><span class="o">&gt;</span><span class="w"> </span><span class="n">updates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="na">[SystemPrompt(), .. recent, question]</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">updates</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">update</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updates</span><span class="p">.</span><span class="n">ToChatResponse</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">AppendAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ChatStream და Conversation</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("chat/stream")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IResult</span><span class="w"> </span><span class="nf">ChatStream</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">TypedResults</span><span class="p">.</span><span class="n">ServerSentEvents</span><span class="p">(</span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("conversations/{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Conversation</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">history</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Role</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Text</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>შეკითხვა</th>
+<th>reducer-ის გარეშე</th>
+<th><code>MessageCountingChatReducer(6)</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 · „გამარჯობა“</td>
+<td>~600</td>
+<td>~600</td>
+</tr>
+<tr>
+<td>2 · „რა დეტექტივები გაქვთ?“ → <code>find_books</code></td>
+<td>~1 900</td>
+<td>~1 900</td>
+</tr>
+<tr>
+<td>3 · „რომელია ყველაზე ახალი?“</td>
+<td>~3 400</td>
+<td>~800</td>
+</tr>
+<tr>
+<td>4 · „ფანტასტიკა?“ → <code>find_books</code></td>
+<td>~3 700</td>
+<td>~1 100</td>
+</tr>
+<tr>
+<td>5 · „ის მეორე რამდენი გვერდია?“</td>
+<td>~5 300</td>
+<td>~1 300</td>
+</tr>
+<tr>
+<td>6 · „კარგი, დავჯავშნი“</td>
+<td>~5 600</td>
+<td>~1 500</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>reducer-ით ზრდა თითქმის ჩერდება: tool-ის შედეგები (წიგნების სიები) კონტექსტში აღარ მიდის. მე-3 შეკითხვაზე მოდელმა „ყველაზე ახალი“ მაინც სწორად უპასუხა: მისი წინა პასუხის ტექსტში წიგნების სახელები ეწერა. მე-5-ზე („ის მეორე“) მან <code>find_books</code> თავიდან გამოიძახა. <code>/conversations/{id}</code> tool-ის ხაზებს არ აჩვენებს, რადგან მათ <code>Text</code> ცარიელი აქვთ. გაუქმებისას <code>AppendAsync</code> არ სრულდება და შეკითხვა ბაზაში არ რჩება.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~2 წთ კითხვა</div><h2>რა ფუჭდება: შეცდომების რუკა</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> შეცდომას დროებითად, მუდმივად ან შინაარსისად დაალაგებ და ახსნი, რომელზე შველის retry.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · რა ფუჭდება</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
+<p>ჯერ ვნახავთ, რას ხედავს მომხმარებელი, როცა Gemini ცდება. მერე შეცდომებს ვალაგებთ ჯგუფებად: ყველა შეცდომაზე ერთი და იგივე რეაქცია არასწორია.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>პრობლემა: Gemini ზოგჯერ ცდება</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
+<p>ორი ტიპური პასუხი, რომელსაც Gemini ნებისმიერ დღეს დააბრუნებს:</p>
+<table>
+<thead>
+<tr>
+<th>კოდი</th>
+<th>სტატუსი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>503</strong></td>
+<td><code>UNAVAILABLE</code></td>
+<td>„მოდელი გადატვირთულია, სცადეთ მოგვიანებით“ — Google-ის მხარეს ძალიან ბევრი მოთხოვნაა</td>
+</tr>
+<tr>
+<td><strong>429</strong></td>
+<td><code>RESOURCE_EXHAUSTED</code></td>
+<td><strong>ჩვენი</strong> ლიმიტი ამოიწურა: წუთში მოთხოვნების ან ტოკენების რაოდენობა (უფასო key-ზე ლიმიტი პატარაა)</td>
+</tr>
+</tbody>
+</table>
+<p>Google.GenAI ასეთ პასუხზე exception-ს აგდებს: <strong><code>ServerError</code></strong> (5xx) ან <strong><code>ClientError</code></strong> (4xx). ორივე <strong><code>ApiException</code></strong>-ია, <code>StatusCode</code> თვისებით. ჩვენ მას არ ვიჭერთ, ამიტომ ASP.NET Core მომხმარებელს <strong>500</strong>-ს უბრუნებს. თანაც, ლექცია 7-ის <code>/chat</code>-ში <code>AppendAsync</code> პასუხის <strong>შემდეგაა</strong>, ამიტომ შეკითხვაც იკარგება.</p>
+<p><strong>ეს ჩვენი ბაგი არ არის</strong>: გარე სერვისი ზოგჯერ ცდება, ქსელი წყდება. ეს აუცილებლად მოხდება. მაგრამ <strong>რეაქცია ჩვენია</strong>. ადამიანი ასეთ დროს რამდენიმე წამს დაიცდიდა და თავიდან სცდიდა: ზუსტად ამას ვასწავლით კოდს.</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>შეცდომების რუკა: სამი ჯგუფი</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
+<table>
+<thead>
+<tr>
+<th>რა მოხდა</th>
+<th>რას ნიშნავს</th>
+<th>ჯგუფი</th>
+<th>რას ვაკეთებთ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>429</strong></td>
+<td>ლიმიტი: ძალიან ბევრი მოთხოვნა ან ტოკენი წუთში</td>
+<td>დროებითი</td>
+<td>ვიცდით (თუ პასუხში <code>Retry-After</code> წერია — ზუსტად იმდენს) და თავიდან ვცდით</td>
+</tr>
+<tr>
+<td><strong>500 · 503</strong></td>
+<td>Gemini გადატვირთულია ან შიდა შეცდომაა</td>
+<td>დროებითი</td>
+<td>retry; თუ არ გამოვიდა — სარეზერვო მოდელი</td>
+</tr>
+<tr>
+<td><strong>timeout</strong></td>
+<td>პასუხი დიდხანს არ მოდის, ქსელი წყდება</td>
+<td>დროებითი</td>
+<td>დროის ლიმიტი და retry</td>
+</tr>
+<tr>
+<td><strong>400 · 401 · 403 · 404</strong></td>
+<td>არასწორი მოთხოვნა, key, უფლება ან მოდელის სახელი</td>
+<td>მუდმივი</td>
+<td>retry <strong>არა</strong>: იგივე მოთხოვნა იგივე შეცდომას მოიტანს. ლოგი და გასწორება</td>
+</tr>
+<tr>
+<td><strong>FinishReason = length · ცუდი JSON</strong></td>
+<td>პასუხი მოვიდა, მაგრამ მოჭრილია ან სქემას არ ემთხვევა</td>
+<td>შინაარსის</td>
+<td>კოდში: <code>MaxOutputTokens</code>-ის მარაგი (ლექცია 2), <code>TryGetResult</code> (ლექცია 3)</td>
+</tr>
+<tr>
+<td><strong>tool exception</strong></td>
+<td>ჩვენი C# მეთოდი ჩავარდა</td>
+<td>შინაარსის</td>
+<td><code>FunctionInvokingChatClient</code> შეცდომას მოდელს უბრუნებს, მოდელი პასუხს ისე წერს</td>
+</tr>
+</tbody>
+</table>
+<p><strong>მთავარი წესი: retry მხოლოდ დროებით შეცდომაზე.</strong> 401-ზე (არასწორი key) ხუთჯერ თავიდან ცდა ხუთ 401-ს მოგვცემს და მომხმარებელს დრო დაეკარგება. 400-ზე იგივე: მოთხოვნა არასწორია და ასეთივე დარჩება.</p>
+<p><strong>შინაარსის შეცდომები HTTP-ის დონეზე არ ჩანს:</strong> სტატუსი 200-ია, პასუხი მოვიდა. მათ ჩვენი კოდი ამოწმებს: ლექცია 3-ის <code>TryGetResult</code> (თუ JSON სქემას არ ემთხვევა, exception-ის ნაცვლად <code>false</code>), <code>FinishReason</code>-ის შემოწმება.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>დროებითი შეცდომა (transient)</dt><dd>შეცდომა, რომელიც თავიდან ცდისას შეიძლება აღარ განმეორდეს: 429, 5xx, timeout, ქსელი</dd><dt>მუდმივი შეცდომა</dt><dd>თავიდან ცდა არ შველის: არასწორი მოთხოვნა, key, უფლება, მოდელის სახელი (4xx, 429-ის გარდა)</dd><dt>ApiException</dt><dd>Google.GenAI-ის შეცდომა StatusCode-ით: ClientError (4xx) და ServerError (5xx)</dd></dl></div></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~3 წთ კითხვა</div><h2>retry და timeout: Microsoft.Extensions.Http.Resilience</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> HttpClient-ს retry-ს, timeout-ს და circuit breaker-ს დაუმატებ და ხელოვნური 503-ით შეამოწმებ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · retry და timeout</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
+<p>თავიდან ცდა მარტივად ჟღერს, მაგრამ არასწორი retry პრობლემას აუარესებს. ვნახავთ, როგორ ცდიან თავიდან სწორად, ვამატებთ ამას ერთი პაკეტით და ცოცხლად ვამოწმებთ.</p></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>retry სწორად: backoff, jitter, Retry-After, circuit breaker</h3><a class="chip" href="index.html#/10" data-go="10" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 10</a></div>
+<p>გულუბრყვილო retry — „ჩავარდა? მაშინვე თავიდან, 10-ჯერ“ — პრობლემას <strong>აუარესებს</strong>: Gemini გადატვირთულია, ჩვენ კი მას კიდევ უფრო მეტ მოთხოვნას ვუგზავნით, და ათასი კლიენტი ერთსა და იმავე წამში აკეთებს იგივეს. სწორი retry-ს ოთხი ნაწილი აქვს:</p>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📈 <strong>exponential backoff</strong></td>
+<td>ყოველ ცდამდე მეტს ვიცდით: ~2 → ~4 → ~8 წამი. სერვისს „ამოსუნთქვის“ დრო ეძლევა</td>
+</tr>
+<tr>
+<td>🎲 <strong>jitter</strong></td>
+<td>პაუზას შემთხვევითი ნაწილი ემატება (2.3 წმ, 1.8 წმ…). ათასი კლიენტი ერთსა და იმავე მომენტში აღარ ცდის თავიდან</td>
+</tr>
+<tr>
+<td>⏰ <strong>Retry-After · timeout</strong></td>
+<td>429-ზე სერვერი ხშირად გვეუბნება, რამდენი ვიცადოთ (<code>Retry-After</code> header). და თითო ცდას დროის ლიმიტი აქვს: თუ პასუხი 40 წამში არ მოვიდა, ცდა ჩავარდნილად ითვლება</td>
+</tr>
+<tr>
+<td>🔌 <strong>circuit breaker</strong></td>
+<td>თუ ბოლო პერიოდში ცდების დიდი ნაწილი ჩავარდა, „ჩამრთველი“ ითიშება: რამდენიმე წამი Gemini-ს საერთოდ არ ვიძახებთ და მაშინვე შეცდომას ვაბრუნებთ. სერვისი ისვენებს, მომხმარებელი ტყუილად არ ელოდება</td>
+</tr>
+</tbody>
+</table>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Retry</dt><dd>ჩავარდნილი მოთხოვნის თავიდან გაგზავნა დროებით შეცდომაზე</dd><dt>Exponential backoff</dt><dd>retry-ებს შორის მზარდი პაუზა (2, 4, 8… წამი)</dd><dt>Jitter</dt><dd>პაუზის შემთხვევითი ნაწილი, რომ ბევრმა კლიენტმა ერთდროულად არ სცადოს</dd><dt>Circuit breaker</dt><dd>„ჩამრთველი“: ბევრი ჩავარდნის შემდეგ გამოძახებებს დროებით წყვეტს</dd></dl></div></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>AddStandardResilienceHandler: retry, timeout და circuit breaker HttpClient-ზე</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
+<p><code>dotnet add package Microsoft.Extensions.Http.Resilience</code> — Microsoft-ის პაკეტი (Polly-ზე დაფუძნებული), რომელიც <code>IHttpClientFactory</code>-ის client-ს მზა „resilience pipeline“-ს ამატებს:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddHttpClient</span><span class="p">(</span><span class="s">"gemini"</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AddStandardResilienceHandler</span><span class="p">(</span><span class="n">o</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">o</span><span class="p">.</span><span class="n">AttemptTimeout</span><span class="p">.</span><span class="n">Timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// LLM ნელია</span></span><span class="ln"><span class="w">        </span><span class="n">o</span><span class="p">.</span><span class="n">TotalRequestTimeout</span><span class="p">.</span><span class="n">Timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">o</span><span class="p">.</span><span class="n">CircuitBreaker</span><span class="p">.</span><span class="n">SamplingDuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="n">sp</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">IHttpClientFactory</span><span class="w"> </span><span class="n">http</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">IHttpClientFactory</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Client</span><span class="w"> </span><span class="n">gemini</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span></span><span class="ln"><span class="w">            </span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">httpOptions</span><span class="p">:</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HttpOptions</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">RetryOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HttpRetryOptions</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Attempts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">clientOptions</span><span class="p">:</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientOptions</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">HttpClientFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="n">CreateClient</span><span class="p">(</span><span class="s">"gemini"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">gemini</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InputGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">დანარჩენი</span><span class="w"> </span><span class="n">ფენები</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">როგორც</span><span class="w"> </span><span class="n">იყო</span></span></code></pre></div>
+<p><strong>რას შეიცავს „standard“ pipeline:</strong></p>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>ნაგულისხმევად</th>
+<th>ჩვენთან</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Retry</strong></td>
+<td>3 retry, exponential backoff + jitter, <code>Retry-After</code>-ს ითვალისწინებს; 408, 429, 5xx და ქსელის შეცდომებზე</td>
+<td>უცვლელი</td>
+</tr>
+<tr>
+<td><strong>AttemptTimeout</strong></td>
+<td>10 წმ ერთ ცდაზე</td>
+<td><strong>40 წმ</strong> — Gemini ფიქრობს და გრძელ პასუხს წერს</td>
+</tr>
+<tr>
+<td><strong>TotalRequestTimeout</strong></td>
+<td>30 წმ ყველა ცდაზე ერთად</td>
+<td><strong>90 წმ</strong></td>
+</tr>
+<tr>
+<td><strong>CircuitBreaker</strong></td>
+<td>ბევრი ჩავარდნისას რამდენიმე წამით წყვეტს</td>
+<td><code>SamplingDuration</code> ≥ 2 × AttemptTimeout უნდა იყოს (validation) → 90</td>
+</tr>
+</tbody>
+</table>
+<p><strong>რატომ ვთიშავთ SDK-ის retry-ს?</strong> Google.GenAI-ს თავისი retry აქვს (<code>HttpRetryOptions</code>). ორი retry ერთმანეთში რომ დარჩეს, ერთ შეკითხვაზე 4 × 4 = 16 ცდა გამოვა, და მომხმარებელი წუთობით დაელოდება. retry <strong>ერთ</strong> ადგილას უნდა იყოს. <code>Attempts = 1</code> ნიშნავს „მხოლოდ თავდაპირველი მოთხოვნა, retry-ს გარეშე“.</p>
+<p><strong><code>ClientOptions.HttpClientFactory</code></strong> — SDK-ს ვეუბნებით, რომ HTTP მოთხოვნები <strong>ჩვენი</strong> <code>HttpClient</code>-ით გააგზავნოს, რომელსაც resilience pipeline აქვს. <code>AddChatClient(sp =&gt; …)</code> — factory ვერსია, რომ DI-დან <code>IHttpClientFactory</code> ავიღოთ.</p>
+<p><strong>Controller-ები არ შეცვლილა.</strong> retry HTTP-ის დონეზე ხდება, <code>IChatClient</code>-ის შიგნით. tool-ის ციკლში Gemini-ს თითოეულ მოთხოვნას თავისი retry აქვს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Microsoft.Extensions.Http.Resilience</dt><dd>პაკეტი, რომელიც HttpClient-ს retry-ს, timeout-ს და circuit breaker-ს ამატებს (Polly-ზე დაფუძნებული)</dd><dt>AddStandardResilienceHandler</dt><dd>მზა pipeline რეკომენდებული პარამეტრებით</dd></dl></div></article><article class="blk" data-slides="12,13"><span class="anchor" id="s-12"></span><span class="anchor" id="s-13"></span><div class="bh"><h3>ვამოწმებთ: ხელოვნური 503</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
+<p>Gemini-ს 503 ბრძანებით ვერ გამოვიწვევთ, ამიტომ ცდისთვის <strong>საკუთარ handler-ს</strong> ვწერთ, რომელიც ყოველი სამი მოთხოვნიდან პირველ ორზე 503-ს აბრუნებს, Gemini-მდე მისვლის გარეშე:</p>
+<div class="codebox"><div class="ch"><span>Ai/ChaosHandler.cs · მხოლოდ ცდისთვის</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ChaosHandler</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingHandler</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_count</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">HttpResponseMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SendAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">HttpRequestMessage</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="c1">// ყოველი 3-დან პირველი ორი → 503</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Interlocked</span><span class="p">.</span><span class="n">Increment</span><span class="p">(</span><span class="k">ref</span><span class="w"> </span><span class="n">_count</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Task</span><span class="p">.</span><span class="n">FromResult</span><span class="p">(</span></span><span class="ln"><span class="w">                </span><span class="k">new</span><span class="w"> </span><span class="nf">HttpResponseMessage</span><span class="p">(</span><span class="n">HttpStatusCode</span><span class="p">.</span><span class="n">ServiceUnavailable</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">SendAsync</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs · მხოლოდ ცდისთვის</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddTransient</span><span class="o">&lt;</span><span class="n">ChaosHandler</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddHttpClient</span><span class="p">(</span><span class="s">"gemini"</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AddStandardResilienceHandler</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AddHttpMessageHandler</span><span class="o">&lt;</span><span class="n">ChaosHandler</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">შიგნით</span><span class="p">,</span><span class="w"> </span><span class="n">ქსელთან</span><span class="w"> </span><span class="n">ახლოს</span></span></code></pre></div>
+<p><code>DelegatingHandler</code> — HttpClient-ის „ფენა“, ზუსტად ისე, როგორც <code>DelegatingChatClient</code> (ლექცია 5), ოღონდ HTTP-ის დონეზე. რიგი: <strong>პირველი დამატებული — გარეთ</strong>. resilience გარეთაა, <code>ChaosHandler</code> შიგნით: retry ხედავს 503-ს და თავიდან ცდის.</p>
+<p><strong>შედეგი ლოგში:</strong> ორი 503, პაუზები ~2 და ~4 წამი, მესამე ცდა — 200. მომხმარებელი ~6 წამს ელოდება, მაგრამ 500-ის ნაცვლად პასუხს იღებს.</p>
+<p><strong>მუდმივი შეცდომის ცდა:</strong> <code>appsettings.json</code>-ში <code>Gemini:Model</code>-ს შეუცვალე სახელი (მაგ. <code>gemini-0</code>) → Gemini 404-ს აბრუნებს → <strong>ერთი</strong> ცდა, retry არ ხდება. ესაა სწორი ქცევა.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>ChaosHandler</code> მხოლოდ ცდისთვისაა: მერე <code>Program.cs</code>-იდან ამოიღე (ან <code>if (builder.Environment.IsDevelopment())</code>-ში ჩასვი).</p></div></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~2 წთ კითხვა</div><h2>სარეზერვო მოდელი და ხარჯის აღრიცხვა</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> დაწერ FallbackChatClient-ს და ტოკენებს ბაზაში ჩაწერ, რომ დღის ხარჯი დაითვალო.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაწილი 3 · fallback და ხარჯი</h3><a class="chip" href="index.html#/14" data-go="14" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 14</a></div>
+<p>retry ყოველთვის არ შველის: თუ Gemini-ს მოდელი 5 წუთია გადატვირთულია, სამი ცდაც ჩავარდება. ასეთ დროს სხვა მოდელზე გადავდივართ. და რადგან ერთი შეკითხვა რამდენიმე გამოძახებაა (tool-ები, retry, fallback), ყოველი გამოძახების ტოკენებს ბაზაში ვწერთ, რომ ვიცოდეთ, რა დაჯდა.</p></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>FallbackChatClient: retry არ შველის → სხვა მოდელი</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
+<p>ლექცია 5-ის <code>DelegatingChatClient</code> — ახლა ფენა, რომელიც <strong>შეცდომას იჭერს</strong>:</p>
+<div class="codebox"><div class="ch"><span>Ai/FallbackChatClient.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">FallbackChatClient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingChatClient</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_fallback</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_logger</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">FallbackChatClient</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">fallback</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;</span><span class="w"> </span><span class="n">logger</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fallback</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">logger</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">ChatResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">try</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">(</span><span class="n">IsTransient</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">_logger</span><span class="p">.</span><span class="n">LogWarning</span><span class="p">(</span><span class="s">"🛟 {Error} — სარეზერვო მოდელი"</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="n">Message</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_fallback</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsTransient</span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ex</span><span class="w"> </span><span class="k">switch</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ApiException</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">StatusCode</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="mi">429</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">HttpRequestException</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">TimeoutRejectedException</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">false</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>catch … when (IsTransient(ex))</code></strong> — exception filter: ვიჭერთ <strong>მხოლოდ</strong> დროებით შეცდომას. მუდმივი (400, 401, 404) გადის ზევით: fallback-იც იგივე key-ს და იგივე მოთხოვნას იყენებს და იგივე შეცდომას მოიტანს.</li>
+<li><strong><code>IsTransient</code></strong> — <code>ApiException</code> (Google.GenAI, 429 ან 5xx), <code>HttpRequestException</code> (ქსელი) ან <code>TimeoutRejectedException</code> (resilience-ის timeout, <code>using Polly.Timeout;</code>). რიგი მნიშვნელოვანია: <code>ApiException</code> თვითონაც <code>HttpRequestException</code>-ია, ამიტომ პირველი უნდა იყოს. <code>OperationCanceledException</code> (მომხმარებელი წავიდა) აქ არ ხვდება — სწორია.</li>
+</ul>
+<p><strong>რეგისტრაცია:</strong> fallback ყველაზე <strong>შიგნითაა</strong>, Gemini-სთან ყველაზე ახლოს. ასე tool-ის ციკლის თითოეულ მოთხოვნას თავისი fallback აქვს:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">IChatClient</span><span class="w"> </span><span class="n">fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:FallbackModel"</span><span class="p">]</span><span class="o">!</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="n">sp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="cm">/* gemini — როგორც სლაიდ 11-ზე */</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InputGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TokenCounterChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FallbackChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">fallback</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><code>appsettings.json</code>-ში: <code>"Gemini": { "Model": "...", "FallbackModel": "..." }</code> — სხვა, ჩვეულებრივ უფრო მსუბუქი მოდელი (მიმდინარე სახელები: Gemini-ს მოდელების სია).</p>
+<p><strong>Gemini მთლიანად რომ იყოს გათიშული?</strong> fallback <strong>სხვა პროვაიდერიც</strong> შეიძლება იყოს (OpenAI, Groq…): ისიც <code>IChatClient</code>-ია (ლექცია 3: პროვაიდერის შეცვლა = ერთი ხაზი). production-ში ხშირად ასე აკეთებენ.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Fallback</dt><dd>სარეზერვო ვარიანტი: თუ მთავარი სერვისი არ პასუხობს, მოთხოვნა სხვაზე გადადის</dd><dt>Exception filter (catch … when)</dt><dd>catch, რომელიც exception-ს მხოლოდ პირობის შესრულებისას იჭერს</dd></dl></div></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ხარჯის აღრიცხვა: ტოკენები ბაზაში</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
+<p>ლექცია 5-ის <code>TokenCounterChatClient</code> ტოკენებს ლოგში წერდა. ლოგი რამდენიმე დღეში იკარგება და მისი შეჯამება რთულია. ახლა <strong>ბაზაში</strong> ვწერთ: ერთი ხაზი = Gemini-ს ერთი გამოძახება.</p>
+<div class="codebox"><div class="ch"><span>Data/AiUsageRecord.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AiUsageRecord</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">At</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">InputTokens</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">OutputTokens</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Ai/TokenCounterChatClient.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TokenCounterChatClient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingChatClient</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IServiceScopeFactory</span><span class="w"> </span><span class="n">_scopes</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">TokenCounterChatClient</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">IServiceScopeFactory</span><span class="w"> </span><span class="n">scopes</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_scopes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scopes</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">ChatResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="c1">// Singleton ფენაში Scoped DbContext → საკუთარი scope</span></span><span class="ln"><span class="w">        </span><span class="k">using</span><span class="w"> </span><span class="nn">IServiceScope</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_scopes</span><span class="p">.</span><span class="n">CreateScope</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scope</span><span class="p">.</span><span class="n">ServiceProvider</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">AppDbContext</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">db</span><span class="p">.</span><span class="n">AiUsage</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AiUsageRecord</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">At</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">Model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">ModelId</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s">"?"</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">InputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">OutputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">OutputTokenCount</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">                         </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">ReasoningTokenCount</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="c1">// Program.cs: .Use((inner, sp) =&gt; new TokenCounterChatClient(inner,</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w">                 </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">IServiceScopeFactory</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span></code></pre></div>
+<p><strong>რატომ <code>IServiceScopeFactory</code>?</strong> <code>AddChatClient</code> client-ს <strong>Singleton</strong>-ად არეგისტრირებს: pipeline ერთხელ იქმნება და ყველა მოთხოვნას ემსახურება. <code>AppDbContext</code> კი <strong>Scoped</strong>-ია: ყოველ HTTP მოთხოვნაზე ახალი. Singleton-ში Scoped-ის პირდაპირ ჩასმა შეცდომაა („captive dependency“ — ერთი DbContext ყველა მომხმარებელს). ამიტომ ფენა ყოველ ჯერზე <strong>საკუთარ scope</strong>-ს ქმნის და მისგან იღებს <code>AppDbContext</code>-ს.</p>
+<p><strong><code>ReasoningTokenCount</code> output-ს ვუმატებთ:</strong> Gemini-ს ფიქრის ტოკენები ცალკე ითვლება, მაგრამ output-ის ფასით ფასდება (ლექცია 2).</p>
+<p><strong><code>response.ModelId</code></strong> — რომელმა მოდელმა უპასუხა. fallback-ის შემდეგ აქ სარეზერვო მოდელის სახელი ჩანს, ამიტომ ბაზიდან ვხედავთ, რამდენჯერ ჩაერთო fallback.</p>
+<p><strong>დღევანდელი ხარჯი SQL-ით:</strong></p>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">SELECT</span><span class="w"> </span><span class="ss">"Model"</span><span class="p">,</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="ss">"InputTokens"</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">input</span><span class="p">,</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="ss">"OutputTokens"</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">output</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="ss">"AiUsage"</span></span><span class="ln"><span class="k">WHERE</span><span class="w"> </span><span class="ss">"At"</span><span class="w"> </span><span class="o">&gt;</span><span class="o">=</span><span class="w"> </span><span class="k">CURRENT_DATE</span></span><span class="ln"><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="ss">"Model"</span><span class="p">;</span></span></code></pre></div>
+<p>ფასი ლექცია 1-ის ფორმულით: <strong>input × input-ის ფასი + output × output-ის ფასი</strong> (ფასი 1 მილიონ ტოკენზე, Gemini-ს ფასების გვერდიდან).</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IServiceScopeFactory</dt><dd>DI სერვისი, რომლითაც Singleton-ში საკუთარ scope-ს ვქმნით და იქიდან Scoped სერვისს (DbContext) ვიღებთ</dd><dt>Captive dependency</dt><dd>შეცდომა: Scoped სერვისი Singleton-შია „დატყვევებული“ და ყველა მოთხოვნა მას იზიარებს</dd></dl></div></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>კლასის დავალება: დღიური ლიმიტის ფენა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>კლასში დავალება: დღიური ლიმიტი — ფენა, რომელიც აჩერებს</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
+<p>შენი პროექტი ან RestaurantApi · კოდით · ფენა + Swagger</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li><strong>1 · ცხრილი</strong> — <code>AiUsageRecord</code> (<code>Id</code>, <code>At</code>, <code>Model</code>, <code>InputTokens</code>, <code>OutputTokens</code>), <code>DbSet&lt;AiUsageRecord&gt; AiUsage</code>, migration; <code>TokenCounterChatClient</code> ბაზაში წერს (სლაიდი 16)</li>
+<li><strong>2 · ფენა</strong> — <code>BudgetGuardChatClient : DelegatingChatClient</code>: constructor-ში <code>IServiceScopeFactory</code> და <code>long dailyLimit</code>; <code>GetResponseAsync</code>-ში — scope → დღევანდელი ტოკენების ჯამი (<code>At &gt;= DateTime.UtcNow.Date</code>) → თუ ≥ ლიმიტი, <strong>base-ის გარეშე</strong> პასუხი „დღევანდელი ლიმიტი ამოიწურა“</li>
+<li><strong>3 · pipeline</strong> — ლიმიტი <code>appsettings.json</code>-ში (<code>"Ai": { "DailyTokenLimit": 3000 }</code>); ფენა <strong>პირველი</strong> <code>.Use(...)</code> — ყველაზე გარეთ</li>
+<li><strong>4 · შემოწმება</strong> — Swagger-ში რამდენიმე შეკითხვა, სანამ ლიმიტს არ გადააჭარბებ → უარის პასუხი, ლოგში Gemini-ს მოთხოვნა აღარ ჩანს; ბაზაში <code>SELECT SUM("InputTokens" + "OutputTokens") FROM "AiUsage"</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>AiUsage</code>-ში ყოველ გამოძახებაზე ახალი ხაზია; ლიმიტის შემდეგ ჩატი უარს ამბობს Gemini-ს გამოძახების გარეშე; ლიმიტის შეცვლა მხოლოდ <code>appsettings.json</code>-ითაა შესაძლებელი</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ლიმიტი <strong>მომხმარებელზე</strong>, არა მთელ აპზე: <code>AiUsageRecord</code>-ს <code>ConversationId</code> დაუმატე და ლიმიტი საუბარზე ითვალე. რა უნდა გადაეცეს ფენას და როგორ?</li>
+<li>უარის ნაცვლად <strong>იაფ მოდელზე</strong> გადართვა ლიმიტის 80%-ზე</li>
+<li>ბრაუზერში/UI-ში რა სჯობს: 200 უარის ტექსტით თუ 429? რატომ?</li>
+</ul>
+<h3>💡 თუ გაიჭედე</h3>
+<ul>
+<li><strong><code>Cannot consume scoped service 'AppDbContext' from singleton</code>?</strong> ფენაში <code>AppDbContext</code> პირდაპირ ნუ ჩასვამ — <code>IServiceScopeFactory</code> → <code>CreateScope()</code> → <code>GetRequiredService&lt;AppDbContext&gt;()</code></li>
+<li><strong>ჯამი:</strong> <code>await db.AiUsage.Where(u =&gt; u.At &gt;= today).SumAsync(u =&gt; u.InputTokens + u.OutputTokens, cancellationToken)</code></li>
+<li><strong>უარის პასუხი:</strong> <code>return new ChatResponse(new ChatMessage(ChatRole.Assistant, "..."));</code> — როგორც ლექცია 5-ის InputGuard</li>
+<li><strong>ლიმიტი კონფიგურაციიდან:</strong> <code>.Use((inner, sp) =&gt; new BudgetGuardChatClient(inner, sp.GetRequiredService&lt;IServiceScopeFactory&gt;(), builder.Configuration.GetValue&lt;long&gt;("Ai:DailyTokenLimit")))</code></li>
+<li><strong><code>TokenCounter</code> ჯერ ლოგში წერს?</strong> ჯერ ის გადააკეთე (ნაბიჯი 1) — თორემ ჯამი ყოველთვის 0-ია</li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>შეჯამება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რომელ შეცდომაზე შველის retry და რომელზე — არა? თითო მაგალითი.</summary><div class="ans">დროებითი — 429, 500/503, timeout, ქსელი: თავიდან ცდა შველის · მუდმივი — 400, 401, 403, 404: იგივე მოთხოვნა იგივე შეცდომას მოიტანს · შინაარსის (length, ცუდი JSON) — კოდში</div></details><details><summary>რატომ არ ვცდით თავიდან მაშინვე 10-ჯერ? რა არის backoff და jitter?</summary><div class="ans">გადატვირთულ სერვისს კიდევ მეტ მოთხოვნას ვუგზავნით · backoff — მზარდი პაუზა (2→4→8 წმ) · jitter — შემთხვევითი ნაწილი, რომ ბევრმა კლიენტმა ერთდროულად არ სცადოს · 429-ზე — Retry-After</div></details><details><summary>რატომ ვთიშავთ Google.GenAI-ის საკუთარ retry-ს?</summary><div class="ans">retry ერთ ადგილას უნდა იყოს · ორი retry ერთმანეთში = 4 × 4 = 16 ცდა და წუთობით ლოდინი · <code>HttpRetryOptions { Attempts = 1 }</code> + ჩვენი HttpClient <code>ClientOptions.HttpClientFactory</code>-ით</div></details><details><summary>სად დგას <code>FallbackChatClient</code> pipeline-ში და რომელ შეცდომას იჭერს?</summary><div class="ans">ყველაზე შიგნით (ბოლო <code>.Use</code>) — tool-ის ციკლის თითო მოთხოვნას თავისი fallback · მხოლოდ დროებითს: ApiException 429/5xx, ქსელი, timeout · <code>catch … when</code></div></details><details><summary>TokenCounter ბაზაში რატომ იღებს DbContext-ს <code>IServiceScopeFactory</code>-ით?</summary><div class="ans">pipeline Singleton-ია, DbContext — Scoped · პირდაპირ ჩასმა = captive dependency · ფენა ყოველ ჯერზე საკუთარ scope-ს ქმნის</div></details></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
+<ul>
+<li>AI გამოძახების შეცდომები სამ ჯგუფადაა: <strong>დროებითი</strong> (429, 500/503, timeout — retry შველის), <strong>მუდმივი</strong> (400, 401, 403, 404 — retry არ შველის) და <strong>შინაარსის</strong> (მოჭრილი პასუხი, ცუდი JSON, tool-ის შეცდომა — კოდში ვამოწმებთ).</li>
+<li>სწორი <strong>retry</strong>: exponential <strong>backoff</strong>, <strong>jitter</strong>, <code>Retry-After</code>-ის გათვალისწინება, <strong>timeout</strong> თითო ცდაზე და <strong>circuit breaker</strong> ბევრი ჩავარდნისას.</li>
+<li><strong><code>AddStandardResilienceHandler</code></strong> (<code>Microsoft.Extensions.Http.Resilience</code>) ამას HttpClient-ზე ამატებს. LLM-ისთვის timeout-ს ვზრდით. Google.GenAI-ს ჩვენს HttpClient-ს ვაძლევთ (<code>ClientOptions.HttpClientFactory</code>) და მის საკუთარ retry-ს ვთიშავთ: retry <strong>ერთ</strong> ადგილას.</li>
+<li><strong><code>FallbackChatClient</code></strong> — <code>DelegatingChatClient</code>, რომელიც დროებით შეცდომაზე სარეზერვო მოდელს იძახებს. pipeline-ში ყველაზე შიგნითაა.</li>
+<li>ტოკენები <strong>ბაზაში</strong>: <code>TokenCounterChatClient</code> ყოველ გამოძახებას <code>AiUsage</code>-ში წერს (<code>IServiceScopeFactory</code>, რადგან pipeline Singleton-ია). <code>ReasoningTokenCount</code> output-ს ემატება.</li>
+</ul>
+<h3>შემდეგ ლექციაზე</h3>
+<p>ლექცია 7-ში ვთქვით: კონტექსტში მხოლოდ ის, რაც საჭიროა. მომხმარებელი წერს: „რამე მსუბუქი, ხორცის გარეშე“. მთელი მენიუ (200 კერძი) ძვირია, ხოლო SQL-ის <code>LIKE '%ხორცის გარეშე%'</code> ლობიოს ვერ იპოვის, რადგან ეს სიტყვები მის აღწერაში არ წერია. ლექცია 9-ზე: <strong>Text Embeddings</strong> — ტექსტი რიცხვებად (ვექტორებად) და ძებნა <strong>მნიშვნელობით</strong>.</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>საშინაო დავალება: შეცდომებზე მდგრადი ჩატი და დღის ხარჯი</h3><a class="chip" href="index.html#/20" data-go="20" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 20</a></div>
+<p>კოდით · შენი პროექტი · README-ში ცხრილი</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><strong>resilience</strong> შენს პროექტში: <code>AddHttpClient("gemini").AddStandardResilienceHandler(...)</code> LLM-ისთვის გაზრდილი timeout-ით; Google.GenAI ამ HttpClient-ს იყენებს (<code>ClientOptions.HttpClientFactory</code>), მისი საკუთარი retry გამორთულია</li>
+<li><strong><code>FallbackChatClient</code></strong> — მხოლოდ დროებით შეცდომაზე (429, 5xx, ქსელი, timeout); სარეზერვო მოდელი <code>appsettings.json</code>-ში (<code>Gemini:FallbackModel</code>); pipeline-ში ყველაზე შიგნით</li>
+<li><strong><code>TokenCounterChatClient</code> ბაზაში</strong> (<code>AiUsage</code>) — <code>ReasoningTokenCount</code> output-ს ემატება</li>
+<li><strong><code>GET /api/ai-lab/usage/today</code></strong> — მოდელების მიხედვით: გამოძახებები, input, output და ფასი დოლარში; ფასები <code>appsettings.json</code>-ში (<code>AiPricing:&lt;მოდელი&gt;:InputPerMillion</code> / <code>OutputPerMillion</code>), კოდში — არა</li>
+<li><strong>README — შეცდომების ცხრილი:</strong> სამი ცდა <code>ChaosHandler</code>-ით და კონფიგურაციით: (1) ორი 503 · (2) არასწორი მოდელის სახელი · (3) ყოველთვის 503. სვეტები: ცდა · რამდენი მოთხოვნა წავიდა · რა მიიღო მომხმარებელმა · ლოგის 1–2 ხაზი</li>
+<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (10 კითხვა) — ქულა ჩაწერე</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>ორ 503-ზე მომხმარებელი პასუხს იღებს; 404-ზე retry არ ხდება; „ყოველთვის 503“-ზე პასუხი სარეზერვო მოდელიდან მოდის და <code>AiUsage</code>-ში მისი სახელი ჩანს; <code>/usage/today</code> ფასს აჩვენებს; README-ში ცხრილი და ტესტის ქულა</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><strong>fallback სტრიმინგზე:</strong> <code>GetStreamingResponseAsync</code> override — სარეზერვოზე გადასვლა მხოლოდ <strong>პირველ ნაწილამდე</strong> (რატომ არა შუაში?)</li>
+<li><strong>მეგობრული შეცდომა:</strong> <code>IExceptionHandler</code> (API კურსი) — <code>ApiException</code>-ზე 503 + <code>ProblemDetails</code> „ასისტენტი დროებით მიუწვდომელია“ და <code>Retry-After</code> header</li>
+<li><strong>structured output-ის შეცდომა:</strong> ლექცია 3-ის endpoint-ში <code>TryGetResult</code> — ცუდ JSON-ზე 422 exception-ის ნაცვლად</li>
+</ul>
+<h3>💡 დეტალები</h3>
+<ul>
+<li><code>ChaosHandler</code> სლაიდ 12-იდან; „ყოველთვის 503“-სთვის <code>% 3 != 0</code>-ის ნაცვლად უბრალოდ <code>return 503</code>. ცდის შემდეგ ამოიღე</li>
+<li><code>ApiException</code> — <code>using Google.GenAI;</code>; <code>TimeoutRejectedException</code> — <code>using Polly.Timeout;</code></li>
+<li>ფასი: <code>input / 1_000_000m * InputPerMillion + output / 1_000_000m * OutputPerMillion</code> — <code>decimal</code>, არა <code>double</code></li>
+<li>მიმდინარე ფასები და მოდელების სახელები Gemini-ს გვერდებზე (კონსპექტის რესურსები)</li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 სწორი · <span id="qd">0</span> / 10 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>Gemini-მ 503 დააბრუნა. რას ნიშნავს და რა ვქნათ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ჩვენი კოდის ბაგია — გავასწოროთ</button><button type="button" class="opt" data-i="1">Gemini დროებით გადატვირთულია — ცოტა ხანში თავიდან ვცადოთ</button><button type="button" class="opt" data-i="2">key ამოიწურა — ახალი ავიღოთ</button><button type="button" class="opt" data-i="3">მოდელის სახელი არასწორია</button></div><div class="qe"><span class="verdict"></span> 503 — დროებითი შეცდომა: retry, და თუ არ გამოვიდა — სარეზერვო მოდელი. <a class="chip" href="#s-7">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>რომელ შეცდომაზე <strong>არ</strong> უნდა ვცადოთ თავიდან?</div></div><div class="opts"><button type="button" class="opt" data-i="0">429</button><button type="button" class="opt" data-i="1">503</button><button type="button" class="opt" data-i="2">401 — არასწორი key</button><button type="button" class="opt" data-i="3">timeout</button></div><div class="qe"><span class="verdict"></span> 401 მუდმივია: იგივე key იგივე შეცდომას მოიტანს. retry მხოლოდ დროებითზე. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">3</span><div>პასუხი მოვიდა (200), მაგრამ FinishReason = length და JSON მოჭრილია. ეს რა ჯგუფია?</div></div><div class="opts"><button type="button" class="opt" data-i="0">დროებითი — retry</button><button type="button" class="opt" data-i="1">მუდმივი — კონფიგურაცია</button><button type="button" class="opt" data-i="2">შინაარსის — კოდში ვამოწმებთ (MaxOutputTokens, TryGetResult)</button><button type="button" class="opt" data-i="3">ეს შეცდომა არ არის</button></div><div class="qe"><span class="verdict"></span> HTTP-ის დონეზე ყველაფერი რიგზეა — პასუხის შინაარსს ჩვენი კოდი ამოწმებს. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>რა არის exponential backoff?</div></div><div class="opts"><button type="button" class="opt" data-i="0">retry-ების რაოდენობის ზრდა</button><button type="button" class="opt" data-i="1">retry-ებს შორის მზარდი პაუზა: 2 → 4 → 8 წამი</button><button type="button" class="opt" data-i="2">timeout-ის შემცირება</button><button type="button" class="opt" data-i="3">მოთხოვნის შეკუმშვა</button></div><div class="qe"><span class="verdict"></span> გადატვირთულ სერვისს ამოსუნთქვის დრო ეძლევა. jitter-ი პაუზას შემთხვევით ნაწილს ამატებს. <a class="chip" href="#s-10">გაიმეორე · სლაიდი 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>რას აკეთებს circuit breaker?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ყოველ მოთხოვნას ორჯერ აგზავნის</button><button type="button" class="opt" data-i="1">ბევრი ჩავარდნის შემდეგ გამოძახებებს დროებით წყვეტს და მაშინვე შეცდომას აბრუნებს</button><button type="button" class="opt" data-i="2">მოთხოვნას შიფრავს</button><button type="button" class="opt" data-i="3">ტოკენებს ითვლის</button></div><div class="qe"><span class="verdict"></span> სერვისი ისვენებს, მომხმარებელი ტყუილად არ ელოდება. <a class="chip" href="#s-10">გაიმეორე · სლაიდი 10</a></div></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">6</span><div>რატომ ვზრდით <code>AttemptTimeout</code>-ს 10 წამიდან 40-მდე?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini ფიქრობს და გრძელ პასუხს წერს — 10 წამი ზოგჯერ არ ჰყოფნის და ნორმალური პასუხი „ჩავარდებოდა“</button><button type="button" class="opt" data-i="1">უფრო იაფია</button><button type="button" class="opt" data-i="2">Polly ასე მოითხოვს</button><button type="button" class="opt" data-i="3">retry-ების რაოდენობა გაიზრდება</button></div><div class="qe"><span class="verdict"></span> ნაგულისხმევი დრო სწრაფი API-ებისთვისაა. LLM-ს მეტი სჭირდება. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>რა მოხდება, თუ Google.GenAI-ის retry-ს არ გამოვრთავთ და resilience-იც დავამატებთ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">არაფერი — ერთმანეთს არ ეხებიან</button><button type="button" class="opt" data-i="1">retry-ები ერთმანეთში ჩაჯდება: ერთ შეკითხვაზე ბევრად მეტი ცდა და ლოდინი</button><button type="button" class="opt" data-i="2">კომპილაციის შეცდომა</button><button type="button" class="opt" data-i="3">retry საერთოდ არ იმუშავებს</button></div><div class="qe"><span class="verdict"></span> retry ერთ ადგილას: <code>HttpRetryOptions { Attempts = 1 }</code>. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div><code>ChaosHandler</code>-ით ორი 503 და მერე 200. რას ხედავს მომხმარებელი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">500-ს</button><button type="button" class="opt" data-i="1">ჩვეულებრივ პასუხს, ცოტა დაგვიანებით (~6 წამი)</button><button type="button" class="opt" data-i="2">ორ შეცდომას და პასუხს</button><button type="button" class="opt" data-i="3">503-ს</button></div><div class="qe"><span class="verdict"></span> retry HttpClient-ის შიგნით ხდება — Controller-მა და მომხმარებელმა შეცდომა ვერ დაინახეს. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div><code>FallbackChatClient</code> 401-ზე რატომ არ ერთვება?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ბაგია</button><button type="button" class="opt" data-i="1"><code>IsTransient</code> 401-ს მუდმივად თვლის: სარეზერვო მოდელიც იგივე key-ს იყენებს და იგივე შეცდომას მოიტანს</button><button type="button" class="opt" data-i="2">401 exception-ს არ აგდებს</button><button type="button" class="opt" data-i="3">fallback მხოლოდ სტრიმინგზე მუშაობს</button></div><div class="qe"><span class="verdict"></span> fallback მხოლოდ დროებით შეცდომაზე: 429, 5xx, ქსელი, timeout. <a class="chip" href="#s-15">გაიმეორე · სლაიდი 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>Singleton ფენაში <code>AppDbContext</code>-ს რატომ ვიღებთ <code>IServiceScopeFactory</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე სწრაფია</button><button type="button" class="opt" data-i="1">pipeline Singleton-ია, DbContext — Scoped; პირდაპირ ჩასმა ყველა მოთხოვნას ერთ DbContext-ს გაუზიარებდა</button><button type="button" class="opt" data-i="2">DbContext Singleton-შიც მუშაობს</button><button type="button" class="opt" data-i="3">EF Core ასე მოითხოვს migration-ისთვის</button></div><div class="qe"><span class="verdict"></span> ფენა ყოველ ჯერზე საკუთარ scope-ს ქმნის და მისგან იღებს DbContext-ს. <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>დროებითი შეცდომა (transient)</dt><dd>შეცდომა, რომელიც თავიდან ცდისას შეიძლება აღარ განმეორდეს: 429, 5xx, timeout, ქსელი</dd><dt>მუდმივი შეცდომა</dt><dd>თავიდან ცდა არ შველის: არასწორი მოთხოვნა, key, უფლება, მოდელის სახელი (4xx, 429-ის გარდა)</dd><dt>ApiException</dt><dd>Google.GenAI-ის შეცდომა StatusCode-ით: ClientError (4xx) და ServerError (5xx)</dd><dt>Retry</dt><dd>ჩავარდნილი მოთხოვნის თავიდან გაგზავნა დროებით შეცდომაზე</dd><dt>Exponential backoff</dt><dd>retry-ებს შორის მზარდი პაუზა (2, 4, 8… წამი)</dd><dt>Jitter</dt><dd>პაუზის შემთხვევითი ნაწილი, რომ ბევრმა კლიენტმა ერთდროულად არ სცადოს</dd><dt>Circuit breaker</dt><dd>„ჩამრთველი“: ბევრი ჩავარდნის შემდეგ გამოძახებებს დროებით წყვეტს</dd><dt>Microsoft.Extensions.Http.Resilience</dt><dd>პაკეტი, რომელიც HttpClient-ს retry-ს, timeout-ს და circuit breaker-ს ამატებს (Polly-ზე დაფუძნებული)</dd><dt>AddStandardResilienceHandler</dt><dd>მზა pipeline რეკომენდებული პარამეტრებით</dd><dt>Fallback</dt><dd>სარეზერვო ვარიანტი: თუ მთავარი სერვისი არ პასუხობს, მოთხოვნა სხვაზე გადადის</dd><dt>Exception filter (catch … when)</dt><dd>catch, რომელიც exception-ს მხოლოდ პირობის შესრულებისას იჭერს</dd><dt>IServiceScopeFactory</dt><dd>DI სერვისი, რომლითაც Singleton-ში საკუთარ scope-ს ვქმნით და იქიდან Scoped სერვისს (DbContext) ვიღებთ</dd><dt>Captive dependency</dt><dd>შეცდომა: Scoped სერვისი Singleton-შია „დატყვევებული“ და ყველა მოთხოვნა მას იზიარებს</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 8 — Error Handling, Resilience და ხარჯის კონტროლი";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
+      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>

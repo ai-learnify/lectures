@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI აგენტები .NET-ში · 9 — Text Embeddings: ტექსტის ვექტორიზაცია</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>:root{
+  --bg:#0a0c16; --bg2:#11142a; --bg3:#171b36; --card:#151935; --line:#272c52; --line2:#353b6b;
+  --ink:#eceefb; --ink2:#c3c7e6; --muted:#8a90b8;
+  --net:#8b6cff; --net2:#512bd4;
+  --asp:#f5a524; --wf:#3b82f6; --mvc:#22c55e; --core:#a78bfa; --api:#22d3ee; --red:#f43f5e; --pink:#ec4899; --yel:#facc15;
+  --font:"Noto Sans Georgian","FiraGO","BPG Arial","Sylfaen","DejaVu Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",ui-monospace,"DejaVu Sans Mono",monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);overflow:hidden}
+body{font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* ---------- stage ---------- */
+#stage{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
+#deck{position:absolute;left:50%;top:50%;width:1600px;height:var(--h,900px);transform:translate(-50%,-50%) scale(var(--s,1));transform-origin:center;
+  background:radial-gradient(1200px 700px at 85% -10%,rgba(139,108,255,.16),transparent 60%),
+             radial-gradient(900px 600px at -10% 110%,rgba(34,211,238,.08),transparent 60%),var(--bg);
+  overflow:hidden}
+#deck::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 80%)}
+
+.slide{position:absolute;inset:0;padding:calc(70px + (var(--h,900px) - 900px) / 2) 90px calc(80px + (var(--h,900px) - 900px) / 2);opacity:0;visibility:hidden;
+  transform:translateX(40px) scale(.985);transition:opacity .55s var(--ease),transform .65s var(--ease),visibility 0s .6s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s var(--ease),transform .65s var(--ease),visibility 0s}
+.slide.past{transform:translateX(-40px) scale(.985)}
+
+/* chrome */
+#hud{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;gap:18px;padding:0 90px;
+  color:var(--muted);font-size:15px;z-index:20;pointer-events:none}
+#hud .sec{letter-spacing:.06em;text-transform:uppercase;font-size:13px;color:var(--core)}
+#hud .num{margin-left:auto;font-family:var(--mono);font-size:14px}
+#hud .dots{font-family:var(--mono);font-size:13px;color:var(--line2);letter-spacing:2px}
+#hud .dots b{color:var(--api);font-weight:400}
+#bar{position:absolute;left:0;bottom:0;height:4px;background:linear-gradient(90deg,var(--net),var(--api));width:0;transition:width .5s var(--ease);z-index:21}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:34vh;overflow:auto;background:rgba(10,12,22,.97);border-top:2px solid var(--net);
+  color:var(--ink2);font-size:17px;line-height:1.6;padding:16px 28px;transform:translateY(100%);transition:transform .3s var(--ease);z-index:50}
+#notes.open{transform:none}
+#notes h6{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--net);margin-bottom:6px}
+#help{position:fixed;right:16px;top:12px;color:#8a90b8;font:12px var(--mono);z-index:40;opacity:.8;transition:opacity 1s;pointer-events:none}
+#help.hide{opacity:0}
+#overview{position:fixed;inset:0;background:rgba(5,6,12,.96);z-index:60;display:none;overflow:auto;padding:30px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+#overview.open{display:grid}
+#overview button{all:unset;cursor:pointer;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;color:var(--ink2);font-size:14px;line-height:1.35;min-height:84px}
+#overview button:hover,#overview button.cur{border-color:var(--net);color:#fff}
+#overview button small{display:block;color:var(--muted);font:12px var(--mono);margin-bottom:6px}
+
+/* ---------- typography ---------- */
+.kicker{font:600 15px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--api);margin-bottom:14px}
+h1{font-size:76px;line-height:1.08;font-weight:800;letter-spacing:-.01em}
+h2{font-size:50px;line-height:1.15;font-weight:800;margin-bottom:30px}
+h3{font-size:28px;font-weight:700;margin-bottom:12px}
+p,li{font-size:25px;line-height:1.55;color:var(--ink2)}
+.lead{font-size:30px;line-height:1.5;color:var(--ink2);max-width:1250px}
+.small{font-size:19px} .tiny{font-size:15px;color:var(--muted)}
+.muted{color:var(--muted)}
+b,strong{color:var(--ink);font-weight:700}
+.grad{background:linear-gradient(90deg,var(--net),var(--api));-webkit-background-clip:text;background-clip:text;color:transparent}
+code.i{font-family:var(--mono);font-size:.86em;background:rgba(139,108,255,.14);color:#d8ccff;padding:2px 8px;border-radius:6px}
+ul.clean{list-style:none} ul.clean li{position:relative;padding-left:34px;margin:10px 0}
+ul.clean li::before{content:"";position:absolute;left:4px;top:.62em;width:12px;height:12px;border-radius:3px;background:var(--net);transform:rotate(45deg)}
+.c-asp{color:var(--asp)} .c-wf{color:var(--wf)} .c-mvc{color:var(--mvc)} .c-core{color:var(--core)} .c-api{color:var(--api)} .c-red{color:var(--red)} .c-net{color:var(--net)} .c-yel{color:var(--yel)} .c-pink{color:var(--pink)}
+
+/* ---------- layout ---------- */
+.row{display:flex;gap:36px} .col{display:flex;flex-direction:column;gap:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%}
+.vcenter{display:flex;flex-direction:column;justify-content:center;height:100%}
+.f1{flex:1} .mt{margin-top:28px} .mt2{margin-top:50px} .mb{margin-bottom:24px}
+.abs{position:absolute}
+
+.card{background:linear-gradient(180deg,var(--card),rgba(21,25,53,.6));border:1px solid var(--line);border-radius:18px;padding:26px 28px;position:relative}
+.card h3{display:flex;align-items:center;gap:12px}
+.card p,.card li{font-size:21px}
+.card.accent{border-color:color-mix(in srgb,var(--a,var(--net)) 55%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--a,var(--net)) 20%,transparent),0 20px 60px -30px var(--a,var(--net))}
+.card .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;background:color-mix(in srgb,var(--a,var(--net)) 18%,transparent);color:var(--a,var(--net));flex:none}
+.pill{display:inline-flex;align-items:center;gap:8px;font:600 15px var(--mono);padding:6px 14px;border-radius:99px;border:1px solid var(--line2);color:var(--ink2);background:var(--bg2)}
+.pill.on{border-color:var(--a,var(--net));color:var(--a,var(--net));background:color-mix(in srgb,var(--a,var(--net)) 12%,transparent)}
+.tag{font:700 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:6px;background:color-mix(in srgb,var(--a,var(--net)) 20%,transparent);color:var(--a,var(--net))}
+.good{--a:var(--mvc)} .bad{--a:var(--red)} .warn{--a:var(--asp)}
+.pro li::before{background:var(--mvc)!important} .con li::before{background:var(--red)!important}
+
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:20px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+table.t th,table.t td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+table.t th{background:var(--bg3);color:var(--ink);font-size:17px;letter-spacing:.03em}
+table.t tr:last-child td{border-bottom:0}
+table.t td:first-child{color:var(--ink);font-weight:700}
+
+/* ---------- code ---------- */
+.code{position:relative;background:#0d1024;border:1px solid var(--line);border-radius:14px;padding:20px 0 20px;font:17.5px/1.62 var(--mono);color:#d6dbff;overflow:hidden}
+.code .ttl{position:absolute;top:0;right:0;font:12px var(--mono);color:var(--muted);padding:6px 14px;background:var(--bg3);border-bottom-left-radius:10px;letter-spacing:.06em}
+.code .ln{display:block;padding:0 24px;white-space:pre;transition:opacity .35s,background .35s}
+.code .ln.hl{background:rgba(139,108,255,.14);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.28}
+.code.big{font-size:20px}
+.code.sm{font-size:15.5px;line-height:1.55}
+.code.xs{font-size:14px;line-height:1.5}
+/* pygments tokens */
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#c792ea}
+.code .kt{color:#82aaff}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#c3e88d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#6b7299;font-style:italic}
+.code .m,.code .mi,.code .mf,.code .mh{color:#f78c6c}
+.code .nf,.code .fm{color:#82aaff}
+.code .nc,.code .nn,.code .nt{color:#ffcb6b}
+.code .na{color:#c792ea} .code .nb{color:#89ddff}
+.code .o,.code .p{color:#89ddff}
+.code .nv,.code .nx{color:#d6dbff}
+.code .err{color:inherit;background:none}
+.code .gp{color:var(--mvc)} .code .go{color:#9aa0c3}
+.code .nd{color:#ffcb6b}
+.code .asp-delim{color:#f5a524;font-weight:700;background:rgba(245,165,36,.12)}
+
+/* terminal */
+.term{background:#07080f;border:1px solid var(--line);border-radius:14px;overflow:hidden;font:20px/1.7 var(--mono)}
+.term .bar{height:36px;background:#141729;display:flex;align-items:center;gap:8px;padding:0 14px}
+.term .bar i{width:12px;height:12px;border-radius:50%;background:#ff5f57}.term .bar i:nth-child(2){background:#febc2e}.term .bar i:nth-child(3){background:#28c840}
+.term .bar span{margin-left:12px;color:var(--muted);font-size:13px}
+.term .body{padding:18px 22px;color:#cfd3f0}
+.term .cmd::before{content:"$ ";color:var(--mvc)}
+.term .out{color:var(--muted)}
+.typing{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;width:0;border-right:2px solid transparent}
+.shown .typing,.typing.shown{animation:type var(--t,1.4s) steps(var(--n,30)) forwards,caret .8s step-end 3}
+@keyframes type{to{width:calc(var(--n,30) * 1ch)}}
+@keyframes caret{50%{border-color:var(--api)}}
+
+/* ---------- steps & animations ---------- */
+.step{opacity:0;transform:translateY(22px);transition:opacity .5s var(--ease),transform .6s var(--ease),filter .5s}
+.step.shown{opacity:1;transform:none}
+.step.fade{transform:none}
+.step.left{transform:translateX(-40px)} .step.right{transform:translateX(40px)}
+.step.zoom{transform:scale(.8)} .step.drop{transform:translateY(-40px)}
+.step.left.shown,.step.right.shown,.step.zoom.shown,.step.drop.shown{transform:none}
+svg .step{transform:none;transform-box:fill-box}
+.trigger{}
+.gone-after.shown{} /* hook */
+.dim-on.shown{opacity:.25!important}
+
+.in{opacity:0;animation:none}
+.active .in{animation:inUp .8s var(--ease) forwards;animation-delay:var(--d,0s)}
+.active .in.fade{animation-name:inFade} .active .in.zoom{animation-name:inZoom} .active .in.left{animation-name:inLeft}
+@keyframes inUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes inFade{from{opacity:0}to{opacity:1}}
+@keyframes inZoom{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes inLeft{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:none}}
+
+/* svg drawing */
+.draw path,.draw line,.draw polyline,path.draw,line.draw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);transition:stroke-dashoffset 1.3s var(--ease)}
+.shown.draw path,.shown.draw line,.shown.draw polyline,path.draw.shown,line.draw.shown,.active .autodraw path,.active path.autodraw{stroke-dashoffset:0}
+.autodraw path,path.autodraw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);transition:stroke-dashoffset 1.6s var(--ease) var(--d,0s)}
+.flow{stroke-dasharray:8 10;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-36}}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.float{animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-10px)}}
+.spin{animation:spin 8s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shake.shown{animation:shake .5s 2}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* svg text */
+svg text{font-family:var(--font);fill:var(--ink2)}
+svg .mono{font-family:var(--mono)}
+svg .box{fill:var(--card);stroke:var(--line2);stroke-width:2}
+svg .td{fill:#06070d;font-weight:700} svg .tw{fill:var(--ink)} svg .tm{fill:var(--muted)} svg .ta{fill:var(--api)} svg .tr{fill:var(--red)}
+svg .tg{fill:var(--mvc)} svg .to{fill:var(--asp)} svg .tb{fill:var(--wf)} svg .tp{fill:var(--core)} svg .tn{fill:var(--net)} svg .ty{fill:var(--yel)}
+svg .b{font-weight:800}
+.chain .lc{transition:none}
+.chain.shown .lc{animation:lit .5s var(--ease) forwards;animation-delay:calc(var(--i) * .45s)}
+@keyframes lit{from{fill:var(--card);stroke:var(--line2)}to{fill:color-mix(in srgb,var(--a,var(--net)) 30%,var(--card));stroke:var(--a,var(--net))}}
+.chain .lct{opacity:.35}
+.chain.shown .lct{animation:litT .5s forwards;animation-delay:calc(var(--i) * .45s)}
+@keyframes litT{to{opacity:1}}
+.problem{display:inline-block;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.45);color:#ffc2cd;border-radius:12px;padding:12px 20px;font-size:21px}
+.problem::before{content:"⚠";color:var(--red);font-size:22px;margin-right:10px}
+.solve{display:inline-block;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.45);color:#c8f7d6;border-radius:12px;padding:12px 20px;font-size:21px}
+.solve::before{content:"✓";color:var(--mvc);font-size:22px;font-weight:800;margin-right:10px}
+.year{font:800 120px/1 var(--mono);color:transparent;-webkit-text-stroke:2px color-mix(in srgb,var(--a,var(--net)) 60%,transparent);position:absolute;right:80px;top:40px;opacity:.6}
+
+/* section divider */
+.divider .big-num{font:800 260px/1 var(--mono);position:absolute;right:70px;bottom:40px;color:transparent;-webkit-text-stroke:2px rgba(139,108,255,.25)}
+.divider h1{font-size:92px}
+
+/* quiz */
+.qa{display:grid;grid-template-columns:60px 1fr;gap:8px 18px;align-items:start;margin-bottom:30px}
+.qa .n{font:800 26px var(--mono);color:var(--net)}
+.qa .q{font-size:27px;color:var(--ink)}
+.qa .a{grid-column:2;font-size:22px;color:var(--mvc);border-left:3px solid var(--mvc);padding-left:14px}
+
+/* timeline */
+.tl{position:relative;height:100%}
+.era{border-radius:14px;padding:16px 18px;border:1px solid color-mix(in srgb,var(--a) 50%,transparent);background:color-mix(in srgb,var(--a) 9%,var(--bg2))}
+.era .y{font:700 16px var(--mono);color:var(--a)}
+.era .n{font-size:22px;font-weight:800;color:var(--ink);margin:4px 0}
+.era .d{font-size:16px;color:var(--ink2);line-height:1.4}
+
+.callout{border-left:4px solid var(--a,var(--net));background:color-mix(in srgb,var(--a,var(--net)) 9%,transparent);padding:16px 22px;border-radius:0 12px 12px 0;font-size:22px;color:var(--ink2)}
+.callout b{color:var(--a,var(--net))}
+.chip{display:inline-block;padding:3px 10px;border-radius:8px;font:600 16px var(--mono);background:var(--bg3);border:1px solid var(--line2);color:var(--ink2);margin:3px}
+
+@media print{
+  html,body{overflow:visible;background:#fff}
+  #stage{position:static;display:block}#deck{transform:none!important;box-shadow:none}
+  #hud,#bar,#help,#notes{display:none}
+}
+
+.shown path.draw,.shown line.draw,.shown polyline.draw{stroke-dashoffset:0}
+
+.grid2>*,.grid3>*,.grid4>*{min-width:0}
+.cmp{padding:14px 22px!important}.cmp h3{font-size:22px;margin-bottom:4px}.cmp p{font-size:18px}
+.active .typing.auto{animation:type var(--t,1.4s) steps(var(--n,30)) forwards,caret .8s step-end 3}
+.gone{opacity:0!important;transition:opacity .6s var(--ease)!important}
+.hl-row{transition:all .4s}
+.big-emoji{font-size:64px;line-height:1}
+.method-card{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:16px;border:1px solid color-mix(in srgb,var(--a) 55%,transparent);background:color-mix(in srgb,var(--a) 10%,var(--bg2))}
+.method-card .m{font:800 26px var(--mono);color:var(--a);min-width:120px}
+.method-card .t{font-size:22px;color:var(--ink2)}
+.verb{font:800 64px var(--mono);color:var(--a)}
+#notes{max-height:46vh;font-size:19px;line-height:1.55}
+#notes .nl{padding:3px 10px;border-radius:6px;margin:2px 0}
+#notes .say{color:#e6e8f7}
+#notes .cue{color:#9aa0c3}
+#notes .cue .ck{display:inline-block;min-width:54px;font:700 15px var(--mono);color:#22d3ee}
+#notes .cue.done{opacity:.4}
+#notes .cue.next{background:rgba(34,211,238,.14);color:#fff;box-shadow:inset 3px 0 0 #22d3ee}
+#notes .q{color:#facc15}
+#notes .t{color:#a78bfa;font:600 15px var(--mono)}
+#notes .imp{color:#22c55e;font-weight:700}
+#notes .dir{color:#8a90b8;font-style:italic;font-size:16px}
+body.presenter #stage,body.presenter #help,body.presenter #notes,body.presenter #overview{display:none!important}
+body.presenter{overflow:auto;background:#0a0c16}
+#presenter{display:flex;flex-direction:column;height:100vh;font-family:var(--font);color:var(--ink)}
+#presenter .p-head{display:flex;gap:24px;align-items:center;padding:14px 26px;background:#151935;border-bottom:2px solid var(--net);font-size:20px;font-weight:700}
+#presenter .p-steps{color:var(--api);font:600 16px var(--mono)}
+#presenter .p-clock{margin-left:auto;color:var(--core);font:700 20px var(--mono)}
+#presenter .p-notes{flex:1;overflow:auto;padding:18px 30px;font-size:23px;line-height:1.55}
+#presenter .nl{padding:5px 12px;border-radius:8px;margin:3px 0}
+#presenter .say{color:#e6e8f7}
+#presenter .cue{color:#9aa0c3;font-size:19px}
+#presenter .cue .ck{display:inline-block;min-width:60px;font:700 16px var(--mono);color:#22d3ee}
+#presenter .cue.done{opacity:.35}
+#presenter .cue.next{background:rgba(34,211,238,.16);color:#fff;box-shadow:inset 4px 0 0 #22d3ee;font-size:22px}
+#presenter .q{color:#facc15}
+#presenter .t{color:#a78bfa;font:600 17px var(--mono)}
+#presenter .imp{color:#22c55e;font-weight:700}
+#presenter .dir{color:#8a90b8;font-style:italic;font-size:18px}
+#presenter .p-foot{display:flex;gap:20px;padding:10px 26px;background:#11142a;color:var(--muted);font-size:16px}
+#presenter .p-help{margin-left:auto;font-size:13px}
+
+/* ===== Light "warm paper" theme =====
+   Semantic colours (constant across the whole deck):
+   Frontend = pink · Backend/API = violet · Database = amber
+   Request = blue · Response/success = green · Error = red
+   Methods: GET green · POST amber · PUT blue · PATCH teal · DELETE red */
+:root{
+  --bg:#fbf8f3; --bg2:#f4efe6; --bg3:#efe8dc; --card:#ffffff; --line:#e6dfd2; --line2:#cfc6b6;
+  --ink:#1e2132; --ink2:#41465c; --muted:#7b8096;
+  --net:#6d28d9; --net2:#5b21b6;
+  --asp:#d97706; --wf:#2563eb; --mvc:#16a34a; --core:#0d9488; --api:#2563eb; --red:#dc2626; --pink:#db2777; --yel:#ca8a04;
+  --shadow:0 1px 2px rgba(30,33,50,.05),0 10px 28px -14px rgba(30,33,50,.18);
+}
+
+/* stage */
+/* ფონი: უჯრედები (რვეულის ფურცელი) მთელ ეკრანზე — სლაიდის „ყუთი“ აღარ ჩანს */
+#stage{--grid:rgba(30,33,50,.055);--grid2:rgba(30,33,50,.085);background:
+  radial-gradient(1100px 700px at 95% -10%,rgba(109,40,217,.06),transparent 60%),
+  radial-gradient(1000px 650px at -8% 110%,rgba(217,119,6,.055),transparent 60%),
+  linear-gradient(var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(90deg,var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  var(--bg);background-position:center}
+#deck{background:transparent}
+#deck::before{display:none}
+
+/* chrome */
+#hud .sec{color:var(--net)}
+#hud .dots{color:var(--line2)} #hud .dots b{color:var(--net)}
+#help{color:var(--muted)}
+#overview{background:color-mix(in srgb,var(--bg) 97%,transparent)}
+#overview button{background:var(--card);color:var(--ink2);box-shadow:var(--shadow)}
+#overview button:hover,#overview button.cur{color:var(--ink)}
+
+/* typography */
+.kicker{display:inline-block;width:fit-content;align-self:flex-start;letter-spacing:.12em;padding:6px 14px;border-radius:99px;background:color-mix(in srgb,currentColor 10%,transparent)}
+code.i{background:rgba(109,40,217,.08);color:#5b21b6}
+ul.clean li::before{border-radius:4px}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+.card.accent{border-color:color-mix(in srgb,var(--a,var(--net)) 30%,var(--line));border-top:5px solid var(--a,var(--net));
+  box-shadow:0 1px 2px rgba(30,33,50,.05),0 16px 34px -18px color-mix(in srgb,var(--a,var(--net)) 55%,transparent)}
+.card .ico{background:color-mix(in srgb,var(--a,var(--net)) 12%,var(--card))}
+.pill{background:var(--card);border-color:var(--line2)}
+.pill.on{background:color-mix(in srgb,var(--a,var(--net)) 10%,var(--card));border-color:color-mix(in srgb,var(--a,var(--net)) 55%,var(--card))}
+.tag{background:color-mix(in srgb,var(--a,var(--net)) 14%,var(--card))}
+.chip{background:var(--card);border-color:var(--line2)}
+table.t{background:var(--card);box-shadow:var(--shadow)}
+table.t th{background:var(--bg2)}
+.method-card{background:color-mix(in srgb,var(--a) 7%,var(--card));border-color:color-mix(in srgb,var(--a) 40%,var(--card));box-shadow:var(--shadow)}
+.callout{background:color-mix(in srgb,var(--a,var(--net)) 7%,var(--card))}
+.era{background:color-mix(in srgb,var(--a) 7%,var(--card))}
+
+/* status boxes */
+.problem{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+.solve{background:#f0fdf4;border-color:#86efac;color:#166534}
+.divider .big-num{-webkit-text-stroke:2px rgba(109,40,217,.16)}
+.year{opacity:.45}
+
+/* code — light editor look; terminal stays dark like a real terminal */
+.code{background:var(--card);color:var(--ink);border-color:var(--line);box-shadow:var(--shadow)}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.term{border-color:#2a2e45;box-shadow:var(--shadow)}
+
+/* svg */
+svg .box{fill:var(--card);stroke:var(--line2)}
+svg .td{fill:var(--card)}
+
+/* lecturer notes panel + presenter window stay dark (laptop only) */
+#notes{color:#c3c7e6}
+#presenter{color:#e6e8f7}
+#presenter .p-steps{color:#22d3ee}
+#presenter .p-clock{color:#a78bfa}
+#presenter .p-foot{color:#8a90b8}
+
+/* ===== Dark "quiet night" theme =====
+   Soft, low-glare: graphite background (not pure black), warm off-white text,
+   desaturated pastel accents — the same colour meanings as the light theme. */
+html[data-theme=dark]{
+  --bg:#16181d; --bg2:#1d2027; --bg3:#232730; --card:#1e2128; --line:#2d313b; --line2:#3c414d;
+  --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98;
+  --net:#ab9ff2; --net2:#8f82e3;
+  --asp:#dfa96e; --wf:#8aa9e6; --mvc:#8fc8a1; --core:#72bfb3; --api:#8aa9e6; --red:#e68b8b; --pink:#e29bba; --yel:#d8c27e;
+  --on:#16181d;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px -16px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+html[data-theme=dark] #stage{--grid:rgba(230,226,218,.035);--grid2:rgba(230,226,218,.06);background:
+  radial-gradient(1100px 700px at 95% -10%,rgba(171,159,242,.06),transparent 60%),
+  radial-gradient(1000px 650px at -8% 110%,rgba(223,169,110,.04),transparent 60%),
+  linear-gradient(var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(90deg,var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  var(--bg);background-position:center}
+html[data-theme=dark] #overview button:hover,html[data-theme=dark] #overview button.cur{color:var(--ink)}
+html[data-theme=dark] code.i{background:rgba(171,159,242,.13);color:#cfc6ff}
+html[data-theme=dark] .grad{background:linear-gradient(90deg,var(--net),var(--api));-webkit-background-clip:text;background-clip:text}
+html[data-theme=dark] .problem{background:#2c2025;border-color:#5a3540;color:#f0b4b4}
+html[data-theme=dark] .solve{background:#1d2a23;border-color:#35523f;color:#b2dcbf}
+html[data-theme=dark] .divider .big-num{-webkit-text-stroke:2px rgba(171,159,242,.14)}
+html[data-theme=dark] .code{background:#1a1d23}
+html[data-theme=dark] .code .ln.hl{background:rgba(171,159,242,.08)}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go{color:#959aa6}
+/* inline SVG: light fills → dark surfaces */
+html[data-theme=dark] svg [fill="#ffffff"],html[data-theme=dark] svg [fill="#fff"]{fill:var(--card)}
+html[data-theme=dark] svg [fill="#f1ece3"],html[data-theme=dark] svg [fill="#fbf8f3"]{fill:var(--bg2)}
+html[data-theme=dark] svg [fill="#f3effe"],html[data-theme=dark] svg [fill="#ede7fd"]{fill:#272439}
+html[data-theme=dark] svg [fill="#fef5e4"]{fill:#2c2720}
+html[data-theme=dark] svg [fill="#eaf8ef"]{fill:#1f2b24}
+html[data-theme=dark] svg [fill="#eaf2fe"],html[data-theme=dark] svg [fill="#dbeafe"]{fill:#1f2635}
+html[data-theme=dark] svg [stroke="#cfc6b6"],html[data-theme=dark] svg [stroke="#e6dfd2"]{stroke:var(--line2)}
+html[data-theme=dark] svg [fill="#6d28d9"]{fill:var(--net)} html[data-theme=dark] svg [stroke="#6d28d9"]{stroke:var(--net)}
+html[data-theme=dark] svg [fill="#d97706"]{fill:var(--asp)} html[data-theme=dark] svg [stroke="#d97706"]{stroke:var(--asp)}
+html[data-theme=dark] svg [fill="#16a34a"]{fill:var(--mvc)} html[data-theme=dark] svg [stroke="#16a34a"]{stroke:var(--mvc)}
+html[data-theme=dark] svg [fill="#dc2626"]{fill:var(--red)} html[data-theme=dark] svg [stroke="#dc2626"]{stroke:var(--red)}
+html[data-theme=dark] svg [fill="#2563eb"]{fill:var(--api)} html[data-theme=dark] svg [stroke="#2563eb"]{stroke:var(--api)}
+html[data-theme=dark] [style*="background:#fef2f2"]{background:#2c2025!important;border-color:#5a3540!important}
+html[data-theme=dark] .tp-picks span.odd{background:#2c2025;color:#f0b4b4}
+html[data-theme=dark] .json .k{color:#c4a7f0} html[data-theme=dark] .json .s{color:#a9d39a} html[data-theme=dark] .json .n{color:#e3a77c}
+html[data-theme=dark] .cc-in input{background:var(--bg2)}
+
+#home{position:fixed;left:12px;top:10px;z-index:41;font:600 13px var(--mono);color:var(--muted);text-decoration:none;
+padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
+#home:hover,#home:focus-visible{opacity:1;background:rgba(0,0,0,.05)}
+:fullscreen #home{display:none}
+#studybtn{position:fixed;right:16px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:#fff;
+background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
+#studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
+body[data-study] #help{right:280px}
+#lectbtn{position:fixed;right:170px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:var(--ink2);
+background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:7px 11px;cursor:pointer;opacity:.85}
+#lectbtn:hover,#themebtn:hover,#langbtn:hover{opacity:1}
+#themebtn,#langbtn{position:fixed;top:12px;z-index:41;font:700 14px var(--font);color:var(--ink2);background:var(--card);border:1px solid var(--line2);
+border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
+#themebtn{right:170px}#langbtn{right:222px;font-family:var(--mono)}
+body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{right:68px}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+:fullscreen #themebtn,:fullscreen #langbtn{opacity:0}:fullscreen #themebtn:hover,:fullscreen #langbtn:hover{opacity:1}#lectbtn kbd{font:600 11px var(--mono);background:var(--bg2);border-radius:5px;padding:1px 6px}</style></head>
+<body data-study="1" data-lect="1">
+<a id="home" href="../../" title="All lectures">← Lectures</a><button id="themebtn" class="themebtn" type="button" title="Light / dark theme (T)"><span class="l">🌙</span><span class="d">☀️</span></button><button id="langbtn" type="button" data-href="index.html" title="ქართული ვერსია">KA</button><button id="studybtn" type="button" title="კონსპექტი ცალკე ჩანართში — სლაიდებს მიჰყვება">📖 Notes <kbd>P</kbd></button>
+<div id="stage"><div id="deck">
+<style>
+.mono{font-family:var(--mono)}
+.swr{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.swr .rh{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #e5e5e5;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.swr .rh .m{font:800 14px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:5px 0;width:78px;text-align:center}
+.swr .rh .p{font:700 17px var(--mono);color:#3b4151}
+.swr .rb{background:#41444e;color:#fff;font:600 15px/1.5 var(--mono);padding:10px 14px;border-radius:6px;white-space:pre;margin:10px 16px 14px}
+.swr .rb .k{color:#a5d6ff}.swr .rb .s{color:#a2fca2}.swr .rb .n{color:#fcc28c}
+.c-post{--c:#49cc90}.c-get{--c:#61affe}
+.ask{--a:var(--pink);font-size:22px;color:var(--ink)}
+.ask b{color:var(--pink)}
+.route{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:22px}
+.stop{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--a);border-radius:16px;padding:22px 24px 18px;box-shadow:var(--shadow)}
+.stop .sn{position:absolute;top:-22px;left:18px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font:800 20px var(--mono)}
+.stop h3{margin:10px 0 0;font-size:26px}
+.stop p{margin:0;font-size:19px;color:var(--ink2);line-height:1.45}
+.stop .from{margin-top:auto;font:700 15px var(--mono);color:var(--a)}
+.prob{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:12px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 8%,var(--card));border-left:6px solid var(--a)}
+.prob .pi{font-size:30px;text-align:center}
+.prob b{display:block;font-size:20px;color:var(--ink)}
+.prob span{font-size:17px;color:var(--ink2);line-height:1.4}
+.prob span b{display:inline;font-size:inherit;color:var(--ink)}
+.sec-l{font:700 15px var(--mono);color:var(--muted);margin:0 0 6px}
+.menu{width:100%;border-collapse:separate;border-spacing:0;font-size:17px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.menu th{background:var(--bg2);font:800 14px var(--mono);color:var(--muted);text-align:left;padding:8px 12px}
+.menu td{padding:8px 12px;border-top:1px solid var(--line);color:var(--ink)}
+.menu td:first-child{font-weight:800;white-space:nowrap}
+.menu td.sc{font:800 16px var(--mono);text-align:right;white-space:nowrap}
+.menu tr.hit td{background:color-mix(in srgb,var(--mvc) 9%,var(--card))}
+.menu tr.miss td{color:var(--muted)}
+.map{position:relative;height:430px;border-radius:18px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+.map .ax{position:absolute;font:700 13px var(--mono);color:var(--muted)}
+.map .pt{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;font:700 16px var(--font);color:var(--ink);white-space:nowrap}
+.map .pt i{width:14px;height:14px;border-radius:50%;background:var(--a);box-shadow:0 0 0 4px color-mix(in srgb,var(--a) 22%,transparent)}
+.map .cl{position:absolute;border-radius:50%;border:2px dashed var(--a);background:color-mix(in srgb,var(--a) 6%,transparent)}
+.map .q i{width:18px;height:18px;border-radius:4px;transform:rotate(45deg)}
+.map .q{font-weight:800;color:var(--pink)}
+.vec{font:600 15px/1.5 var(--mono);background:#1e2132;color:#d7dae6;border-radius:12px;padding:12px 16px;white-space:pre;overflow:hidden}
+.vec .k{color:#fcd34d}.vec .d{color:#8b93b0}.vec .g{color:#86efac}
+.ang{position:relative;height:250px}
+.ang svg{width:100%;height:100%}
+.score{display:flex;align-items:center;gap:10px;font:800 15px var(--mono)}
+.score .bar{flex:1;height:14px;border-radius:7px;background:var(--bg2);position:relative;overflow:hidden}
+.score .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--a);border-radius:7px}
+.pair{display:grid;grid-template-columns:1fr 1fr 110px;gap:10px;align-items:center;padding:9px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:17px}
+.pair .v{font:800 17px var(--mono);text-align:right;color:var(--a)}
+</style>
+
+
+<!-- =========================================================
+     AI · ლექცია 9 — Text Embeddings
+     დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
+     ფერები: LLM/ვექტორი = იისფერი · მსგავსება/ძებნა = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
+             სწორი/ნაპოვნი = მწვანე · არ ემთხვევა = წითელი · თამაში/ჩართულობა = ვარდისფერი
+     პროექტი: RestaurantApi — AddEmbeddingGenerator, Ai/MenuIndex, AiLabController: embed, menu/index, menu/search
+     ========================================================= -->
+
+<section class="slide" data-section="Intro">
+  <div class="vcenter" style="max-width:720px">
+    <div class="kicker in" style="color:var(--net)">AI · Lecture 9 · Embeddings</div>
+    <h1 class="in" style="--d:.15s">Search<br><span class="grad">by meaning</span></h1>
+    <p class="lead in mt" style="--d:.35s">text → vector · IEmbeddingGenerator · cosine similarity</p>
+  </div>
+  <div class="abs" style="right:90px;top:250px;width:540px">
+    <div class="vec in" style="--d:.5s"><span class="k">"something light, without meat"</span>
+<span class="d">        ↓ embedding</span>
+[ 0.0213, -0.0471, 0.0089, 0.0632,
+ -0.0154, 0.0398, …  <span class="d">768 numbers</span> ]
+<span class="d">        ↓ the closest</span>
+<span class="g">🥗 Lobio in a clay pot · 0.71</span>
+<span class="g">🍆 Aubergine with walnuts · 0.68</span></div>
+  </div>
+</section>
+
+<section class="slide" data-section="Review">
+  <div class="kicker">Review · lecture 8</div>
+  <h2>Let's recall: <span class="grad">Error Handling, Resilience and Cost Control</span></h2>
+  <div class="qa"><span class="n">1</span><span class="q">Which error does retry help with, and which doesn't it? One example each.</span><span class="a step">Transient — 429, 500/503, timeout, the network: trying again helps · permanent — 400, 401, 403, 404: the same request brings the same error · content (length, bad JSON) — in code</span></div><div class="qa"><span class="n">2</span><span class="q">Why don't we retry 10 times right away? What are backoff and jitter?</span><span class="a step">We'd send an overloaded service even more requests · backoff — a growing pause (2→4→8 s) · jitter — a random part, so many clients don't retry at the same time · on a 429 — Retry-After</span></div><div class="qa"><span class="n">3</span><span class="q">Why do we turn off Google.GenAI's own retry?</span><span class="a step">Retry must be in one place · two nested retries = 4 × 4 = 16 attempts and minutes of waiting · <code class="i">HttpRetryOptions { Attempts = 1 }</code> + our HttpClient through <code class="i">ClientOptions.HttpClientFactory</code></span></div><div class="qa"><span class="n">4</span><span class="q">Where does <code class="i">FallbackChatClient</code> stand in the pipeline, and which errors does it catch?</span><span class="a step">Innermost (the last <code class="i">.Use</code>) — every request of the tool loop gets its own fallback · only transient ones: ApiException 429/5xx, the network, a timeout · <code class="i">catch … when</code></span></div><div class="qa"><span class="n">5</span><span class="q">Why does TokenCounter get the DbContext through <code class="i">IServiceScopeFactory</code> to write to the database?</span><span class="a step">The pipeline is a Singleton, the DbContext is Scoped · injecting it directly = a captive dependency · the layer creates its own scope every time</span></div>
+</section>
+
+<section class="slide" data-section="Homework review">
+  <div class="kicker">🏠 Homework review · lecture 8</div>
+  <h2>A chat that survives errors, and today&#x27;s cost</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr;align-items:start;gap:30px">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">📝</span>What you had to do</h3><ul class="clean small">
+<li><strong>Resilience</strong> in your project: <code class="i">AddHttpClient("gemini").AddStandardResilienceHandler(...)</code> with timeouts raised for an LLM; Google.GenAI uses this HttpClient (<code class="i">ClientOptions.HttpClientFactory</code>), and its own retry is turned off</li>
+<li><strong><code class="i">FallbackChatClient</code></strong> — only on a transient error (429, 5xx, the network, a timeout); the fallback model in <code class="i">appsettings.json</code> (<code class="i">Gemini:FallbackModel</code>); the innermost layer of the pipeline</li>
+<li><strong><code class="i">TokenCounterChatClient</code> to the database</strong> (<code class="i">AiUsage</code>) — <code class="i">ReasoningTokenCount</code> added to the output</li>
+<li><strong><code class="i">GET /api/ai-lab/usage/today</code></strong> — per model: calls, input, output and the cost in dollars; the prices in <code class="i">appsettings.json</code> (<code class="i">AiPricing:&lt;model&gt;:InputPerMillion</code> / <code class="i">OutputPerMillion</code>), not in the code</li>
+<li><strong>README — an error table:</strong> three tests with <code class="i">ChaosHandler</code> and configuration: (1) two 503s · (2) a wrong model name · (3) always 503. Columns: test · how many requests went out · what the user got · 1–2 lines of the log</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul></div>
+    <div class="step"><pre class="code sm"><span class="ttl">Controllers/AiLabController.cs · UsageToday</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ModelPrice</span><span class="p">(</span><span class="kt">decimal</span><span class="w"> </span><span class="n">InputPerMillion</span><span class="p">,</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">OutputPerMillion</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("usage/today")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">UsageToday</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">AiUsage</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">.</span><span class="n">Date</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">GroupBy</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">Model</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Key</span><span class="p">,</span><span class="w"> </span><span class="n">Calls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Count</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">Input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">InputTokens</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">OutputTokens</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">rows</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ModelPrice</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_config</span><span class="p">.</span><span class="n">GetSection</span><span class="p">(</span><span class="s">$"AiPricing:{r.Model}"</span><span class="p">)</span><span class="p">.</span><span class="n">Get</span><span class="o">&lt;</span><span class="n">ModelPrice</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kt">decimal</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Input</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000m</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">InputPerMillion</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Output</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000m</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">OutputPerMillion</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Model</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Calls</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Input</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Output</span><span class="p">,</span><span class="w"> </span><span class="n">CostUsd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="n">Round</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+  </div>
+  <div class="callout step mt" data-with style="--a:var(--api)">Compare with yours. What came out differently — and why?</div>
+</section>
+
+<section class="slide" data-section="Today's topic">
+  <div class="kicker">Today's topic</div>
+  <h2><span class="grad">Text Embeddings: Vectorizing Text</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🤔</span>Why you need this</h3><p class="small">“Something light, without meat” — sending the whole menu is expensive, and LIKE won't find the lobio, because those words aren't in its description. Today we learn about embeddings: turning text into a vector where a similar meaning is close together. This is the foundation of semantic search, RAG and agent memory — the whole second half of the module stands on it.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>By the end of the lecture you can</h3><ul class="clean small"><li>You'll explain what an embedding and a vector are, why a similar meaning is “close”, and why vectors from different models can't be compared</li><li>You'll register an <code class="i">IEmbeddingGenerator</code> (<code class="i">gemini-embedding-2</code>, 768 dimensions) and get vectors with <code class="i">GenerateVectorAsync</code> / <code class="i">GenerateAsync</code></li><li>You'll write the question and the document with the right task prefix and explain why the search is asymmetric</li><li>You'll calculate cosine similarity (by hand and with <code class="i">TensorPrimitives</code>) and write a semantic search for the menu with a top 3</li></ul></div>
+  </div>
+</section>
+
+<section class="slide" data-section="Intro">
+  <div class="kicker">Today's route</div>
+  <h2>3 steps: <span class="c-net">the vector</span> → <span class="c-api">in code</span> → <span class="c-asp">similarity and search</span></h2>
+  <div class="route">
+    <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>🧭 What an embedding is</h3><p>Text → numbers, where a similar meaning = close</p><span class="from">vector · dimension · model</span></div>
+    <div class="stop" style="--a:var(--api)"><span class="sn">2</span><h3>🧑‍💻 A vector in code</h3><p>Gemini's embedding model, again one interface</p><span class="from">IEmbeddingGenerator · task prefix</span></div>
+    <div class="stop" style="--a:var(--asp)"><span class="sn">3</span><h3>🔎 Similarity and search</h3><p>The “angle” between two vectors and a menu search by meaning</p><span class="from">cosine similarity · top 3</span></div>
+  </div>
+  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">At the end: <b>a menu</b>that finds the lobio for “without meat”</div>
+</section>
+
+<!-- ================= 1 · embedding ================= -->
+<section class="slide divider" data-section="1 · embedding">
+  <div class="vcenter">
+    <div class="kicker in">Part 1</div>
+    <h1 class="in" style="--d:.1s">Text →<br><span class="grad">numbers</span></h1>
+    <p class="lead mt in" style="--d:.3s">vector · “close” · dimension · embedding model</p>
+  </div>
+  <div class="big-num">01</div>
+</section>
+
+<section class="slide" data-section="1 · embedding">
+  <div class="kicker">The problem · words ≠ meaning</div>
+  <h2>“without meat” — <span class="c-red">0 results</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:10px">
+      <p class="sec-l">SELECT … WHERE "Description" LIKE '%without meat%'</p>
+      <table class="menu">
+        <tr><th>Dish</th><th>Description</th></tr>
+        <tr class="miss"><td>Lobio in a clay pot</td><td>red beans, onion, coriander, with hot mchadi</td></tr>
+        <tr class="miss"><td>Aubergine with walnuts</td><td>fried aubergine, walnut paste, pomegranate</td></tr>
+        <tr class="miss"><td>Mtsvadi</td><td>pork on a skewer, with onion</td></tr>
+        <tr class="miss"><td>Khinkali</td><td>beef and pork, in dough</td></tr>
+        <tr class="miss"><td>Tomato salad</td><td>tomato, cucumber, walnut</td></tr>
+      </table>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask">🙋 Which dishes <b>match</b>?</div>
+      <div class="prob step" style="--a:var(--mvc)"><span class="pi">🧠</span><div><b>A person sees it right away</b><span>Lobio, aubergine, salad — and the other way round: “meat” is written in the mtsvadi and the khinkali</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">🔤</span><div><b>LIKE looks for words</b><span>“without meat” isn't written anywhere → 0. And searching for “meat” finds exactly the <b>wrong</b> dishes</span></div></div>
+      <div class="callout ask step">🙋 How do we teach a computer <b>meaning</b>?</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="1 · embedding">
+  <div class="kicker">🧭 Embedding · the “coordinates” of meaning</div>
+  <h2>Similar meaning = <span class="c-asp">close</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:26px;align-items:start;margin-top:4px">
+    <div class="map">
+      <span class="ax" style="left:16px;bottom:10px">sample · 2 dimensions (really 768)</span>
+      <div class="cl" style="--a:var(--mvc);left:40px;top:40px;width:330px;height:250px"></div>
+      <div class="cl step" data-with style="--a:var(--red);left:500px;top:190px;width:300px;height:210px"></div>
+      <div class="pt" style="--a:var(--mvc);left:150px;top:100px"><i></i>Lobio in a clay pot</div>
+      <div class="pt" style="--a:var(--mvc);left:250px;top:170px"><i></i>Aubergine with walnuts</div>
+      <div class="pt" style="--a:var(--mvc);left:140px;top:240px"><i></i>Tomato salad</div>
+      <div class="pt" style="--a:var(--red);left:620px;top:250px"><i></i>Mtsvadi</div>
+      <div class="pt" style="--a:var(--red);left:680px;top:330px"><i></i>Khinkali</div>
+      <div class="pt" style="--a:var(--net);left:560px;top:80px"><i></i>Churchkhela</div>
+      <div class="pt q step" style="--a:var(--pink);left:230px;top:65px"><i></i>“without meat”</div>
+      <div class="pt q step" data-with style="--a:var(--pink);left:300px;top:270px"><i></i>„vegetarian“</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="prob" style="--a:var(--net)"><span class="pi">🔢</span><div><b>embedding = a list of numbers</b><span>Text → [0.021, −0.047, 0.009, …]. This list is called a <b>vector</b></span></div></div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">📍</span><div><b>a vector = a point</b><span>The model places them so that a similar meaning is close</span></div></div>
+      <div class="callout ask step">🙋 Which <b>group</b> did the question land next to?</div>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">Georgian and English — <b>in one place</b>: the meaning is the same</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="1 · embedding">
+  <div class="kicker">🧩 The embedding model</div>
+  <h2>A separate model: <span class="c-net">it doesn't write text</span>, it returns a vector</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:8px">
+    <div class="col" style="gap:12px">
+      <table class="menu">
+        <tr><th></th><th>chat model</th><th>embedding model</th></tr>
+        <tr><td>in</td><td>messages</td><td>text</td></tr>
+        <tr><td>out</td><td>text</td><td>vector</td></tr>
+        <tr><td>interface</td><td class="mono">IChatClient</td><td class="mono">IEmbeddingGenerator</td></tr>
+        <tr><td>price</td><td>input + output</td><td>input only · much cheaper</td></tr>
+      </table>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">🧭</span><div><b>gemini-embedding-2</b><span>Stable · 8,192 input tokens · 128–3072 dimensions</span></div></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">📏</span><div><b>We take 768</b><span>A recommended size: good quality, 4 times less space than 3072</span></div></div>
+      <div class="callout ask step">🙋 Can one model's vector be <b>compared</b> with another model's vector?</div>
+      <div class="prob step" data-with style="--a:var(--red)"><span class="pi">🚫</span><div><b>No</b><span>Every model has its own “map”. If we change the model, every vector has to be calculated again</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2 · კოდში ================= -->
+<section class="slide divider" data-section="2 · In code">
+  <div class="vcenter">
+    <div class="kicker in">Part 2</div>
+    <h1 class="in" style="--d:.1s">A vector<br><span class="grad">in code</span></h1>
+    <p class="lead mt in" style="--d:.3s">IEmbeddingGenerator · GenerateVectorAsync · task prefix</p>
+  </div>
+  <div class="big-num">02</div>
+</section>
+
+<section class="slide" data-section="2 · In code">
+  <div class="kicker">🧑‍💻 We write · Program.cs and POST /api/ai-lab/embed</div>
+  <h2><span class="mono c-api">IEmbeddingGenerator</span> — like IChatClient</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:22px">
+    <div class="col" style="gap:12px">
+      <pre class="code sm"><span class="ttl">Program.cs</span><code><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">embeddingModel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:EmbeddingModel"</span><span class="p">]</span><span class="o">!</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddEmbeddingGenerator</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">AsIEmbeddingGenerator</span><span class="p">(</span><span class="n">embeddingModel</span><span class="p">,</span><span class="w"> </span><span class="n">defaultModelDimensions</span><span class="p">:</span><span class="w"> </span><span class="mi">768</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">      </span></span></code></pre>
+      <pre class="code sm" id="c1"><span class="ttl">Controllers/AiLabController.cs · Embed</span><code><span class="ln"><span class="c1">// constructor: IEmbeddingGenerator&lt;string, Embedding&lt;float&gt;&gt; embeddings</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("embed")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Embed</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="n">Length</span><span class="p">,</span><span class="w"> </span><span class="n">First5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="n">ToArray</span><span class="p">(</span><span class="p">)</span><span class="p">[</span><span class="p">.</span><span class="mf">.5</span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="swr c-post step">
+        <div class="rh"><span class="m">POST</span><span class="p">/embed</span></div>
+        <pre class="rb">{
+  <span class="k">"length"</span>: <span class="n">768</span>,
+  <span class="k">"first5"</span>: [ <span class="n">0.0213</span>, <span class="n">-0.0471</span>,
+     <span class="n">0.0089</span>, <span class="n">0.0632</span>, <span class="n">-0.0154</span> ]
+}</pre>
+      </div>
+      <div class="callout step" style="--a:var(--net);font-size:18px">768 numbers, <b>one</b> call. No text — only coordinates</div>
+      <div class="callout ask step">🙋 Lobio in Georgian script and in Latin letters — will the vectors be <b>the same</b>?</div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">No, but <b>close</b>. How to measure “close” — part 3</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="2 · In code">
+  <div class="kicker">🏷️ Task prefix · question ≠ document</div>
+  <h2>The question and the answer look <span class="c-asp">different</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:8px">
+    <div class="col" style="gap:12px">
+      <p class="sec-l">Question (short, “what I want”)</p>
+      <div class="vec"><span class="k">task: search result | query:</span> something light, without meat</div>
+      <p class="sec-l step" style="margin-top:6px">Document (what we need to find)</p>
+      <div class="vec step" data-with><span class="k">title:</span> Lobio in a clay pot <span class="k">| text:</span> red beans, onion, coriander…</div>
+      <pre class="code sm"><span class="ttl">Ai/EmbeddingText.cs</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">EmbeddingText</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Query</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="s">$"task: search result | query: {q}"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Document</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="s">$"title: {title} | text: {text}"</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask">🙋 “Something light?” and “Lobio in a clay pot — red beans…” — do they look like the same kind of <b>text</b>?</div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">↔️</span><div><b>Asymmetric search</b><span>The question is short, the document long. The prefix tells the model which is which</span></div></div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">📘</span><div><b>gemini-embedding-2's rule</b><span>For text tasks Google strongly recommends the prefix</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">⚠️</span><div><b>Chosen once — used everywhere</b><span>Documents in one format, questions in the other. Always</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide divider" data-section="Break">
+  <div class="vcenter">
+    <div class="kicker in">Break</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">minutes</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">Next: how <b>close</b> are two vectors?</p>
+  </div>
+  <div class="big-num">☕</div>
+</section>
+
+<!-- ================= 3 · მსგავსება ================= -->
+<section class="slide divider" data-section="3 · Similarity">
+  <div class="vcenter">
+    <div class="kicker in">Part 3</div>
+    <h1 class="in" style="--d:.1s">Similarity<br><span class="grad">and search</span></h1>
+    <p class="lead mt in" style="--d:.3s">cosine similarity · TensorPrimitives · menu search</p>
+  </div>
+  <div class="big-num">03</div>
+</section>
+
+<section class="slide" data-section="3 · Similarity">
+  <div class="kicker">📐 Cosine similarity · the angle between two arrows</div>
+  <h2>What points <span class="c-mvc">in the same direction</span> is similar</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <div class="ang">
+        <svg viewBox="0 0 420 250">
+          <defs>
+            <marker id="ahn" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--net)"/></marker>
+            <marker id="ahm" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--mvc)"/></marker>
+            <marker id="ahr" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--red)"/></marker>
+          </defs>
+          <line x1="30" y1="220" x2="250" y2="50" stroke="var(--net)" stroke-width="5" marker-end="url(#ahn)"/>
+          <text x="200" y="34" font-size="17" font-weight="700" fill="var(--net)">“without meat”</text>
+          <line x1="30" y1="220" x2="300" y2="95" stroke="var(--mvc)" stroke-width="5" marker-end="url(#ahm)"/>
+          <text x="312" y="98" font-size="17" font-weight="700" fill="var(--mvc)">lobio</text>
+          <line x1="30" y1="220" x2="330" y2="205" stroke="var(--red)" stroke-width="5" marker-end="url(#ahr)"/>
+          <text x="340" y="210" font-size="17" font-weight="700" fill="var(--red)">Mtsvadi</text>
+        </svg>
+      </div>
+      <div class="pair" style="--a:var(--mvc)"><span>“without meat”</span><span>Lobio in a clay pot</span><span class="v">0.71</span></div>
+      <div class="pair" style="--a:var(--red)"><span>“without meat”</span><span>Mtsvadi</span><span class="v">0.38</span></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <pre class="code sm"><span class="ttl">by hand — how it's calculated</span><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="nf">Cosine</span><span class="p">(</span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">na</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">nb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">dot</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">na</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">nb</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">na</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">nb</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
+      <div class="step"><pre class="code sm"><span class="ttl">the same, in one line (SIMD)</span><code><span class="ln"><span class="kt">float</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TensorPrimitives</span><span class="p">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">Span</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Span</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">      </span></span></code></pre></div>
+      <div class="callout step" style="--a:var(--asp);font-size:17px"><b>1</b> — the same direction · <b>0</b> — nothing in common. The number depends on the model: we <b>compare</b>, we don't read it on its own</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="3 · Similarity">
+  <div class="kicker">🧑‍💻 We write · a semantic search for the menu</div>
+  <h2>The menu once → vectors · a question → <span class="c-asp">top 3</span></h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:22px">
+    <pre class="code sm" id="c2"><span class="ttl">Controllers/AiLabController.cs · menu/index, menu/search</span><code><span class="ln"><span class="na">[HttpPost("menu/index")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">IndexMenu</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">GeneratedEmbeddings</span><span class="o">&lt;</span><span class="n">Embedding</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">vectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">products</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Document</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Description</span><span class="p">)</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Clear</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">vectors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Vector</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Indexed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("menu/search")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SearchMenu</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Query</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">Score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TensorPrimitives</span><span class="p">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">query</span><span class="p">.</span><span class="n">Span</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Vector</span><span class="p">.</span><span class="n">Span</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Score</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">top</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
+    <div class="col" style="gap:12px">
+      <div class="swr c-get step">
+        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=without meat</span></div>
+        <pre class="rb">[
+  { <span class="k">"name"</span>: <span class="s">"Lobio in a clay pot"</span>,     <span class="k">"score"</span>: <span class="n">0.71</span> },
+  { <span class="k">"name"</span>: <span class="s">"Aubergine with walnuts"</span>, <span class="k">"score"</span>: <span class="n">0.68</span> },
+  { <span class="k">"name"</span>: <span class="s">"Tomato salad"</span>,  <span class="k">"score"</span>: <span class="n">0.63</span> }
+]</pre>
+      </div>
+      <div class="callout step" style="--a:var(--mvc);font-size:18px">LIKE — 0 · embeddings — <b>the right three</b>. Not a single word matches</div>
+      <div class="callout ask step">🙋 <b>Why don't</b> we calculate the menu's vectors on every question?</div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px">200 dishes every time = money and time. We calculate once and <b>store</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Practice">
+  <div class="kicker">🧑‍💻 You do it · in class</div>
+  <h2>The similarity game — guess first, then measure</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)">
+      <h3><span class="ico">📝</span>Your project or RestaurantApi · with code · Swagger and a table in your notebook</h3>
+      <ul class="clean small">
+<li><strong>1 · Registration</strong> — <code class="i">AddEmbeddingGenerator(new Client(apiKey: apiKey).AsIEmbeddingGenerator("gemini-embedding-2", defaultModelDimensions: 768))</code>; the model name in <code class="i">appsettings.json</code></li>
+<li><strong>2 · The endpoint</strong> — <code class="i">POST /api/ai-lab/similarity</code>, body <code class="i">{ "a": "...", "b": "..." }</code>: two vectors (<code class="i">GenerateAsync([a, b])</code> — in one call) → <code class="i">TensorPrimitives.CosineSimilarity</code> → <code class="i">{ score }</code></li>
+<li><strong>3 · Guess first</strong> — in your notebook, 5 pairs on your project's theme and <strong>your prediction</strong> for each (high / medium / low) — before running Swagger. One pair Georgian ↔ English, one with the same words but a different meaning</li>
+<li><strong>4 · Measure</strong> — all five in Swagger; sort them by score. Where were you wrong?</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ Done when: <code>/similarity</code> returns a score; the table has 5 pairs, the prediction and the real score; the Georgian ↔ English pair is higher than “same words — different meaning”</p>
+    </div>
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
+<li>The same pairs <strong>with the prefix</strong>: <code class="i">a</code> — <code class="i">EmbeddingText.Query</code>, <code class="i">b</code> — <code class="i">EmbeddingText.Document</code>. Did the order change?</li>
+<li><code class="i">defaultModelDimensions: 3072</code> — did the scores and the order change? How many times bigger is the vector?</li>
+<li>Cosine <strong>by hand</strong> (the loop from slide 15) — does it give the same number as <code class="i">TensorPrimitives</code>?</li>
+</ul></div>
+  </div>
+  <div class="callout mt" style="--a:var(--api)">Rule: <b>try it yourself first</b> → ask your neighbour → then me</div>
+</section>
+
+<section class="slide" data-section="Summary">
+  <div class="kicker">Let's check</div>
+  <h2>5 questions</h2>
+  <div class="qa"><span class="n">1</span><span class="q">Why doesn't LIKE find the lobio for “without meat”, and what does an embedding do differently?</span><span class="a step">LIKE looks for words, and those words aren't in the description · an embedding turns the text into a vector where a similar meaning is close — regardless of language and words</span></div><div class="qa"><span class="n">2</span><span class="q">How is an embedding model different from a chat model? Which one do we use and at what size?</span><span class="a step">It doesn't write text — it returns one vector, and only the input is charged · <code class="i">IEmbeddingGenerator</code> · <code class="i">gemini-embedding-2</code>, 768 dimensions</span></div><div class="qa"><span class="n">3</span><span class="q">Why can't we “just” change the model if vectors are already stored?</span><span class="a step">Every model (and size) has its own “map” — vectors from different models can't be compared · changing the model = calculating every vector again</span></div><div class="qa"><span class="n">4</span><span class="q">What is a task prefix, and why do the question and the document have different ones?</span><span class="a step">Asymmetric search: a short “wish” ↔ long “facts” · <code class="i">task: search result | query: …</code> and <code class="i">title: … | text: …</code> · always by the same rule</span></div><div class="qa"><span class="n">5</span><span class="q">What does cosine similarity measure, and how do we read the number?</span><span class="a step">The angle between two vectors: 1 — the same direction, 0 — nothing in common · the number depends on the model — we compare and sort, we don't judge it on its own</span></div>
+</section>
+
+<section class="slide" data-section="Summary">
+  <div class="kicker in" style="color:var(--net)">Today</div>
+  <h2 class="in" style="--d:.1s">Text → vector → <span class="grad">search by meaning</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>Remember</h3><ul class="clean small">
+      <li><b>Embedding</b>: text → vector; a similar meaning = <b>close</b>, regardless of language</li>
+      <li><b>A separate model</b>: gemini-embedding-2, 768 dimensions · one model = one “map”</li>
+      <li><b>IEmbeddingGenerator</b> — AddEmbeddingGenerator, GenerateVectorAsync / GenerateAsync</li>
+      <li><b>Task prefix</b>: the question and the document in different formats, always</li>
+      <li><b>Cosine similarity</b>: the angle · we compare, we don't read it alone · TensorPrimitives</li>
+      <li>The menu <b>once</b> → vectors; on every question — only the question</li></ul></div>
+    <div class="col" style="gap:14px">
+      <div class="callout ask">🙋 The app restarted. What <b>happened</b> to the vectors? And on a million documents?</div>
+      <div class="prob" style="--a:var(--red)"><span class="pi">💨</span><div><b>In memory — gone</b><span>Calculated again on every restart</span></div></div>
+      <div class="prob" style="--a:var(--red)"><span class="pi">🐢</span><div><b>We compare with every one, one by one</b><span>Slow on a million vectors</span></div></div>
+      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>Lecture 10</h3>
+        <p class="small"><b>pgvector + EF Core</b>: vectors in PostgreSQL, search with SQL and an HNSW index</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Homework">
+  <div class="kicker">🏠 Homework</div>
+  <h2>Semantic search in your project</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent" style="--a:var(--net)">
+      <h3><span class="ico">🏠</span>With code · your project · a comparison table in the README</h3>
+      <ul class="clean small">
+<li><strong><code class="i">IEmbeddingGenerator</code></strong> in your project: <code class="i">gemini-embedding-2</code>, 768 dimensions, the model in <code class="i">appsettings.json</code></li>
+<li><strong><code class="i">EmbeddingText</code></strong> — the <code class="i">Query</code> and <code class="i">Document</code> prefixes; every document in one format, every question in the other</li>
+<li><strong>The index:</strong> <code class="i">POST .../index</code> — your main records (dishes, books, courses…) with <code class="i">GenerateAsync</code> in <strong>one</strong> call, the vectors in a Singleton; if a record has no description — add one</li>
+<li><strong>The search:</strong> <code class="i">GET .../search?q=</code> — top 3 with scores, <strong>with a threshold</strong>: if the best score is below the threshold (the threshold in <code class="i">appsettings.json</code>), return an empty list. Choose the threshold through your own tests</li>
+<li><strong>README — a comparison table:</strong> 5 questions (one in English, one about something that isn't in your data at all). Columns: question · the <code class="i">LIKE</code> result · the embeddings top 3 with scores · correct?</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ Done when: A question asked with a “synonym” or in English finds the right record where LIKE finds nothing; on a “non-existent” question the threshold returns an empty list; the README has the table and the quiz score</p>
+    </div>
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
+<li><strong>A tool for the chat:</strong> <code class="i">search_menu(query)</code> — a lecture 4 tool that uses the semantic search instead of <code class="i">get_menu</code>. Ask the chat “something light?” — how many tokens did you save (lecture 7's budget)?</li>
+<li><strong>Updating the index:</strong> when a record is added/changed its vector is recalculated — without the whole index</li>
+<li><strong>Size:</strong> 768 vs 3072 — indexing time, memory (<code class="i">768 × 4</code> bytes per record) and changes in the top 3</li>
+</ul></div>
+  </div>
+  <div class="callout mt" style="--a:var(--api)">At the start of the next lecture we'll <b>go through this homework together</b></div>
+</section>
+
+<div id="hud"><span class="sec"></span><span class="dots"></span><span class="num"></span></div><div id="bar"></div>
+</div></div>
+<div id="overview"></div>
+<div id="help">← → · F</div>
+<script>(() => {
+  // the study window (P) follows the deck over this channel; title is unique per lecture
+  let bc = null; try { bc = new BroadcastChannel('deck-' + document.title); } catch (e) {}
+  const deck = document.getElementById('deck');
+  const slides = [...deck.querySelectorAll('.slide')];
+  const hud = { sec: document.querySelector('#hud .sec'), num: document.querySelector('#hud .num'), dots: document.querySelector('#hud .dots') };
+  const bar = document.getElementById('bar');
+  const ov = document.getElementById('overview');
+
+  // ----- build step groups per slide -----
+  const groups = slides.map(s => {
+    const els = [...s.querySelectorAll('.step, .trigger, .codestep')].filter(e => !e.closest('.study'));
+    const g = [];
+    els.forEach(e => { if (e.hasAttribute('data-with') && g.length) g[g.length - 1].push(e); else g.push([e]); });
+    return g;
+  });
+  // sections
+  let curSec = '';
+  const sections = slides.map(s => (curSec = s.dataset.section ?? curSec));
+
+  // typing lengths
+  document.querySelectorAll('.typing').forEach(t => { t.style.setProperty('--n', t.textContent.length); if (!t.style.getPropertyValue('--t')) t.style.setProperty('--t', Math.max(.6, t.textContent.length * .045) + 's'); });
+
+  // svg draw lengths
+  document.querySelectorAll('.draw path,.draw line,.draw polyline,path.draw,line.draw,.autodraw path,path.autodraw').forEach(p => {
+    try { const L = Math.ceil(p.getTotalLength()) + 2; p.style.setProperty('--len', L); } catch (e) {}
+  });
+
+  let i = 0, k = 0;
+  const parseHash = () => { const m = location.hash.match(/#\/?(\d+)(?:\.(\d+))?/); if (m) { i = Math.min(slides.length - 1, Math.max(0, +m[1] - 1)); k = Math.min(groups[i].length, +(m[2] || 0)); } };
+  parseHash();
+
+  function smil(root, filter) {
+    root.querySelectorAll('animate,animateMotion,animateTransform,set').forEach(a => {
+      if (filter(a)) { try { a.beginElement(); } catch (e) {} }
+    });
+  }
+  function ranges(spec) {
+    const out = new Set();
+    String(spec).split(',').forEach(p => { const [a, b] = p.split('-').map(Number); for (let x = a; x <= (b || a); x++) out.add(x); });
+    return out;
+  }
+
+  let prevI = -1, prevK = -1;
+  function render(forward) {
+    slides.forEach((s, x) => { s.classList.toggle('active', x === i); s.classList.toggle('past', x < i); });
+    const s = slides[i];
+    groups[i].forEach((g, x) => g.forEach(e => e.classList.toggle('shown', x < k)));
+    // data-hide triggers: hide target element(s) once the trigger is shown
+    s.querySelectorAll('[data-hide]').forEach(t => {
+      s.querySelectorAll(t.dataset.hide).forEach(el => el.classList.toggle('gone', t.classList.contains('shown')));
+    });
+    // code highlights
+    s.querySelectorAll('pre.code[id]').forEach(pre => {
+      const steps = [...s.querySelectorAll(`.codestep[data-for="${pre.id}"]`)].filter(c => c.classList.contains('shown'));
+      const last = steps[steps.length - 1];
+      const lines = [...pre.querySelectorAll('.ln')];
+      if (!last || last.dataset.lines === 'all') { lines.forEach(l => l.classList.remove('hl', 'dim')); return; }
+      const set = ranges(last.dataset.lines);
+      lines.forEach((l, n) => { const on = set.has(n + 1); l.classList.toggle('hl', on); l.classList.toggle('dim', !on); });
+    });
+    // animations
+    if (i !== prevI) {
+      smil(s, a => a.hasAttribute('data-auto'));
+      // ინტერაქტიული ვიჯეტები სლაიდზე (ტოკენაიზერი, სლაიდერები…) — აქტიური სლაიდის შესახებ
+      document.dispatchEvent(new CustomEvent('deck:slide', { detail: s }));
+    }
+    if (i === prevI && k > prevK) {
+      for (let x = prevK; x < k; x++) groups[i][x].forEach(e => smil(e, a => !a.hasAttribute('data-auto')));
+    } else if (i !== prevI && k > 0) {
+      for (let x = 0; x < k; x++) groups[i][x].forEach(e => smil(e, a => !a.hasAttribute('data-auto')));
+    }
+    prevI = i; prevK = k;
+    // hud
+    hud.sec.textContent = sections[i] || '';
+    hud.num.textContent = `${i + 1} / ${slides.length}`;
+    const n = groups[i].length;
+    hud.dots.innerHTML = n ? Array.from({ length: n }, (_, x) => x < k ? '<b>●</b>' : '○').join('') : '';
+    bar.style.width = ((i + (n ? k / n : 1)) / slides.length * 100) + '%';
+    history.replaceState(null, '', `#/${i + 1}${k ? '.' + k : ''}`);
+    try { bc && bc.postMessage({ t: 'state', i, k }); } catch (e) {}
+    [...ov.children].forEach((b, x) => b.classList.toggle('cur', x === i));
+    fitSlide(s);
+  }
+
+  // სლაიდი ეკრანის სიმაღლეში თუ არ ეტევა (გრძელი ტექსტი, ფონტი, ბევრი ნაბიჯი) —
+  // შიგთავსი პროპორციულად პატარავდება, რომ ქვედა ზოლამდე დაეტიოს. ყველა ეკრანზე ერთნაირად.
+  function fitSlide(s) {
+    if (!s) return;
+    const kids = [...s.children].filter(e => !e.matches('aside, script, style, .big-num, .abs'));
+    kids.forEach(e => { e.style.zoom = ''; });
+    const sc = parseFloat(getComputedStyle(deck).getPropertyValue('--s')) || 1;
+    const sr = s.getBoundingClientRect();
+    let top = Infinity, bottom = -Infinity;
+    kids.forEach(k => {
+      const r = k.getBoundingClientRect(); if (r.height) { top = Math.min(top, r.top); bottom = Math.max(bottom, r.bottom); }
+      k.querySelectorAll('*').forEach(e => { const q = e.getBoundingClientRect(); if (q.height && q.width) bottom = Math.max(bottom, q.bottom); });
+    });
+    const limit = sr.bottom - 70 * sc;
+    if (bottom > limit && bottom > top) {
+      const f = Math.max(0.55, (limit - top) / (bottom - top) * 0.98);
+      kids.forEach(e => { e.style.zoom = f.toFixed(3); });
+    }
+  }
+
+  function next() { if (k < groups[i].length) k++; else if (i < slides.length - 1) { i++; k = 0; } render(true); }
+  function prev() { if (k > 0) { k--; prevK = k; } else if (i > 0) { i--; k = groups[i].length; } render(false); }
+  function go(x, all) { i = Math.max(0, Math.min(slides.length - 1, x)); k = all ? groups[i].length : 0; render(true); }
+
+  // overview
+  slides.forEach((s, x) => {
+    const b = document.createElement('button');
+    const t = s.querySelector('h1,h2,h3')?.textContent.trim() || s.dataset.title || 'სლაიდი';
+    b.innerHTML = `<small>${x + 1} · ${sections[x] || ''}</small>${t}`;
+    b.onclick = e => { e.stopPropagation(); ov.classList.remove('open'); go(x); };
+    ov.appendChild(b);
+  });
+
+  if (bc) bc.onmessage = ({ data }) => {
+    if (data.t === 'hello') bc.postMessage({ t: 'state', i, k });
+    if (data.t === 'go') go(data.n);
+  };
+  const openStudy = () => {
+    // ცალკე ჩანართში (არა popup ფანჯარაში) — სლაიდებს მაინც მიჰყვება
+    window.open((document.documentElement.lang === 'en' ? 'study.en.html' : 'study.html') + '?live#s-' + (i + 1), 'study-' + document.title);
+  };
+  document.getElementById('studybtn')?.addEventListener('click', e => { e.currentTarget.blur(); openStudy(); });
+  const openLecturer = () => window.open('lecturer.html', 'lecturer-' + document.title);
+  // ka ⇄ en: იგივე სლაიდზე გადასვლა
+  document.getElementById('langbtn')?.addEventListener('click', e => { location.href = e.currentTarget.dataset.href + location.hash; });
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    // სლაიდზე ტექსტის ველში წერისას კლავიშები ნავიგაციას არ ეკუთვნის (Escape — ველიდან გამოსვლა)
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) { if (e.key === 'Escape') t.blur(); return; }
+    const key = e.key, code = e.code;
+    if (key === 'ArrowRight') { e.preventDefault(); e.shiftKey ? go(i + 1) : next(); }
+    else if (key === 'ArrowLeft') { e.preventDefault(); e.shiftKey ? go(i - 1) : prev(); }
+    else if ([' ', 'Enter', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Backspace'].includes(key)) { e.preventDefault(); }
+    else if (key === 'Home') go(0);
+    else if (key === 'End') go(slides.length - 1, true);
+    else if (code === 'KeyO' || key === 'Escape') ov.classList.toggle('open', key === 'Escape' ? false : !ov.classList.contains('open'));
+    else if (code === 'KeyF') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+    else if (code === 'KeyA') { k = groups[i].length; render(true); }
+    else if (code === 'KeyP' && document.body.dataset.study) { e.preventDefault(); openStudy(); }
+    else if (code === 'KeyL' && document.body.dataset.lect)   // ლექტორის გვერდი: ღილაკი არ ჩანს, მხოლოდ L
+     { e.preventDefault(); openLecturer(); }
+    else if (code === 'KeyT' && window.toggleTheme) { e.preventDefault(); toggleTheme(); }
+  });
+  addEventListener('hashchange', () => { const oi = i, ok = k; parseHash(); if (oi !== i || ok !== k) render(true); });
+
+  function fit() {
+    // 16:9 on wide screens; grow canvas height up to 16:10 so MacBook-style screens have no bars
+    const H = Math.max(900, Math.min(1000, Math.round(1600 * innerHeight / innerWidth)));
+    deck.style.setProperty('--h', H + 'px');
+    deck.style.setProperty('--s', Math.min(innerWidth / 1600, innerHeight / H));
+  }
+  setTimeout(() => document.getElementById('help')?.classList.add('hide'), 6000);
+  addEventListener('resize', () => { fit(); fitSlide(slides[i]); }); fit();
+  document.fonts?.ready.then(() => fitSlide(slides[i]));
+  render(true);
+})();
+</script>
+</body></html>

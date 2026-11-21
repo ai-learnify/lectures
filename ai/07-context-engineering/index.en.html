@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI აგენტები .NET-ში · 7 — Context Engineering: კონტექსტისა და მეხსიერების მართვა</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>:root{
+  --bg:#0a0c16; --bg2:#11142a; --bg3:#171b36; --card:#151935; --line:#272c52; --line2:#353b6b;
+  --ink:#eceefb; --ink2:#c3c7e6; --muted:#8a90b8;
+  --net:#8b6cff; --net2:#512bd4;
+  --asp:#f5a524; --wf:#3b82f6; --mvc:#22c55e; --core:#a78bfa; --api:#22d3ee; --red:#f43f5e; --pink:#ec4899; --yel:#facc15;
+  --font:"Noto Sans Georgian","FiraGO","BPG Arial","Sylfaen","DejaVu Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",ui-monospace,"DejaVu Sans Mono",monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);overflow:hidden}
+body{font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* ---------- stage ---------- */
+#stage{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
+#deck{position:absolute;left:50%;top:50%;width:1600px;height:var(--h,900px);transform:translate(-50%,-50%) scale(var(--s,1));transform-origin:center;
+  background:radial-gradient(1200px 700px at 85% -10%,rgba(139,108,255,.16),transparent 60%),
+             radial-gradient(900px 600px at -10% 110%,rgba(34,211,238,.08),transparent 60%),var(--bg);
+  overflow:hidden}
+#deck::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 80%)}
+
+.slide{position:absolute;inset:0;padding:calc(70px + (var(--h,900px) - 900px) / 2) 90px calc(80px + (var(--h,900px) - 900px) / 2);opacity:0;visibility:hidden;
+  transform:translateX(40px) scale(.985);transition:opacity .55s var(--ease),transform .65s var(--ease),visibility 0s .6s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s var(--ease),transform .65s var(--ease),visibility 0s}
+.slide.past{transform:translateX(-40px) scale(.985)}
+
+/* chrome */
+#hud{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;gap:18px;padding:0 90px;
+  color:var(--muted);font-size:15px;z-index:20;pointer-events:none}
+#hud .sec{letter-spacing:.06em;text-transform:uppercase;font-size:13px;color:var(--core)}
+#hud .num{margin-left:auto;font-family:var(--mono);font-size:14px}
+#hud .dots{font-family:var(--mono);font-size:13px;color:var(--line2);letter-spacing:2px}
+#hud .dots b{color:var(--api);font-weight:400}
+#bar{position:absolute;left:0;bottom:0;height:4px;background:linear-gradient(90deg,var(--net),var(--api));width:0;transition:width .5s var(--ease);z-index:21}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:34vh;overflow:auto;background:rgba(10,12,22,.97);border-top:2px solid var(--net);
+  color:var(--ink2);font-size:17px;line-height:1.6;padding:16px 28px;transform:translateY(100%);transition:transform .3s var(--ease);z-index:50}
+#notes.open{transform:none}
+#notes h6{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--net);margin-bottom:6px}
+#help{position:fixed;right:16px;top:12px;color:#8a90b8;font:12px var(--mono);z-index:40;opacity:.8;transition:opacity 1s;pointer-events:none}
+#help.hide{opacity:0}
+#overview{position:fixed;inset:0;background:rgba(5,6,12,.96);z-index:60;display:none;overflow:auto;padding:30px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+#overview.open{display:grid}
+#overview button{all:unset;cursor:pointer;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;color:var(--ink2);font-size:14px;line-height:1.35;min-height:84px}
+#overview button:hover,#overview button.cur{border-color:var(--net);color:#fff}
+#overview button small{display:block;color:var(--muted);font:12px var(--mono);margin-bottom:6px}
+
+/* ---------- typography ---------- */
+.kicker{font:600 15px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--api);margin-bottom:14px}
+h1{font-size:76px;line-height:1.08;font-weight:800;letter-spacing:-.01em}
+h2{font-size:50px;line-height:1.15;font-weight:800;margin-bottom:30px}
+h3{font-size:28px;font-weight:700;margin-bottom:12px}
+p,li{font-size:25px;line-height:1.55;color:var(--ink2)}
+.lead{font-size:30px;line-height:1.5;color:var(--ink2);max-width:1250px}
+.small{font-size:19px} .tiny{font-size:15px;color:var(--muted)}
+.muted{color:var(--muted)}
+b,strong{color:var(--ink);font-weight:700}
+.grad{background:linear-gradient(90deg,var(--net),var(--api));-webkit-background-clip:text;background-clip:text;color:transparent}
+code.i{font-family:var(--mono);font-size:.86em;background:rgba(139,108,255,.14);color:#d8ccff;padding:2px 8px;border-radius:6px}
+ul.clean{list-style:none} ul.clean li{position:relative;padding-left:34px;margin:10px 0}
+ul.clean li::before{content:"";position:absolute;left:4px;top:.62em;width:12px;height:12px;border-radius:3px;background:var(--net);transform:rotate(45deg)}
+.c-asp{color:var(--asp)} .c-wf{color:var(--wf)} .c-mvc{color:var(--mvc)} .c-core{color:var(--core)} .c-api{color:var(--api)} .c-red{color:var(--red)} .c-net{color:var(--net)} .c-yel{color:var(--yel)} .c-pink{color:var(--pink)}
+
+/* ---------- layout ---------- */
+.row{display:flex;gap:36px} .col{display:flex;flex-direction:column;gap:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%}
+.vcenter{display:flex;flex-direction:column;justify-content:center;height:100%}
+.f1{flex:1} .mt{margin-top:28px} .mt2{margin-top:50px} .mb{margin-bottom:24px}
+.abs{position:absolute}
+
+.card{background:linear-gradient(180deg,var(--card),rgba(21,25,53,.6));border:1px solid var(--line);border-radius:18px;padding:26px 28px;position:relative}
+.card h3{display:flex;align-items:center;gap:12px}
+.card p,.card li{font-size:21px}
+.card.accent{border-color:color-mix(in srgb,var(--a,var(--net)) 55%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--a,var(--net)) 20%,transparent),0 20px 60px -30px var(--a,var(--net))}
+.card .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;background:color-mix(in srgb,var(--a,var(--net)) 18%,transparent);color:var(--a,var(--net));flex:none}
+.pill{display:inline-flex;align-items:center;gap:8px;font:600 15px var(--mono);padding:6px 14px;border-radius:99px;border:1px solid var(--line2);color:var(--ink2);background:var(--bg2)}
+.pill.on{border-color:var(--a,var(--net));color:var(--a,var(--net));background:color-mix(in srgb,var(--a,var(--net)) 12%,transparent)}
+.tag{font:700 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:6px;background:color-mix(in srgb,var(--a,var(--net)) 20%,transparent);color:var(--a,var(--net))}
+.good{--a:var(--mvc)} .bad{--a:var(--red)} .warn{--a:var(--asp)}
+.pro li::before{background:var(--mvc)!important} .con li::before{background:var(--red)!important}
+
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:20px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+table.t th,table.t td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+table.t th{background:var(--bg3);color:var(--ink);font-size:17px;letter-spacing:.03em}
+table.t tr:last-child td{border-bottom:0}
+table.t td:first-child{color:var(--ink);font-weight:700}
+
+/* ---------- code ---------- */
+.code{position:relative;background:#0d1024;border:1px solid var(--line);border-radius:14px;padding:20px 0 20px;font:17.5px/1.62 var(--mono);color:#d6dbff;overflow:hidden}
+.code .ttl{position:absolute;top:0;right:0;font:12px var(--mono);color:var(--muted);padding:6px 14px;background:var(--bg3);border-bottom-left-radius:10px;letter-spacing:.06em}
+.code .ln{display:block;padding:0 24px;white-space:pre;transition:opacity .35s,background .35s}
+.code .ln.hl{background:rgba(139,108,255,.14);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.28}
+.code.big{font-size:20px}
+.code.sm{font-size:15.5px;line-height:1.55}
+.code.xs{font-size:14px;line-height:1.5}
+/* pygments tokens */
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#c792ea}
+.code .kt{color:#82aaff}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#c3e88d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#6b7299;font-style:italic}
+.code .m,.code .mi,.code .mf,.code .mh{color:#f78c6c}
+.code .nf,.code .fm{color:#82aaff}
+.code .nc,.code .nn,.code .nt{color:#ffcb6b}
+.code .na{color:#c792ea} .code .nb{color:#89ddff}
+.code .o,.code .p{color:#89ddff}
+.code .nv,.code .nx{color:#d6dbff}
+.code .err{color:inherit;background:none}
+.code .gp{color:var(--mvc)} .code .go{color:#9aa0c3}
+.code .nd{color:#ffcb6b}
+.code .asp-delim{color:#f5a524;font-weight:700;background:rgba(245,165,36,.12)}
+
+/* terminal */
+.term{background:#07080f;border:1px solid var(--line);border-radius:14px;overflow:hidden;font:20px/1.7 var(--mono)}
+.term .bar{height:36px;background:#141729;display:flex;align-items:center;gap:8px;padding:0 14px}
+.term .bar i{width:12px;height:12px;border-radius:50%;background:#ff5f57}.term .bar i:nth-child(2){background:#febc2e}.term .bar i:nth-child(3){background:#28c840}
+.term .bar span{margin-left:12px;color:var(--muted);font-size:13px}
+.term .body{padding:18px 22px;color:#cfd3f0}
+.term .cmd::before{content:"$ ";color:var(--mvc)}
+.term .out{color:var(--muted)}
+.typing{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;width:0;border-right:2px solid transparent}
+.shown .typing,.typing.shown{animation:type var(--t,1.4s) steps(var(--n,30)) forwards,caret .8s step-end 3}
+@keyframes type{to{width:calc(var(--n,30) * 1ch)}}
+@keyframes caret{50%{border-color:var(--api)}}
+
+/* ---------- steps & animations ---------- */
+.step{opacity:0;transform:translateY(22px);transition:opacity .5s var(--ease),transform .6s var(--ease),filter .5s}
+.step.shown{opacity:1;transform:none}
+.step.fade{transform:none}
+.step.left{transform:translateX(-40px)} .step.right{transform:translateX(40px)}
+.step.zoom{transform:scale(.8)} .step.drop{transform:translateY(-40px)}
+.step.left.shown,.step.right.shown,.step.zoom.shown,.step.drop.shown{transform:none}
+svg .step{transform:none;transform-box:fill-box}
+.trigger{}
+.gone-after.shown{} /* hook */
+.dim-on.shown{opacity:.25!important}
+
+.in{opacity:0;animation:none}
+.active .in{animation:inUp .8s var(--ease) forwards;animation-delay:var(--d,0s)}
+.active .in.fade{animation-name:inFade} .active .in.zoom{animation-name:inZoom} .active .in.left{animation-name:inLeft}
+@keyframes inUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes inFade{from{opacity:0}to{opacity:1}}
+@keyframes inZoom{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes inLeft{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:none}}
+
+/* svg drawing */
+.draw path,.draw line,.draw polyline,path.draw,line.draw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);transition:stroke-dashoffset 1.3s var(--ease)}
+.shown.draw path,.shown.draw line,.shown.draw polyline,path.draw.shown,line.draw.shown,.active .autodraw path,.active path.autodraw{stroke-dashoffset:0}
+.autodraw path,path.autodraw{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);transition:stroke-dashoffset 1.6s var(--ease) var(--d,0s)}
+.flow{stroke-dasharray:8 10;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-36}}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.float{animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-10px)}}
+.spin{animation:spin 8s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shake.shown{animation:shake .5s 2}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* svg text */
+svg text{font-family:var(--font);fill:var(--ink2)}
+svg .mono{font-family:var(--mono)}
+svg .box{fill:var(--card);stroke:var(--line2);stroke-width:2}
+svg .td{fill:#06070d;font-weight:700} svg .tw{fill:var(--ink)} svg .tm{fill:var(--muted)} svg .ta{fill:var(--api)} svg .tr{fill:var(--red)}
+svg .tg{fill:var(--mvc)} svg .to{fill:var(--asp)} svg .tb{fill:var(--wf)} svg .tp{fill:var(--core)} svg .tn{fill:var(--net)} svg .ty{fill:var(--yel)}
+svg .b{font-weight:800}
+.chain .lc{transition:none}
+.chain.shown .lc{animation:lit .5s var(--ease) forwards;animation-delay:calc(var(--i) * .45s)}
+@keyframes lit{from{fill:var(--card);stroke:var(--line2)}to{fill:color-mix(in srgb,var(--a,var(--net)) 30%,var(--card));stroke:var(--a,var(--net))}}
+.chain .lct{opacity:.35}
+.chain.shown .lct{animation:litT .5s forwards;animation-delay:calc(var(--i) * .45s)}
+@keyframes litT{to{opacity:1}}
+.problem{display:inline-block;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.45);color:#ffc2cd;border-radius:12px;padding:12px 20px;font-size:21px}
+.problem::before{content:"⚠";color:var(--red);font-size:22px;margin-right:10px}
+.solve{display:inline-block;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.45);color:#c8f7d6;border-radius:12px;padding:12px 20px;font-size:21px}
+.solve::before{content:"✓";color:var(--mvc);font-size:22px;font-weight:800;margin-right:10px}
+.year{font:800 120px/1 var(--mono);color:transparent;-webkit-text-stroke:2px color-mix(in srgb,var(--a,var(--net)) 60%,transparent);position:absolute;right:80px;top:40px;opacity:.6}
+
+/* section divider */
+.divider .big-num{font:800 260px/1 var(--mono);position:absolute;right:70px;bottom:40px;color:transparent;-webkit-text-stroke:2px rgba(139,108,255,.25)}
+.divider h1{font-size:92px}
+
+/* quiz */
+.qa{display:grid;grid-template-columns:60px 1fr;gap:8px 18px;align-items:start;margin-bottom:30px}
+.qa .n{font:800 26px var(--mono);color:var(--net)}
+.qa .q{font-size:27px;color:var(--ink)}
+.qa .a{grid-column:2;font-size:22px;color:var(--mvc);border-left:3px solid var(--mvc);padding-left:14px}
+
+/* timeline */
+.tl{position:relative;height:100%}
+.era{border-radius:14px;padding:16px 18px;border:1px solid color-mix(in srgb,var(--a) 50%,transparent);background:color-mix(in srgb,var(--a) 9%,var(--bg2))}
+.era .y{font:700 16px var(--mono);color:var(--a)}
+.era .n{font-size:22px;font-weight:800;color:var(--ink);margin:4px 0}
+.era .d{font-size:16px;color:var(--ink2);line-height:1.4}
+
+.callout{border-left:4px solid var(--a,var(--net));background:color-mix(in srgb,var(--a,var(--net)) 9%,transparent);padding:16px 22px;border-radius:0 12px 12px 0;font-size:22px;color:var(--ink2)}
+.callout b{color:var(--a,var(--net))}
+.chip{display:inline-block;padding:3px 10px;border-radius:8px;font:600 16px var(--mono);background:var(--bg3);border:1px solid var(--line2);color:var(--ink2);margin:3px}
+
+@media print{
+  html,body{overflow:visible;background:#fff}
+  #stage{position:static;display:block}#deck{transform:none!important;box-shadow:none}
+  #hud,#bar,#help,#notes{display:none}
+}
+
+.shown path.draw,.shown line.draw,.shown polyline.draw{stroke-dashoffset:0}
+
+.grid2>*,.grid3>*,.grid4>*{min-width:0}
+.cmp{padding:14px 22px!important}.cmp h3{font-size:22px;margin-bottom:4px}.cmp p{font-size:18px}
+.active .typing.auto{animation:type var(--t,1.4s) steps(var(--n,30)) forwards,caret .8s step-end 3}
+.gone{opacity:0!important;transition:opacity .6s var(--ease)!important}
+.hl-row{transition:all .4s}
+.big-emoji{font-size:64px;line-height:1}
+.method-card{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:16px;border:1px solid color-mix(in srgb,var(--a) 55%,transparent);background:color-mix(in srgb,var(--a) 10%,var(--bg2))}
+.method-card .m{font:800 26px var(--mono);color:var(--a);min-width:120px}
+.method-card .t{font-size:22px;color:var(--ink2)}
+.verb{font:800 64px var(--mono);color:var(--a)}
+#notes{max-height:46vh;font-size:19px;line-height:1.55}
+#notes .nl{padding:3px 10px;border-radius:6px;margin:2px 0}
+#notes .say{color:#e6e8f7}
+#notes .cue{color:#9aa0c3}
+#notes .cue .ck{display:inline-block;min-width:54px;font:700 15px var(--mono);color:#22d3ee}
+#notes .cue.done{opacity:.4}
+#notes .cue.next{background:rgba(34,211,238,.14);color:#fff;box-shadow:inset 3px 0 0 #22d3ee}
+#notes .q{color:#facc15}
+#notes .t{color:#a78bfa;font:600 15px var(--mono)}
+#notes .imp{color:#22c55e;font-weight:700}
+#notes .dir{color:#8a90b8;font-style:italic;font-size:16px}
+body.presenter #stage,body.presenter #help,body.presenter #notes,body.presenter #overview{display:none!important}
+body.presenter{overflow:auto;background:#0a0c16}
+#presenter{display:flex;flex-direction:column;height:100vh;font-family:var(--font);color:var(--ink)}
+#presenter .p-head{display:flex;gap:24px;align-items:center;padding:14px 26px;background:#151935;border-bottom:2px solid var(--net);font-size:20px;font-weight:700}
+#presenter .p-steps{color:var(--api);font:600 16px var(--mono)}
+#presenter .p-clock{margin-left:auto;color:var(--core);font:700 20px var(--mono)}
+#presenter .p-notes{flex:1;overflow:auto;padding:18px 30px;font-size:23px;line-height:1.55}
+#presenter .nl{padding:5px 12px;border-radius:8px;margin:3px 0}
+#presenter .say{color:#e6e8f7}
+#presenter .cue{color:#9aa0c3;font-size:19px}
+#presenter .cue .ck{display:inline-block;min-width:60px;font:700 16px var(--mono);color:#22d3ee}
+#presenter .cue.done{opacity:.35}
+#presenter .cue.next{background:rgba(34,211,238,.16);color:#fff;box-shadow:inset 4px 0 0 #22d3ee;font-size:22px}
+#presenter .q{color:#facc15}
+#presenter .t{color:#a78bfa;font:600 17px var(--mono)}
+#presenter .imp{color:#22c55e;font-weight:700}
+#presenter .dir{color:#8a90b8;font-style:italic;font-size:18px}
+#presenter .p-foot{display:flex;gap:20px;padding:10px 26px;background:#11142a;color:var(--muted);font-size:16px}
+#presenter .p-help{margin-left:auto;font-size:13px}
+
+/* ===== Light "warm paper" theme =====
+   Semantic colours (constant across the whole deck):
+   Frontend = pink · Backend/API = violet · Database = amber
+   Request = blue · Response/success = green · Error = red
+   Methods: GET green · POST amber · PUT blue · PATCH teal · DELETE red */
+:root{
+  --bg:#fbf8f3; --bg2:#f4efe6; --bg3:#efe8dc; --card:#ffffff; --line:#e6dfd2; --line2:#cfc6b6;
+  --ink:#1e2132; --ink2:#41465c; --muted:#7b8096;
+  --net:#6d28d9; --net2:#5b21b6;
+  --asp:#d97706; --wf:#2563eb; --mvc:#16a34a; --core:#0d9488; --api:#2563eb; --red:#dc2626; --pink:#db2777; --yel:#ca8a04;
+  --shadow:0 1px 2px rgba(30,33,50,.05),0 10px 28px -14px rgba(30,33,50,.18);
+}
+
+/* stage */
+/* ფონი: უჯრედები (რვეულის ფურცელი) მთელ ეკრანზე — სლაიდის „ყუთი“ აღარ ჩანს */
+#stage{--grid:rgba(30,33,50,.055);--grid2:rgba(30,33,50,.085);background:
+  radial-gradient(1100px 700px at 95% -10%,rgba(109,40,217,.06),transparent 60%),
+  radial-gradient(1000px 650px at -8% 110%,rgba(217,119,6,.055),transparent 60%),
+  linear-gradient(var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(90deg,var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  var(--bg);background-position:center}
+#deck{background:transparent}
+#deck::before{display:none}
+
+/* chrome */
+#hud .sec{color:var(--net)}
+#hud .dots{color:var(--line2)} #hud .dots b{color:var(--net)}
+#help{color:var(--muted)}
+#overview{background:color-mix(in srgb,var(--bg) 97%,transparent)}
+#overview button{background:var(--card);color:var(--ink2);box-shadow:var(--shadow)}
+#overview button:hover,#overview button.cur{color:var(--ink)}
+
+/* typography */
+.kicker{display:inline-block;width:fit-content;align-self:flex-start;letter-spacing:.12em;padding:6px 14px;border-radius:99px;background:color-mix(in srgb,currentColor 10%,transparent)}
+code.i{background:rgba(109,40,217,.08);color:#5b21b6}
+ul.clean li::before{border-radius:4px}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+.card.accent{border-color:color-mix(in srgb,var(--a,var(--net)) 30%,var(--line));border-top:5px solid var(--a,var(--net));
+  box-shadow:0 1px 2px rgba(30,33,50,.05),0 16px 34px -18px color-mix(in srgb,var(--a,var(--net)) 55%,transparent)}
+.card .ico{background:color-mix(in srgb,var(--a,var(--net)) 12%,var(--card))}
+.pill{background:var(--card);border-color:var(--line2)}
+.pill.on{background:color-mix(in srgb,var(--a,var(--net)) 10%,var(--card));border-color:color-mix(in srgb,var(--a,var(--net)) 55%,var(--card))}
+.tag{background:color-mix(in srgb,var(--a,var(--net)) 14%,var(--card))}
+.chip{background:var(--card);border-color:var(--line2)}
+table.t{background:var(--card);box-shadow:var(--shadow)}
+table.t th{background:var(--bg2)}
+.method-card{background:color-mix(in srgb,var(--a) 7%,var(--card));border-color:color-mix(in srgb,var(--a) 40%,var(--card));box-shadow:var(--shadow)}
+.callout{background:color-mix(in srgb,var(--a,var(--net)) 7%,var(--card))}
+.era{background:color-mix(in srgb,var(--a) 7%,var(--card))}
+
+/* status boxes */
+.problem{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+.solve{background:#f0fdf4;border-color:#86efac;color:#166534}
+.divider .big-num{-webkit-text-stroke:2px rgba(109,40,217,.16)}
+.year{opacity:.45}
+
+/* code — light editor look; terminal stays dark like a real terminal */
+.code{background:var(--card);color:var(--ink);border-color:var(--line);box-shadow:var(--shadow)}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.term{border-color:#2a2e45;box-shadow:var(--shadow)}
+
+/* svg */
+svg .box{fill:var(--card);stroke:var(--line2)}
+svg .td{fill:var(--card)}
+
+/* lecturer notes panel + presenter window stay dark (laptop only) */
+#notes{color:#c3c7e6}
+#presenter{color:#e6e8f7}
+#presenter .p-steps{color:#22d3ee}
+#presenter .p-clock{color:#a78bfa}
+#presenter .p-foot{color:#8a90b8}
+
+/* ===== Dark "quiet night" theme =====
+   Soft, low-glare: graphite background (not pure black), warm off-white text,
+   desaturated pastel accents — the same colour meanings as the light theme. */
+html[data-theme=dark]{
+  --bg:#16181d; --bg2:#1d2027; --bg3:#232730; --card:#1e2128; --line:#2d313b; --line2:#3c414d;
+  --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98;
+  --net:#ab9ff2; --net2:#8f82e3;
+  --asp:#dfa96e; --wf:#8aa9e6; --mvc:#8fc8a1; --core:#72bfb3; --api:#8aa9e6; --red:#e68b8b; --pink:#e29bba; --yel:#d8c27e;
+  --on:#16181d;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px -16px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+html[data-theme=dark] #stage{--grid:rgba(230,226,218,.035);--grid2:rgba(230,226,218,.06);background:
+  radial-gradient(1100px 700px at 95% -10%,rgba(171,159,242,.06),transparent 60%),
+  radial-gradient(1000px 650px at -8% 110%,rgba(223,169,110,.04),transparent 60%),
+  linear-gradient(var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(90deg,var(--grid2) 1px,transparent 1px) 0 0/160px 160px,
+  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 32px,
+  var(--bg);background-position:center}
+html[data-theme=dark] #overview button:hover,html[data-theme=dark] #overview button.cur{color:var(--ink)}
+html[data-theme=dark] code.i{background:rgba(171,159,242,.13);color:#cfc6ff}
+html[data-theme=dark] .grad{background:linear-gradient(90deg,var(--net),var(--api));-webkit-background-clip:text;background-clip:text}
+html[data-theme=dark] .problem{background:#2c2025;border-color:#5a3540;color:#f0b4b4}
+html[data-theme=dark] .solve{background:#1d2a23;border-color:#35523f;color:#b2dcbf}
+html[data-theme=dark] .divider .big-num{-webkit-text-stroke:2px rgba(171,159,242,.14)}
+html[data-theme=dark] .code{background:#1a1d23}
+html[data-theme=dark] .code .ln.hl{background:rgba(171,159,242,.08)}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go{color:#959aa6}
+/* inline SVG: light fills → dark surfaces */
+html[data-theme=dark] svg [fill="#ffffff"],html[data-theme=dark] svg [fill="#fff"]{fill:var(--card)}
+html[data-theme=dark] svg [fill="#f1ece3"],html[data-theme=dark] svg [fill="#fbf8f3"]{fill:var(--bg2)}
+html[data-theme=dark] svg [fill="#f3effe"],html[data-theme=dark] svg [fill="#ede7fd"]{fill:#272439}
+html[data-theme=dark] svg [fill="#fef5e4"]{fill:#2c2720}
+html[data-theme=dark] svg [fill="#eaf8ef"]{fill:#1f2b24}
+html[data-theme=dark] svg [fill="#eaf2fe"],html[data-theme=dark] svg [fill="#dbeafe"]{fill:#1f2635}
+html[data-theme=dark] svg [stroke="#cfc6b6"],html[data-theme=dark] svg [stroke="#e6dfd2"]{stroke:var(--line2)}
+html[data-theme=dark] svg [fill="#6d28d9"]{fill:var(--net)} html[data-theme=dark] svg [stroke="#6d28d9"]{stroke:var(--net)}
+html[data-theme=dark] svg [fill="#d97706"]{fill:var(--asp)} html[data-theme=dark] svg [stroke="#d97706"]{stroke:var(--asp)}
+html[data-theme=dark] svg [fill="#16a34a"]{fill:var(--mvc)} html[data-theme=dark] svg [stroke="#16a34a"]{stroke:var(--mvc)}
+html[data-theme=dark] svg [fill="#dc2626"]{fill:var(--red)} html[data-theme=dark] svg [stroke="#dc2626"]{stroke:var(--red)}
+html[data-theme=dark] svg [fill="#2563eb"]{fill:var(--api)} html[data-theme=dark] svg [stroke="#2563eb"]{stroke:var(--api)}
+html[data-theme=dark] [style*="background:#fef2f2"]{background:#2c2025!important;border-color:#5a3540!important}
+html[data-theme=dark] .tp-picks span.odd{background:#2c2025;color:#f0b4b4}
+html[data-theme=dark] .json .k{color:#c4a7f0} html[data-theme=dark] .json .s{color:#a9d39a} html[data-theme=dark] .json .n{color:#e3a77c}
+html[data-theme=dark] .cc-in input{background:var(--bg2)}
+
+#home{position:fixed;left:12px;top:10px;z-index:41;font:600 13px var(--mono);color:var(--muted);text-decoration:none;
+padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
+#home:hover,#home:focus-visible{opacity:1;background:rgba(0,0,0,.05)}
+:fullscreen #home{display:none}
+#studybtn{position:fixed;right:16px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:#fff;
+background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
+#studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
+body[data-study] #help{right:280px}
+#lectbtn{position:fixed;right:170px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:var(--ink2);
+background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:7px 11px;cursor:pointer;opacity:.85}
+#lectbtn:hover,#themebtn:hover,#langbtn:hover{opacity:1}
+#themebtn,#langbtn{position:fixed;top:12px;z-index:41;font:700 14px var(--font);color:var(--ink2);background:var(--card);border:1px solid var(--line2);
+border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
+#themebtn{right:170px}#langbtn{right:222px;font-family:var(--mono)}
+body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{right:68px}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+:fullscreen #themebtn,:fullscreen #langbtn{opacity:0}:fullscreen #themebtn:hover,:fullscreen #langbtn:hover{opacity:1}#lectbtn kbd{font:600 11px var(--mono);background:var(--bg2);border-radius:5px;padding:1px 6px}</style></head>
+<body data-study="1" data-lect="1">
+<a id="home" href="../../" title="All lectures">← Lectures</a><button id="themebtn" class="themebtn" type="button" title="Light / dark theme (T)"><span class="l">🌙</span><span class="d">☀️</span></button><button id="langbtn" type="button" data-href="index.html" title="ქართული ვერსია">KA</button><button id="studybtn" type="button" title="კონსპექტი ცალკე ჩანართში — სლაიდებს მიჰყვება">📖 Notes <kbd>P</kbd></button>
+<div id="stage"><div id="deck">
+<style>
+.mono{font-family:var(--mono)}
+.swr{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.swr .rh{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #e5e5e5;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.swr .rh .m{font:800 14px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:5px 0;width:78px;text-align:center}
+.swr .rh .p{font:700 17px var(--mono);color:#3b4151}
+.swr .rb{background:#41444e;color:#fff;font:600 15px/1.5 var(--mono);padding:10px 14px;border-radius:6px;white-space:pre;margin:10px 16px 14px}
+.swr .rb .k{color:#a5d6ff}.swr .rb .s{color:#a2fca2}.swr .rb .n{color:#fcc28c}
+.c-post{--c:#49cc90}
+.ask{--a:var(--pink);font-size:22px;color:var(--ink)}
+.ask b{color:var(--pink)}
+.route{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:22px}
+.stop{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--a);border-radius:16px;padding:22px 24px 18px;box-shadow:var(--shadow)}
+.stop .sn{position:absolute;top:-22px;left:18px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font:800 20px var(--mono)}
+.stop h3{margin:10px 0 0;font-size:26px}
+.stop p{margin:0;font-size:19px;color:var(--ink2);line-height:1.45}
+.stop .from{margin-top:auto;font:700 15px var(--mono);color:var(--a)}
+.prob{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:12px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 8%,var(--card));border-left:6px solid var(--a)}
+.prob .pi{font-size:30px;text-align:center}
+.prob b{display:block;font-size:20px;color:var(--ink)}
+.prob span{font-size:17px;color:var(--ink2);line-height:1.4}
+.prob span b{display:inline;font-size:inherit;color:var(--ink)}
+.txt{font-size:21px;line-height:1.4;background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 6px;padding:12px 18px;box-shadow:var(--shadow);color:var(--ink)}
+.txt .who{display:block;font:600 13px var(--mono);color:var(--muted);margin-bottom:3px}
+.txt.bot{border-radius:16px 16px 6px 16px;background:color-mix(in srgb,var(--net) 7%,var(--card))}
+.txt.bad{border-color:color-mix(in srgb,var(--red) 45%,var(--card));background:color-mix(in srgb,var(--red) 7%,var(--card))}
+.sec-l{font:700 15px var(--mono);color:var(--muted);margin:0 0 6px}
+.ctx{display:flex;flex-direction:column;gap:8px}
+.ctx .row{display:grid;grid-template-columns:190px 1fr 92px;gap:12px;align-items:center}
+.ctx .row .lb{font:700 17px var(--font);color:var(--ink);text-align:right}
+.ctx .row .lb small{display:block;font:600 13px var(--mono);color:var(--muted)}
+.ctx .row .bar{height:40px;border-radius:9px;background:var(--bg2);border:1px solid var(--line);position:relative;overflow:hidden}
+.ctx .row .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:var(--a)}
+.ctx .row .v{font:800 17px var(--mono);color:var(--a)}
+.win{border:3px dashed var(--net);border-radius:18px;padding:16px 18px 14px;position:relative}
+.win .wl{position:absolute;top:-14px;left:18px;background:var(--bg);padding:0 8px;font:800 14px var(--mono);color:var(--net)}
+.opt{display:flex;flex-direction:column;gap:8px;padding:16px 18px;border-radius:14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,var(--card))}
+.opt h4{margin:0;font-size:21px;color:var(--ink)}
+.opt p{margin:0;font-size:16px;color:var(--ink2);line-height:1.4}
+.opt .vd{font:800 14px var(--mono);color:var(--a)}
+.dbt{width:100%;border-collapse:separate;border-spacing:0;font:600 15px var(--mono);background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.dbt th{background:var(--bg2);color:var(--muted);font-weight:800;text-align:left;padding:8px 10px}
+.dbt td{padding:7px 10px;border-top:1px solid var(--line);color:var(--ink);white-space:nowrap}
+.dbt td.j{white-space:normal;color:var(--ink2);font-size:14px}
+.dbt tr.t td{background:color-mix(in srgb,var(--asp) 8%,var(--card))}
+.dbt tr.u td:nth-child(2){color:var(--api)}.dbt tr.a td:nth-child(2){color:var(--net)}.dbt tr.t td:nth-child(2){color:var(--asp)}
+.grow{display:flex;align-items:flex-end;gap:14px;height:250px;padding:0 6px;border-bottom:2px solid var(--line2)}
+.grow .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%}
+.grow .c i{width:100%;border-radius:10px 10px 0 0;background:var(--a)}
+.grow .c b{font:800 15px var(--mono);color:var(--ink)}
+.grow-x{display:flex;gap:14px;padding:6px 6px 0}.grow-x span{flex:1;text-align:center;font:700 14px var(--mono);color:var(--muted)}
+.flowx{display:grid;grid-template-columns:1fr 50px 1fr 50px 1fr;align-items:center;gap:6px}
+.flowx .arr{font:800 28px var(--mono);color:var(--muted);text-align:center}
+.fbox{border-radius:14px;padding:14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,var(--card));min-height:150px;display:flex;flex-direction:column;gap:8px}
+.fbox h4{margin:0;font:800 15px var(--mono);letter-spacing:.04em;color:var(--a);text-transform:uppercase}
+.fbox p{margin:0;font-size:16px;color:var(--ink2);line-height:1.4}
+.fbox .n{font:800 30px var(--mono);color:var(--a)}
+</style>
+
+
+<!-- =========================================================
+     AI · ლექცია 7 — Context Engineering: კონტექსტისა და მეხსიერების მართვა
+     დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
+     ფერები: LLM/კონტექსტი = იისფერი · ისტორია/ბაზა = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
+             სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
+     პროექტი: RestaurantApi — Ai/ChatHistoryStore, Data/ChatMessageRecord, AiLabController: chat (conversationId)
+     ========================================================= -->
+
+<section class="slide" data-section="Intro">
+  <div class="vcenter" style="max-width:720px">
+    <div class="kicker in" style="color:var(--net)">AI · Lecture 7 · Context Engineering</div>
+    <h1 class="in" style="--d:.15s">The model doesn't<br><span class="grad">remember</span></h1>
+    <p class="lead in mt" style="--d:.35s">Context · history in PostgreSQL · the token budget</p>
+  </div>
+  <div class="abs" style="right:90px;top:230px;width:520px">
+    <div class="col" style="gap:12px">
+      <div class="txt in" style="--d:.5s"><span class="who">User</span>Four of us tomorrow at 20:00, do you have room?</div>
+      <div class="txt bot in" style="--d:.7s"><span class="who">Assistant</span>Yes, two tables are free.</div>
+      <div class="txt in" style="--d:.9s"><span class="who">User</span>And at 21:00?</div>
+      <div class="txt bot bad in" style="--d:1.1s"><span class="who">Assistant</span>What would you like to know about 21:00? 🤔</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Review">
+  <div class="kicker">Review · lecture 6</div>
+  <h2>Let's recall: <span class="grad">Streaming and Real-time AI Responses</span></h2>
+  <div class="qa"><span class="n">1</span><span class="q">Does streaming make the answer faster? What actually changes?</span><span class="a step">The total time is almost the same · what changes is the TTFT — the time to the first word (seconds → milliseconds) · the user starts reading right away, no more empty screen</span></div><div class="qa"><span class="n">2</span><span class="q">What does <code class="i">GetStreamingResponseAsync</code> return and how do we read it?</span><span class="a step">An <code class="i">IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code> — a stream of pieces · <code class="i">await foreach</code> — waits for the next piece · <code class="i">update.Text</code> — a chunk of text; the same messages/options, tools work too</span></div><div class="qa"><span class="n">3</span><span class="q">In <code class="i">/chat/chunks</code> Gemini was streaming, but Swagger showed everything at once. Why? How did we fix it?</span><span class="a step">We collected the pieces in a list and returned it at the end — the stream stopped in the Controller · an async iterator (<code class="i">yield return</code>) + <code class="i">TypedResults.ServerSentEvents</code> — each piece goes to the client right away</span></div><div class="qa"><span class="n">4</span><span class="q">What is SSE and why is it enough for an AI chat (instead of WebSocket/SignalR)?</span><span class="a step">An HTTP response with <code class="i">text/event-stream</code> that stays open; <code class="i">data: …</code> + an empty line · an AI answer is one-way (server → client) · WebSocket/SignalR are for two-way communication</span></div><div class="qa"><span class="n">5</span><span class="q">Where did we pass the <code class="i">CancellationToken</code>, and why?</span><span class="a step">① the action parameter (RequestAborted) ② <code class="i">[EnumeratorCancellation]</code> in the iterator ③ to <code class="i">GetStreamingResponseAsync</code> · the client left → the Gemini request stops → no more tokens are spent</span></div>
+</section>
+
+<section class="slide" data-section="Homework review">
+  <div class="kicker">🏠 Homework review · lecture 6</div>
+  <h2>A streaming chat and layers with streaming</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr;align-items:start;gap:30px">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">📝</span>What you had to do</h3><ul class="clean small">
+<li><strong><code class="i">GET /api/ai-lab/chat/stream</code></strong> in your project: with tools (<code class="i">ChatToolOptions()</code>), <code class="i">TypedResults.ServerSentEvents</code>, an async iterator, a <code class="i">CancellationToken</code> in all three places</li>
+<li><strong>InputGuard with streaming:</strong> add a <code class="i">GetStreamingResponseAsync</code> override to lecture 5's guard layer — when it stops, <strong>one</strong> <code class="i">ChatResponseUpdate</code> with the message and <code class="i">yield break</code>, without Gemini</li>
+<li><strong>README — a TTFT table:</strong> 3 questions through <code class="i">/chat/chunks</code>: short · long · with a tool. Columns: question · ms of the first piece · ms of the last piece · number of pieces</li>
+<li><strong>README — cancellation:</strong> Ctrl+C on a long answer → 3–5 lines of the server log showing the request was cancelled</li>
+<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>
+</ul></div>
+    <div class="step"><pre class="code sm"><span class="ttl">Ai/LibraryGuardChatClient.cs · streaming</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="n">ChatResponseUpdate</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">string?</span><span class="w"> </span><span class="n">refusal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Check</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// the same check as in GetResponseAsync</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">refusal</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ChatResponseUpdate</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">Assistant</span><span class="p">,</span><span class="w"> </span><span class="n">refusal</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">yield</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span></span><span class="ln"><span class="w">        </span><span class="k">base</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+  </div>
+  <div class="callout step mt" data-with style="--a:var(--api)">Compare with yours. What came out differently — and why?</div>
+</section>
+
+<section class="slide" data-section="Today's topic">
+  <div class="kicker">Today's topic</div>
+  <h2><span class="grad">Context Engineering: Managing Context and Memory</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🤔</span>Why you need this</h3><p class="small">Our chat calls tools and streams, but on the second question it no longer remembers the first: the model is stateless. Today we see what goes to the model in every request and who decides it — we do. We store the conversation history in PostgreSQL, the tool messages included, and send the model only what it needs, so that the cost and the context don't grow with every question. With agents this becomes the key skill.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>By the end of the lecture you can</h3><ul class="clean small"><li>You'll explain what goes into the model's context (System, tools, history, tool results, the question) and how context engineering differs from prompt engineering</li><li>You'll store the conversation history in PostgreSQL: a <code class="i">conversationId</code>, the whole <code class="i">ChatMessage</code> in jsonb, the tool messages included</li><li>You'll write <code class="i">/chat</code> with a history: load → System + history + question → store <code class="i">response.Messages</code></li><li>You'll explain why the tokens grow with every question, and send only the last N messages into the context with <code class="i">MessageCountingChatReducer</code></li></ul></div>
+  </div>
+</section>
+
+<section class="slide" data-section="Intro">
+  <div class="kicker">Today's route</div>
+  <h2>3 steps: <span class="c-net">context</span> → <span class="c-asp">history in the DB</span> → <span class="c-red">budget</span></h2>
+  <div class="route">
+    <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>🪟 Context</h3><p>What goes to the model on every request: the instruction, the tools, the history, the results</p><span class="from">context engineering</span></div>
+    <div class="stop" style="--a:var(--asp)"><span class="sn">2</span><h3>🗄️ History in the DB</h3><p>We store the conversation in PostgreSQL, the tools included, and load it on every request</p><span class="from">conversationId · jsonb</span></div>
+    <div class="stop" style="--a:var(--red)"><span class="sn">3</span><h3>⚖️ The budget</h3><p>The history grows, and so does the cost. We decide what to send and what to keep in the DB</p><span class="from">MessageCountingChatReducer</span></div>
+  </div>
+  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">At the end: <b>your chat</b>, which “remembers” the previous question</div>
+</section>
+
+<!-- ================= 1 · კონტექსტი ================= -->
+<section class="slide divider" data-section="1 · Context">
+  <div class="vcenter">
+    <div class="kicker in">Part 1</div>
+    <h1 class="in" style="--d:.1s">What the<br><span class="grad">model sees</span></h1>
+    <p class="lead mt in" style="--d:.3s">stateless · context window · context engineering</p>
+  </div>
+  <div class="big-num">01</div>
+</section>
+
+<section class="slide" data-section="1 · Context">
+  <div class="kicker">The problem · two separate requests</div>
+  <h2>“And at 21:00?” — <span class="c-red">what about 21:00?</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <p class="sec-l">Request 1 · POST /chat</p>
+      <div class="txt"><span class="who">User</span>Four of us tomorrow at 20:00, do you have room?</div>
+      <div class="txt bot"><span class="who">Assistant · check_availability</span>Yes, two tables are free.</div>
+      <p class="sec-l step" style="margin-top:8px">Request 2 · POST /chat</p>
+      <div class="txt step" data-with><span class="who">User</span>And at 21:00?</div>
+      <div class="txt bot bad step" data-with><span class="who">Assistant</span>What would you like to know about 21:00?</div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="callout ask step">🙋 The model forgot the first question — <b>why</b>?</div>
+      <div class="prob step" data-with style="--a:var(--net)"><span class="pi">🐟</span><div><b>stateless (lecture 1)</b><span>The model only sees what's in this request. The previous request doesn't exist for it</span></div></div>
+      <div class="callout ask step">🙋 How do we “remind” it?</div>
+      <div class="prob step" data-with style="--a:var(--mvc)"><span class="pi">📜</span><div><b>We send the history</b><span>In every request: the previous questions and answers + the new one. That's how ChatGPT “remembers” too</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="1 · Context">
+  <div class="kicker">🪟 One request from the inside</div>
+  <h2>Context = <span class="c-net">everything</span>the model sees in one request</h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:30px;align-items:start;margin-top:8px">
+    <div class="win">
+      <span class="wl">context window · sample, question 5</span>
+      <div class="ctx">
+        <div class="row" style="--a:var(--net)"><div class="lb">System<small>our instruction</small></div><div class="bar"><i style="width:9%"></i></div><div class="v">180</div></div>
+        <div class="row step" data-with style="--a:var(--api)"><div class="lb">Tools<small>descriptions + schema</small></div><div class="bar"><i style="width:15%"></i></div><div class="v">310</div></div>
+        <div class="row step" style="--a:var(--asp)"><div class="lb">History<small>the previous 4 questions/answers</small></div><div class="bar"><i style="width:22%"></i></div><div class="v">460</div></div>
+        <div class="row step" data-with style="--a:var(--pink)"><div class="lb">Tool results<small>get_menu × 2</small></div><div class="bar"><i style="width:86%"></i></div><div class="v">1 780</div></div>
+        <div class="row step" data-with style="--a:var(--mvc)"><div class="lb">New question<small>User</small></div><div class="bar"><i style="width:2%"></i></div><div class="v">25</div></div>
+      </div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask step">🙋 Which part is <b>the biggest</b>? Surprised?</div>
+      <div class="card accent step" data-with style="--a:var(--net)"><h3><span class="ico">✍️</span>Prompt engineering</h3><p class="small">How <b>to write</b> the instruction (lecture 2)</p></div>
+      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🧩</span>Context engineering</h3><p class="small"><b>What</b> to put in the window on every request, what to leave out and in what order</p></div>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px">Everything is tokens: <b>cost</b>, <b>limit</b>, <b>speed</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2 · ისტორია ბაზაში ================= -->
+<section class="slide divider" data-section="2 · History in the DB">
+  <div class="vcenter">
+    <div class="kicker in">Part 2</div>
+    <h1 class="in" style="--d:.1s">History<br><span class="grad">in the database</span></h1>
+    <p class="lead mt in" style="--d:.3s">conversationId · jsonb · every message</p>
+  </div>
+  <div class="big-num">02</div>
+</section>
+
+<section class="slide" data-section="2 · History in the DB">
+  <div class="kicker">🗄️ Where do we store the history?</div>
+  <h2>Three options — <span class="c-asp">which one</span> would you choose?</h2>
+  <div class="grid2" style="grid-template-columns:repeat(3,1fr);gap:20px;margin-top:10px">
+    <div class="opt" style="--a:var(--muted)"><h4>📱 The client sends it</h4><p>The frontend sends the whole conversation in every request</p><span class="vd step">✗ The client can change the history · more traffic every time</span></div>
+    <div class="opt" style="--a:var(--red)"><h4>🧠 Server memory</h4><p>A <span class="mono">Dictionary</span>in a Singleton, keyed by the conversation id</p><span class="vd step" data-with>✗ Disappears on restart · doesn't work with two servers</span></div>
+    <div class="opt" style="--a:var(--mvc)"><h4>🐘 PostgreSQL</h4><p>A table: one row = one message, by <span class="mono">conversationId</span></p><span class="vd step" data-with>✓ It stays · every server sees it · we can look at it and analyse it</span></div>
+  </div>
+  <div class="grid2 mt2" style="grid-template-columns:1fr 1fr;gap:22px">
+    <div class="callout ask step">🙋 Do we store the tool call and the result <b>too</b>?</div>
+    <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><b>Yes, everything.</b> Real systems do it too. What we <b>send</b> to the model is a separate decision (part 3)</div>
+  </div>
+</section>
+
+<section class="slide" data-section="2 · History in the DB">
+  <div class="kicker">🧑‍💻 We write · the table and storing</div>
+  <h2>One row = one <span class="mono c-asp">ChatMessage</span>, in <span class="mono c-net">jsonb</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.2fr;gap:22px;align-items:start">
+    <div class="col" style="gap:12px">
+      <pre class="code sm"><span class="ttl">Data/ChatMessageRecord.cs</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ChatMessageRecord</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">ConversationId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Position</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Role</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[Column(TypeName = "jsonb")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Json</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">CreatedAt</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
+      <div class="callout step" style="--a:var(--asp);font-size:17px"><b>Contents</b> come in different types: text, a tool call, a result, a thought. They all fit in one <b>jsonb</b> column</div>
+    </div>
+    <pre class="code sm" id="c1"><span class="ttl">Ai/ChatHistoryStore.cs</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ChatHistoryStore</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// jsonb reorders keys — "$type" is no longer first</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">JsonSerializerOptions</span><span class="w"> </span><span class="n">Json</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="p">(</span><span class="n">AIJsonUtilities</span><span class="p">.</span><span class="n">DefaultOptions</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">AllowOutOfOrderMetadataProperties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">ChatHistoryStore</span><span class="p">(</span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">ChatMessages</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">ConversationId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">conversationId</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Position</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Json</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rows</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">JsonSerializer</span><span class="p">.</span><span class="n">Deserialize</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">Json</span><span class="p">)</span><span class="o">!</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="w"> </span><span class="nf">AppendAsync</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">ChatMessages</span><span class="p">.</span><span class="n">CountAsync</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">ConversationId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatMessage</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">messages</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">_db</span><span class="p">.</span><span class="n">ChatMessages</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ChatMessageRecord</span></span><span class="ln"><span class="w">            </span><span class="p">{</span></span><span class="ln"><span class="w">                </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">ConversationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">Position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position</span><span class="o">++</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">Role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">.</span><span class="n">Role</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">Json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonSerializer</span><span class="p">.</span><span class="n">Serialize</span><span class="p">(</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">Json</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">CreatedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span></span><span class="ln"><span class="w">            </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
+  </div>
+</section>
+
+<section class="slide" data-section="2 · History in the DB">
+  <div class="kicker">🧑‍💻 We write · POST /api/ai-lab/chat</div>
+  <h2>Load → <span class="c-net">send</span> → <span class="c-asp">store</span></h2>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
+    <pre class="code sm" id="c2"><span class="ttl">Controllers/AiLabController.cs · Chat</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ChatRequest</span><span class="p">(</span><span class="n">Guid</span><span class="o">?</span><span class="w"> </span><span class="n">ConversationId</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("chat")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Chat</span><span class="p">(</span><span class="n">ChatRequest</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">ConversationId</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">SystemPrompt</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">question</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">AppendAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="c2" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:17px">No id on the first question → <b>a new conversation</b>. We return it in the response; the client sends it next time</div>
+      <i class="codestep" data-for="c2" data-lines="11"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:17px"><b>SystemPrompt()</b> is <b>not</b> stored in the database: it's ours and gets built again every time (with today's date)</div>
+      <i class="codestep" data-for="c2" data-lines="15"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px"><b>response.Messages</b> — every new message: the tool request, the result, the answer</div>
+      <div class="callout ask step">🙋 “And at 21:00?” — will it now <b>understand</b>?</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="2 · History in the DB">
+  <div class="kicker">🔍 In the database · after two questions</div>
+  <h2>Two questions — <span class="c-asp">eight</span> rows</h2>
+  <table class="dbt" style="margin-top:6px">
+    <tr><th>Position</th><th>Role</th><th>Json (short)</th></tr>
+    <tr class="u"><td>0</td><td>user</td><td class="j">{"text": "Four of us tomorrow at 20:00…", "$type": "text"}</td></tr>
+    <tr class="a step"><td>1</td><td>assistant</td><td class="j">{"name": "check_availability", "arguments": {"at": "…T20:00", "guests": 4}, "$type": "functionCall"} + the thought signature</td></tr>
+    <tr class="t step" data-with><td>2</td><td>tool</td><td class="j">{"result": {"available": true, "freeTables": 2}, "$type": "functionResult"}</td></tr>
+    <tr class="a step" data-with><td>3</td><td>assistant</td><td class="j">{"text": "Yes, two tables are free.", "$type": "text"}</td></tr>
+    <tr class="u step"><td>4</td><td>user</td><td class="j">{"text": "And at 21:00?", "$type": "text"}</td></tr>
+    <tr class="a step" data-with><td>5–7</td><td>…</td><td class="j">functionCall (21:00) → functionResult → “One table is free at 21:00”</td></tr>
+  </table>
+  <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
+    <div class="callout ask step">🙋 One question, <b>four</b> rows. Why?</div>
+    <div class="callout step" data-with style="--a:var(--asp);font-size:18px">The tool loop (lecture 4): <b>request → result → answer</b>. Each is a message, and all of them are stored</div>
+  </div>
+</section>
+
+<section class="slide divider" data-section="Break">
+  <div class="vcenter">
+    <div class="kicker in">Break</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">minutes</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">Next: what happens on the <b>50th</b> question?</p>
+  </div>
+  <div class="big-num">☕</div>
+</section>
+
+<!-- ================= 3 · ბიუჯეტი ================= -->
+<section class="slide divider" data-section="3 · The budget">
+  <div class="vcenter">
+    <div class="kicker in">Part 3</div>
+    <h1 class="in" style="--d:.1s">The token<br><span class="grad">budget</span></h1>
+    <p class="lead mt in" style="--d:.3s">growth · selection · compression · order</p>
+  </div>
+  <div class="big-num">03</div>
+</section>
+
+<section class="slide" data-section="3 · The budget">
+  <div class="kicker">📈 Every question — the whole history</div>
+  <h2>InputTokenCount <span class="c-red">grows</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:30px;align-items:end;margin-top:6px">
+    <div>
+      <div class="grow" style="--a:var(--red)">
+        <div class="c"><b>620</b><i style="height:10%;background:var(--net)"></i></div>
+        <div class="c"><b>1 450</b><i style="height:22%;background:var(--net)"></i></div>
+        <div class="c step"><b>3 300</b><i style="height:46%"></i></div>
+        <div class="c step" data-with><b>3 900</b><i style="height:55%"></i></div>
+        <div class="c step" data-with><b>5 600</b><i style="height:78%"></i></div>
+        <div class="c step"><b>7 100</b><i style="height:98%"></i></div>
+      </div>
+      <div class="grow-x"><span>1</span><span>2</span><span>3 · menu</span><span>4</span><span>5 · menu</span><span>6</span></div>
+      <p class="sec-l" style="margin-top:8px;text-align:center">question in the conversation · sample</p>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask">🙋 The biggest jump — <b>where</b> is it, and why?</div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">📋</span><div><b>get_menu's result</b><span>The whole menu stays in the history and goes along with every later question</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">💸</span><div><b>Cost and speed</b><span>Tens of thousands of tokens on question 50, every time</span></div></div>
+      <div class="prob step" data-with style="--a:var(--net)"><span class="pi">🧱</span><div><b>limit</b><span>Sooner or later the context window fills up</span></div></div>
+      <div class="prob step" style="--a:var(--pink)"><span class="pi">🕰️</span><div><b>Stale data</b><span>In the history the lobio still costs 12 GEL, in the database it's already 14</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="3 · The budget">
+  <div class="kicker">🧩 Context engineering · three strategies</div>
+  <h2>What to <span class="c-mvc">put in</span>, what to <span class="c-red">leave out</span>, in what <span class="c-net">order</span></h2>
+  <div class="grid2" style="grid-template-columns:repeat(3,1fr);gap:20px;margin-top:10px">
+    <div class="opt" style="--a:var(--mvc)"><h4>🎯 Selection</h4><p>Only what this question needs</p><p class="step">Instead of the whole menu, a <b>tool</b> (lecture 4) · the last N messages · later <b>RAG</b> (lecture 11)</p></div>
+    <div class="opt step" style="--a:var(--asp)"><h4>🗜️ Compression</h4><p>The old part in a smaller form</p><p><b>truncation</b>: we drop the old · <b>summarization</b>: the model sums up the old in 3 sentences</p></div>
+    <div class="opt step" style="--a:var(--net)"><h4>📐 Order</h4><p>Where things stand</p><p>System first · the new question last · don't let the important part “get lost” in the middle</p></div>
+  </div>
+  <div class="flowx mt2 step">
+    <div class="fbox" style="--a:var(--asp)"><h4>🐘 In the database</h4><span class="n">everything</span><p>The full record, nothing is deleted</p></div>
+    <div class="arr">→</div>
+    <div class="fbox" style="--a:var(--pink)"><h4>⚖️ Our code</h4><span class="n">chooses</span><p>what goes out in this request</p></div>
+    <div class="arr">→</div>
+    <div class="fbox" style="--a:var(--net)"><h4>🪟 In the context</h4><span class="n">a part</span><p>what the model sees</p></div>
+  </div>
+</section>
+
+<section class="slide" data-section="3 · The budget">
+  <div class="kicker">🧑‍💻 We write · the last N messages</div>
+  <h2><span class="mono c-asp">IChatReducer</span>: everything in the DB, the last 10 to the model</h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:22px">
+    <pre class="code sm" id="c3"><span class="ttl">Controllers/AiLabController.cs · Chat</span><code><span class="ln"><span class="cp">#</span><span class="cp">pragma</span><span class="cp"> warning disable MEAI001   // reducers are still experimental</span></span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatReducer</span><span class="w"> </span><span class="n">Reducer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MessageCountingChatReducer</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="cp">#</span><span class="cp">pragma</span><span class="cp"> warning restore MEAI001</span></span><span class="ln"> </span><span class="ln"><span class="c1">// inside Chat:</span></span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">recent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">Reducer</span><span class="p">.</span><span class="n">ReduceAsync</span><span class="p">(</span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">SystemPrompt</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">recent</span><span class="p">,</span><span class="w"> </span><span class="n">question</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="c1">// ... GetResponseAsync, AppendAsync — unchanged</span></span><span class="ln"><span class="w">    </span></span></code></pre>
+    <div class="col" style="gap:12px">
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">✂️</span><div><b>The last 10 messages</b><span>The old ones no longer go into the context; they stay in the database</span></div></div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">🧹</span><div><b>It drops the tool messages</b><span>functionCall/functionResult don't go into the context: the menu no longer tags along</span></div></div>
+      <div class="callout ask step">🙋 The menu is no longer in the context. Where will the model get the price <b>from</b>?</div>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">It calls the tool <b>again</b> → a fresh price from the database</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Practice">
+  <div class="kicker">🧑‍💻 You do it · in class</div>
+  <h2>Your chat — with a history</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)">
+      <h3><span class="ico">📝</span>Your project or RestaurantApi · with code · Swagger and the database</h3>
+      <ul class="clean small">
+<li><strong>1 · The table</strong> — <code class="i">ChatMessageRecord</code> (<code class="i">Id</code>, <code class="i">ConversationId</code>, <code class="i">Position</code>, <code class="i">Role</code>, <code class="i">Json</code> — <code class="i">[Column(TypeName = "jsonb")]</code>, <code class="i">CreatedAt</code>), a <code class="i">DbSet</code> in <code class="i">AppDbContext</code>, a migration</li>
+<li><strong>2 · The store</strong> — <code class="i">ChatHistoryStore</code>: <code class="i">LoadAsync</code> and <code class="i">AppendAsync</code>, with the JSON settings <code class="i">new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true }</code>; <code class="i">AddScoped</code> in <code class="i">Program.cs</code></li>
+<li><strong>3 · The endpoint</strong> — <code class="i">ChatRequest(Guid? ConversationId, string Prompt)</code>; <code class="i">/chat</code>: load → <code class="i">[SystemPrompt(), .. history, question]</code> → <code class="i">GetResponseAsync</code> → <code class="i">AppendAsync([question, .. response.Messages])</code> → <code class="i">conversationId</code> in the response</li>
+<li><strong>4 · Check</strong> — two questions in Swagger with one <code class="i">conversationId</code>, where the second makes no sense without the first (e.g. “And at 21:00?”); then in the database <code class="i">SELECT "Position", "Role", "Json" FROM "ChatMessages"</code></li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ Done when: The model answers the second question taking the first one into account; the database shows every message in order, including the <code>assistant</code> (<code>functionCall</code>) and <code>tool</code> (<code>functionResult</code>) rows</p>
+    </div>
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
+<li><code class="i">MessageCountingChatReducer(4)</code> — and ask about something you said 3 questions ago. Does it remember?</li>
+<li>Searching inside jsonb: <code class="i">SELECT "Json" FROM "ChatMessages" WHERE "Json" @&gt; '{"contents":[{"$type":"functionCall"}]}'</code> — how many times did the model call a tool?</li>
+<li>Add <code class="i">InputTokenCount</code> to the response and see how it grows with every question</li>
+</ul></div>
+  </div>
+  <div class="callout mt" style="--a:var(--api)">Rule: <b>try it yourself first</b> → ask your neighbour → then me</div>
+</section>
+
+<section class="slide" data-section="Summary">
+  <div class="kicker">Let's check</div>
+  <h2>5 questions</h2>
+  <div class="qa"><span class="n">1</span><span class="q">Why doesn't the model remember the previous question, and how do we “remind” it?</span><span class="a step">The model is stateless: it only sees this request · we send the history in every request — the memory is in our code, not in the model</span></div><div class="qa"><span class="n">2</span><span class="q">What goes into the context, and which part grows fastest?</span><span class="a step">System + the tool descriptions + the history + the tool results + the new question · often the tool results (e.g. the whole menu), which stay in the history</span></div><div class="qa"><span class="n">3</span><span class="q">Why do we store the whole <code class="i">ChatMessage</code> in jsonb and not a Text column?</span><span class="a step"><code class="i">Contents</code> has different types: text, functionCall, functionResult, the thought signature · <code class="i">AIJsonUtilities.DefaultOptions</code> stores them with <code class="i">$type</code> · jsonb reorders keys → <code class="i">AllowOutOfOrderMetadataProperties</code></span></div><div class="qa"><span class="n">4</span><span class="q">Why don't we store the System prompt in the database?</span><span class="a step">It's ours, not part of the conversation: it has today's date in it and the rules may change · we build it again on every request and put it at the top of the list</span></div><div class="qa"><span class="n">5</span><span class="q">What does <code class="i">MessageCountingChatReducer(10)</code> do, and what stays in the database?</span><span class="a step">It keeps the last 10 messages in the context and drops the tool messages · everything stays in the database · the model gets the price again with a tool</span></div>
+</section>
+
+<section class="slide" data-section="Summary">
+  <div class="kicker in" style="color:var(--net)">Today</div>
+  <h2 class="in" style="--d:.1s">Memory is <span class="grad">in our code</span>, not in the model</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>Remember</h3><ul class="clean small">
+      <li>The model is <b>stateless</b>: <b>we</b> send the history in every request</li>
+      <li><b>context</b> = System + tools + history + tool results + question</li>
+      <li><b>context engineering</b>: what to put in, what to leave out, in what order</li>
+      <li>The history in <b>PostgreSQL</b>: conversationId, jsonb, every message</li>
+      <li>The System prompt is <b>not</b> stored in the DB: built again every time</li>
+      <li><b>Everything in the DB</b>, part of it in the context: <b>IChatReducer</b></li></ul></div>
+    <div class="col" style="gap:14px">
+      <div class="txt"><span class="who">User</span>And at 21:00?</div>
+      <div class="txt bot"><span class="who">Assistant</span>One table is free at 21:00 ✓</div>
+      <div class="callout ask">🙋 Gemini returned a <b>503</b> in the middle of a conversation. What happens now?</div>
+      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>Lecture 8</h3>
+        <p class="small"><b>Error Handling, Resilience and Cost</b>: retry, timeout, a fallback model and how much we spent today</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="Homework">
+  <div class="kicker">🏠 Homework</div>
+  <h2>History in the streaming chat, and the budget</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent" style="--a:var(--net)">
+      <h3><span class="ico">🏠</span>With code · your project · a table in the README</h3>
+      <ul class="clean small">
+<li><strong><code class="i">/chat</code> with a history</strong> in your project: <code class="i">ChatHistoryStore</code> (jsonb), <code class="i">ChatRequest</code> with a <code class="i">conversationId</code>, every message in the database, the System prompt kept out of the database</li>
+<li><strong><code class="i">GET /chat/stream</code> with a history:</strong> parameters <code class="i">Guid conversationId, string prompt</code> (the client creates the id); the iterator loads the history first, sends the pieces with <code class="i">yield return</code>, and <strong>at the end of the stream</strong> stores <code class="i">updates.ToChatResponse().Messages</code></li>
+<li><strong>A reducer:</strong> <code class="i">MessageCountingChatReducer</code> in both endpoints — everything in the database, the last N in the context</li>
+<li><strong><code class="i">GET /conversations/{id}</code></strong> — the conversation for a UI: only the messages with text, <code class="i">{ role, text }</code></li>
+<li><strong>README — a budget table:</strong> one conversation with 6 questions (2 of them call a tool that returns a lot of data). Columns: question · InputTokenCount without a reducer · InputTokenCount with <code class="i">MessageCountingChatReducer(6)</code></li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ Done when: Two questions with <code>curl -N</code> and one <code>conversationId</code> — the second takes the first into account; after the stream there are new rows in the database; <code>/conversations/{id}</code> doesn't show the tool rows; the README has a table where the growth stops with the reducer, and the quiz score</p>
+    </div>
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
+<li><strong>Summarization:</strong> <code class="i">SummarizingChatReducer(_chat, targetCount: 4, threshold: 2)</code> — ask about something you said 6 questions ago; does it remember? What do you see in the log (<code class="i">UseLogging</code>)?</li>
+<li><strong>A <code class="i">Conversation</code> table:</strong> <code class="i">Id</code>, <code class="i">Title</code>, <code class="i">CreatedAt</code> — the <code class="i">Title</code> from the first question (its first 40 characters); a list at <code class="i">GET /conversations</code></li>
+<li><strong>Cancellation:</strong> Ctrl+C halfway through the stream — what's stored in the database? What should be stored?</li>
+</ul></div>
+  </div>
+  <div class="callout mt" style="--a:var(--api)">At the start of the next lecture we'll <b>go through this homework together</b></div>
+</section>
+
+<div id="hud"><span class="sec"></span><span class="dots"></span><span class="num"></span></div><div id="bar"></div>
+</div></div>
+<div id="overview"></div>
+<div id="help">← → · F</div>
+<script>(() => {
+  // the study window (P) follows the deck over this channel; title is unique per lecture
+  let bc = null; try { bc = new BroadcastChannel('deck-' + document.title); } catch (e) {}
+  const deck = document.getElementById('deck');
+  const slides = [...deck.querySelectorAll('.slide')];
+  const hud = { sec: document.querySelector('#hud .sec'), num: document.querySelector('#hud .num'), dots: document.querySelector('#hud .dots') };
+  const bar = document.getElementById('bar');
+  const ov = document.getElementById('overview');
+
+  // ----- build step groups per slide -----
+  const groups = slides.map(s => {
+    const els = [...s.querySelectorAll('.step, .trigger, .codestep')].filter(e => !e.closest('.study'));
+    const g = [];
+    els.forEach(e => { if (e.hasAttribute('data-with') && g.length) g[g.length - 1].push(e); else g.push([e]); });
+    return g;
+  });
+  // sections
+  let curSec = '';
+  const sections = slides.map(s => (curSec = s.dataset.section ?? curSec));
+
+  // typing lengths
+  document.querySelectorAll('.typing').forEach(t => { t.style.setProperty('--n', t.textContent.length); if (!t.style.getPropertyValue('--t')) t.style.setProperty('--t', Math.max(.6, t.textContent.length * .045) + 's'); });
+
+  // svg draw lengths
+  document.querySelectorAll('.draw path,.draw line,.draw polyline,path.draw,line.draw,.autodraw path,path.autodraw').forEach(p => {
+    try { const L = Math.ceil(p.getTotalLength()) + 2; p.style.setProperty('--len', L); } catch (e) {}
+  });
+
+  let i = 0, k = 0;
+  const parseHash = () => { const m = location.hash.match(/#\/?(\d+)(?:\.(\d+))?/); if (m) { i = Math.min(slides.length - 1, Math.max(0, +m[1] - 1)); k = Math.min(groups[i].length, +(m[2] || 0)); } };
+  parseHash();
+
+  function smil(root, filter) {
+    root.querySelectorAll('animate,animateMotion,animateTransform,set').forEach(a => {
+      if (filter(a)) { try { a.beginElement(); } catch (e) {} }
+    });
+  }
+  function ranges(spec) {
+    const out = new Set();
+    String(spec).split(',').forEach(p => { const [a, b] = p.split('-').map(Number); for (let x = a; x <= (b || a); x++) out.add(x); });
+    return out;
+  }
+
+  let prevI = -1, prevK = -1;
+  function render(forward) {
+    slides.forEach((s, x) => { s.classList.toggle('active', x === i); s.classList.toggle('past', x < i); });
+    const s = slides[i];
+    groups[i].forEach((g, x) => g.forEach(e => e.classList.toggle('shown', x < k)));
+    // data-hide triggers: hide target element(s) once the trigger is shown
+    s.querySelectorAll('[data-hide]').forEach(t => {
+      s.querySelectorAll(t.dataset.hide).forEach(el => el.classList.toggle('gone', t.classList.contains('shown')));
+    });
+    // code highlights
+    s.querySelectorAll('pre.code[id]').forEach(pre => {
+      const steps = [...s.querySelectorAll(`.codestep[data-for="${pre.id}"]`)].filter(c => c.classList.contains('shown'));
+      const last = steps[steps.length - 1];
+      const lines = [...pre.querySelectorAll('.ln')];
+      if (!last || last.dataset.lines === 'all') { lines.forEach(l => l.classList.remove('hl', 'dim')); return; }
+      const set = ranges(last.dataset.lines);
+      lines.forEach((l, n) => { const on = set.has(n + 1); l.classList.toggle('hl', on); l.classList.toggle('dim', !on); });
+    });
+    // animations
+    if (i !== prevI) {
+      smil(s, a => a.hasAttribute('data-auto'));
+      // ინტერაქტიული ვიჯეტები სლაიდზე (ტოკენაიზერი, სლაიდერები…) — აქტიური სლაიდის შესახებ
+      document.dispatchEvent(new CustomEvent('deck:slide', { detail: s }));
+    }
+    if (i === prevI && k > prevK) {
+      for (let x = prevK; x < k; x++) groups[i][x].forEach(e => smil(e, a => !a.hasAttribute('data-auto')));
+    } else if (i !== prevI && k > 0) {
+      for (let x = 0; x < k; x++) groups[i][x].forEach(e => smil(e, a => !a.hasAttribute('data-auto')));
+    }
+    prevI = i; prevK = k;
+    // hud
+    hud.sec.textContent = sections[i] || '';
+    hud.num.textContent = `${i + 1} / ${slides.length}`;
+    const n = groups[i].length;
+    hud.dots.innerHTML = n ? Array.from({ length: n }, (_, x) => x < k ? '<b>●</b>' : '○').join('') : '';
+    bar.style.width = ((i + (n ? k / n : 1)) / slides.length * 100) + '%';
+    history.replaceState(null, '', `#/${i + 1}${k ? '.' + k : ''}`);
+    try { bc && bc.postMessage({ t: 'state', i, k }); } catch (e) {}
+    [...ov.children].forEach((b, x) => b.classList.toggle('cur', x === i));
+    fitSlide(s);
+  }
+
+  // სლაიდი ეკრანის სიმაღლეში თუ არ ეტევა (გრძელი ტექსტი, ფონტი, ბევრი ნაბიჯი) —
+  // შიგთავსი პროპორციულად პატარავდება, რომ ქვედა ზოლამდე დაეტიოს. ყველა ეკრანზე ერთნაირად.
+  function fitSlide(s) {
+    if (!s) return;
+    const kids = [...s.children].filter(e => !e.matches('aside, script, style, .big-num, .abs'));
+    kids.forEach(e => { e.style.zoom = ''; });
+    const sc = parseFloat(getComputedStyle(deck).getPropertyValue('--s')) || 1;
+    const sr = s.getBoundingClientRect();
+    let top = Infinity, bottom = -Infinity;
+    kids.forEach(k => {
+      const r = k.getBoundingClientRect(); if (r.height) { top = Math.min(top, r.top); bottom = Math.max(bottom, r.bottom); }
+      k.querySelectorAll('*').forEach(e => { const q = e.getBoundingClientRect(); if (q.height && q.width) bottom = Math.max(bottom, q.bottom); });
+    });
+    const limit = sr.bottom - 70 * sc;
+    if (bottom > limit && bottom > top) {
+      const f = Math.max(0.55, (limit - top) / (bottom - top) * 0.98);
+      kids.forEach(e => { e.style.zoom = f.toFixed(3); });
+    }
+  }
+
+  function next() { if (k < groups[i].length) k++; else if (i < slides.length - 1) { i++; k = 0; } render(true); }
+  function prev() { if (k > 0) { k--; prevK = k; } else if (i > 0) { i--; k = groups[i].length; } render(false); }
+  function go(x, all) { i = Math.max(0, Math.min(slides.length - 1, x)); k = all ? groups[i].length : 0; render(true); }
+
+  // overview
+  slides.forEach((s, x) => {
+    const b = document.createElement('button');
+    const t = s.querySelector('h1,h2,h3')?.textContent.trim() || s.dataset.title || 'სლაიდი';
+    b.innerHTML = `<small>${x + 1} · ${sections[x] || ''}</small>${t}`;
+    b.onclick = e => { e.stopPropagation(); ov.classList.remove('open'); go(x); };
+    ov.appendChild(b);
+  });
+
+  if (bc) bc.onmessage = ({ data }) => {
+    if (data.t === 'hello') bc.postMessage({ t: 'state', i, k });
+    if (data.t === 'go') go(data.n);
+  };
+  const openStudy = () => {
+    // ცალკე ჩანართში (არა popup ფანჯარაში) — სლაიდებს მაინც მიჰყვება
+    window.open((document.documentElement.lang === 'en' ? 'study.en.html' : 'study.html') + '?live#s-' + (i + 1), 'study-' + document.title);
+  };
+  document.getElementById('studybtn')?.addEventListener('click', e => { e.currentTarget.blur(); openStudy(); });
+  const openLecturer = () => window.open('lecturer.html', 'lecturer-' + document.title);
+  // ka ⇄ en: იგივე სლაიდზე გადასვლა
+  document.getElementById('langbtn')?.addEventListener('click', e => { location.href = e.currentTarget.dataset.href + location.hash; });
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    // სლაიდზე ტექსტის ველში წერისას კლავიშები ნავიგაციას არ ეკუთვნის (Escape — ველიდან გამოსვლა)
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) { if (e.key === 'Escape') t.blur(); return; }
+    const key = e.key, code = e.code;
+    if (key === 'ArrowRight') { e.preventDefault(); e.shiftKey ? go(i + 1) : next(); }
+    else if (key === 'ArrowLeft') { e.preventDefault(); e.shiftKey ? go(i - 1) : prev(); }
+    else if ([' ', 'Enter', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Backspace'].includes(key)) { e.preventDefault(); }
+    else if (key === 'Home') go(0);
+    else if (key === 'End') go(slides.length - 1, true);
+    else if (code === 'KeyO' || key === 'Escape') ov.classList.toggle('open', key === 'Escape' ? false : !ov.classList.contains('open'));
+    else if (code === 'KeyF') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+    else if (code === 'KeyA') { k = groups[i].length; render(true); }
+    else if (code === 'KeyP' && document.body.dataset.study) { e.preventDefault(); openStudy(); }
+    else if (code === 'KeyL' && document.body.dataset.lect)   // ლექტორის გვერდი: ღილაკი არ ჩანს, მხოლოდ L
+     { e.preventDefault(); openLecturer(); }
+    else if (code === 'KeyT' && window.toggleTheme) { e.preventDefault(); toggleTheme(); }
+  });
+  addEventListener('hashchange', () => { const oi = i, ok = k; parseHash(); if (oi !== i || ok !== k) render(true); });
+
+  function fit() {
+    // 16:9 on wide screens; grow canvas height up to 16:10 so MacBook-style screens have no bars
+    const H = Math.max(900, Math.min(1000, Math.round(1600 * innerHeight / innerWidth)));
+    deck.style.setProperty('--h', H + 'px');
+    deck.style.setProperty('--s', Math.min(innerWidth / 1600, innerHeight / H));
+  }
+  setTimeout(() => document.getElementById('help')?.classList.add('hide'), 6000);
+  addEventListener('resize', () => { fit(); fitSlide(slides[i]); }); fit();
+  document.fonts?.ready.then(() => fitSlide(slides[i]));
+  render(true);
+})();
+</script>
+</body></html>

@@ -42,6 +42,9 @@ build.py                     აწყობს საიტს
 | 04 | Tools და Function Calling | `courses/ai/04-tools-function-calling/` |
 | 05 | Chat Client Pipeline და Middleware | `courses/ai/05-pipeline-middleware/` |
 | 06 | Streaming და Real-time AI პასუხები | `courses/ai/06-streaming/` |
+| 07 | Context Engineering: კონტექსტისა და მეხსიერების მართვა | `courses/ai/07-context-engineering/` |
+| 08 | Error Handling, Resilience და ხარჯის კონტროლი | `courses/ai/08-resilience-cost/` |
+| 09 | Text Embeddings: ტექსტის ვექტორიზაცია | `courses/ai/09-text-embeddings/` |
 
 ## ლექციის სტრუქტურა
 

@@ -1,0 +1,53 @@
+{
+  "title": "Text Embeddings: Vectorizing Text",
+  "why": "“Something light, without meat” — sending the whole menu is expensive, and LIKE won't find the lobio, because those words aren't in its description. Today we learn about embeddings: turning text into a vector where a similar meaning is close together. This is the foundation of semantic search, RAG and agent memory — the whole second half of the module stands on it.",
+  "outcomes": [
+    "You'll explain what an embedding and a vector are, why a similar meaning is “close”, and why vectors from different models can't be compared",
+    "You'll register an `IEmbeddingGenerator` (`gemini-embedding-2`, 768 dimensions) and get vectors with `GenerateVectorAsync` / `GenerateAsync`",
+    "You'll write the question and the document with the right task prefix and explain why the search is asymmetric",
+    "You'll calculate cosine similarity (by hand and with `TensorPrimitives`) and write a semantic search for the menu with a top 3"
+  ],
+  "review": [
+    {"q": "Why doesn't LIKE find the lobio for “without meat”, and what does an embedding do differently?", "a": "LIKE looks for words, and those words aren't in the description · an embedding turns the text into a vector where a similar meaning is close — regardless of language and words"},
+    {"q": "How is an embedding model different from a chat model? Which one do we use and at what size?", "a": "It doesn't write text — it returns one vector, and only the input is charged · `IEmbeddingGenerator` · `gemini-embedding-2`, 768 dimensions"},
+    {"q": "Why can't we “just” change the model if vectors are already stored?", "a": "Every model (and size) has its own “map” — vectors from different models can't be compared · changing the model = calculating every vector again"},
+    {"q": "What is a task prefix, and why do the question and the document have different ones?", "a": "Asymmetric search: a short “wish” ↔ long “facts” · `task: search result | query: …` and `title: … | text: …` · always by the same rule"},
+    {"q": "What does cosine similarity measure, and how do we read the number?", "a": "The angle between two vectors: 1 — the same direction, 0 — nothing in common · the number depends on the model — we compare and sort, we don't judge it on its own"}
+  ],
+  "resources": [
+    {"title": "Gemini — Embeddings", "url": "https://ai.google.dev/gemini-api/docs/embeddings", "note": "gemini-embedding-2, dimensions, task prefixes"},
+    {"title": "Embeddings in .NET", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/embeddings", "note": "what an embedding is, and IEmbeddingGenerator"},
+    {"title": "Google.GenAI — AsIEmbeddingGenerator", "url": "https://googleapis.github.io/dotnet-genai/api/Microsoft.Extensions.AI.GoogleGenAIExtensions.html", "note": "Gemini → IEmbeddingGenerator, defaultModelDimensions"},
+    {"title": "TensorPrimitives.CosineSimilarity", "url": "https://learn.microsoft.com/dotnet/api/system.numerics.tensors.tensorprimitives.cosinesimilarity", "note": "cosine similarity with SIMD"},
+    {"title": "pgvector", "url": "https://github.com/pgvector/pgvector", "note": "for the next lecture: vectors in PostgreSQL"}
+  ],
+  "quiz": [
+    {"q": "`LIKE` returns 0 results for “without meat”. Why?", "options": ["The database is empty", "LIKE looks for words, not meaning: those words aren't in the descriptions", "It can't read Georgian", "It should have been ILIKE"], "explain": "A word and a meaning are different — that's what we need an embedding for."},
+    {"q": "What is an embedding?", "options": ["Compressing a text", "Turning a text into a list of numbers (a vector) so that a similar meaning is close together", "Translating a text", "The number of tokens"], "explain": "A vector is a point in space; points with a similar meaning stand close together."},
+    {"q": "“without meat” and “ვეგეტარიანული” — their vectors are:", "options": ["Completely different — the language is different", "Close — the meaning is the same", "Exactly the same", "Impossible to compare"], "explain": "An embedding model reflects the meaning, and the language much less."},
+    {"q": "We stored vectors with `gemini-embedding-2`. Now we're moving to another embedding model. What do we have to do?", "options": ["Nothing", "The old vectors can't be compared with the new ones — all of them have to be calculated again", "Only change the size", "Normalize the old ones"], "explain": "Every model has its own “map”."},
+    {"q": "Why do we take 768 dimensions instead of 3072?", "options": ["3072 doesn't exist on Gemini", "It's a recommended size: good quality, a 4 times smaller vector — less space and a faster search", "768 is more accurate", "It's free"], "explain": "Google recommends 768, 1536 and 3072; 768 is enough for our task."},
+    {"q": "What type is the result of `GenerateVectorAsync`?", "options": ["string", "ChatResponse", "ReadOnlyMemory<float> — a list of numbers", "int[]"], "explain": "An embedding is a list of floats; on many texts GenerateAsync returns GeneratedEmbeddings."},
+    {"q": "Why is the question written with `task: search result | query: …` and the document with `title: … | text: …`?", "options": ["Otherwise Gemini returns an error", "The search is asymmetric: a short question and a long document; the prefix tells the model the role and raises the quality", "To save tokens", "It's the JSON format"], "explain": "The rule is the same everywhere: every document in one format, every question in the other."},
+    {"q": "Cosine similarity = 1 means:", "options": ["The texts are completely different", "The vectors point in the same direction — very similar", "An error", "The vector is empty"], "explain": "1 — the same direction, 0 — perpendicular (nothing in common)."},
+    {"q": "Two scores: 0.71 and 0.38. The right conclusion:", "options": ["0.71 is bad — it's below 1", "The first pair is more similar; we compare the numbers, we don't judge them on their own — the absolute value depends on the model", "0.38 means 38% similar", "Both are errors"], "explain": "In a search, the ordering is what matters."},
+    {"q": "We calculate the menu's vectors once (`/menu/index`), and on a question only the question's vector. Why?", "options": ["IEmbeddingGenerator requires it", "The menu rarely changes; 200 dishes' vectors on every question = money and time", "A question's vector can't be stored", "Gemini takes one request per minute"], "explain": "We calculate once and store; in lecture 10 — in the database."}
+  ],
+  "study": {
+    "summary": [
+      "**Embedding**: text → vector (a list of numbers), where **a similar meaning is close together** — regardless of language and words.",
+      "The vector is generated by a **separate embedding model**: `gemini-embedding-2`, **768** dimensions. One model = one “map”.",
+      "**`IEmbeddingGenerator`**: `AddEmbeddingGenerator`, `AsIEmbeddingGenerator(model, defaultModelDimensions)`, `GenerateVectorAsync` / `GenerateAsync`.",
+      "**Task prefix**: the question — `task: search result | query: …`, the document — `title: … | text: …`; always by the same rule.",
+      "**Cosine similarity** — the angle between two vectors (1 — similar, 0 — nothing in common); `TensorPrimitives.CosineSimilarity`. Search: the menu once → vectors; a question → cosine with everything → top 3."
+    ],
+    "chapters": {
+      "1 · embedding": {"title": "What an embedding is", "goal": "You'll explain how an embedding turns text into a vector and why a similar meaning is close together."},
+      "2 · კოდში": {"title": "IEmbeddingGenerator and the task prefix", "goal": "You'll get a vector with Gemini and write the question and the document with the right prefix."},
+      "3 · მსგავსება": {"title": "Cosine similarity and semantic search", "goal": "You'll measure similarity and write a menu search by meaning."},
+      "პრაქტიკა": {"title": "Classwork: the similarity game"},
+      "შეჯამება": {"title": "Summary"},
+      "საშინაო": {"title": "Homework"}
+    }
+  }
+}

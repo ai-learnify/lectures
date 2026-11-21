@@ -1,0 +1,53 @@
+{
+  "title": "Context Engineering: Managing Context and Memory",
+  "why": "Our chat calls tools and streams, but on the second question it no longer remembers the first: the model is stateless. Today we see what goes to the model in every request and who decides it — we do. We store the conversation history in PostgreSQL, the tool messages included, and send the model only what it needs, so that the cost and the context don't grow with every question. With agents this becomes the key skill.",
+  "outcomes": [
+    "You'll explain what goes into the model's context (System, tools, history, tool results, the question) and how context engineering differs from prompt engineering",
+    "You'll store the conversation history in PostgreSQL: a `conversationId`, the whole `ChatMessage` in jsonb, the tool messages included",
+    "You'll write `/chat` with a history: load → System + history + question → store `response.Messages`",
+    "You'll explain why the tokens grow with every question, and send only the last N messages into the context with `MessageCountingChatReducer`"
+  ],
+  "review": [
+    {"q": "Why doesn't the model remember the previous question, and how do we “remind” it?", "a": "The model is stateless: it only sees this request · we send the history in every request — the memory is in our code, not in the model"},
+    {"q": "What goes into the context, and which part grows fastest?", "a": "System + the tool descriptions + the history + the tool results + the new question · often the tool results (e.g. the whole menu), which stay in the history"},
+    {"q": "Why do we store the whole `ChatMessage` in jsonb and not a Text column?", "a": "`Contents` has different types: text, functionCall, functionResult, the thought signature · `AIJsonUtilities.DefaultOptions` stores them with `$type` · jsonb reorders keys → `AllowOutOfOrderMetadataProperties`"},
+    {"q": "Why don't we store the System prompt in the database?", "a": "It's ours, not part of the conversation: it has today's date in it and the rules may change · we build it again on every request and put it at the top of the list"},
+    {"q": "What does `MessageCountingChatReducer(10)` do, and what stays in the database?", "a": "It keeps the last 10 messages in the context and drops the tool messages · everything stays in the database · the model gets the price again with a tool"}
+  ],
+  "resources": [
+    {"title": "Microsoft.Extensions.AI — stateless vs stateful, chat reducers", "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai", "note": "the history in our code; MessageCountingChatReducer and SummarizingChatReducer"},
+    {"title": "MessageCountingChatReducer", "url": "https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.messagecountingchatreducer", "note": "the last N messages; tool messages aren't included"},
+    {"title": "Npgsql EF Core — JSON mapping", "url": "https://www.npgsql.org/efcore/mapping/json.html", "note": "a jsonb column in EF Core"},
+    {"title": "System.Text.Json — polymorphism", "url": "https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/polymorphism", "note": "$type and AllowOutOfOrderMetadataProperties"},
+    {"title": "Anthropic — Effective context engineering for AI agents", "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents", "note": "context engineering for agents — an article to read"}
+  ],
+  "quiz": [
+    {"q": "On the second question (“And at 21:00?”) the model doesn't know what it's about. Why?", "options": ["Gemini's memory overflowed", "The model is stateless: the first question wasn't in the second request", "The Temperature is too high", "It didn't call a tool"], "explain": "The model only sees what we sent in this request. We send the history."},
+    {"q": "What is context engineering?", "options": ["Writing the System prompt nicely", "Deciding what to put in the model's context on every request, what to leave out and in what order", "Fine-tuning the model", "Making the context window bigger"], "explain": "Prompt engineering — how to write the instruction; context engineering — what goes into the window as a whole."},
+    {"q": "In our chat, which part of the context is often the biggest?", "options": ["The user's question", "The System prompt", "The tool results that stay in the history (e.g. the whole menu)", "The conversationId"], "explain": "get_menu returns the whole menu, and the result left in the history goes along with every later request."},
+    {"q": "Why don't we store the history in a `Dictionary` in a Singleton service?", "options": ["A Dictionary is slow", "It disappears when the app restarts, and with two servers one user would have different memories", "A Dictionary is forbidden in a Singleton", "Gemini can't read it"], "explain": "In the database the history stays and every server sees the same one."},
+    {"q": "Why do we store the whole `ChatMessage` in one jsonb column?", "options": ["jsonb is the smallest", "`Contents` are parts of different types (text, functionCall, functionResult…) — splitting them into columns is a dead end", "EF Core can't store any other type", "Gemini requires JSON"], "explain": "AIJsonUtilities.DefaultOptions writes every part with a $type, so the right type is created when reading back."},
+    {"q": "What do we need `AllowOutOfOrderMetadataProperties = true` for?", "options": ["To compress the JSON", "jsonb reorders keys and `$type` is no longer first — without it reading throws an exception", "For Georgian text", "For speed"], "explain": "By default System.Text.Json expects $type to be first in the object."},
+    {"q": "In `/chat`, what do we store with `AppendAsync`?", "options": ["Only the model's final text", "The System prompt, the question and the answer", "The question and `response.Messages` — the tool request, the result and the answer", "Only the question"], "explain": "We store everything that happened in the conversation. The System prompt is ours and gets built again every time."},
+    {"q": "For one question that called a tool, 4 rows appeared in the database. Why?", "options": ["A bug — it should be 2", "user → assistant (functionCall) → tool (functionResult) → assistant (text): the tool loop's messages", "jsonb splits rows", "Position is counted twice"], "explain": "The tool loop (lecture 4) works through messages — they're all in response.Messages."},
+    {"q": "InputTokenCount grows with every question in a conversation. What is NOT a consequence of this?", "options": ["The cost grows", "The answer gets slower", "The context window fills up sooner or later", "The model learns something new and gets smarter"], "explain": "The model learns nothing (lecture 1) — it just reads more, and we pay more."},
+    {"q": "After `MessageCountingChatReducer(10)`, what does the model do on a price question if the menu is no longer in the context?", "options": ["It makes up the price", "It says it doesn't know", "It calls `get_menu` again and gets the new price", "It reads the database itself"], "explain": "The reducer drops the tool messages — the model calls a tool again when it needs to, and the price is fresh."}
+  ],
+  "study": {
+    "summary": [
+      "The model is **stateless**: “memory” is the history that **we** send in every request.",
+      "**Context** = System + the tool descriptions + the history + the tool results + the question. **Context engineering** — what to put in, what to leave out, in what order.",
+      "The history is in **PostgreSQL**: one row = one `ChatMessage`, by `ConversationId`, the whole message in **jsonb**, the tool messages included. The System prompt — no.",
+      "`/chat`: **load** → `[SystemPrompt(), .. history, question]` → **store** `[question, .. response.Messages]`.",
+      "**Everything in the database, part of it in the context**: `MessageCountingChatReducer` keeps the last N and drops the tool messages."
+    ],
+    "chapters": {
+      "1 · კონტექსტი": {"title": "Context: what the model sees", "goal": "You'll explain why the model doesn't remember the previous question and what goes into one request."},
+      "2 · ისტორია ბაზაში": {"title": "History in PostgreSQL", "goal": "You'll store the conversation in the database with jsonb and write `/chat` with a history."},
+      "3 · ბიუჯეტი": {"title": "The token budget and the reducer", "goal": "You'll explain why the context grows, and send the model only the last N messages."},
+      "პრაქტიკა": {"title": "Classwork: your chat with a history"},
+      "შეჯამება": {"title": "Summary"},
+      "საშინაო": {"title": "Homework"}
+    }
+  }
+}

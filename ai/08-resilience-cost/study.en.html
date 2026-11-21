@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Error Handling, Resilience and Cost Control — study notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ Correct.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← Lectures</a>
+  <div class="ttl"><small>📖 AI Agents in .NET · 8</small>Error Handling, Resilience and Cost Control</div>
+  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
+  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
+  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.en.html">▶ Presentation</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>Contents</summary>
+    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">What breaks: the error map</span><span class="nm">3′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Retry and timeout: Microsoft.Extensions.Http.Resilience</span><span class="nm">4′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">A fallback model and recording the cost</span><span class="nm">3′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: a daily limit layer</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">3′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">13</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 8</div>
+      <h1>Error Handling, Resilience and Cost Control</h1>
+      <p>The whole lecture in chapters, ~20 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li>Errors: <strong>transient</strong> (429, 5xx, timeout — retry helps), <strong>permanent</strong> (400, 401, 403, 404 — no), <strong>content</strong> (length, bad JSON, a tool error — in code).</li><li>A proper retry: <strong>backoff + jitter</strong>, <code>Retry-After</code>, a <strong>timeout</strong> per attempt, a <strong>circuit breaker</strong>. <code>AddStandardResilienceHandler</code> — on the HttpClient, with times raised for an LLM.</li><li>Google.GenAI uses our HttpClient (<code>ClientOptions.HttpClientFactory</code>), its retry is turned off (<code>Attempts = 1</code>): retry in <strong>one</strong> place.</li><li><strong><code>FallbackChatClient</code></strong> — a fallback model on a transient error; the innermost layer of the pipeline; <code>catch … when</code>.</li><li>Tokens <strong>in the database</strong> (<code>AiUsage</code>): <code>IServiceScopeFactory</code>, because the pipeline is a Singleton; thinking tokens are added to the output; cost = tokens × price.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~20 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 10 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/core/resilience/http-resilience" target="_blank" rel="noopener">Build resilient HTTP apps (.NET)</a> — AddStandardResilienceHandler, settings, retry/timeout/circuit breaker</li><li><a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank" rel="noopener">Gemini — Rate limits</a> — RPM/TPM/RPD limits and 429</li><li><a href="https://ai.google.dev/gemini-api/docs/troubleshooting" target="_blank" rel="noopener">Gemini — Troubleshooting</a> — error codes: 400, 403, 404, 429, 500, 503</li><li><a href="https://googleapis.github.io/dotnet-genai/api/Google.GenAI.Types.HttpRetryOptions.html" target="_blank" rel="noopener">Google.GenAI — HttpRetryOptions</a> — the SDK's own retry and how to turn it off</li><li><a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Gemini — Pricing</a> — the input/output price per 1M tokens — for the homework</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
+<p>Lecture 7 — <strong>Context Engineering: Managing Context and Memory</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../07-context-engineering/study.en.html">the previous lecture's notes</a>.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why doesn't the model remember the previous question, and how do we “remind” it?</summary><div class="ans">The model is stateless: it only sees this request · we send the history in every request — the memory is in our code, not in the model</div></details><details><summary>What goes into the context, and which part grows fastest?</summary><div class="ans">System + the tool descriptions + the history + the tool results + the new question · often the tool results (e.g. the whole menu), which stay in the history</div></details><details><summary>Why do we store the whole <code>ChatMessage</code> in jsonb and not a Text column?</summary><div class="ans"><code>Contents</code> has different types: text, functionCall, functionResult, the thought signature · <code>AIJsonUtilities.DefaultOptions</code> stores them with <code>$type</code> · jsonb reorders keys → <code>AllowOutOfOrderMetadataProperties</code></div></details><details><summary>Why don't we store the System prompt in the database?</summary><div class="ans">It's ours, not part of the conversation: it has today's date in it and the rules may change · we build it again on every request and put it at the top of the list</div></details><details><summary>What does <code>MessageCountingChatReducer(10)</code> do, and what stays in the database?</summary><div class="ans">It keeps the last 10 messages in the context and drops the tool messages · everything stays in the database · the model gets the price again with a tool</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
+<p>The previous lecture's homework: <strong>History in the streaming chat, and the budget</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong><code>/chat</code> with a history</strong> in your project: <code>ChatHistoryStore</code> (jsonb), <code>ChatRequest</code> with a <code>conversationId</code>, every message in the database, the System prompt kept out of the database</li>
+<li><strong><code>GET /chat/stream</code> with a history:</strong> parameters <code>Guid conversationId, string prompt</code> (the client creates the id); the iterator loads the history first, sends the pieces with <code>yield return</code>, and <strong>at the end of the stream</strong> stores <code>updates.ToChatResponse().Messages</code></li>
+<li><strong>A reducer:</strong> <code>MessageCountingChatReducer</code> in both endpoints — everything in the database, the last N in the context</li>
+<li><strong><code>GET /conversations/{id}</code></strong> — the conversation for a UI: only the messages with text, <code>{ role, text }</code></li>
+<li><strong>README — a budget table:</strong> one conversation with 6 questions (2 of them call a tool that returns a lot of data). Columns: question · InputTokenCount without a reducer · InputTokenCount with <code>MessageCountingChatReducer(6)</code></li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>Solution</h3>
+<p>A sample — the library API (continuing homework 6).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · StreamAnswer</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">recent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">Reducer</span><span class="p">.</span><span class="n">ReduceAsync</span><span class="p">(</span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatResponseUpdate</span><span class="o">&gt;</span><span class="w"> </span><span class="n">updates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="na">[SystemPrompt(), .. recent, question]</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">updates</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">update</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updates</span><span class="p">.</span><span class="n">ToChatResponse</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">AppendAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ChatStream and Conversation</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("chat/stream")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IResult</span><span class="w"> </span><span class="nf">ChatStream</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">TypedResults</span><span class="p">.</span><span class="n">ServerSentEvents</span><span class="p">(</span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("conversations/{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Conversation</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">history</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Role</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Text</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Without a reducer</th>
+<th><code>MessageCountingChatReducer(6)</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 · “Hello”</td>
+<td>~600</td>
+<td>~600</td>
+</tr>
+<tr>
+<td>2 · “What detective novels do you have?” → <code>find_books</code></td>
+<td>~1,900</td>
+<td>~1,900</td>
+</tr>
+<tr>
+<td>3 · “Which one is the newest?”</td>
+<td>~3,400</td>
+<td>~800</td>
+</tr>
+<tr>
+<td>4 · “Science fiction?” → <code>find_books</code></td>
+<td>~3,700</td>
+<td>~1,100</td>
+</tr>
+<tr>
+<td>5 · “How many pages is the second one?”</td>
+<td>~5,300</td>
+<td>~1,300</td>
+</tr>
+<tr>
+<td>6 · “OK, I'll reserve it”</td>
+<td>~5,600</td>
+<td>~1,500</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>With the reducer the growth almost stops: the tool results (the lists of books) no longer go into the context. On question 3 the model still answered “the newest” correctly: the book titles were in the text of its previous answer. On question 5 (“the second one”) it called <code>find_books</code> again. <code>/conversations/{id}</code> doesn't show the tool rows because their <code>Text</code> is empty. On cancellation <code>AppendAsync</code> doesn't run and the question isn't stored in the database.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~3 min read</div><h2>What breaks: the error map</h2><p class="goal">🎯 <b>After this</b> You'll sort an error as transient, permanent or content, and explain which ones retry helps with.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · What breaks</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
+<p>First we see what the user sees when Gemini fails. Then we sort the errors into groups: reacting the same way to every error is wrong.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>The problem: Gemini sometimes fails</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
+<p>Two typical responses that Gemini will return on any given day:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Status</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>503</strong></td>
+<td><code>UNAVAILABLE</code></td>
+<td>“The model is overloaded, please try again later” — too many requests on Google's side</td>
+</tr>
+<tr>
+<td><strong>429</strong></td>
+<td><code>RESOURCE_EXHAUSTED</code></td>
+<td><strong>our</strong> limit ran out: the number of requests or tokens per minute (the limit is small on a free key)</td>
+</tr>
+</tbody>
+</table>
+<p>On such a response Google.GenAI throws an exception: <strong><code>ServerError</code></strong> (5xx) or <strong><code>ClientError</code></strong> (4xx). Both are <strong><code>ApiException</code></strong>s, with a <code>StatusCode</code> property. We don't catch it, so ASP.NET Core returns a <strong>500</strong> to the user. On top of that, in lecture 7's <code>/chat</code> the <code>AppendAsync</code> comes <strong>after</strong> the answer, so the question is lost too.</p>
+<p><strong>This isn't our bug</strong>: an external service sometimes fails, the network drops. It will definitely happen. But <strong>the reaction is ours</strong>. A person would wait a few seconds and try again: that's exactly what we teach the code.</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>The error map: three groups</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
+<table>
+<thead>
+<tr>
+<th>What happened</th>
+<th>What it means</th>
+<th>Group</th>
+<th>What we do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>429</strong></td>
+<td>A limit: too many requests or tokens per minute</td>
+<td>transient</td>
+<td>we wait (if the response says <code>Retry-After</code> — exactly that long) and try again</td>
+</tr>
+<tr>
+<td><strong>500 · 503</strong></td>
+<td>Gemini is overloaded or has an internal error</td>
+<td>transient</td>
+<td>retry; if it doesn't work — a fallback model</td>
+</tr>
+<tr>
+<td><strong>timeout</strong></td>
+<td>The answer takes too long, the network drops</td>
+<td>transient</td>
+<td>a time limit and retry</td>
+</tr>
+<tr>
+<td><strong>400 · 401 · 403 · 404</strong></td>
+<td>A wrong request, key, permission or model name</td>
+<td>permanent</td>
+<td><strong>no</strong> retry: the same request brings the same error. Log it and fix it</td>
+</tr>
+<tr>
+<td><strong>FinishReason = length · bad JSON</strong></td>
+<td>An answer arrived, but it's cut off or doesn't match the schema</td>
+<td>content</td>
+<td>in code: headroom in <code>MaxOutputTokens</code> (lecture 2), <code>TryGetResult</code> (lecture 3)</td>
+</tr>
+<tr>
+<td><strong>tool exception</strong></td>
+<td>Our C# method failed</td>
+<td>content</td>
+<td><code>FunctionInvokingChatClient</code> returns the error to the model, and the model writes the answer anyway</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The main rule: retry only on a transient error.</strong> On a 401 (wrong key), trying again five times gives five 401s and wastes the user's time. Same with a 400: the request is wrong and will stay wrong.</p>
+<p><strong>Content errors don't show at the HTTP level:</strong> the status is 200, an answer arrived. Our code checks them: lecture 3's <code>TryGetResult</code> (if the JSON doesn't match the schema, <code>false</code> instead of an exception), checking the <code>FinishReason</code>.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Transient error</dt><dd>an error that may not repeat on another try: 429, 5xx, timeout, the network</dd><dt>Permanent error</dt><dd>trying again doesn't help: a wrong request, key, permission, model name (4xx, except 429)</dd><dt>ApiException</dt><dd>a Google.GenAI error with a StatusCode: ClientError (4xx) and ServerError (5xx)</dd></dl></div></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~4 min read</div><h2>Retry and timeout: Microsoft.Extensions.Http.Resilience</h2><p class="goal">🎯 <b>After this</b> You'll add retry, timeout and a circuit breaker to an HttpClient and check it with an artificial 503.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Part 2 · Retry and timeout</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
+<p>Trying again sounds simple, but a wrong retry makes the problem worse. We see how to retry properly, add it with one package and check it live.</p></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Retry done right: backoff, jitter, Retry-After, circuit breaker</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<p>A naive retry — “it failed? try again immediately, 10 times” — makes the problem <strong>worse</strong>: Gemini is overloaded, and we send it even more requests, while a thousand clients do the same in the same second. A proper retry has four parts:</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📈 <strong>exponential backoff</strong></td>
+<td>we wait longer before every attempt: ~2 → ~4 → ~8 seconds. The service gets time to “catch its breath”</td>
+</tr>
+<tr>
+<td>🎲 <strong>jitter</strong></td>
+<td>a random part is added to the pause (2.3 s, 1.8 s…). A thousand clients no longer retry at the same moment</td>
+</tr>
+<tr>
+<td>⏰ <strong>Retry-After · timeout</strong></td>
+<td>on a 429 the server often tells us how long to wait (the <code>Retry-After</code> header). And each attempt has a time limit: if the answer doesn't arrive in 40 seconds, the attempt counts as failed</td>
+</tr>
+<tr>
+<td>🔌 <strong>circuit breaker</strong></td>
+<td>if a large share of recent attempts failed, the “breaker” trips: for a few seconds we don't call Gemini at all and return an error right away. The service rests, the user doesn't wait for nothing</td>
+</tr>
+</tbody>
+</table>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Retry</dt><dd>sending a failed request again on a transient error</dd><dt>Exponential backoff</dt><dd>a growing pause between retries (2, 4, 8… seconds)</dd><dt>Jitter</dt><dd>a random part of the pause, so many clients don't retry at the same time</dd><dt>Circuit breaker</dt><dd>a “breaker”: after many failures it temporarily stops the calls</dd></dl></div></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>AddStandardResilienceHandler: retry, timeout and circuit breaker on the HttpClient</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
+<p><code>dotnet add package Microsoft.Extensions.Http.Resilience</code> — a Microsoft package (built on Polly) that adds a ready-made “resilience pipeline” to an <code>IHttpClientFactory</code> client:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddHttpClient</span><span class="p">(</span><span class="s">"gemini"</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AddStandardResilienceHandler</span><span class="p">(</span><span class="n">o</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">o</span><span class="p">.</span><span class="n">AttemptTimeout</span><span class="p">.</span><span class="n">Timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// an LLM is slow</span></span><span class="ln"><span class="w">        </span><span class="n">o</span><span class="p">.</span><span class="n">TotalRequestTimeout</span><span class="p">.</span><span class="n">Timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">o</span><span class="p">.</span><span class="n">CircuitBreaker</span><span class="p">.</span><span class="n">SamplingDuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="n">sp</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">IHttpClientFactory</span><span class="w"> </span><span class="n">http</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">IHttpClientFactory</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Client</span><span class="w"> </span><span class="n">gemini</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span></span><span class="ln"><span class="w">            </span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">httpOptions</span><span class="p">:</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HttpOptions</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">RetryOptions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HttpRetryOptions</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Attempts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">clientOptions</span><span class="p">:</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientOptions</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">HttpClientFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="n">CreateClient</span><span class="p">(</span><span class="s">"gemini"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">gemini</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InputGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">other</span><span class="w"> </span><span class="n">layers</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">before</span></span></code></pre></div>
+<p><strong>What the “standard” pipeline contains:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>By default</th>
+<th>Ours</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Retry</strong></td>
+<td>3 retries, exponential backoff + jitter, respects <code>Retry-After</code>; on 408, 429, 5xx and network errors</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><strong>AttemptTimeout</strong></td>
+<td>10 s per attempt</td>
+<td><strong>40 s</strong> — Gemini thinks and writes long answers</td>
+</tr>
+<tr>
+<td><strong>TotalRequestTimeout</strong></td>
+<td>30 s for all attempts together</td>
+<td><strong>90 s</strong></td>
+</tr>
+<tr>
+<td><strong>CircuitBreaker</strong></td>
+<td>stops for a few seconds on many failures</td>
+<td><code>SamplingDuration</code> must be ≥ 2 × AttemptTimeout (validation) → 90</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why do we turn off the SDK's retry?</strong> Google.GenAI has its own retry (<code>HttpRetryOptions</code>). If two retries stayed nested, one question would make 4 × 4 = 16 attempts, and the user would wait for minutes. Retry must be in <strong>one</strong> place. <code>Attempts = 1</code> means “only the original request, no retries”.</p>
+<p><strong><code>ClientOptions.HttpClientFactory</code></strong> — we tell the SDK to send its HTTP requests with <strong>our</strong> <code>HttpClient</code>, the one with the resilience pipeline. <code>AddChatClient(sp =&gt; …)</code> — the factory version, so we can take <code>IHttpClientFactory</code> from DI.</p>
+<p><strong>The Controllers haven't changed.</strong> Retry happens at the HTTP level, inside <code>IChatClient</code>. In the tool loop, every Gemini request has its own retry.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Microsoft.Extensions.Http.Resilience</dt><dd>a package that adds retry, timeout and a circuit breaker to an HttpClient (built on Polly)</dd><dt>AddStandardResilienceHandler</dt><dd>a ready-made pipeline with recommended settings</dd></dl></div></article><article class="blk" data-slides="12,13"><span class="anchor" id="s-12"></span><span class="anchor" id="s-13"></span><div class="bh"><h3>Checking it: an artificial 503</h3><a class="chip" href="index.en.html#/12" data-go="12" target="_blank" title="This part in the presentation">Slide 12</a></div>
+<p>We can't make Gemini return a 503 on command, so for the test we write <strong>our own handler</strong> that returns a 503 on the first two of every three requests, without reaching Gemini:</p>
+<div class="codebox"><div class="ch"><span>Ai/ChaosHandler.cs · for testing only</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ChaosHandler</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingHandler</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_count</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">HttpResponseMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SendAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">HttpRequestMessage</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="c1">// the first two of every 3 → 503</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Interlocked</span><span class="p">.</span><span class="n">Increment</span><span class="p">(</span><span class="k">ref</span><span class="w"> </span><span class="n">_count</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Task</span><span class="p">.</span><span class="n">FromResult</span><span class="p">(</span></span><span class="ln"><span class="w">                </span><span class="k">new</span><span class="w"> </span><span class="nf">HttpResponseMessage</span><span class="p">(</span><span class="n">HttpStatusCode</span><span class="p">.</span><span class="n">ServiceUnavailable</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">SendAsync</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs · for testing only</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddTransient</span><span class="o">&lt;</span><span class="n">ChaosHandler</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddHttpClient</span><span class="p">(</span><span class="s">"gemini"</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AddStandardResilienceHandler</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AddHttpMessageHandler</span><span class="o">&lt;</span><span class="n">ChaosHandler</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">inside</span><span class="p">,</span><span class="w"> </span><span class="n">close</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">network</span></span></code></pre></div>
+<p><code>DelegatingHandler</code> — a “layer” of the HttpClient, exactly like <code>DelegatingChatClient</code> (lecture 5), but at the HTTP level. The order: <strong>the first one added is outside</strong>. Resilience is outside, <code>ChaosHandler</code> inside: the retry sees the 503 and tries again.</p>
+<p><strong>The result in the log:</strong> two 503s, pauses of ~2 and ~4 seconds, the third attempt — 200. The user waits ~6 seconds but gets an answer instead of a 500.</p>
+<p><strong>Testing a permanent error:</strong> change the name in <code>appsettings.json</code> under <code>Gemini:Model</code> (e.g. <code>gemini-0</code>) → Gemini returns a 404 → <strong>one</strong> attempt, no retry. That's the right behaviour.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>ChaosHandler</code> is only for testing: remove it from <code>Program.cs</code> afterwards (or put it inside <code>if (builder.Environment.IsDevelopment())</code>).</p></div></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~3 min read</div><h2>A fallback model and recording the cost</h2><p class="goal">🎯 <b>After this</b> You'll write a FallbackChatClient and write the tokens to the database to calculate the day's cost.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>Part 3 · Fallback and cost</h3><a class="chip" href="index.en.html#/14" data-go="14" target="_blank" title="This part in the presentation">Slide 14</a></div>
+<p>Retry doesn't always help: if a Gemini model has been overloaded for 5 minutes, all three attempts will fail. Then we switch to another model. And since one question is several calls (tools, retries, fallback), we write the tokens of every call to the database, so we know what it cost.</p></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>FallbackChatClient: retry doesn&#x27;t help → another model</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
+<p>Lecture 5's <code>DelegatingChatClient</code> — now a layer that <strong>catches an error</strong>:</p>
+<div class="codebox"><div class="ch"><span>Ai/FallbackChatClient.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">FallbackChatClient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingChatClient</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_fallback</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_logger</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">FallbackChatClient</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">fallback</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;</span><span class="w"> </span><span class="n">logger</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fallback</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">logger</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">ChatResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">try</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">(</span><span class="n">IsTransient</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">_logger</span><span class="p">.</span><span class="n">LogWarning</span><span class="p">(</span><span class="s">"🛟 {Error} — fallback model"</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="n">Message</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_fallback</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsTransient</span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ex</span><span class="w"> </span><span class="k">switch</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ApiException</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">StatusCode</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="mi">429</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">HttpRequestException</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">TimeoutRejectedException</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">true</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">false</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>catch … when (IsTransient(ex))</code></strong> — an exception filter: we catch <strong>only</strong> a transient error. A permanent one (400, 401, 404) goes up: the fallback uses the same key and the same request and would bring the same error.</li>
+<li><strong><code>IsTransient</code></strong> — an <code>ApiException</code> (Google.GenAI, 429 or 5xx), an <code>HttpRequestException</code> (the network) or a <code>TimeoutRejectedException</code> (the resilience timeout, <code>using Polly.Timeout;</code>). The order matters: <code>ApiException</code> is itself an <code>HttpRequestException</code>, so it has to come first. An <code>OperationCanceledException</code> (the user left) doesn't land here — that's right.</li>
+</ul>
+<p><strong>Registration:</strong> the fallback is the <strong>innermost</strong> layer, closest to Gemini. This way every request of the tool loop has its own fallback:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">IChatClient</span><span class="w"> </span><span class="n">fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:FallbackModel"</span><span class="p">]</span><span class="o">!</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="n">sp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="cm">/* gemini — as on slide 11 */</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InputGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TokenCounterChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FallbackChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">fallback</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>In <code>appsettings.json</code>: <code>"Gemini": { "Model": "...", "FallbackModel": "..." }</code> — another, usually lighter model (the current names: Gemini's list of models).</p>
+<p><strong>What if Gemini is down entirely?</strong> The fallback can be <strong>another provider</strong> too (OpenAI, Groq…): it's an <code>IChatClient</code> as well (lecture 3: switching the provider = one line). In production this is often how it's done.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Fallback</dt><dd>a backup option: if the main service doesn't answer, the request goes to another one</dd><dt>Exception filter (catch … when)</dt><dd>a catch that only catches the exception when a condition holds</dd></dl></div></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>Recording the cost: tokens in the database</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
+<p>Lecture 5's <code>TokenCounterChatClient</code> wrote the tokens to the log. The log is lost in a few days and is hard to sum up. Now we write to the <strong>database</strong>: one row = one Gemini call.</p>
+<div class="codebox"><div class="ch"><span>Data/AiUsageRecord.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AiUsageRecord</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">At</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">InputTokens</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">OutputTokens</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Ai/TokenCounterChatClient.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TokenCounterChatClient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingChatClient</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IServiceScopeFactory</span><span class="w"> </span><span class="n">_scopes</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">TokenCounterChatClient</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">IServiceScopeFactory</span><span class="w"> </span><span class="n">scopes</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_scopes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scopes</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">ChatResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="c1">// a Scoped DbContext in a Singleton layer → its own scope</span></span><span class="ln"><span class="w">        </span><span class="k">using</span><span class="w"> </span><span class="nn">IServiceScope</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_scopes</span><span class="p">.</span><span class="n">CreateScope</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">AppDbContext</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scope</span><span class="p">.</span><span class="n">ServiceProvider</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">AppDbContext</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">db</span><span class="p">.</span><span class="n">AiUsage</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AiUsageRecord</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">At</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">Model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">ModelId</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s">"?"</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">InputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">OutputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">OutputTokenCount</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">                         </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">ReasoningTokenCount</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="c1">// Program.cs: .Use((inner, sp) =&gt; new TokenCounterChatClient(inner,</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w">                 </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">IServiceScopeFactory</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span></code></pre></div>
+<p><strong>Why <code>IServiceScopeFactory</code>?</strong> <code>AddChatClient</code> registers the client as a <strong>Singleton</strong>: the pipeline is created once and serves every request. But <code>AppDbContext</code> is <strong>Scoped</strong>: a new one for every HTTP request. Putting a Scoped service directly into a Singleton is a mistake (a “captive dependency” — one DbContext for every user). So the layer creates <strong>its own scope</strong> every time and takes the <code>AppDbContext</code> from it.</p>
+<p><strong>We add <code>ReasoningTokenCount</code> to the output:</strong> Gemini's thinking tokens are counted separately but charged at the output price (lecture 2).</p>
+<p><strong><code>response.ModelId</code></strong> — which model answered. After a fallback this shows the fallback model's name, so the database shows how many times the fallback kicked in.</p>
+<p><strong>Today's cost with SQL:</strong></p>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">SELECT</span><span class="w"> </span><span class="ss">"Model"</span><span class="p">,</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="ss">"InputTokens"</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">input</span><span class="p">,</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="ss">"OutputTokens"</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">output</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="ss">"AiUsage"</span></span><span class="ln"><span class="k">WHERE</span><span class="w"> </span><span class="ss">"At"</span><span class="w"> </span><span class="o">&gt;</span><span class="o">=</span><span class="w"> </span><span class="k">CURRENT_DATE</span></span><span class="ln"><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="ss">"Model"</span><span class="p">;</span></span></code></pre></div>
+<p>The cost with lecture 1's formula: <strong>input × the input price + output × the output price</strong> (the price per 1 million tokens, from Gemini's pricing page).</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>IServiceScopeFactory</dt><dd>a DI service with which we create our own scope inside a Singleton and take a Scoped service (DbContext) from it</dd><dt>Captive dependency</dt><dd>a mistake: a Scoped service is “captured” inside a Singleton and every request shares it</dd></dl></div></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: a daily limit layer</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Classwork: A daily limit — a layer that stops</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
+<p>Your project or RestaurantApi · with code · a layer + Swagger</p>
+<h3>Steps</h3>
+<ul>
+<li><strong>1 · The table</strong> — <code>AiUsageRecord</code> (<code>Id</code>, <code>At</code>, <code>Model</code>, <code>InputTokens</code>, <code>OutputTokens</code>), <code>DbSet&lt;AiUsageRecord&gt; AiUsage</code>, a migration; <code>TokenCounterChatClient</code> writes to the database (slide 16)</li>
+<li><strong>2 · The layer</strong> — <code>BudgetGuardChatClient : DelegatingChatClient</code>: <code>IServiceScopeFactory</code> and <code>long dailyLimit</code> in the constructor; in <code>GetResponseAsync</code> — a scope → the sum of today's tokens (<code>At &gt;= DateTime.UtcNow.Date</code>) → if ≥ the limit, an answer <strong>without base</strong>: “Today's limit is used up”</li>
+<li><strong>3 · The pipeline</strong> — the limit in <code>appsettings.json</code> (<code>"Ai": { "DailyTokenLimit": 3000 }</code>); the layer as the <strong>first</strong> <code>.Use(...)</code> — the outermost</li>
+<li><strong>4 · Check</strong> — several questions in Swagger until you go over the limit → the refusal answer, and the log no longer shows a Gemini request; in the database <code>SELECT SUM("InputTokens" + "OutputTokens") FROM "AiUsage"</code></li>
+</ul>
+<h3>✓ Done when</h3>
+<p><code>AiUsage</code> gets a new row for every call; after the limit the chat refuses without calling Gemini; the limit can only be changed through <code>appsettings.json</code></p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li>A limit <strong>per user</strong>, not for the whole app: add a <code>ConversationId</code> to <code>AiUsageRecord</code> and count the limit per conversation. What has to be passed to the layer, and how?</li>
+<li>Instead of refusing, <strong>switch to a cheaper model</strong> at 80% of the limit</li>
+<li>What's better in a browser/UI: a 200 with the refusal text, or a 429? Why?</li>
+</ul>
+<h3>💡 If you're stuck</h3>
+<ul>
+<li><strong><code>Cannot consume scoped service 'AppDbContext' from singleton</code>?</strong> Don't put <code>AppDbContext</code> straight into the layer — <code>IServiceScopeFactory</code> → <code>CreateScope()</code> → <code>GetRequiredService&lt;AppDbContext&gt;()</code></li>
+<li><strong>The sum:</strong> <code>await db.AiUsage.Where(u =&gt; u.At &gt;= today).SumAsync(u =&gt; u.InputTokens + u.OutputTokens, cancellationToken)</code></li>
+<li><strong>The refusal answer:</strong> <code>return new ChatResponse(new ChatMessage(ChatRole.Assistant, "..."));</code> — like lecture 5's InputGuard</li>
+<li><strong>The limit from configuration:</strong> <code>.Use((inner, sp) =&gt; new BudgetGuardChatClient(inner, sp.GetRequiredService&lt;IServiceScopeFactory&gt;(), builder.Configuration.GetValue&lt;long&gt;("Ai:DailyTokenLimit")))</code></li>
+<li><strong><code>TokenCounter</code> still writes to the log?</strong> Change it first (step 1) — otherwise the sum is always 0</li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
+<p>These questions will also be asked at the start of the next lecture.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Which error does retry help with, and which doesn't it? One example each.</summary><div class="ans">Transient — 429, 500/503, timeout, the network: trying again helps · permanent — 400, 401, 403, 404: the same request brings the same error · content (length, bad JSON) — in code</div></details><details><summary>Why don't we retry 10 times right away? What are backoff and jitter?</summary><div class="ans">We'd send an overloaded service even more requests · backoff — a growing pause (2→4→8 s) · jitter — a random part, so many clients don't retry at the same time · on a 429 — Retry-After</div></details><details><summary>Why do we turn off Google.GenAI's own retry?</summary><div class="ans">Retry must be in one place · two nested retries = 4 × 4 = 16 attempts and minutes of waiting · <code>HttpRetryOptions { Attempts = 1 }</code> + our HttpClient through <code>ClientOptions.HttpClientFactory</code></div></details><details><summary>Where does <code>FallbackChatClient</code> stand in the pipeline, and which errors does it catch?</summary><div class="ans">Innermost (the last <code>.Use</code>) — every request of the tool loop gets its own fallback · only transient ones: ApiException 429/5xx, the network, a timeout · <code>catch … when</code></div></details><details><summary>Why does TokenCounter get the DbContext through <code>IServiceScopeFactory</code> to write to the database?</summary><div class="ans">The pipeline is a Singleton, the DbContext is Scoped · injecting it directly = a captive dependency · the layer creates its own scope every time</div></details></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
+<ul>
+<li>The errors of an AI call come in three groups: <strong>transient</strong> (429, 500/503, timeout — retry helps), <strong>permanent</strong> (400, 401, 403, 404 — retry doesn't help) and <strong>content</strong> errors (a cut-off answer, bad JSON, a tool error — we check them in code).</li>
+<li>A proper <strong>retry</strong>: exponential <strong>backoff</strong>, <strong>jitter</strong>, respecting <code>Retry-After</code>, a <strong>timeout</strong> per attempt and a <strong>circuit breaker</strong> on many failures.</li>
+<li><strong><code>AddStandardResilienceHandler</code></strong> (<code>Microsoft.Extensions.Http.Resilience</code>) adds this to an HttpClient. For an LLM we raise the timeouts. We give Google.GenAI our HttpClient (<code>ClientOptions.HttpClientFactory</code>) and turn off its own retry: retry in <strong>one</strong> place.</li>
+<li><strong><code>FallbackChatClient</code></strong> — a <code>DelegatingChatClient</code> that calls a fallback model on a transient error. It's the innermost layer of the pipeline.</li>
+<li>Tokens <strong>in the database</strong>: <code>TokenCounterChatClient</code> writes every call to <code>AiUsage</code> (<code>IServiceScopeFactory</code>, because the pipeline is a Singleton). <code>ReasoningTokenCount</code> is added to the output.</li>
+</ul>
+<h3>Next lecture</h3>
+<p>In lecture 7 we said: only what's needed goes into the context. The user writes: “something light, without meat”. The whole menu (200 dishes) is expensive, and SQL's <code>LIKE '%without meat%'</code> won't find the lobio, because those words aren't in its description. In lecture 9: <strong>Text Embeddings</strong> — text as numbers (vectors) and searching <strong>by meaning</strong>.</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~3 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Homework: A chat that survives errors, and today&#x27;s cost</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
+<p>With code · your project · a table in the README</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>Resilience</strong> in your project: <code>AddHttpClient("gemini").AddStandardResilienceHandler(...)</code> with timeouts raised for an LLM; Google.GenAI uses this HttpClient (<code>ClientOptions.HttpClientFactory</code>), and its own retry is turned off</li>
+<li><strong><code>FallbackChatClient</code></strong> — only on a transient error (429, 5xx, the network, a timeout); the fallback model in <code>appsettings.json</code> (<code>Gemini:FallbackModel</code>); the innermost layer of the pipeline</li>
+<li><strong><code>TokenCounterChatClient</code> to the database</strong> (<code>AiUsage</code>) — <code>ReasoningTokenCount</code> added to the output</li>
+<li><strong><code>GET /api/ai-lab/usage/today</code></strong> — per model: calls, input, output and the cost in dollars; the prices in <code>appsettings.json</code> (<code>AiPricing:&lt;model&gt;:InputPerMillion</code> / <code>OutputPerMillion</code>), not in the code</li>
+<li><strong>README — an error table:</strong> three tests with <code>ChaosHandler</code> and configuration: (1) two 503s · (2) a wrong model name · (3) always 503. Columns: test · how many requests went out · what the user got · 1–2 lines of the log</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>✓ Done when</h3>
+<p>On two 503s the user gets an answer; on a 404 there's no retry; on “always 503” the answer comes from the fallback model and <code>AiUsage</code> shows its name; <code>/usage/today</code> shows the cost; the README has the table and the quiz score</p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li><strong>Fallback with streaming:</strong> a <code>GetStreamingResponseAsync</code> override — switch to the fallback only <strong>before the first piece</strong> (why not in the middle?)</li>
+<li><strong>A friendly error:</strong> an <code>IExceptionHandler</code> (API course) — on an <code>ApiException</code> a 503 + <code>ProblemDetails</code> “The assistant is temporarily unavailable” and a <code>Retry-After</code> header</li>
+<li><strong>A structured output error:</strong> <code>TryGetResult</code> in lecture 3's endpoint — a 422 on bad JSON instead of an exception</li>
+</ul>
+<h3>💡 Details</h3>
+<ul>
+<li><code>ChaosHandler</code> from slide 12; for “always 503” just <code>return 503</code> instead of <code>% 3 != 0</code>. Remove it after the test</li>
+<li><code>ApiException</code> — <code>using Google.GenAI;</code>; <code>TimeoutRejectedException</code> — <code>using Polly.Timeout;</code></li>
+<li>The cost: <code>input / 1_000_000m * InputPerMillion + output / 1_000_000m * OutputPerMillion</code> — <code>decimal</code>, not <code>double</code></li>
+<li>The current prices and model names are on Gemini's pages (the resources in the notes)</li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 correct · <span id="qd">0</span> / 10 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>Gemini returned a 503. What does it mean and what do we do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">A bug in our code — let's fix it</button><button type="button" class="opt" data-i="1">Gemini is temporarily overloaded — let's try again a bit later</button><button type="button" class="opt" data-i="2">The key ran out — let's get a new one</button><button type="button" class="opt" data-i="3">The model name is wrong</button></div><div class="qe"><span class="verdict"></span> 503 — a transient error: retry, and if that doesn't work — a fallback model. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>On which error should we <strong>not</strong> try again?</div></div><div class="opts"><button type="button" class="opt" data-i="0">429</button><button type="button" class="opt" data-i="1">503</button><button type="button" class="opt" data-i="2">401 — a wrong key</button><button type="button" class="opt" data-i="3">timeout</button></div><div class="qe"><span class="verdict"></span> 401 is permanent: the same key brings the same error. Retry only on transient ones. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">3</span><div>An answer arrived (200), but FinishReason = length and the JSON is cut off. Which group is this?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Transient — retry</button><button type="button" class="opt" data-i="1">Permanent — configuration</button><button type="button" class="opt" data-i="2">Content — we check it in code (MaxOutputTokens, TryGetResult)</button><button type="button" class="opt" data-i="3">This isn't an error</button></div><div class="qe"><span class="verdict"></span> At the HTTP level everything's fine — our code checks the content of the answer. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>What is exponential backoff?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Increasing the number of retries</button><button type="button" class="opt" data-i="1">A growing pause between retries: 2 → 4 → 8 seconds</button><button type="button" class="opt" data-i="2">Reducing the timeout</button><button type="button" class="opt" data-i="3">Compressing the request</button></div><div class="qe"><span class="verdict"></span> The overloaded service gets time to catch its breath. Jitter adds a random part to the pause. <a class="chip" href="#s-10">Review · slide 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>What does a circuit breaker do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Sends every request twice</button><button type="button" class="opt" data-i="1">After many failures it temporarily stops the calls and returns an error right away</button><button type="button" class="opt" data-i="2">Encrypts the request</button><button type="button" class="opt" data-i="3">Counts the tokens</button></div><div class="qe"><span class="verdict"></span> The service rests, the user doesn't wait for nothing. <a class="chip" href="#s-10">Review · slide 10</a></div></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">6</span><div>Why do we raise <code>AttemptTimeout</code> from 10 seconds to 40?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini thinks and writes long answers — 10 seconds sometimes isn't enough, and a normal answer would “fail”</button><button type="button" class="opt" data-i="1">It's cheaper</button><button type="button" class="opt" data-i="2">Polly requires it</button><button type="button" class="opt" data-i="3">The number of retries will grow</button></div><div class="qe"><span class="verdict"></span> The default time is meant for fast APIs. An LLM needs more. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>What happens if we don't turn off Google.GenAI's retry and add resilience too?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Nothing — they don't touch each other</button><button type="button" class="opt" data-i="1">The retries nest: many more attempts and much more waiting for one question</button><button type="button" class="opt" data-i="2">A compile error</button><button type="button" class="opt" data-i="3">Retry won't work at all</button></div><div class="qe"><span class="verdict"></span> Retry in one place: <code>HttpRetryOptions { Attempts = 1 }</code>. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>With <code>ChaosHandler</code>: two 503s and then a 200. What does the user see?</div></div><div class="opts"><button type="button" class="opt" data-i="0">A 500</button><button type="button" class="opt" data-i="1">An ordinary answer, a little late (~6 seconds)</button><button type="button" class="opt" data-i="2">Two errors and an answer</button><button type="button" class="opt" data-i="3">A 503</button></div><div class="qe"><span class="verdict"></span> The retry happens inside the HttpClient — the Controller and the user never saw the error. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>Why doesn't <code>FallbackChatClient</code> kick in on a 401?</div></div><div class="opts"><button type="button" class="opt" data-i="0">A bug</button><button type="button" class="opt" data-i="1"><code>IsTransient</code> treats 401 as permanent: the fallback model uses the same key and would bring the same error</button><button type="button" class="opt" data-i="2">A 401 doesn't throw an exception</button><button type="button" class="opt" data-i="3">The fallback only works with streaming</button></div><div class="qe"><span class="verdict"></span> The fallback only on a transient error: 429, 5xx, the network, a timeout. <a class="chip" href="#s-15">Review · slide 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>In a Singleton layer, why do we get <code>AppDbContext</code> through <code>IServiceScopeFactory</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It's faster</button><button type="button" class="opt" data-i="1">The pipeline is a Singleton, the DbContext Scoped; injecting it directly would share one DbContext across every request</button><button type="button" class="opt" data-i="2">A DbContext works in a Singleton too</button><button type="button" class="opt" data-i="3">EF Core requires it for migrations</button></div><div class="qe"><span class="verdict"></span> The layer creates its own scope every time and takes the DbContext from it. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Transient error</dt><dd>an error that may not repeat on another try: 429, 5xx, timeout, the network</dd><dt>Permanent error</dt><dd>trying again doesn't help: a wrong request, key, permission, model name (4xx, except 429)</dd><dt>ApiException</dt><dd>a Google.GenAI error with a StatusCode: ClientError (4xx) and ServerError (5xx)</dd><dt>Retry</dt><dd>sending a failed request again on a transient error</dd><dt>Exponential backoff</dt><dd>a growing pause between retries (2, 4, 8… seconds)</dd><dt>Jitter</dt><dd>a random part of the pause, so many clients don't retry at the same time</dd><dt>Circuit breaker</dt><dd>a “breaker”: after many failures it temporarily stops the calls</dd><dt>Microsoft.Extensions.Http.Resilience</dt><dd>a package that adds retry, timeout and a circuit breaker to an HttpClient (built on Polly)</dd><dt>AddStandardResilienceHandler</dt><dd>a ready-made pipeline with recommended settings</dd><dt>Fallback</dt><dd>a backup option: if the main service doesn't answer, the request goes to another one</dd><dt>Exception filter (catch … when)</dt><dd>a catch that only catches the exception when a condition holds</dd><dt>IServiceScopeFactory</dt><dd>a DI service with which we create our own scope inside a Singleton and take a Scoped service (DbContext) from it</dd><dt>Captive dependency</dt><dd>a mistake: a Scoped service is “captured” inside a Singleton and every request shares it</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 8 — Error Handling, Resilience და ხარჯის კონტროლი";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
+      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>

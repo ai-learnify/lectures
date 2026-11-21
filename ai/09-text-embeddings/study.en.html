@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Text Embeddings: Vectorizing Text — study notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ Correct.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← Lectures</a>
+  <div class="ttl"><small>📖 AI Agents in .NET · 9</small>Text Embeddings: Vectorizing Text</div>
+  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
+  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
+  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.en.html">▶ Presentation</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>Contents</summary>
+    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">What an embedding is</span><span class="nm">4′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">IEmbeddingGenerator and the task prefix</span><span class="nm">2′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Cosine similarity and semantic search</span><span class="nm">3′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: the similarity game</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">3′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">11</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 9</div>
+      <h1>Text Embeddings: Vectorizing Text</h1>
+      <p>The whole lecture in chapters, ~19 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li><strong>Embedding</strong>: text → vector (a list of numbers), where <strong>a similar meaning is close together</strong> — regardless of language and words.</li><li>The vector is generated by a <strong>separate embedding model</strong>: <code>gemini-embedding-2</code>, <strong>768</strong> dimensions. One model = one “map”.</li><li><strong><code>IEmbeddingGenerator</code></strong>: <code>AddEmbeddingGenerator</code>, <code>AsIEmbeddingGenerator(model, defaultModelDimensions)</code>, <code>GenerateVectorAsync</code> / <code>GenerateAsync</code>.</li><li><strong>Task prefix</strong>: the question — <code>task: search result | query: …</code>, the document — <code>title: … | text: …</code>; always by the same rule.</li><li><strong>Cosine similarity</strong> — the angle between two vectors (1 — similar, 0 — nothing in common); <code>TensorPrimitives.CosineSimilarity</code>. Search: the menu once → vectors; a question → cosine with everything → top 3.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~19 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 10 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://ai.google.dev/gemini-api/docs/embeddings" target="_blank" rel="noopener">Gemini — Embeddings</a> — gemini-embedding-2, dimensions, task prefixes</li><li><a href="https://learn.microsoft.com/dotnet/ai/conceptual/embeddings" target="_blank" rel="noopener">Embeddings in .NET</a> — what an embedding is, and IEmbeddingGenerator</li><li><a href="https://googleapis.github.io/dotnet-genai/api/Microsoft.Extensions.AI.GoogleGenAIExtensions.html" target="_blank" rel="noopener">Google.GenAI — AsIEmbeddingGenerator</a> — Gemini → IEmbeddingGenerator, defaultModelDimensions</li><li><a href="https://learn.microsoft.com/dotnet/api/system.numerics.tensors.tensorprimitives.cosinesimilarity" target="_blank" rel="noopener">TensorPrimitives.CosineSimilarity</a> — cosine similarity with SIMD</li><li><a href="https://github.com/pgvector/pgvector" target="_blank" rel="noopener">pgvector</a> — for the next lecture: vectors in PostgreSQL</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
+<p>Lecture 8 — <strong>Error Handling, Resilience and Cost Control</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../08-resilience-cost/study.en.html">the previous lecture's notes</a>.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Which error does retry help with, and which doesn't it? One example each.</summary><div class="ans">Transient — 429, 500/503, timeout, the network: trying again helps · permanent — 400, 401, 403, 404: the same request brings the same error · content (length, bad JSON) — in code</div></details><details><summary>Why don't we retry 10 times right away? What are backoff and jitter?</summary><div class="ans">We'd send an overloaded service even more requests · backoff — a growing pause (2→4→8 s) · jitter — a random part, so many clients don't retry at the same time · on a 429 — Retry-After</div></details><details><summary>Why do we turn off Google.GenAI's own retry?</summary><div class="ans">Retry must be in one place · two nested retries = 4 × 4 = 16 attempts and minutes of waiting · <code>HttpRetryOptions { Attempts = 1 }</code> + our HttpClient through <code>ClientOptions.HttpClientFactory</code></div></details><details><summary>Where does <code>FallbackChatClient</code> stand in the pipeline, and which errors does it catch?</summary><div class="ans">Innermost (the last <code>.Use</code>) — every request of the tool loop gets its own fallback · only transient ones: ApiException 429/5xx, the network, a timeout · <code>catch … when</code></div></details><details><summary>Why does TokenCounter get the DbContext through <code>IServiceScopeFactory</code> to write to the database?</summary><div class="ans">The pipeline is a Singleton, the DbContext is Scoped · injecting it directly = a captive dependency · the layer creates its own scope every time</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
+<p>The previous lecture's homework: <strong>A chat that survives errors, and today&#x27;s cost</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>Resilience</strong> in your project: <code>AddHttpClient("gemini").AddStandardResilienceHandler(...)</code> with timeouts raised for an LLM; Google.GenAI uses this HttpClient (<code>ClientOptions.HttpClientFactory</code>), and its own retry is turned off</li>
+<li><strong><code>FallbackChatClient</code></strong> — only on a transient error (429, 5xx, the network, a timeout); the fallback model in <code>appsettings.json</code> (<code>Gemini:FallbackModel</code>); the innermost layer of the pipeline</li>
+<li><strong><code>TokenCounterChatClient</code> to the database</strong> (<code>AiUsage</code>) — <code>ReasoningTokenCount</code> added to the output</li>
+<li><strong><code>GET /api/ai-lab/usage/today</code></strong> — per model: calls, input, output and the cost in dollars; the prices in <code>appsettings.json</code> (<code>AiPricing:&lt;model&gt;:InputPerMillion</code> / <code>OutputPerMillion</code>), not in the code</li>
+<li><strong>README — an error table:</strong> three tests with <code>ChaosHandler</code> and configuration: (1) two 503s · (2) a wrong model name · (3) always 503. Columns: test · how many requests went out · what the user got · 1–2 lines of the log</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>Solution</h3>
+<p>A sample — the library API (continuing homework 7).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · UsageToday</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ModelPrice</span><span class="p">(</span><span class="kt">decimal</span><span class="w"> </span><span class="n">InputPerMillion</span><span class="p">,</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">OutputPerMillion</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("usage/today")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">UsageToday</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">AiUsage</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">.</span><span class="n">Date</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">GroupBy</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">Model</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Key</span><span class="p">,</span><span class="w"> </span><span class="n">Calls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Count</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">Input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">InputTokens</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">OutputTokens</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">rows</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ModelPrice</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_config</span><span class="p">.</span><span class="n">GetSection</span><span class="p">(</span><span class="s">$"AiPricing:{r.Model}"</span><span class="p">)</span><span class="p">.</span><span class="n">Get</span><span class="o">&lt;</span><span class="n">ModelPrice</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kt">decimal</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Input</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000m</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">InputPerMillion</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Output</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000m</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">OutputPerMillion</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Model</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Calls</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Input</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Output</span><span class="p">,</span><span class="w"> </span><span class="n">CostUsd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="n">Round</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs · pipeline</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="n">sp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="cm">/* Gemini with our HttpClient, Attempts = 1 */</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">LibraryGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TokenCounterChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">IServiceScopeFactory</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FallbackChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">fallback</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Requests to Gemini</th>
+<th>The user got</th>
+<th>Log</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>two 503s</td>
+<td>3 (2 failed)</td>
+<td>an answer in ~6 seconds</td>
+<td><code>Standard-Retry · Result: 503 · Attempt: 0</code>, <code>Attempt: 1</code>, then 200</td>
+</tr>
+<tr>
+<td><code>Gemini:Model = "gemini-0"</code></td>
+<td>1</td>
+<td>a 500 (404 NOT_FOUND)</td>
+<td>no retry line — a 404 is permanent</td>
+</tr>
+<tr>
+<td>always 503</td>
+<td>4 on the main one + 1 on the fallback</td>
+<td>an answer in ~14 seconds</td>
+<td>3 retries → <code>🛟 … fallback model</code>; <code>AiUsage.Model</code> = the fallback's name</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>The retry first uses up its three attempts (2 + 4 + 8 seconds ≈ 14 seconds), and only then does the fallback kick in: it isn't <strong>inside</strong> the retry — the retry is in the HttpClient, the fallback in the IChatClient. On the 404 the fallback didn't kick in either: <code>IsTransient</code> treats a 404 as permanent. The prices are in <code>appsettings.json</code>, so <code>/usage/today</code> shows 0 for a new model until we write its price — that's deliberate.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~4 min read</div><h2>What an embedding is</h2><p class="goal">🎯 <b>After this</b> You'll explain how an embedding turns text into a vector and why a similar meaning is close together.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · What an embedding is</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
+<p>First we see why searching by words isn't enough. Then the idea: the “coordinates of meaning” of a text. And finally, which model does this and how many numbers there are in one vector.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>The problem: searching by words doesn&#x27;t see meaning</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
+<p>The user writes “something light, without meat”. An ordinary search looks for words:</p>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">SELECT</span><span class="w"> </span><span class="ss">"Name"</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="ss">"Products"</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="ss">"Description"</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'%without meat%'</span><span class="p">;</span></span><span class="ln"><span class="c1">-- 0 results</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Dish</th>
+<th>Description</th>
+<th>LIKE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lobio in a clay pot</td>
+<td>red beans, onion, coriander, with hot mchadi</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Aubergine with walnuts</td>
+<td>fried aubergine, walnut paste, pomegranate</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Mtsvadi</td>
+<td>pork on a skewer, with onion</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Khinkali</td>
+<td>beef and pork, in dough</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Tomato salad</td>
+<td>tomato, cucumber, walnut</td>
+<td>✗</td>
+</tr>
+</tbody>
+</table>
+<p>A person sees right away that the lobio, the aubergine and the salad match. And if we search for the word “meat”, LIKE finds exactly the <strong>wrong</strong> dishes: the mtsvadi and the khinkali. A word and a meaning are different things: “without meat”, “vegetarian” and “ვეგეტარიანული” mean the same thing, and not a single letter matches.</p>
+<p>In lecture 7's terms: we want <strong>selection</strong> — only the dishes that match the question go into the context. For that we need to search by meaning.</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Embedding: the “coordinates of meaning” of a text</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
+<p><strong>Embedding</strong> — turning a text into a list of numbers: <code>"Lobio in a clay pot"</code> → <code>[0.021, -0.047, 0.009, 0.063, …]</code>. This list is called a <strong>vector</strong>. A vector is a point in space: two numbers give a point on a map (x, y), 768 numbers give a point in a 768-dimensional space.</p>
+<p><strong>The key property:</strong> an embedding model is trained so that <strong>texts with a similar meaning stand close together</strong>:</p>
+<ul>
+<li>“Lobio in a clay pot”, “Aubergine with walnuts”, “Tomato salad” — on one side (vegetables, no meat);</li>
+<li>“Mtsvadi”, “Khinkali” — on the other side (meat);</li>
+<li>the question “without meat” lands next to the first group, and <strong>“ვეგეტარიანული” is right there too</strong>: the language is different, the meaning is the same.</li>
+</ul>
+<p>The slide shows a two-dimensional picture so we can see it with our eyes. In reality one vector holds hundreds or thousands of numbers, and each number is some “direction” of meaning that the model learned by itself during training (none of them has a name a person would understand).</p>
+<p>The answer to lecture 1's question “how does the model know what token 3293 means?” is this: inside the model every token has a vector like this.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Embedding</dt><dd>turning a text (or an image) into a list of numbers so that a similar meaning is close together</dd><dt>Vector</dt><dd>a list of numbers; the result of an embedding; a point in space</dd><dt>Dimension</dt><dd>how many numbers there are in the vector (e.g. 768)</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>The embedding model: a separate model, a separate interface</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
+<p>It isn't the chat model (<code>gemini-3.8-flash</code>) that generates the vector, but a <strong>separate embedding model</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Chat model</th>
+<th>Embedding model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In</td>
+<td>messages</td>
+<td>text</td>
+</tr>
+<tr>
+<td>Out</td>
+<td>text (token by token)</td>
+<td>one vector (all at once)</td>
+</tr>
+<tr>
+<td>Interface</td>
+<td><code>IChatClient</code></td>
+<td><code>IEmbeddingGenerator</code></td>
+</tr>
+<tr>
+<td>Price</td>
+<td>input + output</td>
+<td>input only — much cheaper</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Our model: <code>gemini-embedding-2</code></strong> — Gemini's newest embedding model (Stable). It takes up to 8,192 tokens of input, and the vector size can be anywhere from 128 to 3072. The recommended sizes are 768, 1536 and 3072.</p>
+<p><strong>We take 768:</strong> the quality is good, the vector is 4 times smaller (less space in the database, faster search), and lecture 10's pgvector index handles this size easily.</p>
+<p><strong>One model — one “map”.</strong> Every embedding model creates its own space. A <code>gemini-embedding-2</code> vector can't be compared with a vector from another model (or from the same model at another size) — the numbers are on a different “map”. So the model and the size are chosen once: if we change them, every stored vector has to be calculated again.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Embedding model</dt><dd>a model that turns text into a vector; it doesn't write text</dd><dt>IEmbeddingGenerator</dt><dd>Microsoft.Extensions.AI's interface for embeddings, like IChatClient</dd></dl></div></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~2 min read</div><h2>IEmbeddingGenerator and the task prefix</h2><p class="goal">🎯 <b>After this</b> You'll get a vector with Gemini and write the question and the document with the right prefix.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Part 2 · A vector in code</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<p>We register <code>IEmbeddingGenerator</code> the same way as <code>IChatClient</code> in lecture 3, generate the first vector and see why a question and a document are written in different formats.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>IEmbeddingGenerator: registration and the first vector</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
+<p><strong>Registration</strong> — like <code>AddChatClient</code> in lecture 3:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">embeddingModel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:EmbeddingModel"</span><span class="p">]</span><span class="o">!</span><span class="p">;</span><span class="w">   </span><span class="c1">// "gemini-embedding-2"</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddEmbeddingGenerator</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">AsIEmbeddingGenerator</span><span class="p">(</span><span class="n">embeddingModel</span><span class="p">,</span><span class="w"> </span><span class="n">defaultModelDimensions</span><span class="p">:</span><span class="w"> </span><span class="mi">768</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>AsIEmbeddingGenerator(model, defaultModelDimensions)</code></strong> — “wraps” the Google.GenAI client as an <code>IEmbeddingGenerator&lt;string, Embedding&lt;float&gt;&gt;</code>, just like <code>AsIChatClient</code>. <code>defaultModelDimensions: 768</code> — the vector size.</li>
+<li><strong><code>AddEmbeddingGenerator</code></strong> — registration in DI (Singleton). The model name is in <code>appsettings.json</code>: <code>"Gemini": { "EmbeddingModel": "gemini-embedding-2" }</code>.</li>
+</ul>
+<p><strong>The first vector:</strong></p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Embed</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="c1">// constructor: IEmbeddingGenerator&lt;string, Embedding&lt;float&gt;&gt; embeddings</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("embed")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Embed</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="n">Length</span><span class="p">,</span><span class="w"> </span><span class="n">First5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="n">ToArray</span><span class="p">(</span><span class="p">)</span><span class="p">[</span><span class="p">.</span><span class="mf">.5</span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>GenerateVectorAsync(text)</code></strong> — one text → one vector (<code>ReadOnlyMemory&lt;float&gt;</code> — a “view” over an array of <code>float</code>s).</li>
+<li><strong>Many texts together:</strong> <code>GenerateAsync(texts)</code> — the whole list in one call (for the menu in part 3).</li>
+</ul>
+<p>In Swagger: <code>length: 768</code> and the first five numbers. A single number has no meaning — what has meaning is <strong>comparing two vectors</strong>.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>GenerateVectorAsync</dt><dd>getting the vector of one text with IEmbeddingGenerator</dd><dt>GenerateAsync</dt><dd>the vectors of many texts in one call</dd></dl></div></article><article class="blk" data-slides="12,13"><span class="anchor" id="s-12"></span><span class="anchor" id="s-13"></span><div class="bh"><h3>Task prefix: the question and the document in different formats</h3><a class="chip" href="index.en.html#/12" data-go="12" target="_blank" title="This part in the presentation">Slide 12</a></div>
+<p>A question (“something light?”) and its answer (a dish's description) don't look like the same kind of text: the question is short and describes a “wish”, the document is long and describes “facts”. This kind of search is called <strong>asymmetric</strong>. For <code>gemini-embedding-2</code>, Google <strong>recommends</strong> that on text tasks we write a description of the task (a prefix) in front of the text:</p>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Question</strong></td>
+<td><code>task: search result \| query: {question}</code></td>
+</tr>
+<tr>
+<td><strong>Document</strong></td>
+<td><code>title: {title} \| text: {text}</code> (without a title — <code>title: none</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="codebox"><div class="ch"><span>Ai/EmbeddingText.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">EmbeddingText</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Query</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="s">$"task: search result | query: {q}"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Document</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="s">$"title: {title} | text: {text}"</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>The prefix tells the model which text plays which role, and the search quality goes up. One rule never changes: <strong>every document in one format, every question in the other</strong>. If we store half with the prefix and half without, the vectors compare badly.</p>
+<p>Besides <code>search result</code> there are other tasks too (question answering, fact checking, code search) — on Gemini's embeddings page.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Asymmetric search</dt><dd>searching for a long document with a short question; the question and the document in different formats</dd><dt>Task prefix</dt><dd>a description of the task written in front of the text, which raises the quality of the embedding</dd></dl></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~3 min read</div><h2>Cosine similarity and semantic search</h2><p class="goal">🎯 <b>After this</b> You'll measure similarity and write a menu search by meaning.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>Part 3 · Similarity and search</h3><a class="chip" href="index.en.html#/14" data-go="14" target="_blank" title="This part in the presentation">Slide 14</a></div>
+<p>We have two vectors. How close are they? We learn cosine similarity, write it in C# and build a semantic search for the menu.</p></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>Cosine similarity: the angle between two arrows</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
+<p>We can picture a vector as an arrow pointing from the centre in some direction. <strong>Cosine similarity</strong> measures the <strong>angle</strong> between two arrows:</p>
+<table>
+<thead>
+<tr>
+<th>Angle</th>
+<th>cosine</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0° — the same direction</td>
+<td>1</td>
+<td>very similar</td>
+</tr>
+<tr>
+<td>90° — perpendicular</td>
+<td>0</td>
+<td>nothing in common</td>
+</tr>
+<tr>
+<td>180° — opposite</td>
+<td>−1</td>
+<td>(practically never happens with texts)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The formula</strong> — the dot product divided by the product of the lengths:</p>
+<div class="codebox"><div class="ch"><span>By hand — how it&#x27;s calculated</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="nf">Cosine</span><span class="p">(</span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">na</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">nb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">dot</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span><span class="w">   </span><span class="c1">// the dot product</span></span><span class="ln"><span class="w">        </span><span class="n">na</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span><span class="w">   </span><span class="c1">// the length of a, squared</span></span><span class="ln"><span class="w">        </span><span class="n">nb</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span><span class="w">   </span><span class="c1">// the length of b, squared</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">na</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">nb</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>In .NET this is ready-made and fast too (SIMD — the processor multiplies several numbers at once):</p>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">System.Numerics.Tensors</span><span class="p">;</span><span class="w">   </span><span class="c1">// NuGet: System.Numerics.Tensors</span></span><span class="ln"><span class="kt">float</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TensorPrimitives</span><span class="p">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">Span</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Span</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><strong>How we read the numbers.</strong> A sample: “without meat” ↔ lobio <strong>0.71</strong>, ↔ mtsvadi <strong>0.38</strong>. The absolute number depends on the model: on some models even completely unrelated texts show 0.4. So we don't judge a number on its own (“is 0.7 good?”), we <strong>compare</strong>: which one is closer. That's exactly what a search needs — ordering.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Cosine similarity</dt><dd>a measure of how similar two vectors are, by the angle between them: 1 — the same direction, 0 — nothing in common</dd><dt>TensorPrimitives</dt><dd>a System.Numerics.Tensors class for vector computations (CosineSimilarity, Dot…), with SIMD</dd></dl></div></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>A semantic search for the menu</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
+<p>Two steps: <strong>indexing</strong> — the vectors of every dish on the menu are calculated once and stored; <strong>search</strong> — on every question only the question's vector is calculated and compared with every dish.</p>
+<p><strong>Where we keep the vectors (for now):</strong> in memory, in a Singleton service:</p>
+<div class="codebox"><div class="ch"><span>Ai/MenuIndex.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MenuIndex</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Vector</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Items</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">Program</span><span class="p">.</span><span class="n">cs</span><span class="p">:</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSingleton</span><span class="o">&lt;</span><span class="n">MenuIndex</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · menu/index, menu/search</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("menu/index")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">IndexMenu</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">GeneratedEmbeddings</span><span class="o">&lt;</span><span class="n">Embedding</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">vectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">products</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Document</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Description</span><span class="p">)</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Clear</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">vectors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Vector</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Indexed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("menu/search")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SearchMenu</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Query</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">Score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TensorPrimitives</span><span class="p">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">query</span><span class="p">.</span><span class="n">Span</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Vector</span><span class="p">.</span><span class="n">Span</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Score</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">top</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>GenerateAsync(texts)</code></strong> — every dish in <strong>one</strong> call; <code>vectors[i]</code> is in the same order as <code>products[i]</code>.</li>
+<li><strong>The document:</strong> <code>title: name | text: description</code>. The embedding only “sees” what we give it: if a dish has no description, the search is weak. (If <code>Product</code> has no <code>Description</code>, add one with a migration.)</li>
+<li><strong>The search:</strong> the question's vector (<code>task: search result | query: …</code>) → cosine with every dish → sort → the best three.</li>
+</ul>
+<p><strong>The result (sample):</strong> “without meat” → lobio 0.71, aubergine 0.68, salad 0.63. LIKE found 0.</p>
+<p><strong>Why don't we calculate the menu's vectors on every question?</strong> 200 dishes every time — money and seconds. The menu rarely changes: we calculate once and store. Again only when a dish is added or changed.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>For now the vectors are <strong>in memory</strong>: they disappear when the app restarts, and the search compares every vector one by one. On 200 dishes that's milliseconds, on a million documents it isn't. In lecture 10 we move the vectors to PostgreSQL (pgvector), with an index.</p></div></div></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: the similarity game</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Classwork: The similarity game — guess first, then measure</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
+<p>Your project or RestaurantApi · with code · Swagger and a table in your notebook</p>
+<h3>Steps</h3>
+<ul>
+<li><strong>1 · Registration</strong> — <code>AddEmbeddingGenerator(new Client(apiKey: apiKey).AsIEmbeddingGenerator("gemini-embedding-2", defaultModelDimensions: 768))</code>; the model name in <code>appsettings.json</code></li>
+<li><strong>2 · The endpoint</strong> — <code>POST /api/ai-lab/similarity</code>, body <code>{ "a": "...", "b": "..." }</code>: two vectors (<code>GenerateAsync([a, b])</code> — in one call) → <code>TensorPrimitives.CosineSimilarity</code> → <code>{ score }</code></li>
+<li><strong>3 · Guess first</strong> — in your notebook, 5 pairs on your project's theme and <strong>your prediction</strong> for each (high / medium / low) — before running Swagger. One pair Georgian ↔ English, one with the same words but a different meaning</li>
+<li><strong>4 · Measure</strong> — all five in Swagger; sort them by score. Where were you wrong?</li>
+</ul>
+<h3>✓ Done when</h3>
+<p><code>/similarity</code> returns a score; the table has 5 pairs, the prediction and the real score; the Georgian ↔ English pair is higher than “same words — different meaning”</p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li>The same pairs <strong>with the prefix</strong>: <code>a</code> — <code>EmbeddingText.Query</code>, <code>b</code> — <code>EmbeddingText.Document</code>. Did the order change?</li>
+<li><code>defaultModelDimensions: 3072</code> — did the scores and the order change? How many times bigger is the vector?</li>
+<li>Cosine <strong>by hand</strong> (the loop from slide 15) — does it give the same number as <code>TensorPrimitives</code>?</li>
+</ul>
+<h3>💡 If you're stuck</h3>
+<ul>
+<li><strong>Can't find <code>TensorPrimitives</code>?</strong> NuGet <code>System.Numerics.Tensors</code> and <code>using System.Numerics.Tensors;</code></li>
+<li><strong>Can't find <code>AsIEmbeddingGenerator</code>?</strong> <code>using Microsoft.Extensions.AI;</code> and the Google.GenAI version you've had since lecture 2</li>
+<li><strong>The vectors:</strong> <code>GeneratedEmbeddings&lt;Embedding&lt;float&gt;&gt; v = await _embeddings.GenerateAsync([a, b], cancellationToken: ct);</code> → <code>v[0].Vector.Span</code>, <code>v[1].Vector.Span</code></li>
+<li><strong>Pair ideas:</strong> “მაგიდის დაჯავშნა” ↔ “book a table” · “a spicy dish” ↔ “a hot dish” · “khinkali” ↔ “churchkhela”</li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
+<p>These questions will also be asked at the start of the next lecture.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why doesn't LIKE find the lobio for “without meat”, and what does an embedding do differently?</summary><div class="ans">LIKE looks for words, and those words aren't in the description · an embedding turns the text into a vector where a similar meaning is close — regardless of language and words</div></details><details><summary>How is an embedding model different from a chat model? Which one do we use and at what size?</summary><div class="ans">It doesn't write text — it returns one vector, and only the input is charged · <code>IEmbeddingGenerator</code> · <code>gemini-embedding-2</code>, 768 dimensions</div></details><details><summary>Why can't we “just” change the model if vectors are already stored?</summary><div class="ans">Every model (and size) has its own “map” — vectors from different models can't be compared · changing the model = calculating every vector again</div></details><details><summary>What is a task prefix, and why do the question and the document have different ones?</summary><div class="ans">Asymmetric search: a short “wish” ↔ long “facts” · <code>task: search result | query: …</code> and <code>title: … | text: …</code> · always by the same rule</div></details><details><summary>What does cosine similarity measure, and how do we read the number?</summary><div class="ans">The angle between two vectors: 1 — the same direction, 0 — nothing in common · the number depends on the model — we compare and sort, we don't judge it on its own</div></details></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
+<ul>
+<li>An <strong>embedding</strong> turns a text into a vector (a list of numbers) so that <strong>a similar meaning is close together</strong> — even across languages (“without meat” ≈ “ვეგეტარიანული”). This way search happens <strong>by meaning</strong>, not by words.</li>
+<li>The vector is generated by a <strong>separate embedding model</strong>: ours is <code>gemini-embedding-2</code>, with <strong>768</strong> dimensions. One model — one “map”: vectors from different models can't be compared.</li>
+<li><strong><code>IEmbeddingGenerator</code></strong> — Microsoft.Extensions.AI's interface (next to <code>IChatClient</code>): <code>AddEmbeddingGenerator</code>, <code>AsIEmbeddingGenerator(model, defaultModelDimensions)</code>, <code>GenerateVectorAsync</code> (one) and <code>GenerateAsync</code> (many).</li>
+<li><strong>Task prefix:</strong> the question — <code>task: search result | query: …</code>, the document — <code>title: … | text: …</code>. Always by the same rule.</li>
+<li><strong>Cosine similarity</strong> measures the angle between two vectors (1 — very similar, 0 — nothing in common). We compare the numbers, we don't judge them on their own. In .NET: <code>TensorPrimitives.CosineSimilarity</code>.</li>
+<li><strong>Semantic search:</strong> the menu's vectors once (<code>GenerateAsync</code>), on a question — only the question's vector, cosine with every dish, top 3.</li>
+</ul>
+<h3>Next lecture</h3>
+<p>For now the vectors are in memory: they disappear when the app restarts, and the search compares every vector one by one. On 200 dishes this isn't a problem; on thousands of documents it is. In lecture 10: <strong>PostgreSQL pgvector and EF Core</strong> — vectors in the database, search with SQL and an HNSW index.</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~3 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Homework: Semantic search in your project</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
+<p>With code · your project · a comparison table in the README</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong><code>IEmbeddingGenerator</code></strong> in your project: <code>gemini-embedding-2</code>, 768 dimensions, the model in <code>appsettings.json</code></li>
+<li><strong><code>EmbeddingText</code></strong> — the <code>Query</code> and <code>Document</code> prefixes; every document in one format, every question in the other</li>
+<li><strong>The index:</strong> <code>POST .../index</code> — your main records (dishes, books, courses…) with <code>GenerateAsync</code> in <strong>one</strong> call, the vectors in a Singleton; if a record has no description — add one</li>
+<li><strong>The search:</strong> <code>GET .../search?q=</code> — top 3 with scores, <strong>with a threshold</strong>: if the best score is below the threshold (the threshold in <code>appsettings.json</code>), return an empty list. Choose the threshold through your own tests</li>
+<li><strong>README — a comparison table:</strong> 5 questions (one in English, one about something that isn't in your data at all). Columns: question · the <code>LIKE</code> result · the embeddings top 3 with scores · correct?</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>✓ Done when</h3>
+<p>A question asked with a “synonym” or in English finds the right record where LIKE finds nothing; on a “non-existent” question the threshold returns an empty list; the README has the table and the quiz score</p>
+<h3>⭐ Bonus</h3>
+<ul>
+<li><strong>A tool for the chat:</strong> <code>search_menu(query)</code> — a lecture 4 tool that uses the semantic search instead of <code>get_menu</code>. Ask the chat “something light?” — how many tokens did you save (lecture 7's budget)?</li>
+<li><strong>Updating the index:</strong> when a record is added/changed its vector is recalculated — without the whole index</li>
+<li><strong>Size:</strong> 768 vs 3072 — indexing time, memory (<code>768 × 4</code> bytes per record) and changes in the top 3</li>
+</ul>
+<h3>💡 Details</h3>
+<ul>
+<li>The index disappears on restart — that's fine until lecture 10. Call <code>/index</code> once after starting</li>
+<li>To choose the threshold, first look at the scores on right and wrong results: where's the “border”? The threshold depends on the model</li>
+<li><code>GenerateAsync</code> on many texts: up to 100 records in one call. If you have more — <code>Chunk(100)</code></li>
+<li><code>TensorPrimitives.CosineSimilarity</code> — <code>System.Numerics.Tensors</code></li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 correct · <span id="qd">0</span> / 10 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div><code>LIKE</code> returns 0 results for “without meat”. Why?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The database is empty</button><button type="button" class="opt" data-i="1">LIKE looks for words, not meaning: those words aren't in the descriptions</button><button type="button" class="opt" data-i="2">It can't read Georgian</button><button type="button" class="opt" data-i="3">It should have been ILIKE</button></div><div class="qe"><span class="verdict"></span> A word and a meaning are different — that's what we need an embedding for. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>What is an embedding?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Compressing a text</button><button type="button" class="opt" data-i="1">Turning a text into a list of numbers (a vector) so that a similar meaning is close together</button><button type="button" class="opt" data-i="2">Translating a text</button><button type="button" class="opt" data-i="3">The number of tokens</button></div><div class="qe"><span class="verdict"></span> A vector is a point in space; points with a similar meaning stand close together. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>“without meat” and “ვეგეტარიანული” — their vectors are:</div></div><div class="opts"><button type="button" class="opt" data-i="0">Completely different — the language is different</button><button type="button" class="opt" data-i="1">Close — the meaning is the same</button><button type="button" class="opt" data-i="2">Exactly the same</button><button type="button" class="opt" data-i="3">Impossible to compare</button></div><div class="qe"><span class="verdict"></span> An embedding model reflects the meaning, and the language much less. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>We stored vectors with <code>gemini-embedding-2</code>. Now we're moving to another embedding model. What do we have to do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Nothing</button><button type="button" class="opt" data-i="1">The old vectors can't be compared with the new ones — all of them have to be calculated again</button><button type="button" class="opt" data-i="2">Only change the size</button><button type="button" class="opt" data-i="3">Normalize the old ones</button></div><div class="qe"><span class="verdict"></span> Every model has its own “map”. <a class="chip" href="#s-9">Review · slide 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>Why do we take 768 dimensions instead of 3072?</div></div><div class="opts"><button type="button" class="opt" data-i="0">3072 doesn't exist on Gemini</button><button type="button" class="opt" data-i="1">It's a recommended size: good quality, a 4 times smaller vector — less space and a faster search</button><button type="button" class="opt" data-i="2">768 is more accurate</button><button type="button" class="opt" data-i="3">It's free</button></div><div class="qe"><span class="verdict"></span> Google recommends 768, 1536 and 3072; 768 is enough for our task. <a class="chip" href="#s-9">Review · slide 9</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">6</span><div>What type is the result of <code>GenerateVectorAsync</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">string</button><button type="button" class="opt" data-i="1">ChatResponse</button><button type="button" class="opt" data-i="2">ReadOnlyMemory<float> — a list of numbers</button><button type="button" class="opt" data-i="3">int[]</button></div><div class="qe"><span class="verdict"></span> An embedding is a list of floats; on many texts GenerateAsync returns GeneratedEmbeddings. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>Why is the question written with <code>task: search result | query: …</code> and the document with <code>title: … | text: …</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Otherwise Gemini returns an error</button><button type="button" class="opt" data-i="1">The search is asymmetric: a short question and a long document; the prefix tells the model the role and raises the quality</button><button type="button" class="opt" data-i="2">To save tokens</button><button type="button" class="opt" data-i="3">It's the JSON format</button></div><div class="qe"><span class="verdict"></span> The rule is the same everywhere: every document in one format, every question in the other. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>Cosine similarity = 1 means:</div></div><div class="opts"><button type="button" class="opt" data-i="0">The texts are completely different</button><button type="button" class="opt" data-i="1">The vectors point in the same direction — very similar</button><button type="button" class="opt" data-i="2">An error</button><button type="button" class="opt" data-i="3">The vector is empty</button></div><div class="qe"><span class="verdict"></span> 1 — the same direction, 0 — perpendicular (nothing in common). <a class="chip" href="#s-15">Review · slide 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>Two scores: 0.71 and 0.38. The right conclusion:</div></div><div class="opts"><button type="button" class="opt" data-i="0">0.71 is bad — it's below 1</button><button type="button" class="opt" data-i="1">The first pair is more similar; we compare the numbers, we don't judge them on their own — the absolute value depends on the model</button><button type="button" class="opt" data-i="2">0.38 means 38% similar</button><button type="button" class="opt" data-i="3">Both are errors</button></div><div class="qe"><span class="verdict"></span> In a search, the ordering is what matters. <a class="chip" href="#s-15">Review · slide 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>We calculate the menu's vectors once (<code>/menu/index</code>), and on a question only the question's vector. Why?</div></div><div class="opts"><button type="button" class="opt" data-i="0">IEmbeddingGenerator requires it</button><button type="button" class="opt" data-i="1">The menu rarely changes; 200 dishes' vectors on every question = money and time</button><button type="button" class="opt" data-i="2">A question's vector can't be stored</button><button type="button" class="opt" data-i="3">Gemini takes one request per minute</button></div><div class="qe"><span class="verdict"></span> We calculate once and store; in lecture 10 — in the database. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Embedding</dt><dd>turning a text (or an image) into a list of numbers so that a similar meaning is close together</dd><dt>Vector</dt><dd>a list of numbers; the result of an embedding; a point in space</dd><dt>Dimension</dt><dd>how many numbers there are in the vector (e.g. 768)</dd><dt>Embedding model</dt><dd>a model that turns text into a vector; it doesn't write text</dd><dt>IEmbeddingGenerator</dt><dd>Microsoft.Extensions.AI's interface for embeddings, like IChatClient</dd><dt>GenerateVectorAsync</dt><dd>getting the vector of one text with IEmbeddingGenerator</dd><dt>GenerateAsync</dt><dd>the vectors of many texts in one call</dd><dt>Asymmetric search</dt><dd>searching for a long document with a short question; the question and the document in different formats</dd><dt>Task prefix</dt><dd>a description of the task written in front of the text, which raises the quality of the embedding</dd><dt>Cosine similarity</dt><dd>a measure of how similar two vectors are, by the angle between them: 1 — the same direction, 0 — nothing in common</dd><dt>TensorPrimitives</dt><dd>a System.Numerics.Tensors class for vector computations (CosineSimilarity, Dot…), with SIMD</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 9 — Text Embeddings: ტექსტის ვექტორიზაცია";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
+      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>

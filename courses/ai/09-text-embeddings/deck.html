@@ -1,0 +1,951 @@
+<style>
+.mono{font-family:var(--mono)}
+.swr{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.swr .rh{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #e5e5e5;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.swr .rh .m{font:800 14px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:5px 0;width:78px;text-align:center}
+.swr .rh .p{font:700 17px var(--mono);color:#3b4151}
+.swr .rb{background:#41444e;color:#fff;font:600 15px/1.5 var(--mono);padding:10px 14px;border-radius:6px;white-space:pre;margin:10px 16px 14px}
+.swr .rb .k{color:#a5d6ff}.swr .rb .s{color:#a2fca2}.swr .rb .n{color:#fcc28c}
+.c-post{--c:#49cc90}.c-get{--c:#61affe}
+.ask{--a:var(--pink);font-size:22px;color:var(--ink)}
+.ask b{color:var(--pink)}
+.route{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:22px}
+.stop{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--a);border-radius:16px;padding:22px 24px 18px;box-shadow:var(--shadow)}
+.stop .sn{position:absolute;top:-22px;left:18px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font:800 20px var(--mono)}
+.stop h3{margin:10px 0 0;font-size:26px}
+.stop p{margin:0;font-size:19px;color:var(--ink2);line-height:1.45}
+.stop .from{margin-top:auto;font:700 15px var(--mono);color:var(--a)}
+.prob{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:12px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 8%,var(--card));border-left:6px solid var(--a)}
+.prob .pi{font-size:30px;text-align:center}
+.prob b{display:block;font-size:20px;color:var(--ink)}
+.prob span{font-size:17px;color:var(--ink2);line-height:1.4}
+.prob span b{display:inline;font-size:inherit;color:var(--ink)}
+.sec-l{font:700 15px var(--mono);color:var(--muted);margin:0 0 6px}
+.menu{width:100%;border-collapse:separate;border-spacing:0;font-size:17px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.menu th{background:var(--bg2);font:800 14px var(--mono);color:var(--muted);text-align:left;padding:8px 12px}
+.menu td{padding:8px 12px;border-top:1px solid var(--line);color:var(--ink)}
+.menu td:first-child{font-weight:800;white-space:nowrap}
+.menu td.sc{font:800 16px var(--mono);text-align:right;white-space:nowrap}
+.menu tr.hit td{background:color-mix(in srgb,var(--mvc) 9%,var(--card))}
+.menu tr.miss td{color:var(--muted)}
+.map{position:relative;height:430px;border-radius:18px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+.map .ax{position:absolute;font:700 13px var(--mono);color:var(--muted)}
+.map .pt{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;font:700 16px var(--font);color:var(--ink);white-space:nowrap}
+.map .pt i{width:14px;height:14px;border-radius:50%;background:var(--a);box-shadow:0 0 0 4px color-mix(in srgb,var(--a) 22%,transparent)}
+.map .cl{position:absolute;border-radius:50%;border:2px dashed var(--a);background:color-mix(in srgb,var(--a) 6%,transparent)}
+.map .q i{width:18px;height:18px;border-radius:4px;transform:rotate(45deg)}
+.map .q{font-weight:800;color:var(--pink)}
+.vec{font:600 15px/1.5 var(--mono);background:#1e2132;color:#d7dae6;border-radius:12px;padding:12px 16px;white-space:pre;overflow:hidden}
+.vec .k{color:#fcd34d}.vec .d{color:#8b93b0}.vec .g{color:#86efac}
+.ang{position:relative;height:250px}
+.ang svg{width:100%;height:100%}
+.score{display:flex;align-items:center;gap:10px;font:800 15px var(--mono)}
+.score .bar{flex:1;height:14px;border-radius:7px;background:var(--bg2);position:relative;overflow:hidden}
+.score .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--a);border-radius:7px}
+.pair{display:grid;grid-template-columns:1fr 1fr 110px;gap:10px;align-items:center;padding:9px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:17px}
+.pair .v{font:800 17px var(--mono);text-align:right;color:var(--a)}
+</style>
+
+
+<!-- =========================================================
+     AI · ლექცია 9 — Text Embeddings
+     დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
+     ფერები: LLM/ვექტორი = იისფერი · მსგავსება/ძებნა = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
+             სწორი/ნაპოვნი = მწვანე · არ ემთხვევა = წითელი · თამაში/ჩართულობა = ვარდისფერი
+     პროექტი: RestaurantApi — AddEmbeddingGenerator, Ai/MenuIndex, AiLabController: embed, menu/index, menu/search
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:720px">
+    <div class="kicker in" style="color:var(--net)">AI · ლექცია 9 · Embeddings</div>
+    <h1 class="in" style="--d:.15s">ძებნა<br><span class="grad">მნიშვნელობით</span></h1>
+    <p class="lead in mt" style="--d:.35s">ტექსტი → ვექტორი · IEmbeddingGenerator · cosine similarity</p>
+  </div>
+  <div class="abs" style="right:90px;top:250px;width:540px">
+    <div class="vec in" style="--d:.5s"><span class="k">"რამე მსუბუქი, ხორცის გარეშე"</span>
+<span class="d">        ↓ embedding</span>
+[ 0.0213, -0.0471, 0.0089, 0.0632,
+ -0.0154, 0.0398, …  <span class="d">768 რიცხვი</span> ]
+<span class="d">        ↓ ყველაზე ახლოს</span>
+<span class="g">🥗 ლობიო ქოთანში · 0.71</span>
+<span class="g">🍆 ბადრიჯანი ნიგვზით · 0.68</span></div>
+  </div>
+  <aside class="study">
+## ლექცია 9: Text Embeddings
+
+მომხმარებელი წერს: „რამე მსუბუქი, ხორცის გარეშე“. მენიუში 200 კერძია. მთელი მენიუს მოდელისთვის გაგზავნა ძვირია (ლექცია 7), ხოლო SQL-ის `LIKE '%ხორცის გარეშე%'` ლობიოს ვერ იპოვის, რადგან ეს სიტყვები მის აღწერაში არ წერია. გვჭირდება ძებნა **მნიშვნელობით**, არა სიტყვებით. დღეს ვსწავლობთ **embedding**-ს: ტექსტის გადაქცევას რიცხვების სიად (ვექტორად), სადაც მსგავსი მნიშვნელობის ტექსტები ახლოს არიან. ვაგენერირებთ ვექტორებს Gemini-თი, ვზომავთ მსგავსებას და ვწერთ მენიუს სემანტიკურ ძებნას.
+  </aside>
+  <aside class="study-en">
+## Lecture 9: Text Embeddings
+
+The user writes: “something light, without meat”. The menu has 200 dishes. Sending the whole menu to the model is expensive (lecture 7), and SQL's `LIKE '%without meat%'` won't find the lobio, because those words aren't in its description. We need to search **by meaning**, not by words. Today we learn about **embeddings**: turning text into a list of numbers (a vector), where texts with a similar meaning are close together. We generate vectors with Gemini, measure similarity and write a semantic search for the menu.
+  </aside>
+</section>
+
+<lecture-review/>
+
+<lecture-homework-review/>
+
+<lecture-intro/>
+
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">დღის გზა</div>
+  <h2>3 ნაბიჯი: <span class="c-net">ვექტორი</span> → <span class="c-api">კოდში</span> → <span class="c-asp">მსგავსება და ძებნა</span></h2>
+  <div class="route">
+    <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>🧭 რა არის embedding</h3><p>ტექსტი → რიცხვები, სადაც მსგავსი მნიშვნელობა = ახლოს</p><span class="from">ვექტორი · განზომილება · მოდელი</span></div>
+    <div class="stop" style="--a:var(--api)"><span class="sn">2</span><h3>🧑‍💻 ვექტორი კოდში</h3><p>Gemini-ს embedding მოდელი, ისევ ერთი interface</p><span class="from">IEmbeddingGenerator · task prefix</span></div>
+    <div class="stop" style="--a:var(--asp)"><span class="sn">3</span><h3>🔎 მსგავსება და ძებნა</h3><p>ორი ვექტორის „კუთხე“ და მენიუს ძებნა მნიშვნელობით</p><span class="from">cosine similarity · top 3</span></div>
+  </div>
+  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>მენიუ</b>, რომელიც „ხორცის გარეშე“-ზე ლობიოს პოულობს</div>
+  <aside class="study">
+### ლექციის გეგმა: 3 ნაბიჯი
+
+1. 🧭 **რა არის embedding.** ტექსტი იქცევა რიცხვების სიად (ვექტორად), სადაც მსგავსი მნიშვნელობის ტექსტები ახლოს არიან. ვნახავთ, რას ნიშნავს „ახლოს“, რა არის განზომილება და რატომ გვჭირდება ცალკე მოდელი.
+2. 🧑‍💻 **ვექტორი კოდში.** `IEmbeddingGenerator` — Microsoft.Extensions.AI-ის მეორე interface (`IChatClient`-ის გვერდით). Gemini-ს embedding მოდელით ვექტორს ვაგენერირებთ და ვხედავთ, როგორ განსხვავდება შეკითხვის და დოკუმენტის ფორმატი.
+3. 🔎 **მსგავსება და ძებნა.** cosine similarity — როგორ ვზომავთ ორი ვექტორის სიახლოვეს; და მენიუს სემანტიკური ძებნა: შეკითხვას ვადარებთ ყველა კერძს და ვიღებთ სამ ყველაზე ახლოს.
+
+ბოლოს კლასის დავალებაა: მსგავსების თამაში და შენი `/similarity` endpoint.
+  </aside>
+  <aside class="study-en">
+### Lecture plan: 3 steps
+
+1. 🧭 **What an embedding is.** Text turns into a list of numbers (a vector), where texts with a similar meaning are close together. We see what “close” means, what a dimension is and why we need a separate model.
+2. 🧑‍💻 **A vector in code.** `IEmbeddingGenerator` — Microsoft.Extensions.AI's second interface (next to `IChatClient`). We generate a vector with Gemini's embedding model and see how the format of a question differs from that of a document.
+3. 🔎 **Similarity and search.** Cosine similarity — how we measure how close two vectors are; and a semantic search for the menu: we compare the question with every dish and take the three closest.
+
+At the end there's classwork: a similarity game and your own `/similarity` endpoint.
+  </aside>
+</section>
+
+<!-- ================= 1 · embedding ================= -->
+<section class="slide divider" data-section="1 · embedding">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">ტექსტი →<br><span class="grad">რიცხვები</span></h1>
+    <p class="lead mt in" style="--d:.3s">ვექტორი · „ახლოს“ · განზომილება · embedding მოდელი</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · რა არის embedding
+
+ჯერ ვხედავთ, რატომ არ გვყოფნის სიტყვებით ძებნა. მერე — იდეა: ტექსტის „მნიშვნელობის კოორდინატები“. და ბოლოს — რა მოდელი აკეთებს ამას და რამდენი რიცხვია ერთ ვექტორში.
+  </aside>
+  <aside class="study-en">
+## Part 1 · What an embedding is
+
+First we see why searching by words isn't enough. Then the idea: the “coordinates of meaning” of a text. And finally, which model does this and how many numbers there are in one vector.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · embedding">
+  <div class="kicker">პრობლემა · სიტყვები ≠ მნიშვნელობა</div>
+  <h2>„ხორცის გარეშე“ — <span class="c-red">0 შედეგი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:10px">
+      <p class="sec-l">SELECT … WHERE "Description" LIKE '%ხორცის გარეშე%'</p>
+      <table class="menu">
+        <tr><th>კერძი</th><th>აღწერა</th></tr>
+        <tr class="miss"><td>ლობიო ქოთანში</td><td>წითელი ლობიო, ხახვი, ქინძი, ცხელი მჭადით</td></tr>
+        <tr class="miss"><td>ბადრიჯანი ნიგვზით</td><td>შემწვარი ბადრიჯანი, ნიგვზის პასტა, ბროწეული</td></tr>
+        <tr class="miss"><td>მწვადი</td><td>ღორის ხორცი შამფურზე, ხახვით</td></tr>
+        <tr class="miss"><td>ხინკალი</td><td>საქონლისა და ღორის ხორცი, ცომში</td></tr>
+        <tr class="miss"><td>პომიდვრის სალათი</td><td>პომიდორი, კიტრი, ნიგოზი</td></tr>
+      </table>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask">🙋 რომელი კერძები <b>შეესაბამება</b>?</div>
+      <div class="prob step" style="--a:var(--mvc)"><span class="pi">🧠</span><div><b>ადამიანი მაშინვე ხედავს</b><span>ლობიო, ბადრიჯანი, სალათი — და პირიქით: „ხორცი“ წერია მწვადსა და ხინკალში</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">🔤</span><div><b>LIKE სიტყვებს ეძებს</b><span>„ხორცის გარეშე“ არსად წერია → 0. „ხორცი“-ს ძებნა კი ზუსტად <b>არასწორ</b> კერძებს იპოვის</span></div></div>
+      <div class="callout ask step">🙋 როგორ ვასწავლოთ კომპიუტერს <b>მნიშვნელობა</b>?</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: სიტყვებით ძებნა მნიშვნელობას ვერ ხედავს
+
+მომხმარებელი წერს „რამე მსუბუქი, ხორცის გარეშე“. ჩვეულებრივი ძებნა სიტყვებს ეძებს:
+
+```sql
+SELECT "Name" FROM "Products" WHERE "Description" ILIKE '%ხორცის გარეშე%';
+-- 0 შედეგი
+```
+
+| კერძი | აღწერა | LIKE |
+|---|---|---|
+| ლობიო ქოთანში | წითელი ლობიო, ხახვი, ქინძი, ცხელი მჭადით | ✗ |
+| ბადრიჯანი ნიგვზით | შემწვარი ბადრიჯანი, ნიგვზის პასტა, ბროწეული | ✗ |
+| მწვადი | ღორის ხორცი შამფურზე, ხახვით | ✗ |
+| ხინკალი | საქონლისა და ღორის ხორცი, ცომში | ✗ |
+| პომიდვრის სალათი | პომიდორი, კიტრი, ნიგოზი | ✗ |
+
+ადამიანი მაშინვე ხედავს, რომ ლობიო, ბადრიჯანი და სალათი შეესაბამება. ხოლო თუ სიტყვა „ხორცი“-ს მოვძებნით, LIKE ზუსტად **არასწორ** კერძებს იპოვის: მწვადს და ხინკალს. სიტყვა და მნიშვნელობა სხვადასხვა რამეა: „ხორცის გარეშე“, „ვეგეტარიანული“ და „vegetarian“ ერთსა და იმავეს ნიშნავს, ერთი ასოც არ ემთხვევა.
+
+ლექცია 7-ის ენით: გვინდა **შერჩევა** — კონტექსტში მხოლოდ ის კერძები, რომლებიც შეკითხვას შეესაბამება. ამისთვის მნიშვნელობით ძებნა გვჭირდება.
+  </aside>
+  <aside class="study-en">
+### The problem: searching by words doesn't see meaning
+
+The user writes “something light, without meat”. An ordinary search looks for words:
+
+```sql
+SELECT "Name" FROM "Products" WHERE "Description" ILIKE '%without meat%';
+-- 0 results
+```
+
+| Dish | Description | LIKE |
+|---|---|---|
+| Lobio in a clay pot | red beans, onion, coriander, with hot mchadi | ✗ |
+| Aubergine with walnuts | fried aubergine, walnut paste, pomegranate | ✗ |
+| Mtsvadi | pork on a skewer, with onion | ✗ |
+| Khinkali | beef and pork, in dough | ✗ |
+| Tomato salad | tomato, cucumber, walnut | ✗ |
+
+A person sees right away that the lobio, the aubergine and the salad match. And if we search for the word “meat”, LIKE finds exactly the **wrong** dishes: the mtsvadi and the khinkali. A word and a meaning are different things: “without meat”, “vegetarian” and “ვეგეტარიანული” mean the same thing, and not a single letter matches.
+
+In lecture 7's terms: we want **selection** — only the dishes that match the question go into the context. For that we need to search by meaning.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · embedding">
+  <div class="kicker">🧭 embedding · მნიშვნელობის „კოორდინატები“</div>
+  <h2>მსგავსი მნიშვნელობა = <span class="c-asp">ახლოს</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:26px;align-items:start;margin-top:4px">
+    <div class="map">
+      <span class="ax" style="left:16px;bottom:10px">ნიმუში · 2 განზომილება (სინამდვილეში 768)</span>
+      <div class="cl" style="--a:var(--mvc);left:40px;top:40px;width:330px;height:250px"></div>
+      <div class="cl step" data-with style="--a:var(--red);left:500px;top:190px;width:300px;height:210px"></div>
+      <div class="pt" style="--a:var(--mvc);left:150px;top:100px"><i></i>ლობიო ქოთანში</div>
+      <div class="pt" style="--a:var(--mvc);left:250px;top:170px"><i></i>ბადრიჯანი ნიგვზით</div>
+      <div class="pt" style="--a:var(--mvc);left:140px;top:240px"><i></i>პომიდვრის სალათი</div>
+      <div class="pt" style="--a:var(--red);left:620px;top:250px"><i></i>მწვადი</div>
+      <div class="pt" style="--a:var(--red);left:680px;top:330px"><i></i>ხინკალი</div>
+      <div class="pt" style="--a:var(--net);left:560px;top:80px"><i></i>ჩურჩხელა</div>
+      <div class="pt q step" style="--a:var(--pink);left:230px;top:65px"><i></i>„ხორცის გარეშე“</div>
+      <div class="pt q step" data-with style="--a:var(--pink);left:300px;top:270px"><i></i>„vegetarian“</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="prob" style="--a:var(--net)"><span class="pi">🔢</span><div><b>embedding = რიცხვების სია</b><span>ტექსტი → [0.021, −0.047, 0.009, …]. ამ სიას <b>ვექტორი</b> ჰქვია</span></div></div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">📍</span><div><b>ვექტორი = წერტილი</b><span>მოდელი ისე ალაგებს, რომ მსგავსი მნიშვნელობა ახლოს იყოს</span></div></div>
+      <div class="callout ask step">🙋 შეკითხვა რომელ <b>ჯგუფთან</b> დაჯდა?</div>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ქართული და ინგლისური — <b>ერთ ადგილას</b>: მნიშვნელობა ერთია</div>
+    </div>
+  </div>
+  <aside class="study">
+### embedding: ტექსტის „მნიშვნელობის კოორდინატები“
+
+**Embedding** — ტექსტის გადაქცევა რიცხვების სიად: `"ლობიო ქოთანში"` → `[0.021, -0.047, 0.009, 0.063, …]`. ამ სიას **ვექტორი** ჰქვია. ვექტორი სივრცეში წერტილია: ორ რიცხვს რუკაზე წერტილი შეესაბამება (x, y), 768 რიცხვს — წერტილი 768-განზომილებიან სივრცეში.
+
+**მთავარი თვისება:** embedding მოდელი ისეა გავარჯიშებული, რომ **მსგავსი მნიშვნელობის ტექსტები ახლოს** დგანან:
+
+- „ლობიო ქოთანში“, „ბადრიჯანი ნიგვზით“, „პომიდვრის სალათი“ — ერთ მხარეს (ბოსტნეული, ხორცის გარეშე);
+- „მწვადი“, „ხინკალი“ — მეორე მხარეს (ხორცი);
+- შეკითხვა „ხორცის გარეშე“ პირველ ჯგუფთან ჯდება, და **„vegetarian“-იც იქვე**: ენა სხვაა, მნიშვნელობა — ერთი.
+
+სლაიდზე ორგანზომილებიანი ნახატია, რომ თვალით დავინახოთ. სინამდვილეში ერთ ვექტორში ასობით ან ათასობით რიცხვია, და თითოეული რიცხვი მნიშვნელობის რაღაც „მიმართულებაა“, რომელიც მოდელმა ვარჯიშისას თვითონ ისწავლა (ადამიანისთვის გასაგები სახელი არც ერთს არ აქვს).
+
+ლექცია 1-ის კითხვაზე „საიდან იცის მოდელმა, რას ნიშნავს ტოკენი 3293?“ — ეს არის პასუხი: მოდელის შიგნით ყოველ ტოკენს ასეთი ვექტორი აქვს.
+
+```terms
+Embedding — ტექსტის (ან სურათის) გადაქცევა რიცხვების სიად ისე, რომ მსგავსი მნიშვნელობა ახლოს იყოს
+ვექტორი (vector) — რიცხვების სია; embedding-ის შედეგი; სივრცეში წერტილი
+განზომილება (dimension) — რამდენი რიცხვია ვექტორში (მაგ. 768)
+```
+  </aside>
+  <aside class="study-en">
+### Embedding: the “coordinates of meaning” of a text
+
+**Embedding** — turning a text into a list of numbers: `"Lobio in a clay pot"` → `[0.021, -0.047, 0.009, 0.063, …]`. This list is called a **vector**. A vector is a point in space: two numbers give a point on a map (x, y), 768 numbers give a point in a 768-dimensional space.
+
+**The key property:** an embedding model is trained so that **texts with a similar meaning stand close together**:
+
+- “Lobio in a clay pot”, “Aubergine with walnuts”, “Tomato salad” — on one side (vegetables, no meat);
+- “Mtsvadi”, “Khinkali” — on the other side (meat);
+- the question “without meat” lands next to the first group, and **“ვეგეტარიანული” is right there too**: the language is different, the meaning is the same.
+
+The slide shows a two-dimensional picture so we can see it with our eyes. In reality one vector holds hundreds or thousands of numbers, and each number is some “direction” of meaning that the model learned by itself during training (none of them has a name a person would understand).
+
+The answer to lecture 1's question “how does the model know what token 3293 means?” is this: inside the model every token has a vector like this.
+
+```terms
+Embedding — turning a text (or an image) into a list of numbers so that a similar meaning is close together
+Vector — a list of numbers; the result of an embedding; a point in space
+Dimension — how many numbers there are in the vector (e.g. 768)
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · embedding">
+  <div class="kicker">🧩 embedding მოდელი</div>
+  <h2>ცალკე მოდელი: <span class="c-net">ტექსტს არ წერს</span>, ვექტორს აბრუნებს</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:8px">
+    <div class="col" style="gap:12px">
+      <table class="menu">
+        <tr><th></th><th>ჩატის მოდელი</th><th>embedding მოდელი</th></tr>
+        <tr><td>შედის</td><td>შეტყობინებები</td><td>ტექსტი</td></tr>
+        <tr><td>გამოდის</td><td>ტექსტი</td><td>ვექტორი</td></tr>
+        <tr><td>interface</td><td class="mono">IChatClient</td><td class="mono">IEmbeddingGenerator</td></tr>
+        <tr><td>ფასი</td><td>input + output</td><td>მხოლოდ input · ბევრად იაფი</td></tr>
+      </table>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">🧭</span><div><b>gemini-embedding-2</b><span>Stable · 8 192 ტოკენი შესაყვანად · 128–3072 განზომილება</span></div></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">📏</span><div><b>ჩვენ ვიღებთ 768-ს</b><span>რეკომენდებული ზომაა: ხარისხი კარგი, 4-ჯერ ნაკლები ადგილი, ვიდრე 3072</span></div></div>
+      <div class="callout ask step">🙋 ერთი მოდელის ვექტორი მეორე მოდელის ვექტორს <b>შეედრება</b>?</div>
+      <div class="prob step" data-with style="--a:var(--red)"><span class="pi">🚫</span><div><b>არა</b><span>ყველა მოდელს თავისი „რუკა“ აქვს. მოდელს თუ შევცვლით, ყველა ვექტორი თავიდან უნდა დავითვალოთ</span></div></div>
+    </div>
+  </div>
+  <aside class="study">
+### embedding მოდელი: ცალკე მოდელი, ცალკე interface
+
+ვექტორს ჩატის მოდელი (`gemini-3.8-flash`) კი არ აგენერირებს, არამედ **ცალკე embedding მოდელი**:
+
+| | ჩატის მოდელი | embedding მოდელი |
+|---|---|---|
+| შედის | შეტყობინებები | ტექსტი |
+| გამოდის | ტექსტი (ტოკენ-ტოკენ) | ერთი ვექტორი (ერთბაშად) |
+| interface | `IChatClient` | `IEmbeddingGenerator` |
+| ფასი | input + output | მხოლოდ input — ბევრად იაფი |
+
+**ჩვენი მოდელი: `gemini-embedding-2`** — Gemini-ს უახლესი embedding მოდელი (Stable). შესაყვანად 8 192 ტოკენამდე იღებს, ვექტორის ზომა 128-დან 3072-მდე შეიძლება იყოს. რეკომენდებული ზომებია 768, 1536 და 3072.
+
+**ჩვენ ვიღებთ 768-ს:** ხარისხი კარგია, ვექტორი 4-ჯერ პატარაა (ბაზაში ნაკლები ადგილი, ძებნა სწრაფი), და ლექცია 10-ის pgvector ინდექსი ასეთ ზომას თავისუფლად ამუშავებს.
+
+**ერთი მოდელი — ერთი „რუკა“.** ყველა embedding მოდელი თავის სივრცეს ქმნის. `gemini-embedding-2`-ის ვექტორს სხვა მოდელის (ან იმავე მოდელის სხვა ზომის) ვექტორს ვერ შევადარებთ — რიცხვები სხვა „რუკაზეა“. ამიტომ მოდელი და ზომა ერთხელ ირჩევა: თუ შევცვლით, ყველა შენახული ვექტორი თავიდან უნდა დავითვალოთ.
+
+```terms
+Embedding მოდელი — მოდელი, რომელიც ტექსტს ვექტორად აქცევს; ტექსტს არ წერს
+IEmbeddingGenerator — Microsoft.Extensions.AI-ის interface embedding-ისთვის, IChatClient-ის მსგავსად
+```
+  </aside>
+  <aside class="study-en">
+### The embedding model: a separate model, a separate interface
+
+It isn't the chat model (`gemini-3.8-flash`) that generates the vector, but a **separate embedding model**:
+
+| | Chat model | Embedding model |
+|---|---|---|
+| In | messages | text |
+| Out | text (token by token) | one vector (all at once) |
+| Interface | `IChatClient` | `IEmbeddingGenerator` |
+| Price | input + output | input only — much cheaper |
+
+**Our model: `gemini-embedding-2`** — Gemini's newest embedding model (Stable). It takes up to 8,192 tokens of input, and the vector size can be anywhere from 128 to 3072. The recommended sizes are 768, 1536 and 3072.
+
+**We take 768:** the quality is good, the vector is 4 times smaller (less space in the database, faster search), and lecture 10's pgvector index handles this size easily.
+
+**One model — one “map”.** Every embedding model creates its own space. A `gemini-embedding-2` vector can't be compared with a vector from another model (or from the same model at another size) — the numbers are on a different “map”. So the model and the size are chosen once: if we change them, every stored vector has to be calculated again.
+
+```terms
+Embedding model — a model that turns text into a vector; it doesn't write text
+IEmbeddingGenerator — Microsoft.Extensions.AI's interface for embeddings, like IChatClient
+```
+  </aside>
+</section>
+
+<!-- ================= 2 · კოდში ================= -->
+<section class="slide divider" data-section="2 · კოდში">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">ვექტორი<br><span class="grad">კოდში</span></h1>
+    <p class="lead mt in" style="--d:.3s">IEmbeddingGenerator · GenerateVectorAsync · task prefix</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · ვექტორი კოდში
+
+`IEmbeddingGenerator`-ს ვარეგისტრირებთ ისევე, როგორც ლექცია 3-ში `IChatClient`-ს, ვაგენერირებთ პირველ ვექტორს და ვხედავთ, რატომ იწერება შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით.
+  </aside>
+  <aside class="study-en">
+## Part 2 · A vector in code
+
+We register `IEmbeddingGenerator` the same way as `IChatClient` in lecture 3, generate the first vector and see why a question and a document are written in different formats.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · კოდში">
+  <div class="kicker">🧑‍💻 ვწერთ · Program.cs და POST /api/ai-lab/embed</div>
+  <h2><span class="mono c-api">IEmbeddingGenerator</span> — როგორც IChatClient</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:22px">
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm" title="Program.cs">
+string embeddingModel = builder.Configuration["Gemini:EmbeddingModel"]!;
+
+builder.Services.AddEmbeddingGenerator(
+    new Client(apiKey: apiKey)
+        .AsIEmbeddingGenerator(embeddingModel, defaultModelDimensions: 768));
+      </code-block>
+      <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Embed">
+// constructor: IEmbeddingGenerator<string, Embedding<float>> embeddings
+
+[HttpPost("embed")]
+public async Task<IActionResult> Embed(AskRequest request, CancellationToken ct)
+{
+    ReadOnlyMemory<float> vector =
+        await _embeddings.GenerateVectorAsync(request.Prompt, cancellationToken: ct);
+
+    return Ok(new { vector.Length, First5 = vector.ToArray()[..5] });
+}
+      </code-block>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="swr c-post step">
+        <div class="rh"><span class="m">POST</span><span class="p">/embed</span></div>
+        <pre class="rb">{
+  <span class="k">"length"</span>: <span class="n">768</span>,
+  <span class="k">"first5"</span>: [ <span class="n">0.0213</span>, <span class="n">-0.0471</span>,
+     <span class="n">0.0089</span>, <span class="n">0.0632</span>, <span class="n">-0.0154</span> ]
+}</pre>
+      </div>
+      <div class="callout step" style="--a:var(--net);font-size:18px">768 რიცხვი, <b>ერთი</b> გამოძახება. ტექსტი არ არის — მხოლოდ კოორდინატები</div>
+      <div class="callout ask step">🙋 „ლობიო“ და „lobio“ — ვექტორები <b>ერთნაირი</b> იქნება?</div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">არა, მაგრამ <b>ახლოს</b>. „ახლოს“ როგორ გავზომოთ — ნაწილი 3</div>
+    </div>
+  </div>
+  <aside class="study">
+### `IEmbeddingGenerator`: რეგისტრაცია და პირველი ვექტორი
+
+**რეგისტრაცია** — ლექცია 3-ის `AddChatClient`-ის მსგავსად:
+
+```csharp Program.cs
+string embeddingModel = builder.Configuration["Gemini:EmbeddingModel"]!;   // "gemini-embedding-2"
+
+builder.Services.AddEmbeddingGenerator(
+    new Client(apiKey: apiKey)
+        .AsIEmbeddingGenerator(embeddingModel, defaultModelDimensions: 768));
+```
+
+- **`AsIEmbeddingGenerator(model, defaultModelDimensions)`** — Google.GenAI-ის client-ს `IEmbeddingGenerator<string, Embedding<float>>`-ად „ახვევს“, ისევე როგორც `AsIChatClient`. `defaultModelDimensions: 768` — ვექტორის ზომა.
+- **`AddEmbeddingGenerator`** — DI-ში რეგისტრაცია (Singleton). მოდელის სახელი `appsettings.json`-შია: `"Gemini": { "EmbeddingModel": "gemini-embedding-2" }`.
+
+**პირველი ვექტორი:**
+
+```csharp Controllers/AiLabController.cs · Embed
+// constructor: IEmbeddingGenerator<string, Embedding<float>> embeddings
+
+[HttpPost("embed")]
+public async Task<IActionResult> Embed(AskRequest request, CancellationToken ct)
+{
+    ReadOnlyMemory<float> vector =
+        await _embeddings.GenerateVectorAsync(request.Prompt, cancellationToken: ct);
+
+    return Ok(new { vector.Length, First5 = vector.ToArray()[..5] });
+}
+```
+
+- **`GenerateVectorAsync(text)`** — ერთი ტექსტი → ერთი ვექტორი (`ReadOnlyMemory<float>` — `float`-ების მასივის „ხედი“).
+- **ბევრი ტექსტი ერთად:** `GenerateAsync(texts)` — ერთი გამოძახებით მთელი სია (ნაწილი 3-ში მენიუსთვის).
+
+Swagger-ში: `length: 768` და პირველი ხუთი რიცხვი. ცალკეულ რიცხვს მნიშვნელობა არ აქვს — მნიშვნელობა აქვს **ორი ვექტორის შედარებას**.
+
+```terms
+GenerateVectorAsync — ერთი ტექსტის ვექტორის მიღება IEmbeddingGenerator-ით
+GenerateAsync — ბევრი ტექსტის ვექტორები ერთი გამოძახებით
+```
+  </aside>
+  <aside class="study-en">
+### `IEmbeddingGenerator`: registration and the first vector
+
+**Registration** — like `AddChatClient` in lecture 3:
+
+```csharp Program.cs
+string embeddingModel = builder.Configuration["Gemini:EmbeddingModel"]!;   // "gemini-embedding-2"
+
+builder.Services.AddEmbeddingGenerator(
+    new Client(apiKey: apiKey)
+        .AsIEmbeddingGenerator(embeddingModel, defaultModelDimensions: 768));
+```
+
+- **`AsIEmbeddingGenerator(model, defaultModelDimensions)`** — “wraps” the Google.GenAI client as an `IEmbeddingGenerator<string, Embedding<float>>`, just like `AsIChatClient`. `defaultModelDimensions: 768` — the vector size.
+- **`AddEmbeddingGenerator`** — registration in DI (Singleton). The model name is in `appsettings.json`: `"Gemini": { "EmbeddingModel": "gemini-embedding-2" }`.
+
+**The first vector:**
+
+```csharp Controllers/AiLabController.cs · Embed
+// constructor: IEmbeddingGenerator<string, Embedding<float>> embeddings
+
+[HttpPost("embed")]
+public async Task<IActionResult> Embed(AskRequest request, CancellationToken ct)
+{
+    ReadOnlyMemory<float> vector =
+        await _embeddings.GenerateVectorAsync(request.Prompt, cancellationToken: ct);
+
+    return Ok(new { vector.Length, First5 = vector.ToArray()[..5] });
+}
+```
+
+- **`GenerateVectorAsync(text)`** — one text → one vector (`ReadOnlyMemory<float>` — a “view” over an array of `float`s).
+- **Many texts together:** `GenerateAsync(texts)` — the whole list in one call (for the menu in part 3).
+
+In Swagger: `length: 768` and the first five numbers. A single number has no meaning — what has meaning is **comparing two vectors**.
+
+```terms
+GenerateVectorAsync — getting the vector of one text with IEmbeddingGenerator
+GenerateAsync — the vectors of many texts in one call
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · კოდში">
+  <div class="kicker">🏷️ task prefix · შეკითხვა ≠ დოკუმენტი</div>
+  <h2>შეკითხვა და პასუხი <span class="c-asp">სხვანაირად</span> გამოიყურება</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:8px">
+    <div class="col" style="gap:12px">
+      <p class="sec-l">შეკითხვა (მოკლე, „რა მინდა“)</p>
+      <div class="vec"><span class="k">task: search result | query:</span> რამე მსუბუქი, ხორცის გარეშე</div>
+      <p class="sec-l step" style="margin-top:6px">დოკუმენტი (რაც უნდა ვიპოვოთ)</p>
+      <div class="vec step" data-with><span class="k">title:</span> ლობიო ქოთანში <span class="k">| text:</span> წითელი ლობიო, ხახვი, ქინძი…</div>
+      <code-block lang="csharp" cls="sm" title="Ai/EmbeddingText.cs">
+public static class EmbeddingText
+{
+    public static string Query(string q) =>
+        $"task: search result | query: {q}";
+
+    public static string Document(string title, string text) =>
+        $"title: {title} | text: {text}";
+}
+      </code-block>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask">🙋 „რამე მსუბუქი?“ და „ლობიო ქოთანში — წითელი ლობიო…“ — ერთნაირ <b>ტექსტს</b> ჰგავს?</div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">↔️</span><div><b>ასიმეტრიული ძებნა</b><span>შეკითხვა მოკლეა, დოკუმენტი გრძელი. prefix მოდელს ეუბნება, რომელია რომელი</span></div></div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">📘</span><div><b>gemini-embedding-2-ის წესი</b><span>Google ტექსტური ამოცანებისთვის პრეფიქსს მკაცრად გვირჩევს</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">⚠️</span><div><b>ერთხელ არჩეული — ყველგან</b><span>დოკუმენტი ერთი ფორმატით, შეკითხვა — მეორით. ყოველთვის</span></div></div>
+    </div>
+  </div>
+  <aside class="study">
+### task prefix: შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით
+
+შეკითხვა („რამე მსუბუქი?“) და მისი პასუხი (კერძის აღწერა) ერთნაირ ტექსტს არ ჰგავს: შეკითხვა მოკლეა და „სურვილს“ აღწერს, დოკუმენტი — გრძელი და „ფაქტებს“. ასეთ ძებნას **ასიმეტრიული** ჰქვია. `gemini-embedding-2`-ისთვის Google ტექსტურ ამოცანებზე **გვირჩევს**, რომ ტექსტს წინ ამოცანის აღწერა (prefix) მივუწეროთ:
+
+| რა | ფორმატი |
+|---|---|
+| **შეკითხვა** | `task: search result \| query: {შეკითხვა}` |
+| **დოკუმენტი** | `title: {სათაური} \| text: {ტექსტი}` (სათაურის გარეშე — `title: none`) |
+
+```csharp Ai/EmbeddingText.cs
+public static class EmbeddingText
+{
+    public static string Query(string q) =>
+        $"task: search result | query: {q}";
+
+    public static string Document(string title, string text) =>
+        $"title: {title} | text: {text}";
+}
+```
+
+prefix მოდელს ეუბნება, რომელი ტექსტი რა როლშია, და ძებნის ხარისხი იზრდება. ერთი წესი უცვლელია: **ყველა დოკუმენტი ერთი ფორმატით, ყველა შეკითხვა — მეორით**. თუ ნახევარს prefix-ით შევინახავთ, ნახევარს — უმისოდ, ვექტორები ერთმანეთს ცუდად შეედრება.
+
+`search result`-ის ნაცვლად სხვა ამოცანებიც არსებობს (კითხვა-პასუხი, ფაქტის შემოწმება, კოდის ძებნა) — Gemini-ს embeddings გვერდზე.
+
+```terms
+ასიმეტრიული ძებნა — მოკლე შეკითხვით გრძელი დოკუმენტის ძებნა; შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით
+Task prefix — ტექსტის წინ მიწერილი ამოცანის აღწერა, რომელიც embedding-ის ხარისხს ზრდის
+```
+  </aside>
+  <aside class="study-en">
+### Task prefix: the question and the document in different formats
+
+A question (“something light?”) and its answer (a dish's description) don't look like the same kind of text: the question is short and describes a “wish”, the document is long and describes “facts”. This kind of search is called **asymmetric**. For `gemini-embedding-2`, Google **recommends** that on text tasks we write a description of the task (a prefix) in front of the text:
+
+| What | Format |
+|---|---|
+| **Question** | `task: search result \| query: {question}` |
+| **Document** | `title: {title} \| text: {text}` (without a title — `title: none`) |
+
+```csharp Ai/EmbeddingText.cs
+public static class EmbeddingText
+{
+    public static string Query(string q) =>
+        $"task: search result | query: {q}";
+
+    public static string Document(string title, string text) =>
+        $"title: {title} | text: {text}";
+}
+```
+
+The prefix tells the model which text plays which role, and the search quality goes up. One rule never changes: **every document in one format, every question in the other**. If we store half with the prefix and half without, the vectors compare badly.
+
+Besides `search result` there are other tasks too (question answering, fact checking, code search) — on Gemini's embeddings page.
+
+```terms
+Asymmetric search — searching for a long document with a short question; the question and the document in different formats
+Task prefix — a description of the task written in front of the text, which raises the quality of the embedding
+```
+  </aside>
+</section>
+
+<section class="slide divider" data-section="შესვენება">
+  <div class="vcenter">
+    <div class="kicker in">შესვენება</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">წუთი</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">შემდეგ: ორი ვექტორი რამდენად <b>ახლოსაა</b>?</p>
+  </div>
+  <div class="big-num">☕</div>
+</section>
+
+<!-- ================= 3 · მსგავსება ================= -->
+<section class="slide divider" data-section="3 · მსგავსება">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">მსგავსება<br><span class="grad">და ძებნა</span></h1>
+    <p class="lead mt in" style="--d:.3s">cosine similarity · TensorPrimitives · მენიუს ძებნა</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · მსგავსება და ძებნა
+
+ორი ვექტორი გვაქვს. რამდენად ახლოს არიან? ვსწავლობთ cosine similarity-ს, ვწერთ მას C#-ში და ვაწყობთ მენიუს სემანტიკურ ძებნას.
+  </aside>
+  <aside class="study-en">
+## Part 3 · Similarity and search
+
+We have two vectors. How close are they? We learn cosine similarity, write it in C# and build a semantic search for the menu.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · მსგავსება">
+  <div class="kicker">📐 cosine similarity · ორი ისრის კუთხე</div>
+  <h2>რაც <span class="c-mvc">ერთი მიმართულებით</span> იყურება — მსგავსია</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <div class="ang">
+        <svg viewBox="0 0 420 250">
+          <defs>
+            <marker id="ahn" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--net)"/></marker>
+            <marker id="ahm" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--mvc)"/></marker>
+            <marker id="ahr" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--red)"/></marker>
+          </defs>
+          <line x1="30" y1="220" x2="250" y2="50" stroke="var(--net)" stroke-width="5" marker-end="url(#ahn)"/>
+          <text x="200" y="34" font-size="17" font-weight="700" fill="var(--net)">„ხორცის გარეშე“</text>
+          <line x1="30" y1="220" x2="300" y2="95" stroke="var(--mvc)" stroke-width="5" marker-end="url(#ahm)"/>
+          <text x="312" y="98" font-size="17" font-weight="700" fill="var(--mvc)">ლობიო</text>
+          <line x1="30" y1="220" x2="330" y2="205" stroke="var(--red)" stroke-width="5" marker-end="url(#ahr)"/>
+          <text x="340" y="210" font-size="17" font-weight="700" fill="var(--red)">მწვადი</text>
+        </svg>
+      </div>
+      <div class="pair" style="--a:var(--mvc)"><span>„ხორცის გარეშე“</span><span>ლობიო ქოთანში</span><span class="v">0.71</span></div>
+      <div class="pair" style="--a:var(--red)"><span>„ხორცის გარეშე“</span><span>მწვადი</span><span class="v">0.38</span></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm" title="ხელით — როგორ ითვლება">
+static float Cosine(ReadOnlySpan<float> a, ReadOnlySpan<float> b)
+{
+    float dot = 0, na = 0, nb = 0;
+    for (int i = 0; i < a.Length; i++)
+    {
+        dot += a[i] * b[i];
+        na  += a[i] * a[i];
+        nb  += b[i] * b[i];
+    }
+    return dot / (MathF.Sqrt(na) * MathF.Sqrt(nb));
+}
+      </code-block>
+      <div class="step"><code-block lang="csharp" cls="sm" title="იგივე, ერთი ხაზით (SIMD)">
+float score = TensorPrimitives.CosineSimilarity(a.Span, b.Span);
+      </code-block></div>
+      <div class="callout step" style="--a:var(--asp);font-size:17px"><b>1</b> — ერთი მიმართულება · <b>0</b> — არაფერი საერთო. ციფრი მოდელზეა დამოკიდებული: <b>ვადარებთ</b>, არა ვკითხულობთ</div>
+    </div>
+  </div>
+  <aside class="study">
+### cosine similarity: ორი ისრის კუთხე
+
+ვექტორი შეგვიძლია ისრად წარმოვიდგინოთ, რომელიც ცენტრიდან რაღაც მიმართულებით იყურება. **cosine similarity** ზომავს **კუთხეს** ორ ისარს შორის:
+
+| კუთხე | cosine | რას ნიშნავს |
+|---|---|---|
+| 0° — ერთი მიმართულება | 1 | ძალიან მსგავსი |
+| 90° — პერპენდიკულარული | 0 | არაფერი საერთო |
+| 180° — საპირისპირო | −1 | (ტექსტებზე პრაქტიკულად არ ხდება) |
+
+**ფორმულა** — სკალარული ნამრავლი გაყოფილი სიგრძეების ნამრავლზე:
+
+```csharp ხელით — როგორ ითვლება
+static float Cosine(ReadOnlySpan<float> a, ReadOnlySpan<float> b)
+{
+    float dot = 0, na = 0, nb = 0;
+    for (int i = 0; i < a.Length; i++)
+    {
+        dot += a[i] * b[i];   // სკალარული ნამრავლი
+        na  += a[i] * a[i];   // a-ს სიგრძე²
+        nb  += b[i] * b[i];   // b-ს სიგრძე²
+    }
+    return dot / (MathF.Sqrt(na) * MathF.Sqrt(nb));
+}
+```
+
+.NET-ში ეს მზაა და სწრაფიც (SIMD — პროცესორი რამდენიმე რიცხვს ერთდროულად ამრავლებს):
+
+```csharp
+using System.Numerics.Tensors;   // NuGet: System.Numerics.Tensors
+float score = TensorPrimitives.CosineSimilarity(a.Span, b.Span);
+```
+
+**ციფრებს როგორ ვკითხულობთ.** ნიმუში: „ხორცის გარეშე“ ↔ ლობიო **0.71**, ↔ მწვადი **0.38**. აბსოლუტური ციფრი მოდელზეა დამოკიდებული: ზოგ მოდელზე სრულიად უცხო ტექსტებიც 0.4-ს აჩვენებს. ამიტომ ციფრს ცალკე არ ვაფასებთ („0.7 კარგია?“), არამედ **ვადარებთ**: რომელია უფრო ახლოს. ძებნაში სწორედ ესაა საჭირო — დალაგება.
+
+```terms
+Cosine similarity — ორი ვექტორის მსგავსების საზომი მათ შორის კუთხით: 1 — ერთი მიმართულება, 0 — არაფერი საერთო
+TensorPrimitives — System.Numerics.Tensors-ის კლასი ვექტორული გამოთვლებისთვის (CosineSimilarity, Dot…), SIMD-ით
+```
+  </aside>
+  <aside class="study-en">
+### Cosine similarity: the angle between two arrows
+
+We can picture a vector as an arrow pointing from the centre in some direction. **Cosine similarity** measures the **angle** between two arrows:
+
+| Angle | cosine | What it means |
+|---|---|---|
+| 0° — the same direction | 1 | very similar |
+| 90° — perpendicular | 0 | nothing in common |
+| 180° — opposite | −1 | (practically never happens with texts) |
+
+**The formula** — the dot product divided by the product of the lengths:
+
+```csharp By hand — how it's calculated
+static float Cosine(ReadOnlySpan<float> a, ReadOnlySpan<float> b)
+{
+    float dot = 0, na = 0, nb = 0;
+    for (int i = 0; i < a.Length; i++)
+    {
+        dot += a[i] * b[i];   // the dot product
+        na  += a[i] * a[i];   // the length of a, squared
+        nb  += b[i] * b[i];   // the length of b, squared
+    }
+    return dot / (MathF.Sqrt(na) * MathF.Sqrt(nb));
+}
+```
+
+In .NET this is ready-made and fast too (SIMD — the processor multiplies several numbers at once):
+
+```csharp
+using System.Numerics.Tensors;   // NuGet: System.Numerics.Tensors
+float score = TensorPrimitives.CosineSimilarity(a.Span, b.Span);
+```
+
+**How we read the numbers.** A sample: “without meat” ↔ lobio **0.71**, ↔ mtsvadi **0.38**. The absolute number depends on the model: on some models even completely unrelated texts show 0.4. So we don't judge a number on its own (“is 0.7 good?”), we **compare**: which one is closer. That's exactly what a search needs — ordering.
+
+```terms
+Cosine similarity — a measure of how similar two vectors are, by the angle between them: 1 — the same direction, 0 — nothing in common
+TensorPrimitives — a System.Numerics.Tensors class for vector computations (CosineSimilarity, Dot…), with SIMD
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · მსგავსება">
+  <div class="kicker">🧑‍💻 ვწერთ · მენიუს სემანტიკური ძებნა</div>
+  <h2>მენიუ ერთხელ → ვექტორები · შეკითხვა → <span class="c-asp">top 3</span></h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:22px">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · menu/index, menu/search">
+[HttpPost("menu/index")]
+public async Task<IActionResult> IndexMenu(CancellationToken ct)
+{
+    List<Product> products = await _db.Products.ToListAsync(ct);
+    GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+        products.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+        cancellationToken: ct);
+
+    _menu.Items.Clear();
+    for (int i = 0; i < products.Count; i++)
+        _menu.Items.Add((products[i].Name, vectors[i].Vector));
+
+    return Ok(new { Indexed = products.Count });
+}
+
+[HttpGet("menu/search")]
+public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+{
+    ReadOnlyMemory<float> query = await _embeddings.GenerateVectorAsync(
+        EmbeddingText.Query(q), cancellationToken: ct);
+
+    var top = _menu.Items
+        .Select(m => new { m.Name, Score = TensorPrimitives.CosineSimilarity(query.Span, m.Vector.Span) })
+        .OrderByDescending(x => x.Score)
+        .Take(3);
+
+    return Ok(top);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="swr c-get step">
+        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=ხორცის გარეშე</span></div>
+        <pre class="rb">[
+  { <span class="k">"name"</span>: <span class="s">"ლობიო ქოთანში"</span>,     <span class="k">"score"</span>: <span class="n">0.71</span> },
+  { <span class="k">"name"</span>: <span class="s">"ბადრიჯანი ნიგვზით"</span>, <span class="k">"score"</span>: <span class="n">0.68</span> },
+  { <span class="k">"name"</span>: <span class="s">"პომიდვრის სალათი"</span>,  <span class="k">"score"</span>: <span class="n">0.63</span> }
+]</pre>
+      </div>
+      <div class="callout step" style="--a:var(--mvc);font-size:18px">LIKE — 0 · embeddings — <b>სწორი სამი</b>. ერთი სიტყვაც არ ემთხვევა</div>
+      <div class="callout ask step">🙋 მენიუს ვექტორები ყოველ შეკითხვაზე <b>რატომ არ</b> ვითვლით?</div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px">200 კერძი ყოველ ჯერზე = ფული და დრო. ერთხელ ვითვლით, <b>ვინახავთ</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### მენიუს სემანტიკური ძებნა
+
+ორი ნაბიჯი: **ინდექსაცია** — მენიუს ყველა კერძის ვექტორი ერთხელ ითვლება და ინახება; **ძებნა** — ყოველ შეკითხვაზე მხოლოდ შეკითხვის ვექტორი ითვლება და ყველა კერძს ედარება.
+
+**სად ვინახავთ ვექტორებს (ჯერ):** მეხსიერებაში, Singleton სერვისში:
+
+```csharp Ai/MenuIndex.cs
+public class MenuIndex
+{
+    public List<(string Name, ReadOnlyMemory<float> Vector)> Items { get; } = [];
+}
+// Program.cs: builder.Services.AddSingleton<MenuIndex>();
+```
+
+```csharp Controllers/AiLabController.cs · menu/index, menu/search
+[HttpPost("menu/index")]
+public async Task<IActionResult> IndexMenu(CancellationToken ct)
+{
+    List<Product> products = await _db.Products.ToListAsync(ct);
+    GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+        products.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+        cancellationToken: ct);
+
+    _menu.Items.Clear();
+    for (int i = 0; i < products.Count; i++)
+        _menu.Items.Add((products[i].Name, vectors[i].Vector));
+
+    return Ok(new { Indexed = products.Count });
+}
+
+[HttpGet("menu/search")]
+public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+{
+    ReadOnlyMemory<float> query = await _embeddings.GenerateVectorAsync(
+        EmbeddingText.Query(q), cancellationToken: ct);
+
+    var top = _menu.Items
+        .Select(m => new { m.Name, Score = TensorPrimitives.CosineSimilarity(query.Span, m.Vector.Span) })
+        .OrderByDescending(x => x.Score)
+        .Take(3);
+
+    return Ok(top);
+}
+```
+
+- **`GenerateAsync(texts)`** — ყველა კერძი **ერთი** გამოძახებით; `vectors[i]` იმავე რიგითაა, რაც `products[i]`.
+- **დოკუმენტი:** `title: სახელი | text: აღწერა`. embedding მხოლოდ იმას „ხედავს“, რასაც მივცემთ: თუ კერძს აღწერა არ აქვს, ძებნა სუსტია. (`Product`-ს `Description` თუ არ აქვს, დაამატე migration-ით.)
+- **ძებნა:** შეკითხვის ვექტორი (`task: search result | query: …`) → cosine ყველა კერძთან → დალაგება → სამი საუკეთესო.
+
+**შედეგი (ნიმუში):** „ხორცის გარეშე“ → ლობიო 0.71, ბადრიჯანი 0.68, სალათი 0.63. LIKE-მა 0 იპოვა.
+
+**რატომ არ ვითვლით მენიუს ვექტორებს ყოველ შეკითხვაზე?** 200 კერძი ყოველ ჯერზე — ფული და წამები. მენიუ იშვიათად იცვლება: ერთხელ ვითვლით და ვინახავთ. ხელახლა — მხოლოდ კერძის დამატებისას ან შეცვლისას.
+
+```warn
+ვექტორები ჯერ **მეხსიერებაშია**: აპის რესტარტზე ქრება, და ძებნა ყველა ვექტორს სათითაოდ ადარებს. 200 კერძზე ეს მილიწამებია, მილიონ დოკუმენტზე — არა. ლექცია 10-ში ვექტორებს PostgreSQL-ში (pgvector) გადავიტანთ, ინდექსით.
+```
+  </aside>
+  <aside class="study-en">
+### A semantic search for the menu
+
+Two steps: **indexing** — the vectors of every dish on the menu are calculated once and stored; **search** — on every question only the question's vector is calculated and compared with every dish.
+
+**Where we keep the vectors (for now):** in memory, in a Singleton service:
+
+```csharp Ai/MenuIndex.cs
+public class MenuIndex
+{
+    public List<(string Name, ReadOnlyMemory<float> Vector)> Items { get; } = [];
+}
+// Program.cs: builder.Services.AddSingleton<MenuIndex>();
+```
+
+```csharp Controllers/AiLabController.cs · menu/index, menu/search
+[HttpPost("menu/index")]
+public async Task<IActionResult> IndexMenu(CancellationToken ct)
+{
+    List<Product> products = await _db.Products.ToListAsync(ct);
+    GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+        products.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+        cancellationToken: ct);
+
+    _menu.Items.Clear();
+    for (int i = 0; i < products.Count; i++)
+        _menu.Items.Add((products[i].Name, vectors[i].Vector));
+
+    return Ok(new { Indexed = products.Count });
+}
+
+[HttpGet("menu/search")]
+public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+{
+    ReadOnlyMemory<float> query = await _embeddings.GenerateVectorAsync(
+        EmbeddingText.Query(q), cancellationToken: ct);
+
+    var top = _menu.Items
+        .Select(m => new { m.Name, Score = TensorPrimitives.CosineSimilarity(query.Span, m.Vector.Span) })
+        .OrderByDescending(x => x.Score)
+        .Take(3);
+
+    return Ok(top);
+}
+```
+
+- **`GenerateAsync(texts)`** — every dish in **one** call; `vectors[i]` is in the same order as `products[i]`.
+- **The document:** `title: name | text: description`. The embedding only “sees” what we give it: if a dish has no description, the search is weak. (If `Product` has no `Description`, add one with a migration.)
+- **The search:** the question's vector (`task: search result | query: …`) → cosine with every dish → sort → the best three.
+
+**The result (sample):** “without meat” → lobio 0.71, aubergine 0.68, salad 0.63. LIKE found 0.
+
+**Why don't we calculate the menu's vectors on every question?** 200 dishes every time — money and seconds. The menu rarely changes: we calculate once and store. Again only when a dish is added or changed.
+
+```warn
+For now the vectors are **in memory**: they disappear when the app restarts, and the search compares every vector one by one. On 200 dishes that's milliseconds, on a million documents it isn't. In lecture 10 we move the vectors to PostgreSQL (pgvector), with an index.
+```
+  </aside>
+</section>
+
+<lecture-classwork/>
+
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--net)">დღეს</div>
+  <h2 class="in" style="--d:.1s">ტექსტი → ვექტორი → <span class="grad">ძებნა მნიშვნელობით</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
+      <li><b>embedding</b>: ტექსტი → ვექტორი; მსგავსი მნიშვნელობა = <b>ახლოს</b>, ენის მიუხედავად</li>
+      <li><b>ცალკე მოდელი</b>: gemini-embedding-2, 768 განზომილება · ერთი მოდელი = ერთი „რუკა“</li>
+      <li><b>IEmbeddingGenerator</b> — AddEmbeddingGenerator, GenerateVectorAsync / GenerateAsync</li>
+      <li><b>task prefix</b>: შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით, ყოველთვის</li>
+      <li><b>cosine similarity</b>: კუთხე · ვადარებთ, არა ვკითხულობთ · TensorPrimitives</li>
+      <li>მენიუ <b>ერთხელ</b> → ვექტორები; ყოველ შეკითხვაზე — მხოლოდ შეკითხვა</li></ul></div>
+    <div class="col" style="gap:14px">
+      <div class="callout ask">🙋 აპი გადაიტვირთა. ვექტორებს რა <b>დაემართა</b>? და მილიონ დოკუმენტზე?</div>
+      <div class="prob" style="--a:var(--red)"><span class="pi">💨</span><div><b>მეხსიერებაში — ქრება</b><span>ყოველ რესტარტზე თავიდან ითვლება</span></div></div>
+      <div class="prob" style="--a:var(--red)"><span class="pi">🐢</span><div><b>ყველას სათითაოდ ვადარებთ</b><span>მილიონ ვექტორზე — ნელა</span></div></div>
+      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 10</h3>
+        <p class="small"><b>pgvector + EF Core</b>: ვექტორები PostgreSQL-ში, ძებნა SQL-ით და HNSW ინდექსით</p></div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება
+
+- **Embedding** ტექსტს ვექტორად (რიცხვების სიად) აქცევს ისე, რომ **მსგავსი მნიშვნელობა ახლოს** იყოს — ენის მიუხედავადაც („ხორცის გარეშე“ ≈ „vegetarian“). ასე ძებნა სიტყვებით კი არა, **მნიშვნელობით** ხდება.
+- ვექტორს **ცალკე embedding მოდელი** აგენერირებს: ჩვენთან `gemini-embedding-2`, **768** განზომილებით. ერთი მოდელი — ერთი „რუკა“: სხვადასხვა მოდელის ვექტორები ერთმანეთს არ შეედრება.
+- **`IEmbeddingGenerator`** — Microsoft.Extensions.AI-ის interface (`IChatClient`-ის გვერდით): `AddEmbeddingGenerator`, `AsIEmbeddingGenerator(model, defaultModelDimensions)`, `GenerateVectorAsync` (ერთი) და `GenerateAsync` (ბევრი).
+- **Task prefix:** შეკითხვა — `task: search result | query: …`, დოკუმენტი — `title: … | text: …`. ყოველთვის ერთი და იგივე წესით.
+- **Cosine similarity** ორი ვექტორის კუთხეს ზომავს (1 — ძალიან მსგავსი, 0 — არაფერი საერთო). ციფრს ვადარებთ, ცალკე არ ვაფასებთ. .NET-ში: `TensorPrimitives.CosineSimilarity`.
+- **სემანტიკური ძებნა:** მენიუს ვექტორები ერთხელ (`GenerateAsync`), შეკითხვაზე — მხოლოდ შეკითხვის ვექტორი, cosine ყველასთან, top 3.
+
+### შემდეგ ლექციაზე
+
+ვექტორები ახლა მეხსიერებაშია: აპის რესტარტზე ქრება, და ძებნა ყველა ვექტორს სათითაოდ ადარებს. 200 კერძზე ეს პრობლემა არ არის, ათასობით დოკუმენტზე — არის. ლექცია 10-ზე: **PostgreSQL pgvector და EF Core** — ვექტორები ბაზაში, ძებნა SQL-ით და HNSW ინდექსით.
+  </aside>
+  <aside class="study-en">
+## Summary
+
+- An **embedding** turns a text into a vector (a list of numbers) so that **a similar meaning is close together** — even across languages (“without meat” ≈ “ვეგეტარიანული”). This way search happens **by meaning**, not by words.
+- The vector is generated by a **separate embedding model**: ours is `gemini-embedding-2`, with **768** dimensions. One model — one “map”: vectors from different models can't be compared.
+- **`IEmbeddingGenerator`** — Microsoft.Extensions.AI's interface (next to `IChatClient`): `AddEmbeddingGenerator`, `AsIEmbeddingGenerator(model, defaultModelDimensions)`, `GenerateVectorAsync` (one) and `GenerateAsync` (many).
+- **Task prefix:** the question — `task: search result | query: …`, the document — `title: … | text: …`. Always by the same rule.
+- **Cosine similarity** measures the angle between two vectors (1 — very similar, 0 — nothing in common). We compare the numbers, we don't judge them on their own. In .NET: `TensorPrimitives.CosineSimilarity`.
+- **Semantic search:** the menu's vectors once (`GenerateAsync`), on a question — only the question's vector, cosine with every dish, top 3.
+
+### Next lecture
+
+For now the vectors are in memory: they disappear when the app restarts, and the search compares every vector one by one. On 200 dishes this isn't a problem; on thousands of documents it is. In lecture 10: **PostgreSQL pgvector and EF Core** — vectors in the database, search with SQL and an HNSW index.
+  </aside>
+</section>
+
+<lecture-homework/>
