@@ -256,6 +256,11 @@ body.presenter{overflow:auto;background:#0a0c16}
 #presenter .p-foot{display:flex;gap:20px;padding:10px 26px;background:#11142a;color:var(--muted);font-size:16px}
 #presenter .p-help{margin-left:auto;font-size:13px}
 
+/* code windows: horizontal scroll for long lines, scrollbar hidden */
+.code,.vec,.swr .rb,.term{overflow-x:auto!important;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none}
+.code::-webkit-scrollbar,.vec::-webkit-scrollbar,.swr .rb::-webkit-scrollbar,.term::-webkit-scrollbar{display:none}
+.code>code{display:block;width:max-content;min-width:100%}
+
 /* ===== Light "warm paper" theme =====
    Semantic colours (constant across the whole deck):
    Frontend = pink · Backend/API = violet · Database = amber

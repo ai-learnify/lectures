@@ -133,12 +133,10 @@ const card = c => l => {
   const name = `${esc(c.title)} · ${l.num} — ${esc(l.title)}`;
   const mats = l.materials.length ? `<div class="meta"><details><summary>📎 მასალები · ${l.materials.length} ფაილი</summary>${l.materials.map(m => `<a href="${href}materials/${encodeURIComponent(m)}" download>${esc(m)}</a>`).join('')}</details></div>` : '';
   const files = ['index.html', l.deck_en && 'index.en.html', l.study && 'study.html', l.study_en && 'study.en.html', l.lecturer && 'lecturer.html'].filter(Boolean);
-  const chips = l.study ? [l.classwork && `<a class="chip" href="${href}study.html#classwork">📝 კლასის დავალება</a>`, l.homework && `<a class="chip" href="${href}study.html#homework">🏠 საშინაო</a>`, l.quiz && `<a class="chip" href="${href}study.html#quiz">✅ ტესტი <i>${l.quiz}</i></a>`].filter(Boolean).join('') : '';
   return `<article class="card" data-text="${esc((c.title + ' ' + l.title + ' ' + l.materials.join(' ')).toLowerCase())}">
     <div class="head"><span class="no">${String(l.num).padStart(2, '0')}</span><span class="kick"><b>ლექცია ${l.num}</b><span>${l.slides} სლაიდი</span></span></div>
     <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
     ${mats}
-    ${chips ? `<div class="chips">${chips}</div>` : ''}
     <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
     <div class="foot">${l.lecturer ? `<a href="${href}lecturer.html">🎓 ლექტორისთვის</a>` : '<span></span>'}<button class="dl" type="button" data-dl="${href}" data-files="${files.join(',')}" title="${files.join(', ')}">⬇ გადმოწერა · ${files.length} HTML</button></div>
   </article>`;
