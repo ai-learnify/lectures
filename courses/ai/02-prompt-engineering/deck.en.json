@@ -1,11 +1,5 @@
 {
 "_note": "EN version of the deck: Georgian text fragment (trimmed) → English. Build: index.en.html. Missing keys are reported by the build.",
-"_html": [
-[
-"prompt <b>ალბათობას</b> ცვლის, არა გარანტიას. რაც აუცილებლად უნდა შესრულდეს — <b>C# ამოწმებს</b> (ლექცია 19)",
-"A prompt changes the <b>probability</b>, not a guarantee. What must hold — <b>C# checks</b> (lecture 19)"
-]
-],
 "AI · ლექცია 2": "AI · Lecture 2",
 "პირველი გამოძახება": "The first call",
 "და": "and",
@@ -324,5 +318,15 @@
 "აიღე და შეინახე — შემდეგ ლექციაზე User Secrets-ში ჩავწერთ (": "— get it and keep it; next lecture we put it in User Secrets (",
 ") და კოდს ვწერთ": ") and write code",
 "✓ მზადაა, როცა: README-ში არის 3 ფუნქციის ცხრილი და ხარჯის გათვლა ფორმულით; ტესტის ქულა ჩაწერილია; key აღებულია": "✓ Done when: the README has the table of 3 features and the cost calculation with the formula; the quiz score is written down; you have the key",
-", ობიექტი — Gemini-ს. key — კონფიგურაციიდან:": ", the object is Gemini's. The key — from configuration:"
+", ობიექტი — Gemini-ს. key — კონფიგურაციიდან:": ", the object is Gemini's. The key — from configuration:",
+"💡 მხოლოდ provider (UseSqlServer → UseNpgsql) — LINQ უცვლელია. IChatClient-ზეც ასეა: იცვლება მხოლოდ provider": "💡 Only the provider (UseSqlServer → UseNpgsql) — the LINQ doesn't change. Same with IChatClient: only the provider changes",
+"💡 ნაწილობრივ ვარჯიშმა, მაგრამ კონკრეტულ ქცევას — ენას, თემას, ტონს — system prompt წყვეტს, რომელსაც აპლიკაცია წერს": "💡 Partly the training, but the specific behaviour — language, topic, tone — is set by the system prompt the application writes",
+"💡 მოდელი Mixed-ს იშვიათად აირჩევს ან სხვა სიტყვით უპასუხებს — მაგალითი ფორმატსაც და ვარიანტებსაც აფიქსირებს": "💡 The model will rarely pick Mixed or will answer with another word — an example fixes both the format and the options",
+"💡 client ყოველ მოთხოვნაზე new-ით იქმნება და მოდელი კოდშია ჩაწერილი — ადგილი DI-ში (AddChatClient) და კონფიგურაციაშია": "💡 The client is created with new on every request and the model is hard-coded — it belongs in DI (AddChatClient) and configuration",
+"_html": [
+[
+"prompt <b>ალბათობას</b> ცვლის, არა გარანტიას. რაც აუცილებლად უნდა შესრულდეს — <b>C# ამოწმებს</b> (ლექცია 19)",
+"A prompt changes the <b>probability</b>, not a guarantee. What must hold — <b>C# checks</b> (lecture 19)"
+]
+]
 }

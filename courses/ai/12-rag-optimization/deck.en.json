@@ -237,6 +237,15 @@
 "✓ მზადაა, როცა: The table has three versions with numbers and hybrid shows on the exact words; the filtered search is one SQL query; 3 groundedness evaluations with an explanation; the conclusion relies on the numbers": "✓ Done when: The table has three versions with numbers and hybrid shows on the exact words; the filtered search is one SQL query; 3 groundedness evaluations with an explanation; the conclusion relies on the numbers",
 "— did it help with Georgian grammatical forms (“დარბაზი” / “დარბაზში”)?": "— did it help with Georgian grammatical forms (“დარბაზი” / “დარბაზში”)?",
 "წინადადებით, 800:    hitAt3 0.83   mrr 0.72\nსათაურებით:          hitAt3": "by sentence, 800:    hitAt3 0.83   mrr 0.72\nby heading:          hitAt3",
+"💡 „თვალით“ ვერ ვიტყვით — golden set და ციფრი გვჭირდება": "💡 We can't tell “by eye” — we need a golden set and a number",
+"💡 chunking-ის შეცვლისას Id-ები იცვლება — ფრაზა რჩება": "💡 When the chunking changes the Ids change — the phrase stays",
+"💡 ორივე ზუსტი სიტყვაა — კოდი და რიცხვი, რომელსაც ვექტორი ცუდად „ხედავს“": "💡 Both are exact words — a code and a number that the vector “sees” badly",
+"💡 score-ები სხვადასხვა „ერთეულშია“ (0.3–0.8 vs 0.01–0.1) — რიგი კი ყველგან ერთნაირია": "💡 The scores are in different “units” (0.3–0.8 vs 0.01–0.1) — the rank is the same everywhere",
+"💡 წერია „5+ კაცზე — 12%“: არც სიტყვა, არც მნიშვნელობა ზუსტად არ ემთხვევა — reranker ან tool": "💡 It says “for 5+ people — 12%”: neither the word nor the meaning matches exactly — a reranker or a tool",
+"💡 SQL-ში — prompt თხოვნაა, SQL კანონი. რაც კონტექსტში მოხვდა, შეიძლება გაჟონოს": "💡 In SQL — a prompt is a request, SQL is a law. What gets into the context can leak",
+"💡 ნაწილის ვექტორი თემასაც „იცის“, თუნდაც ტექსტში სიტყვა „ჯავშანი“ არ ეწეროს": "💡 The part's vector “knows” the topic too, even if the word “booking” isn't in the text",
+"💡 ყოველ წყვილს ცალკე გამოთვლა სჭირდება — მილიონზე ძალიან ნელი და ძვირია, 20-ზე — კი": "💡 Every pair needs its own computation — very slow and expensive on a million, fine on 20",
+"💡 მსაჯიც მოდელია: ცდება და საკუთარ პასუხებს რბილად აფასებს — ბევრ მაგალითზე და ხანდახან ხელით": "💡 The judge is a model too: it makes mistakes and rates its own answers softly — on many examples and manually from time to time",
 "_slides": {
 "7": {
 "ორ ადგილას": "fails in two places",

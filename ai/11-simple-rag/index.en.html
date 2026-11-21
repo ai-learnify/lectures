@@ -593,6 +593,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       </div>
     </div>
     <div class="callout ask step">🙋 What does this look like? An <b>exam</b> with an open book or a closed one?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 With an open book — the model writes the answer from the pages we find and give it</div>
   </div>
 </section>
 
@@ -620,6 +621,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <i class="codestep" data-for="c1" data-lines="15-16"></i>
       <div class="prob step" data-with style="--a:var(--mvc)"><span class="pi">🧹</span><div><b>Cleaning</b><span>Extra spaces and line breaks; the page number stays — <b>for the source</b></span></div></div>
       <div class="callout ask step">🙋 A scanned PDF (a photo) — what will it <b>return</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Empty text — a scan is an image, it needs OCR for text</div>
     </div>
   </div>
 </section>
@@ -633,6 +635,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">✂️</span><div><b>A part = one idea</b><span>~800 characters, on a sentence boundary · the vector is precise, cheap in the context</span></div></div>
       <div class="prob step" style="--a:var(--pink)"><span class="pi">🔗</span><div><b>overlap — one sentence</b><span>The part's last sentence is repeated in the next one — the idea <b>isn't cut at the boundary</b></span></div></div>
       <div class="callout ask step">🙋 What if a part were <b>very</b> small — one sentence?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The vector is precise, but the context is lost: “this rule applies to 8+ people” — which rule?</div>
     </div>
     <div class="col" style="gap:10px">
       <div class="chunks">
@@ -656,6 +659,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
         <pre class="rb">{ <span class="k">"id"</span>: <span class="n">1</span>, <span class="k">"chunks"</span>: <span class="n">41</span> }</pre>
       </div>
       <div class="callout ask step">🙋 Compared with lecture 10, what's <b>new</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Only two things: reading the PDF and chunking. The rest is lectures 9–10</div>
     </div>
   </div>
 </section>
@@ -697,6 +701,7 @@ A booking for 8+ people requires…
 <span class="k">Question:</span> How do I cancel a booking?</div>
       <div class="prob step" style="--a:var(--net)"><span class="pi">📏</span><div><b>The threshold — again</b><span>“A borscht recipe” — 0 parts. Without a threshold we'd give the model 5 meaningless parts</span></div></div>
       <div class="callout ask step">🙋 Why <b>numbers</b> and the page?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The model writes [1] in the answer — we know the file and page: the user checks, we see which part was bad</div>
     </div>
   </div>
 </section>
@@ -723,6 +728,7 @@ The menu and prices — from the tools.</div>
 <span class="k">"sources"</span>: [ { <span class="k">"n"</span>: <span class="n">1</span>, <span class="k">"file"</span>: <span class="s">"rules.pdf"</span>, <span class="k">"page"</span>: <span class="n">3</span> } ]</pre>
       </div>
       <div class="callout ask step">🙋 In lecture 9's ⭐ the search was a <b>tool</b>. Which is better?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Both are real approaches: “always” — simple and predictable; a tool — search only when needed (lecture 15)</div>
     </div>
   </div>
 </section>

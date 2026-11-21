@@ -220,6 +220,7 @@ Lost in the middle — in a long context the model more often “misses” infor
       </div>
     </div>
     <div class="callout ask step">🙋 ეს რას ჰგავს? <b>გამოცდა</b> ღია წიგნით თუ დახურულით?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ღია წიგნით — მოდელი პასუხს იმ გვერდებიდან წერს, რომლებსაც ჩვენ ვპოულობთ და ვაწვდით</div>
   </div>
   <aside class="study">
 ### RAG: ორი pipeline
@@ -325,6 +326,7 @@ public static class PdfText
       <i class="codestep" data-for="c1" data-lines="15-16"></i>
       <div class="prob step" data-with style="--a:var(--mvc)"><span class="pi">🧹</span><div><b>გაწმენდა</b><span>ზედმეტი ჰარები და ხაზები; გვერდის ნომერი რჩება — <b>წყაროსთვის</b></span></div></div>
       <div class="callout ask step">🙋 სკანირებული PDF (ფოტო) — რას <b>დააბრუნებს</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ცარიელ ტექსტს — სკანი სურათია, ტექსტისთვის OCR სჭირდება</div>
     </div>
   </div>
   <aside class="study">
@@ -420,6 +422,7 @@ OCR — recognizing text in an image; a scanned PDF needs it
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">✂️</span><div><b>ნაწილი = ერთი აზრი</b><span>~800 სიმბოლო, წინადადების საზღვარზე · ვექტორი ზუსტია, კონტექსტში იაფია</span></div></div>
       <div class="prob step" style="--a:var(--pink)"><span class="pi">🔗</span><div><b>overlap — ერთი წინადადება</b><span>ნაწილის ბოლო წინადადება შემდეგშიც მეორდება — აზრი საზღვარზე <b>არ წყდება</b></span></div></div>
       <div class="callout ask step">🙋 ნაწილი <b>ძალიან</b> პატარა რომ იყოს — ერთი წინადადება?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ვექტორი ზუსტია, მაგრამ კონტექსტი იკარგება: „ეს წესი 8+ კაცზე ვრცელდება“ — რომელი წესი?</div>
     </div>
     <div class="col" style="gap:10px">
       <div class="chunks">
@@ -596,6 +599,7 @@ public class DocumentChunk
         <pre class="rb">{ <span class="k">"id"</span>: <span class="n">1</span>, <span class="k">"chunks"</span>: <span class="n">41</span> }</pre>
       </div>
       <div class="callout ask step">🙋 ლექცია 10-თან შედარებით რა არის <b>ახალი</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მხოლოდ ორი რამ: PDF-ის წაკითხვა და chunking. დანარჩენი ლექცია 9–10-ია</div>
     </div>
   </div>
   <aside class="study">
@@ -820,6 +824,7 @@ private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationTok
 <span class="k">შეკითხვა:</span> ჯავშანი როგორ გავაუქმო?</div>
       <div class="prob step" style="--a:var(--net)"><span class="pi">📏</span><div><b>ზღვარი — ისევ</b><span>„ბორშის რეცეპტი“ — 0 ნაწილი. ზღვრის გარეშე მოდელს 5 უაზრო ნაწილს მივცემდით</span></div></div>
       <div class="callout ask step">🙋 რატომ <b>ნომრები</b> და გვერდი?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მოდელი პასუხში [1]-ს წერს — ვიცით ფაილი და გვერდი: მომხმარებელი ამოწმებს, ჩვენ ვხედავთ, რომელი ნაწილი იყო ცუდი</div>
     </div>
   </div>
   <aside class="study">
@@ -957,6 +962,7 @@ return Ok(new { conversationId, response.Text,
 <span class="k">"sources"</span>: [ { <span class="k">"n"</span>: <span class="n">1</span>, <span class="k">"file"</span>: <span class="s">"წესები.pdf"</span>, <span class="k">"page"</span>: <span class="n">3</span> } ]</pre>
       </div>
       <div class="callout ask step">🙋 ლექცია 9-ის ⭐-ში ძებნა <b>tool</b> იყო. რა სჯობს?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ორივე რეალური გზაა: „ყოველთვის“ — მარტივი და პროგნოზირებადი; tool — ძებნა მხოლოდ საჭიროებისას (ლექცია 15)</div>
     </div>
   </div>
   <aside class="study">

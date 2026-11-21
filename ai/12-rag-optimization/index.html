@@ -568,6 +568,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="prob step" data-with style="--a:var(--red)"><span class="pi">🤖</span><div><b>მოდელმა დაამატა</b><span>ნაწილი სწორია, პასუხში კი ისეთი რამ წერია, რაც წყაროში <b>არ არის</b></span></div></div>
     </div>
     <div class="callout ask step">🙋 chunk 800 → 400 შევცვალეთ. <b>უკეთესი</b> გახდა? როგორ გავიგოთ?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 „თვალით“ ვერ ვიტყვით — golden set და ციფრი გვჭირდება</div>
   </div>
 </section>
 
@@ -590,6 +591,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="metric step" style="--a:var(--net)"><div class="big">4 / 6</div><span><b>hit@3</b> = რამდენ შეკითხვაზე იყო სწორი ნაწილი <b>პირველ სამში</b> · 0.67</span></div>
       <div class="metric step" style="--a:var(--asp)"><div class="big">0.51</div><span><b>MRR</b> = საშუალო 1/რიგი: (1 + 1 + ½ + 0 + ⅓ + ⅕) / 6 — რამდენად <b>მაღლა</b></span></div>
       <div class="callout ask step">🙋 რატომ „უნდა წერდეს“ და არა chunk-ის <b>Id</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 chunking-ის შეცვლისას Id-ები იცვლება — ფრაზა რჩება</div>
     </div>
   </div>
 </section>
@@ -614,6 +616,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <span class="k">"misses"</span>: [ <span class="s">"B-2 დარბაზი სადაა?"</span>, <span class="s">"მომსახურება 6 კაცზე?"</span> ] }</pre>
       </div>
       <div class="callout ask step">🙋 ორივე miss-ში რა არის <b>საერთო</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ორივე ზუსტი სიტყვაა — კოდი და რიცხვი, რომელსაც ვექტორი ცუდად „ხედავს“</div>
     </div>
   </div>
 </section>
@@ -650,6 +653,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <span class="d">#41:  1/(60+1) + 1/(60+3) = 0.0323</span>
 <span class="d">#17:  1/(60+2)            = 0.0161</span></div>
       <div class="callout ask step">🙋 რატომ <b>რიგი</b> და არა score-ები?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 score-ები სხვადასხვა „ერთეულშია“ (0.3–0.8 vs 0.01–0.1) — რიგი კი ყველგან ერთნაირია</div>
     </div>
   </div>
 </section>
@@ -669,6 +673,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <span class="k">"misses"</span>: [ <span class="s">"მომსახურება 6 კაცზე?"</span> ] }</pre>
       </div>
       <div class="callout ask step">🙋 „6 კაცზე“ — რატომ ისევ <b>miss</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 წერია „5+ კაცზე — 12%“: არც სიტყვა, არც მნიშვნელობა ზუსტად არ ემთხვევა — reranker ან tool</div>
     </div>
   </div>
 </section>
@@ -691,6 +696,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">🎯</span><div><b>ხარისხი</b><span>„ფასები“ მენიუს ძველ PDF-ში და ღონისძიებების ფასებში ერევა — ფილტრი ხმაურს აქრობს</span></div></div>
       <div class="prob step" style="--a:var(--red)"><span class="pi">🔒</span><div><b>უსაფრთხოება</b><span>მრავალ-კლიენტიან სისტემაში ფილტრი <b>აუცილებელია</b> — prompt-ში „ნუ აჩვენებ“ არ კმარა</span></div></div>
       <div class="callout ask step">🙋 ფილტრი <b>სად</b> უნდა იყოს: SQL-ში თუ prompt-ში?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 SQL-ში — prompt თხოვნაა, SQL კანონი. რაც კონტექსტში მოხვდა, შეიძლება გაჟონოს</div>
     </div>
   </div>
 </section>
@@ -729,6 +735,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 სათაურებით:          hitAt3 <span class="g">0.92</span>   mrr <span class="g">0.81</span>
 წინადადებით, 300:    hitAt3 <span class="r">0.75</span>   mrr 0.60</div>
     <div class="callout ask step">🙋 სათაური <b>prefix-ში</b> — რატომ უშველის?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ნაწილის ვექტორი თემასაც „იცის“, თუნდაც ტექსტში სიტყვა „ჯავშანი“ არ ეწეროს</div>
   </div>
 </section>
 
@@ -753,6 +760,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
         <tr><td>LLM როგორც reranker</td><td>Gemini + structured output — ძვირი და ნელი</td></tr>
       </table>
       <div class="callout ask step">🙋 reranker რატომ არა <b>ყველა</b> ნაწილზე, ძებნის ნაცვლად?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ყოველ წყვილს ცალკე გამოთვლა სჭირდება — მილიონზე ძალიან ნელი და ძვირია, 20-ზე — კი</div>
     </div>
   </div>
 </section>
@@ -767,6 +775,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="prob step" style="--a:var(--red)"><span class="pi">2</span><div><b>„15 ლარი, სანთლები უფასოა [1]“</b><span>„სანთლები“ წყაროში <b>არ წერია</b> — მოდელმა დაამატა</span></div></div>
       <div class="callout step" style="--a:var(--net);font-size:16px">NuGet: <b>Microsoft.Extensions.AI.Evaluation.Quality</b> · მსაჯი — ისევ Gemini (IChatClient)</div>
       <div class="callout ask step">🙋 მსაჯი-მოდელს <b>რატომ</b> არ ვენდობით ბოლომდე?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მსაჯიც მოდელია: ცდება და საკუთარ პასუხებს რბილად აფასებს — ბევრ მაგალითზე და ხანდახან ხელით</div>
     </div>
   </div>
 </section>

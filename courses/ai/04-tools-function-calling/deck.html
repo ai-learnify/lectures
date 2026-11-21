@@ -296,6 +296,7 @@ Function calling (tool calling) — instead of text, the model returns a request
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
     <div class="callout step" style="--a:var(--net);font-size:20px">პარამეტრები = <b>JSON Schema</b>, ზუსტად ისე, როგორც ლექცია 3-ის <code class="i">BookingRequest</code></div>
     <div class="callout ask step">🙋 ვინ ასრულებს მეთოდს: <b>Gemini</b> თუ <b>ჩვენი სერვერი</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ჩვენი სერვერი. მოდელი მხოლოდ ითხოვს (functionCall) — ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ</div>
   </div>
   <aside class="study">
 ### რა მიდის ქსელში
@@ -940,6 +941,7 @@ If you also want to see the parameters in `toolCalls`, write `.Select(c => $"{c.
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
     <div class="callout step" style="--a:var(--net);font-size:19px">მოდელი <b>ირჩევს</b>: არცერთს, ერთს ან რამდენიმეს. პარამეტრებს ტექსტიდან ავსებს</div>
     <div class="callout ask step">🙋 „ოთხნი ვართ“ — <b>რომელ დღეს</b>? რას იზამს მოდელი?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 დღე არ წერია — კარგი მოდელი tool-ს ჯერ არ გამოიძახებს და დააზუსტებს: „რომელ დღეს და რომელ საათზე?“</div>
   </div>
   <aside class="study">
 ### რომელ tool-ს გამოიძახებს?
@@ -1016,6 +1018,7 @@ Task<AvailabilityInfo> CheckAvailability(
     </div>
   </div>
   <div class="callout ask step mt">🙋 რატომ <b>მხოლოდ კითხვა</b>? რა მოხდება, თუ მოდელს <code class="i">create_booking</code>-ს მივცემთ?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 შესაძლებელია, მაგრამ საშიში: მოდელი ალბათობით მუშაობს — „8-ზე“ შეიძლება 08:00 გაიგოს და ჯავშანი შექმნას. ჩაწერა — მხოლოდ დადასტურებით (ლექცია 15)</div>
   <aside class="study">
 ### კარგი tool: 4 წესი
 
@@ -1079,6 +1082,7 @@ builder.Services.AddChatClient(…)
     .UseFunctionInvocation();
       </code-block>
       <div class="callout ask">🙋 ეს <b>ერთი ხაზი</b> სინამდვილეში რა არის? სად კიდევ გინახავთ <code class="i">.Use…()</code>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ფენა (middleware) client-ის გარშემო — როგორც app.UseAuthentication() ASP.NET Core-ში</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 5</h3>
         <p class="small"><b>Pipeline და Middleware</b>: <code class="i">UseFunctionInvocation</code> client-ის გარშემო „ფენაა“. დავამატებთ ლოგირებას, ქეშს და <b>ჩვენს ფენას</b>, რომელიც ტოკენებს ითვლის</p></div>
     </div>

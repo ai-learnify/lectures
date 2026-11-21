@@ -140,6 +140,7 @@ _chat = new Client(apiKey: config["Gemini:ApiKey"])
     .AsIChatClient("gemini-3.8-flash");
       </code-block>
       <div class="callout ask">🙋 API კურსზე <b>DbContext</b>-ს Controller-ში <b>new</b>-ით ქმნიდით?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 არა — DI-დან (AddDbContext). IChatClient-იც ასე უნდა: AddChatClient</div>
     </div>
     <div class="col" style="gap:12px">
       <div class="prob step" style="--a:var(--red)"><span class="pi">♻️</span><div><b>ყოველ request-ზე ახალი client</b><span>Controller ყოველ მოთხოვნაზე იქმნება — და მასთან ერთად client და მისი HTTP კავშირიც</span></div></div>
@@ -498,6 +499,7 @@ In lecture 2 we used few-shot to make the model return the exact word almost eve
       <div class="lab-out"><span class="good">Search</span><span class="bad">Search.</span><span class="bad">search</span><span class="bad">ეს Search მოთხოვნაა</span></div>
       <div class="ifc step"><span class="kw">if</span> (label == <span class="st">"Search"</span>) …  <span style="color:var(--red)">✗ ✗ ✗</span></div>
       <div class="callout ask step">🙋 საშინაოში ვის დაუბრუნა სიის <b>გარეთ</b> პასუხი? რას აკეთებდით?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ტექსტის „გაპარსვა“ მყიფეა — structured output: enum სქემაში, და მოდელი სიის გარეთ ვეღარ უპასუხებს</div>
     </div>
     <div class="col step" style="gap:14px">
       <p class="sec-l">თუ პასუხი C# ტიპი იქნებოდა:</p>

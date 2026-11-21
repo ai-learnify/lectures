@@ -592,6 +592,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <tr class="ct step" data-with><td>tool exception</td><td>ჩვენი C# მეთოდი ჩავარდა</td><td><span class="tag" style="--a:var(--net)">შინაარსის</span> FunctionInvocation შეცდომას მოდელს უბრუნებს</td></tr>
   </table>
   <div class="callout ask mt step">🙋 401-ზე (არასწორი key) 5-ჯერ თავიდან ცდა <b>რას</b> მოგვცემს?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 არაფერს — key იგივეა, შეცდომაც იგივე. retry მხოლოდ დროებით შეცდომებზე შველის</div>
 </section>
 
 <!-- ================= 2 · retry ================= -->
@@ -621,6 +622,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="prob step" data-with style="--a:var(--red)"><span class="pi">🔌</span><div><b>circuit breaker</b><span>თუ ბევრი ცდა ზედიზედ ჩავარდა — ცოტა ხნით საერთოდ აღარ ვიძახებთ, მაშინვე ვამბობთ „არა“</span></div></div>
   </div>
   <div class="callout ask mt step">🙋 რატომ არა უბრალოდ <b>10-ჯერ ზედიზედ</b>, პაუზის გარეშე?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 გადატვირთულ სერვისს კიდევ უფრო ვტვირთავთ და 429-ს ვიღებთ — ამიტომ backoff და jitter</div>
 </section>
 
 <section class="slide" data-section="2 · retry">
@@ -636,6 +638,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <i class="codestep" data-for="c1" data-lines="14"></i>
       <div class="callout step" data-with style="--a:var(--net);font-size:17px">SDK ჩვენს <b>HttpClient</b>-ს იყენებს — retry მის შიგნით ხდება</div>
       <div class="callout ask step">🙋 Controller-ში რა <b>შეიცვალა</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 არაფერი — resilience HttpClient-ის დონეზეა, Controller ისევ IChatClient-ს იყენებს</div>
     </div>
   </div>
 </section>

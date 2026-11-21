@@ -551,6 +551,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="col" style="gap:16px">
       <pre class="code sm"><span class="ttl">Controllers/AiLabController.cs · ლექცია 2</span><code><span class="ln"><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">      </span></span></code></pre>
       <div class="callout ask">🙋 API კურსზე <b>DbContext</b>-ს Controller-ში <b>new</b>-ით ქმნიდით?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 არა — DI-დან (AddDbContext). IChatClient-იც ასე უნდა: AddChatClient</div>
     </div>
     <div class="col" style="gap:12px">
       <div class="prob step" style="--a:var(--red)"><span class="pi">♻️</span><div><b>ყოველ request-ზე ახალი client</b><span>Controller ყოველ მოთხოვნაზე იქმნება — და მასთან ერთად client და მისი HTTP კავშირიც</span></div></div>
@@ -611,6 +612,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="lab-out"><span class="good">Search</span><span class="bad">Search.</span><span class="bad">search</span><span class="bad">ეს Search მოთხოვნაა</span></div>
       <div class="ifc step"><span class="kw">if</span> (label == <span class="st">"Search"</span>) …  <span style="color:var(--red)">✗ ✗ ✗</span></div>
       <div class="callout ask step">🙋 საშინაოში ვის დაუბრუნა სიის <b>გარეთ</b> პასუხი? რას აკეთებდით?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ტექსტის „გაპარსვა“ მყიფეა — structured output: enum სქემაში, და მოდელი სიის გარეთ ვეღარ უპასუხებს</div>
     </div>
     <div class="col step" style="gap:14px">
       <p class="sec-l">თუ პასუხი C# ტიპი იქნებოდა:</p>

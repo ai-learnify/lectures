@@ -630,6 +630,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
     <div class="callout step" style="--a:var(--net);font-size:20px">Parameters = <b>JSON Schema</b>, exactly like lecture 3's <code class="i">BookingRequest</code></div>
     <div class="callout ask step">🙋 Who runs the method: <b>Gemini</b> if <b>our server</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Our server. The model only asks (functionCall) — we run it and send back the result</div>
   </div>
 </section>
 
@@ -767,6 +768,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
     <div class="callout step" style="--a:var(--net);font-size:19px">The model <b>chooses</b>: none, one or several. It fills in the parameters from the text</div>
     <div class="callout ask step">🙋 “There are four of us” — <b>which day</b>? What will the model do?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The day isn't given — a good model won't call the tool yet and will ask: “which day and what time?”</div>
   </div>
 </section>
 
@@ -793,6 +795,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     </div>
   </div>
   <div class="callout ask step mt">🙋 Why <b>only reading</b>? What happens if we give the model <code class="i">create_booking</code>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Possible, but dangerous: the model works with probabilities — it may read “at 8” as 08:00 and create the booking. Writing — only with confirmation (lecture 15)</div>
 </section>
 
 <section class="slide" data-section="Practice">
@@ -838,6 +841,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="col" style="gap:14px">
       <pre class="code sm"><span class="ttl">Program.cs</span><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="err">…</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">      </span></span></code></pre>
       <div class="callout ask">🙋 What is this <b>one line</b> really? Where else have you seen <code class="i">.Use…()</code>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 A layer (middleware) around the client — like app.UseAuthentication() in ASP.NET Core</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>Lecture 5</h3>
         <p class="small"><b>Pipeline and Middleware</b>: <code class="i">UseFunctionInvocation</code> is a “layer” around the client. We'll add logging, caching and <b>our own layer</b>that counts tokens</p></div>
     </div>

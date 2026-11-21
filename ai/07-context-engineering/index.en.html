@@ -652,6 +652,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <i class="codestep" data-for="c2" data-lines="15"></i>
       <div class="callout step" data-with style="--a:var(--asp);font-size:17px"><b>response.Messages</b> — every new message: the tool request, the result, the answer</div>
       <div class="callout ask step">🙋 “And at 21:00?” — will it now <b>understand</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Yes — the history is loaded from the database and goes into every request</div>
     </div>
   </div>
 </section>
@@ -794,6 +795,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="txt"><span class="who">User</span>And at 21:00?</div>
       <div class="txt bot"><span class="who">Assistant</span>One table is free at 21:00 ✓</div>
       <div class="callout ask">🙋 Gemini returned a <b>503</b> in the middle of a conversation. What happens now?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The user sees a 500 and the question is lost — we don't have retry and fallback yet</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>Lecture 8</h3>
         <p class="small"><b>Error Handling, Resilience and Cost</b>: retry, timeout, a fallback model and how much we spent today</p></div>
     </div>

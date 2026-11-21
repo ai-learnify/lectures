@@ -282,5 +282,6 @@
 "სტატუსის მოვლენები:": "Status events:",
 "— tool-ის ციკლის დროს": "— during the tool loop",
 "(„ვამოწმებ მაგიდებს…“), მერე ტექსტი": "(“checking the tables…”), then the text",
-"შენი პროექტი ან RestaurantApi · კოდით · ტერმინალში, curl-ით": "Your project or RestaurantApi · with code · in a terminal, with curl"
+"შენი პროექტი ან RestaurantApi · კოდით · ტერმინალში, curl-ით": "Your project or RestaurantApi · with code · in a terminal, with curl",
+"💡 მოთხოვნა გაუქმდა (canceled) — Gemini-ს მოთხოვნაც წყდება და ზედმეტ ტოკენებს აღარ ვიხდით": "💡 The request was cancelled — the Gemini request stops too and we no longer pay for extra tokens"
 }

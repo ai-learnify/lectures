@@ -556,6 +556,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <div class="kicker">A familiar idea</div>
   <h2><code class="i" style="font-size:.9em">IChatClient</code> — the LLM's <span class="c-api">„DbContext“</span></h2>
   <div class="callout ask">🙋 In EF Core, when switching from SQL Server to PostgreSQL, <b>what changes</b> in the code?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Only the provider (UseSqlServer → UseNpgsql) — the LINQ doesn't change. Same with IChatClient: only the provider changes</div>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:36px;align-items:start;margin-top:14px">
     <div class="found">
       <div class="layer" style="--a:var(--api)">Our code<small>LINQ: _db.Dishes.Where(…)</small></div>
@@ -694,6 +695,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <div class="kicker">The whole picture first</div>
   <h2>We send the model <span class="c-net">a list of messages</span></h2>
   <div class="callout ask">🙋 Who “told” ChatGPT that it's a polite assistant?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Partly the training, but the specific behaviour — language, topic, tone — is set by the system prompt the application writes</div>
   <div class="grid2 mt" style="grid-template-columns:1.25fr 1fr;gap:30px;align-items:start">
     <div class="msgs">
       <div class="msg step" style="--a:var(--net)"><b>System<small>we · in code</small></b><span>You are the assistant of the restaurant Supra. You answer briefly…</span></div>
@@ -781,6 +783,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <i class="codestep" data-for="c4" data-lines="14"></i>
       <div class="callout step" data-with style="--a:var(--api)"><b>The real</b> review — last</div>
       <div class="callout ask step">🙋 What happens if we remove the <b>Mixed</b> example?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The model will rarely pick Mixed or will answer with another word — an example fixes both the format and the options</div>
     </div>
   </div>
 </section>
@@ -826,6 +829,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="col" style="gap:14px">
       <pre class="code sm"><span class="ttl">AiLabController.cs</span><code><span class="ln"><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">      </span></span></code></pre>
       <div class="callout ask">🙋 Remember the DI lecture: what's <b>wrong</b> with these two lines?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The client is created with new on every request and the model is hard-coded — it belongs in DI (AddChatClient) and configuration</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>Lecture 3</h3>
         <p class="small"><code class="i">AddChatClient</code> — IChatClient in DI and configuration; <b>structured output</b> — the answer directly <b>as a C# object</b></p></div>
     </div>

@@ -1,119 +1,5 @@
 {
 "_note": "EN version of the deck: Georgian text fragment (trimmed) → English. Build: index.en.html. Missing keys are reported by the build.",
-"_html": [
-[
-"<p class=\"small\">ლექცია 2-ზე <code class=\"i\">IChatClient</code> Controller-ში <code class=\"i\">new</code>-ით შევქმენით, პასუხი კი თავისუფალი ტექსტი იყო — few-shot-ითაც „თითქმის“ ზუსტი. დღეს client-ს სწორ ადგილზე ვსვამთ (DI და კონფიგურაცია, როგორც API კურსზე), ხოლო მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს არსებულ ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.</p>",
-"<p class=\"small\">In lecture 2 we created <code class=\"i\">IChatClient</code> in the Controller with <code class=\"i\">new</code>, and the answer was free text — “almost” exact even with few-shot. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.</p>"
-],
-[
-"<li><code class=\"i\">IChatClient</code>-ის რეგისტრაცია DI-ში <code class=\"i\">AddChatClient</code>-ით: key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
-"<li>Register <code class=\"i\">IChatClient</code> in DI with <code class=\"i\">AddChatClient</code>: the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
-],
-[
-"<li><code class=\"i\">GetResponseAsync&lt;T&gt;</code>-ით enum-ის მიღება და ახსნა, რატომ არის ეს few-shot-ზე საიმედო</li>",
-"<li>Get an enum with <code class=\"i\">GetResponseAsync&lt;T&gt;</code> and explain why it's more reliable than few-shot</li>"
-],
-[
-"<li>ტექსტიდან ობიექტის ამოღება <code class=\"i\">record</code>-ით: nullable ველები, <code class=\"i\">Description</code>, დღევანდელი თარიღი prompt-ში</li>",
-"<li>Extract an object from text with a <code class=\"i\">record</code>: nullable fields, <code class=\"i\">Description</code>, today's date in the prompt</li>"
-],
-[
-"<li>ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში</li>",
-"<li>Explain why the shape is guaranteed but the content is not, and check the received object in C#</li>"
-],
-[
-"<li><strong>1 · DI</strong> — თუ ჯერ არ გაგიკეთებია: <code class=\"i\">AddChatClient</code> <code class=\"i\">Program.cs</code>-ში, key — User Secrets-ში, <code class=\"i\">AiLabController</code> — constructor-ით</li>",
-"<li><strong>1 · DI</strong> — if you haven't done it yet: <code class=\"i\">AddChatClient</code> in <code class=\"i\">Program.cs</code>, the key in User Secrets, <code class=\"i\">AiLabController</code> — through the constructor</li>"
-],
-[
-"<li><strong>2 · შენი ტიპი</strong> — <code class=\"i\">record</code> <strong>მინიმუმ 3 ველით</strong> შენი პროექტის ტექსტისთვის; ერთი ველი — <strong>enum</strong>, არასავალდებულო ველები — <strong>nullable</strong> (<code class=\"i\">?</code>)</li>",
-"<li><strong>2 · Your type</strong> — a <code class=\"i\">record</code> <strong>with at least 3 fields</strong> for text in your project; one field is an <strong>enum</strong>, optional fields are <strong>nullable</strong> (<code class=\"i\">?</code>)</li>"
-],
-[
-"<li><strong>3 · endpoint</strong> <code class=\"i\">POST /api/ai-lab/extract</code> — System: <strong>რა</strong> ამოიღოს და „რაც არ წერია, დატოვე null“ → <code class=\"i\">GetResponseAsync&lt;შენი ტიპი&gt;</code> → <code class=\"i\">Ok(response.Result)</code></li>",
-"<li><strong>3 · endpoint</strong> <code class=\"i\">POST /api/ai-lab/extract</code> — System: <strong>what</strong> to extract and “leave null whatever is not in the text” → <code class=\"i\">GetResponseAsync&lt;your type&gt;</code> → <code class=\"i\">Ok(response.Result)</code></li>"
-],
-[
-"<li><strong>4 · Swagger-ში 3 ტექსტი:</strong> სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე</li>",
-"<li><strong>4 · 3 texts in Swagger:</strong> complete · partial (something is missing) · off-topic</li>"
-],
-[
-"<li>ველებს დაუმატე <code class=\"i\">[property: Description(\"...\")]</code> — შეიცვალა შედეგი ორაზროვან ტექსტზე?</li>",
-"<li>Add <code class=\"i\">[property: Description(\"...\")]</code> to the fields — did the result change on an ambiguous text?</li>"
-],
-[
-"<li>endpoint-ში შეამოწმე შედეგი C#-ით: სავალდებულო ველი <code class=\"i\">null</code> → <code class=\"i\">BadRequest</code> კითხვით („რომელ დღეს?“)</li>",
-"<li>Check the result in the endpoint with C#: a required field is <code class=\"i\">null</code> → <code class=\"i\">BadRequest</code> with a question (“which day?”)</li>"
-],
-[
-"<span class=\"q\">რა არის ცუდი <code class=\"i\">new Client(...).AsIChatClient(...)</code>-ში Controller-ის შიგნით და როგორ ვასწორებთ?</span>",
-"<span class=\"q\">What's wrong with <code class=\"i\">new Client(...).AsIChatClient(...)</code> inside a Controller, and how do we fix it?</span>"
-],
-[
-"<span class=\"a step\">ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → <code class=\"i\">AddChatClient</code> <code class=\"i\">Program.cs</code>-ში (Singleton) + Controller-ში constructor injection</span>",
-"<span class=\"a step\">A new client on every request · the model name is in the code · we can't plug a fake client into a test → <code class=\"i\">AddChatClient</code> in <code class=\"i\">Program.cs</code> (Singleton) + constructor injection in the Controller</span>"
-],
-[
-"<span class=\"q\">სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?</span>",
-"<span class=\"q\">Where do we keep the Gemini key and where the model name? Why in different places?</span>"
-],
-[
-"<span class=\"a step\">key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — <code class=\"i\">appsettings.json</code>-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)</span>",
-"<span class=\"a step\">The key — in User Secrets (it's a secret, it must not get into Git; on a server — an environment variable) · the model — in <code class=\"i\">appsettings.json</code> (not a secret; change it without changing code)</span>"
-],
-[
-"<span class=\"q\">რით განსხვავდება few-shot structured output-ისგან?</span>",
-"<span class=\"q\">How does few-shot differ from structured output?</span>"
-],
-[
-"<span class=\"a step\">few-shot ფორმას <strong>სთხოვს</strong> მაგალითებით — ალბათობით · structured output <strong>აიძულებს</strong>: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, <code class=\"i\">.Result</code> უკვე C# ტიპია</span>",
-"<span class=\"a step\">Few-shot <strong>asks</strong> for a shape with examples — by probability · structured output <strong>forces</strong> it: a JSON Schema from the C# type goes with the request, the model can't write outside the schema, <code class=\"i\">.Result</code> is already a C# type</span>"
-],
-[
-"<span class=\"q\"><code class=\"i\">BookingRequest</code>-ში რატომ <code class=\"i\">int? Guests</code> და არა <code class=\"i\">int</code>? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?</span>",
-"<span class=\"q\">Why <code class=\"i\">int? Guests</code> and not <code class=\"i\">int</code> in <code class=\"i\">BookingRequest</code>? And why do we put today's date in the prompt?</span>"
-],
-[
-"<span class=\"a step\"><code class=\"i\">?</code> მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); <code class=\"i\">int</code>-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით</span>",
-"<span class=\"a step\"><code class=\"i\">?</code> gives the model the right to say “I don't know” (null); with <code class=\"i\">int</code> it's forced to write something and will make it up · the model doesn't know today's date (stateless, training date) — we provide it for “tomorrow”</span>"
-],
-[
-"<span class=\"q\">structured output-ით მივიღეთ <code class=\"i\">BookingRequest</code>. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?</span>",
-"<span class=\"q\">Structured output gave us a <code class=\"i\">BookingRequest</code>. Can we write it straight to the database?</span>"
-],
-[
-"<span class=\"a step\">არა · ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ → 08:00, აკლია სტუმრები (null) · ბაზამდე C# ამოწმებს ველებს</span>",
-"<span class=\"a step\">No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database</span>"
-],
-[
-"<li><strong>DI:</strong> Controller-ებში <code class=\"i\">new Client(...)</code> არსად — <code class=\"i\">IChatClient</code> მხოლოდ <code class=\"i\">AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
-"<li><strong>DI:</strong> no <code class=\"i\">new Client(...)</code> in any Controller — <code class=\"i\">IChatClient</code> only through <code class=\"i\">AddChatClient</code>; the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
-],
-[
-"<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code class=\"i\">POST /api/ai-lab/classify</code> გადაწერე <code class=\"i\">GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>",
-"<li><strong>classify with an enum:</strong> rewrite homework 2's <code class=\"i\">POST /api/ai-lab/classify</code> with <code class=\"i\">GetResponseAsync&lt;your enum&gt;</code> (without few-shot examples)</li>"
-],
-[
-"<li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · <code class=\"i\">inputTokens</code> ორივეზე</li>",
-"<li><strong>A comparison in the README:</strong> the same 5 texts — few-shot (homework 2) vs enum. Table: text · few-shot answer · enum answer · <code class=\"i\">inputTokens</code> for both</li>"
-],
-[
-"<li><strong>ტექსტიდან ჩანაწერი:</strong> ერთი endpoint შენი პროექტის <strong>ნამდვილ</strong> Controller-ში (არა ai-lab): ტექსტი → <code class=\"i\">record</code> → C# შემოწმება (სავალდებულო ველი <code class=\"i\">null</code> → <code class=\"i\">400</code> კითხვით) → შენი არსებული ლოგიკით <strong>ბაზაში</strong> ჩაწერა</li>",
-"<li><strong>A record from text:</strong> one endpoint in a <strong>real</strong> Controller of your project (not ai-lab): text → <code class=\"i\">record</code> → a C# check (a required field is <code class=\"i\">null</code> → <code class=\"i\">400</code> with a question) → saved <strong>to the database</strong> with your existing logic</li>"
-],
-[
-"<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>",
-"<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>"
-],
-[
-"<li><code class=\"i\">Program.cs</code>-ში <code class=\"i\">JsonStringEnumConverter</code> — რომ API enum-ს სახელით აბრუნებდეს და არა რიცხვით</li>",
-"<li><code class=\"i\">JsonStringEnumConverter</code> in <code class=\"i\">Program.cs</code> — so the API returns enums by name, not as numbers</li>"
-],
-[
-"<li><code class=\"i\">response.Result</code>-ის ნაცვლად <code class=\"i\">response.TryGetResult(out var x)</code> — რა დააბრუნებს endpoint, თუ მოდელმა სქემის შესაბამისი JSON ვერ დაწერა?</li>",
-"<li><code class=\"i\">response.TryGetResult(out var x)</code> instead of <code class=\"i\">response.Result</code> — what does the endpoint return if the model couldn't write JSON matching the schema?</li>"
-]
-],
 "დღეს IChatClient-ს სწორ ადგილზე ვსვამთ — და მოდელი ტექსტის ნაცვლად C# ობიექტს გვიბრუნებს": "Today we put IChatClient in the right place — and the model returns a C# object instead of text",
 "„ოთხნი ვართ, ხვალ 8-ზე“ → Response · 200": "“there are four of us, tomorrow at 8” → Response · 200",
 "შესავალი": "Intro",
@@ -417,5 +303,121 @@
 "secrets.json · ლექცია 2-დან": "secrets.json · from lecture 2",
 "ერთი სექცია": "One section",
 ", ორი წყარო —": ", two sources —",
-"აერთიანებს": "merges them"
+"აერთიანებს": "merges them",
+"💡 არა — DI-დან (AddDbContext). IChatClient-იც ასე უნდა: AddChatClient": "💡 No — from DI (AddDbContext). IChatClient should be the same: AddChatClient",
+"💡 ტექსტის „გაპარსვა“ მყიფეა — structured output: enum სქემაში, და მოდელი სიის გარეთ ვეღარ უპასუხებს": "💡 Parsing text is fragile — structured output: an enum in the schema, and the model can no longer answer outside the list",
+"_html": [
+[
+"<p class=\"small\">ლექცია 2-ზე <code class=\"i\">IChatClient</code> Controller-ში <code class=\"i\">new</code>-ით შევქმენით, პასუხი კი თავისუფალი ტექსტი იყო — few-shot-ითაც „თითქმის“ ზუსტი. დღეს client-ს სწორ ადგილზე ვსვამთ (DI და კონფიგურაცია, როგორც API კურსზე), ხოლო მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს არსებულ ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.</p>",
+"<p class=\"small\">In lecture 2 we created <code class=\"i\">IChatClient</code> in the Controller with <code class=\"i\">new</code>, and the answer was free text — “almost” exact even with few-shot. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.</p>"
+],
+[
+"<li><code class=\"i\">IChatClient</code>-ის რეგისტრაცია DI-ში <code class=\"i\">AddChatClient</code>-ით: key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
+"<li>Register <code class=\"i\">IChatClient</code> in DI with <code class=\"i\">AddChatClient</code>: the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
+],
+[
+"<li><code class=\"i\">GetResponseAsync&lt;T&gt;</code>-ით enum-ის მიღება და ახსნა, რატომ არის ეს few-shot-ზე საიმედო</li>",
+"<li>Get an enum with <code class=\"i\">GetResponseAsync&lt;T&gt;</code> and explain why it's more reliable than few-shot</li>"
+],
+[
+"<li>ტექსტიდან ობიექტის ამოღება <code class=\"i\">record</code>-ით: nullable ველები, <code class=\"i\">Description</code>, დღევანდელი თარიღი prompt-ში</li>",
+"<li>Extract an object from text with a <code class=\"i\">record</code>: nullable fields, <code class=\"i\">Description</code>, today's date in the prompt</li>"
+],
+[
+"<li>ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში</li>",
+"<li>Explain why the shape is guaranteed but the content is not, and check the received object in C#</li>"
+],
+[
+"<li><strong>1 · DI</strong> — თუ ჯერ არ გაგიკეთებია: <code class=\"i\">AddChatClient</code> <code class=\"i\">Program.cs</code>-ში, key — User Secrets-ში, <code class=\"i\">AiLabController</code> — constructor-ით</li>",
+"<li><strong>1 · DI</strong> — if you haven't done it yet: <code class=\"i\">AddChatClient</code> in <code class=\"i\">Program.cs</code>, the key in User Secrets, <code class=\"i\">AiLabController</code> — through the constructor</li>"
+],
+[
+"<li><strong>2 · შენი ტიპი</strong> — <code class=\"i\">record</code> <strong>მინიმუმ 3 ველით</strong> შენი პროექტის ტექსტისთვის; ერთი ველი — <strong>enum</strong>, არასავალდებულო ველები — <strong>nullable</strong> (<code class=\"i\">?</code>)</li>",
+"<li><strong>2 · Your type</strong> — a <code class=\"i\">record</code> <strong>with at least 3 fields</strong> for text in your project; one field is an <strong>enum</strong>, optional fields are <strong>nullable</strong> (<code class=\"i\">?</code>)</li>"
+],
+[
+"<li><strong>3 · endpoint</strong> <code class=\"i\">POST /api/ai-lab/extract</code> — System: <strong>რა</strong> ამოიღოს და „რაც არ წერია, დატოვე null“ → <code class=\"i\">GetResponseAsync&lt;შენი ტიპი&gt;</code> → <code class=\"i\">Ok(response.Result)</code></li>",
+"<li><strong>3 · endpoint</strong> <code class=\"i\">POST /api/ai-lab/extract</code> — System: <strong>what</strong> to extract and “leave null whatever is not in the text” → <code class=\"i\">GetResponseAsync&lt;your type&gt;</code> → <code class=\"i\">Ok(response.Result)</code></li>"
+],
+[
+"<li><strong>4 · Swagger-ში 3 ტექსტი:</strong> სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე</li>",
+"<li><strong>4 · 3 texts in Swagger:</strong> complete · partial (something is missing) · off-topic</li>"
+],
+[
+"<li>ველებს დაუმატე <code class=\"i\">[property: Description(\"...\")]</code> — შეიცვალა შედეგი ორაზროვან ტექსტზე?</li>",
+"<li>Add <code class=\"i\">[property: Description(\"...\")]</code> to the fields — did the result change on an ambiguous text?</li>"
+],
+[
+"<li>endpoint-ში შეამოწმე შედეგი C#-ით: სავალდებულო ველი <code class=\"i\">null</code> → <code class=\"i\">BadRequest</code> კითხვით („რომელ დღეს?“)</li>",
+"<li>Check the result in the endpoint with C#: a required field is <code class=\"i\">null</code> → <code class=\"i\">BadRequest</code> with a question (“which day?”)</li>"
+],
+[
+"<span class=\"q\">რა არის ცუდი <code class=\"i\">new Client(...).AsIChatClient(...)</code>-ში Controller-ის შიგნით და როგორ ვასწორებთ?</span>",
+"<span class=\"q\">What's wrong with <code class=\"i\">new Client(...).AsIChatClient(...)</code> inside a Controller, and how do we fix it?</span>"
+],
+[
+"<span class=\"a step\">ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → <code class=\"i\">AddChatClient</code> <code class=\"i\">Program.cs</code>-ში (Singleton) + Controller-ში constructor injection</span>",
+"<span class=\"a step\">A new client on every request · the model name is in the code · we can't plug a fake client into a test → <code class=\"i\">AddChatClient</code> in <code class=\"i\">Program.cs</code> (Singleton) + constructor injection in the Controller</span>"
+],
+[
+"<span class=\"q\">სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?</span>",
+"<span class=\"q\">Where do we keep the Gemini key and where the model name? Why in different places?</span>"
+],
+[
+"<span class=\"a step\">key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — <code class=\"i\">appsettings.json</code>-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)</span>",
+"<span class=\"a step\">The key — in User Secrets (it's a secret, it must not get into Git; on a server — an environment variable) · the model — in <code class=\"i\">appsettings.json</code> (not a secret; change it without changing code)</span>"
+],
+[
+"<span class=\"q\">რით განსხვავდება few-shot structured output-ისგან?</span>",
+"<span class=\"q\">How does few-shot differ from structured output?</span>"
+],
+[
+"<span class=\"a step\">few-shot ფორმას <strong>სთხოვს</strong> მაგალითებით — ალბათობით · structured output <strong>აიძულებს</strong>: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, <code class=\"i\">.Result</code> უკვე C# ტიპია</span>",
+"<span class=\"a step\">Few-shot <strong>asks</strong> for a shape with examples — by probability · structured output <strong>forces</strong> it: a JSON Schema from the C# type goes with the request, the model can't write outside the schema, <code class=\"i\">.Result</code> is already a C# type</span>"
+],
+[
+"<span class=\"q\"><code class=\"i\">BookingRequest</code>-ში რატომ <code class=\"i\">int? Guests</code> და არა <code class=\"i\">int</code>? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?</span>",
+"<span class=\"q\">Why <code class=\"i\">int? Guests</code> and not <code class=\"i\">int</code> in <code class=\"i\">BookingRequest</code>? And why do we put today's date in the prompt?</span>"
+],
+[
+"<span class=\"a step\"><code class=\"i\">?</code> მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); <code class=\"i\">int</code>-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით</span>",
+"<span class=\"a step\"><code class=\"i\">?</code> gives the model the right to say “I don't know” (null); with <code class=\"i\">int</code> it's forced to write something and will make it up · the model doesn't know today's date (stateless, training date) — we provide it for “tomorrow”</span>"
+],
+[
+"<span class=\"q\">structured output-ით მივიღეთ <code class=\"i\">BookingRequest</code>. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?</span>",
+"<span class=\"q\">Structured output gave us a <code class=\"i\">BookingRequest</code>. Can we write it straight to the database?</span>"
+],
+[
+"<span class=\"a step\">არა · ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ → 08:00, აკლია სტუმრები (null) · ბაზამდე C# ამოწმებს ველებს</span>",
+"<span class=\"a step\">No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database</span>"
+],
+[
+"<li><strong>DI:</strong> Controller-ებში <code class=\"i\">new Client(...)</code> არსად — <code class=\"i\">IChatClient</code> მხოლოდ <code class=\"i\">AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code class=\"i\">appsettings.json</code>-ში</li>",
+"<li><strong>DI:</strong> no <code class=\"i\">new Client(...)</code> in any Controller — <code class=\"i\">IChatClient</code> only through <code class=\"i\">AddChatClient</code>; the key in User Secrets, the model in <code class=\"i\">appsettings.json</code></li>"
+],
+[
+"<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code class=\"i\">POST /api/ai-lab/classify</code> გადაწერე <code class=\"i\">GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>",
+"<li><strong>classify with an enum:</strong> rewrite homework 2's <code class=\"i\">POST /api/ai-lab/classify</code> with <code class=\"i\">GetResponseAsync&lt;your enum&gt;</code> (without few-shot examples)</li>"
+],
+[
+"<li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · <code class=\"i\">inputTokens</code> ორივეზე</li>",
+"<li><strong>A comparison in the README:</strong> the same 5 texts — few-shot (homework 2) vs enum. Table: text · few-shot answer · enum answer · <code class=\"i\">inputTokens</code> for both</li>"
+],
+[
+"<li><strong>ტექსტიდან ჩანაწერი:</strong> ერთი endpoint შენი პროექტის <strong>ნამდვილ</strong> Controller-ში (არა ai-lab): ტექსტი → <code class=\"i\">record</code> → C# შემოწმება (სავალდებულო ველი <code class=\"i\">null</code> → <code class=\"i\">400</code> კითხვით) → შენი არსებული ლოგიკით <strong>ბაზაში</strong> ჩაწერა</li>",
+"<li><strong>A record from text:</strong> one endpoint in a <strong>real</strong> Controller of your project (not ai-lab): text → <code class=\"i\">record</code> → a C# check (a required field is <code class=\"i\">null</code> → <code class=\"i\">400</code> with a question) → saved <strong>to the database</strong> with your existing logic</li>"
+],
+[
+"<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>",
+"<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>"
+],
+[
+"<li><code class=\"i\">Program.cs</code>-ში <code class=\"i\">JsonStringEnumConverter</code> — რომ API enum-ს სახელით აბრუნებდეს და არა რიცხვით</li>",
+"<li><code class=\"i\">JsonStringEnumConverter</code> in <code class=\"i\">Program.cs</code> — so the API returns enums by name, not as numbers</li>"
+],
+[
+"<li><code class=\"i\">response.Result</code>-ის ნაცვლად <code class=\"i\">response.TryGetResult(out var x)</code> — რა დააბრუნებს endpoint, თუ მოდელმა სქემის შესაბამისი JSON ვერ დაწერა?</li>",
+"<li><code class=\"i\">response.TryGetResult(out var x)</code> instead of <code class=\"i\">response.Result</code> — what does the endpoint return if the model couldn't write JSON matching the schema?</li>"
+]
+]
 }

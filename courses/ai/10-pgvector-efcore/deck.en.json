@@ -204,6 +204,9 @@
 "ლექცია 11": "Lecture 11",
 ": PDF → ნაწილები → ვექტორები ბაზაში → მოდელი პასუხობს დოკუმენტიდან, წყაროს მითითებით": ": PDF → parts → vectors in the database → the model answers from the document, citing the source",
 "✓ მზადაა, როცა: A new record appears in the search after": "✓ Done when: A new record appears in the search after",
+"💡 იგივე შედეგი — ვექტორები ბაზაშია, /menu/index აღარ გვჭირდება": "💡 The same result — the vectors are in the database, we don't need /menu/index any more",
+"💡 რესტორანში — კი: მეორე საუკეთესო კერძიც კარგი პასუხია. ბანკში — არა: იქ ANN არ გამოიყენება": "💡 In a restaurant — yes: the second-best dish is a good answer too. In a bank — no: ANN isn't used there",
+"💡 ორი სისტემა: ფასი Qdrant-შიც უნდა დავაკოპიროთ, ან ორი მოთხოვნა და გაერთიანება C#-ში. ჩვენთან — ერთი WHERE": "💡 Two systems: copy the price into Qdrant too, or two queries and merging in C#. For us — one WHERE",
 "_slides": {
 "1": {
 "ბაზაში": "in the database"

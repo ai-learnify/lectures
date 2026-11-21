@@ -592,6 +592,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <tr class="ct step" data-with><td>tool exception</td><td>Our C# method failed</td><td><span class="tag" style="--a:var(--net)">content</span> FunctionInvocation returns the error to the model</td></tr>
   </table>
   <div class="callout ask mt step">🙋 Trying 5 times again on a 401 (a wrong key) — <b>what</b> will it give us?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Nothing — the key is the same, so is the error. Retry only helps with temporary errors</div>
 </section>
 
 <!-- ================= 2 · retry ================= -->
@@ -621,6 +622,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="prob step" data-with style="--a:var(--red)"><span class="pi">🔌</span><div><b>circuit breaker</b><span>If many attempts in a row failed — for a while we don't call at all and say “no” right away</span></div></div>
   </div>
   <div class="callout ask mt step">🙋 Why not just <b>10 times in a row</b>, without a pause?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 We load an overloaded service even more and get a 429 — that's why backoff and jitter</div>
 </section>
 
 <section class="slide" data-section="2 · retry">
@@ -636,6 +638,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <i class="codestep" data-for="c1" data-lines="14"></i>
       <div class="callout step" data-with style="--a:var(--net);font-size:17px">The SDK uses our <b>HttpClient</b>— the retry happens inside it</div>
       <div class="callout ask step">🙋 What <b>changed</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Nothing — resilience is at the HttpClient level, the Controller still uses IChatClient</div>
     </div>
   </div>
 </section>

@@ -144,6 +144,7 @@ In lecture 1 we saw that for us an LLM is **just another HTTP API**. We won't bu
   <div class="kicker">ნაცნობი იდეა</div>
   <h2><code class="i" style="font-size:.9em">IChatClient</code> — LLM-ის <span class="c-api">„DbContext“</span></h2>
   <div class="callout ask">🙋 EF Core-ში SQL Server-იდან PostgreSQL-ზე გადასვლისას <b>რა იცვლება</b> კოდში?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მხოლოდ provider (UseSqlServer → UseNpgsql) — LINQ უცვლელია. IChatClient-ზეც ასეა: იცვლება მხოლოდ provider</div>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:36px;align-items:start;margin-top:14px">
     <div class="found">
       <div class="layer" style="--a:var(--api)">ჩვენი კოდი<small>LINQ: _db.Dishes.Where(…)</small></div>
@@ -822,6 +823,7 @@ In lecture 1 we saw that the model picks the next token based on **the whole tex
   <div class="kicker">ჯერ მთელი სურათი</div>
   <h2>მოდელს ვუგზავნით <span class="c-net">შეტყობინებების სიას</span></h2>
   <div class="callout ask">🙋 ChatGPT-ს ვინ „უთხრა“, რომ თავაზიანი ასისტენტია?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ნაწილობრივ ვარჯიშმა, მაგრამ კონკრეტულ ქცევას — ენას, თემას, ტონს — system prompt წყვეტს, რომელსაც აპლიკაცია წერს</div>
   <div class="grid2 mt" style="grid-template-columns:1.25fr 1fr;gap:30px;align-items:start">
     <div class="msgs">
       <div class="msg step" style="--a:var(--net)"><b>System<small>ჩვენ · კოდში</small></b><span>შენ ხარ რესტორან „სუფრის“ ასისტენტი. პასუხობ მოკლედ…</span></div>
@@ -1215,6 +1217,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
       <i class="codestep" data-for="c4" data-lines="14"></i>
       <div class="callout step" data-with style="--a:var(--api)"><b>ნამდვილი</b> შეფასება — ბოლოს</div>
       <div class="callout ask step">🙋 რა მოხდება, თუ <b>Mixed</b>-ის მაგალითს ამოვიღებთ?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მოდელი Mixed-ს იშვიათად აირჩევს ან სხვა სიტყვით უპასუხებს — მაგალითი ფორმატსაც და ვარიანტებსაც აფიქსირებს</div>
     </div>
   </div>
   <aside class="study">
@@ -1318,6 +1321,7 @@ _chat = new Client(apiKey: config["Gemini:ApiKey"])
     .AsIChatClient("gemini-3.8-flash");
       </code-block>
       <div class="callout ask">🙋 გაიხსენეთ DI-ის ლექცია: რა არის <b>ცუდი</b> ამ ორ ხაზში?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 client ყოველ მოთხოვნაზე new-ით იქმნება და მოდელი კოდშია ჩაწერილი — ადგილი DI-ში (AddChatClient) და კონფიგურაციაშია</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 3</h3>
         <p class="small"><code class="i">AddChatClient</code> — IChatClient DI-ში და კონფიგურაციაში; <b>structured output</b> — პასუხი პირდაპირ <b>C# ობიექტად</b></p></div>
     </div>

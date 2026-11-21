@@ -198,6 +198,12 @@
 ": golden set, hit@k, hybrid search, chunking-ის სტრატეგიები, groundedness": ": golden set, hit@k, hybrid search, chunking strategies, groundedness",
 "✓ მზადაა, როცა: The answers come with a source number and": "✓ Done when: The answers come with a source number and",
 "რესტორნის წესებზე უპასუხე მხოლოდ\nწყაროებიდან და მიუთითე ნომერი: [1].\nთუ წყაროებში არ არის — თქვი:\n„ამ საკითხზე ინფორმაცია არ მაქვს“.\nმენიუ და ფასები — tool-ებიდან.": "On the restaurant's rules answer only\nfrom the sources and give the number: [1].\nIf it isn't in the sources — say:\n“I don't have information on this”.\nThe menu and prices — from the tools.",
+"💡 ღია წიგნით — მოდელი პასუხს იმ გვერდებიდან წერს, რომლებსაც ჩვენ ვპოულობთ და ვაწვდით": "💡 With an open book — the model writes the answer from the pages we find and give it",
+"💡 ცარიელ ტექსტს — სკანი სურათია, ტექსტისთვის OCR სჭირდება": "💡 Empty text — a scan is an image, it needs OCR for text",
+"💡 ვექტორი ზუსტია, მაგრამ კონტექსტი იკარგება: „ეს წესი 8+ კაცზე ვრცელდება“ — რომელი წესი?": "💡 The vector is precise, but the context is lost: “this rule applies to 8+ people” — which rule?",
+"💡 მხოლოდ ორი რამ: PDF-ის წაკითხვა და chunking. დანარჩენი ლექცია 9–10-ია": "💡 Only two things: reading the PDF and chunking. The rest is lectures 9–10",
+"💡 მოდელი პასუხში [1]-ს წერს — ვიცით ფაილი და გვერდი: მომხმარებელი ამოწმებს, ჩვენ ვხედავთ, რომელი ნაწილი იყო ცუდი": "💡 The model writes [1] in the answer — we know the file and page: the user checks, we see which part was bad",
+"💡 ორივე რეალური გზაა: „ყოველთვის“ — მარტივი და პროგნოზირებადი; tool — ძებნა მხოლოდ საჭიროებისას (ლექცია 15)": "💡 Both are real approaches: “always” — simple and predictable; a tool — search only when needed (lecture 15)",
 "_slides": {
 "1": {
 "პასუხი": "An answer"

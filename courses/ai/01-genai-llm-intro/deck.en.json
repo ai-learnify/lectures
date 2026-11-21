@@ -1,15 +1,5 @@
 {
 "_note": "EN version of the deck: Georgian text fragment (trimmed) → English. Build: index.en.html. Missing keys are reported by the build.",
-"_html": [
-[
-"<span class=\"ico\">❓</span>გაკლიათ</h3>",
-"<span class=\"ico\">❓</span>You're missing</h3>"
-],
-[
-"რას ვერ აკეთებს<br><span class=\"grad\">if / else?</span></h1>",
-"What can't<br><span class=\"grad\">if / else</span> do?</h1>"
-]
-],
 "მოდული": "Module",
 "ახალი მოდული · 24 ლექცია": "New module · 24 lectures",
 "AI აგენტების შექმნა": "Building AI agents",
@@ -645,55 +635,6 @@
 "შეადარე ერთი და იგივე ტექსტის ტოკენები GPT-4o-ზე და GPT-4-ზე — რამდენჯერ განსხვავდება?": "Compare the tokens of the same text on GPT-4o and GPT-4 — how many times do they differ?",
 "შემდეგი ლექციის დასაწყისში ამ დავალებას": "At the start of the next lecture we'll",
 "ერთად განვიხილავთ": "go through this homework together",
-"_slides": {
-"17": {
-"კითხულობს,": "or"
-},
-"19": {
-"მხოლოდ რიცხვებს": "sees only numbers",
-"ნომერი": "number"
-},
-"24": {
-"მოდელს": "Does the model"
-},
-"26": {
-"რომელ ტოკენს აირჩევს": "which token the model picks",
-"მოდელი": ""
-},
-"31": {
-"„ფიქრის“ ტოკენებს": "“Thinking” tokens are",
-"ვიხდით": "paid for",
-"(როგორც output), ხშირად ვერც ვხედავთ": "(as output), often without us seeing them"
-},
-"35": {
-"ტოკენზე": "per token",
-"რატომ": "why"
-},
-"36": {
-"ტოკენზე": "per token",
-"აკეთებს": "on it"
-},
-"37": {
-"რამდენი": "how much",
-"გამოვა? მერე აქ შევამოწმებთ": "do you get? Then we'll check here",
-"🙋 ჯერ ფურცელზე: A და B მოდელით": "🙋 On paper first: with models A and B,"
-},
-"40": {
-"ბაზიდან": "from the database"
-},
-"42": {
-"შემდეგი ტოკენი": "Next token"
-},
-"43": {
-"აიღე და": "— get it and set"
-},
-"16": {
-"შემდეგ?": "?"
-},
-"5": {
-"მოდელს": "We"
-}
-},
 "ტერმინები · ერთი-მეორეში ჩადგმული": "Terms · nested inside each other",
 "🙋 ChatGPT — ეს AI-ია, Machine Learning-ია თუ LLM?": "🙋 ChatGPT — is it AI, Machine Learning or an LLM?",
 "ხელოვნური ინტელექტი": "artificial intelligence",
@@ -809,5 +750,68 @@
 "✏️ საკუთარი ფასი": "✏️ custom price",
 "აიღე და შეინახე — შემდეგ ლექციაზე User Secrets-ში ჩავწერთ (": "— get it and keep it; next lecture we put it in User Secrets (",
 ") და კოდს ვწერთ": ") and write code",
-"✓ მზადაა, როცა: README-ში არის 3 ფუნქციის ცხრილი და ხარჯის გათვლა ფორმულით; ტესტის ქულა ჩაწერილია; key აღებულია": "✓ Done when: the README has the table of 3 features and the cost calculation with the formula; the quiz score is written down; you have the key"
+"✓ მზადაა, როცა: README-ში არის 3 ფუნქციის ცხრილი და ხარჯის გათვლა ფორმულით; ტესტის ქულა ჩაწერილია; key აღებულია": "✓ Done when: the README has the table of 3 features and the cost calculation with the formula; the quiz score is written down; you have the key",
+"💡 ხშირად: ქართული ინგლისურზე რამდენჯერმე მეტი ტოკენია; emoji და კოდიც ბევრ ნაჭრად იჭრება": "💡 Usually: Georgian is several times more tokens than English; emoji and code are cut into many pieces too",
+"💡 0 — ყოველ ჯერზე ყველაზე სავარაუდოს („დავჯავშნო“) · 2 — სხვადასხვას, ზოგჯერ უცნაურსაც": "💡 0 — the most likely one every time · 2 — different ones, sometimes strange ones too",
+"💡 API თითქმის ერთნაირია (OpenAI-compatible) — განსხვავება ხარისხში, სიჩქარეში, ფასსა და უფასო ლიმიტშია": "💡 The APIs are almost the same (OpenAI-compatible) — the difference is in quality, speed, price and the free limit",
+"💡 Pro რამდენჯერმე ძვირია — რესტორნის ჩატისთვის Flash საკმარისია. ზუსტ ციფრს კალკულატორში ერთად ვნახავთ": "💡 Pro is several times more expensive — Flash is enough for a restaurant chat. We see the exact number together in the calculator",
+"_slides": {
+"17": {
+"კითხულობს,": "or"
+},
+"19": {
+"მხოლოდ რიცხვებს": "sees only numbers",
+"ნომერი": "number"
+},
+"24": {
+"მოდელს": "Does the model"
+},
+"26": {
+"რომელ ტოკენს აირჩევს": "which token the model picks",
+"მოდელი": ""
+},
+"31": {
+"„ფიქრის“ ტოკენებს": "“Thinking” tokens are",
+"ვიხდით": "paid for",
+"(როგორც output), ხშირად ვერც ვხედავთ": "(as output), often without us seeing them"
+},
+"35": {
+"ტოკენზე": "per token",
+"რატომ": "why"
+},
+"36": {
+"ტოკენზე": "per token",
+"აკეთებს": "on it"
+},
+"37": {
+"რამდენი": "how much",
+"გამოვა? მერე აქ შევამოწმებთ": "do you get? Then we'll check here",
+"🙋 ჯერ ფურცელზე: A და B მოდელით": "🙋 On paper first: with models A and B,"
+},
+"40": {
+"ბაზიდან": "from the database"
+},
+"42": {
+"შემდეგი ტოკენი": "Next token"
+},
+"43": {
+"აიღე და": "— get it and set"
+},
+"16": {
+"შემდეგ?": "?"
+},
+"5": {
+"მოდელს": "We"
+}
+},
+"_html": [
+[
+"<span class=\"ico\">❓</span>გაკლიათ</h3>",
+"<span class=\"ico\">❓</span>You're missing</h3>"
+],
+[
+"რას ვერ აკეთებს<br><span class=\"grad\">if / else?</span></h1>",
+"What can't<br><span class=\"grad\">if / else</span> do?</h1>"
+]
+]
 }

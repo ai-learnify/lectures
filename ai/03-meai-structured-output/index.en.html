@@ -551,6 +551,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="col" style="gap:16px">
       <pre class="code sm"><span class="ttl">Controllers/AiLabController.cs · lecture 2</span><code><span class="ln"><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">      </span></span></code></pre>
       <div class="callout ask">🙋 In the API course, did you create a <b>DbContext</b> in the Controller with <b>new</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 No — from DI (AddDbContext). IChatClient should be the same: AddChatClient</div>
     </div>
     <div class="col" style="gap:12px">
       <div class="prob step" style="--a:var(--red)"><span class="pi">♻️</span><div><b>A new client on every request</b><span>The Controller is created on every request — and with it the client and its HTTP connection</span></div></div>
@@ -611,6 +612,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="lab-out"><span class="good">Search</span><span class="bad">Search.</span><span class="bad">search</span><span class="bad">this is a Search request</span></div>
       <div class="ifc step"><span class="kw">if</span> (label == <span class="st">"Search"</span>) …  <span style="color:var(--red)">✗ ✗ ✗</span></div>
       <div class="callout ask step">🙋 In the homework, who got an answer <b>outside</b> the list? What did you do?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Parsing text is fragile — structured output: an enum in the schema, and the model can no longer answer outside the list</div>
     </div>
     <div class="col step" style="gap:14px">
       <p class="sec-l">If the answer were a C# type:</p>

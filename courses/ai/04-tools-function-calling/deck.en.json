@@ -347,5 +347,9 @@
 "ფიქრი:": "Think:",
 "შენს პროექტში რომელი": "which",
 "ჩამწერი": "writing",
-"tool იქნებოდა სასარგებლო და რა დადასტურება დასჭირდებოდა? 2–3 წინადადება README-ში (კოდი არ სჭირდება)": "tool would be useful in your project and what confirmation would it need? 2–3 sentences in the README (no code needed)"
+"tool იქნებოდა სასარგებლო და რა დადასტურება დასჭირდებოდა? 2–3 წინადადება README-ში (კოდი არ სჭირდება)": "tool would be useful in your project and what confirmation would it need? 2–3 sentences in the README (no code needed)",
+"💡 ჩვენი სერვერი. მოდელი მხოლოდ ითხოვს (functionCall) — ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ": "💡 Our server. The model only asks (functionCall) — we run it and send back the result",
+"💡 დღე არ წერია — კარგი მოდელი tool-ს ჯერ არ გამოიძახებს და დააზუსტებს: „რომელ დღეს და რომელ საათზე?“": "💡 The day isn't given — a good model won't call the tool yet and will ask: “which day and what time?”",
+"💡 შესაძლებელია, მაგრამ საშიში: მოდელი ალბათობით მუშაობს — „8-ზე“ შეიძლება 08:00 გაიგოს და ჯავშანი შექმნას. ჩაწერა — მხოლოდ დადასტურებით (ლექცია 15)": "💡 Possible, but dangerous: the model works with probabilities — it may read “at 8” as 08:00 and create the booking. Writing — only with confirmation (lecture 15)",
+"💡 ფენა (middleware) client-ის გარშემო — როგორც app.UseAuthentication() ASP.NET Core-ში": "💡 A layer (middleware) around the client — like app.UseAuthentication() in ASP.NET Core"
 }

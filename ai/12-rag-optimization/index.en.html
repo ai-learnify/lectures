@@ -568,6 +568,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="prob step" data-with style="--a:var(--red)"><span class="pi">🤖</span><div><b>The model added something</b><span>The part is right, but the answer says something that <b>isn't in the source</b></span></div></div>
     </div>
     <div class="callout ask step">🙋 We changed the chunk 800 → 400. Did it get <b>better</b>? How do we find out?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 We can't tell “by eye” — we need a golden set and a number</div>
   </div>
 </section>
 
@@ -590,6 +591,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="metric step" style="--a:var(--net)"><div class="big">4 / 6</div><span><b>hit@3</b> = on how many questions the right part was <b>in the top three</b> · 0.67</span></div>
       <div class="metric step" style="--a:var(--asp)"><div class="big">0.51</div><span><b>MRR</b> = the average 1/rank: (1 + 1 + ½ + 0 + ⅓ + ⅕) / 6 — how <b>high</b></span></div>
       <div class="callout ask step">🙋 Why “must appear” and not the chunk's <b>Id</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 When the chunking changes the Ids change — the phrase stays</div>
     </div>
   </div>
 </section>
@@ -614,6 +616,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <span class="k">"misses"</span>: [ <span class="s">"Where is hall B-2?"</span>, <span class="s">"Service charge for 6 people?"</span> ] }</pre>
       </div>
       <div class="callout ask step">🙋 What do both misses have in <b>common</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Both are exact words — a code and a number that the vector “sees” badly</div>
     </div>
   </div>
 </section>
@@ -650,6 +653,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <span class="d">#41:  1/(60+1) + 1/(60+3) = 0.0323</span>
 <span class="d">#17:  1/(60+2)            = 0.0161</span></div>
       <div class="callout ask step">🙋 Why <b>order</b> and not the scores?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The scores are in different “units” (0.3–0.8 vs 0.01–0.1) — the rank is the same everywhere</div>
     </div>
   </div>
 </section>
@@ -669,6 +673,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <span class="k">"misses"</span>: [ <span class="s">"Service charge for 6 people?"</span> ] }</pre>
       </div>
       <div class="callout ask step">🙋 “for 6 people” — why still a <b>miss</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 It says “for 5+ people — 12%”: neither the word nor the meaning matches exactly — a reranker or a tool</div>
     </div>
   </div>
 </section>
@@ -691,6 +696,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">🎯</span><div><b>Quality</b><span>“Prices” get mixed up between the old menu PDF and event prices — the filter removes the noise</span></div></div>
       <div class="prob step" style="--a:var(--red)"><span class="pi">🔒</span><div><b>Security</b><span>In a multi-client system the filter is <b>mandatory</b> — “don't show it” in the prompt isn't enough</span></div></div>
       <div class="callout ask step">🙋 <b>where</b> should the filter be: in SQL or in the prompt?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 In SQL — a prompt is a request, SQL is a law. What gets into the context can leak</div>
     </div>
   </div>
 </section>
@@ -729,6 +735,7 @@ by sentence, 800:    hitAt3 0.83   mrr 0.72
 by heading:          hitAt3 <span class="g">0.92</span>   mrr <span class="g">0.81</span>
 by sentence, 300:    hitAt3 <span class="r">0.75</span>   mrr 0.60</div>
     <div class="callout ask step">🙋 Why does the heading <b>in the prefix</b> help?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The part's vector “knows” the topic too, even if the word “booking” isn't in the text</div>
   </div>
 </section>
 
@@ -753,6 +760,7 @@ by sentence, 300:    hitAt3 <span class="r">0.75</span>   mrr 0.60</div>
         <tr><td>An LLM as the reranker</td><td>Gemini + structured output — expensive and slow</td></tr>
       </table>
       <div class="callout ask step">🙋 Why not a reranker on <b>all</b> parts, instead of the search?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Every pair needs its own computation — very slow and expensive on a million, fine on 20</div>
     </div>
   </div>
 </section>
@@ -767,6 +775,7 @@ by sentence, 300:    hitAt3 <span class="r">0.75</span>   mrr 0.60</div>
       <div class="prob step" style="--a:var(--red)"><span class="pi">2</span><div><b>“15 lari, candles are free [1]”</b><span>“Candles” are <b>not in the source</b> — the model added them</span></div></div>
       <div class="callout step" style="--a:var(--net);font-size:16px">NuGet: <b>Microsoft.Extensions.AI.Evaluation.Quality</b> · the judge — Gemini again (IChatClient)</div>
       <div class="callout ask step">🙋 <b>why</b> don't we trust the judge model completely?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The judge is a model too: it makes mistakes and rates its own answers softly — on many examples and manually from time to time</div>
     </div>
   </div>
 </section>
