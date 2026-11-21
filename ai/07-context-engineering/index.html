@@ -411,18 +411,17 @@ padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 #studybtn{position:fixed;right:16px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:#fff;
 background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
 #studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
-body[data-study] #help{right:280px}
 #lectbtn{position:fixed;right:170px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:var(--ink2);
 background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:7px 11px;cursor:pointer;opacity:.85}
 #lectbtn:hover,#themebtn:hover,#langbtn:hover{opacity:1}
 #themebtn,#langbtn{position:fixed;top:12px;z-index:41;font:700 14px var(--font);color:var(--ink2);background:var(--card);border:1px solid var(--line2);
 border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 #themebtn{right:170px}#langbtn{right:222px;font-family:var(--mono)}
-body:not([data-study]) #themebtn{right:16px}body:not([data-study]) #langbtn{right:68px}
+#themebtn{right:16px}#langbtn{right:68px}#help{right:124px;top:20px}
 .themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
 :fullscreen #themebtn,:fullscreen #langbtn{opacity:0}:fullscreen #themebtn:hover,:fullscreen #langbtn:hover{opacity:1}#lectbtn kbd{font:600 11px var(--mono);background:var(--bg2);border-radius:5px;padding:1px 6px}</style></head>
 <body data-study="1" data-lect="1">
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a><button id="themebtn" class="themebtn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button><button id="langbtn" type="button" data-href="index.en.html" title="English version">EN</button><button id="studybtn" type="button" title="კონსპექტი ცალკე ჩანართში — სლაიდებს მიჰყვება">📖 კონსპექტი <kbd>P</kbd></button>
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a><button id="themebtn" class="themebtn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button><button id="langbtn" type="button" data-href="index.en.html" title="English version">EN</button>
 <div id="stage"><div id="deck">
 <style>
 .mono{font-family:var(--mono)}
