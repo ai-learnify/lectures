@@ -46,7 +46,7 @@ builder.Services.AddChatClient(
 ```csharp Ai/LibraryGuardChatClient.cs
 public class LibraryGuardChatClient : DelegatingChatClient
 {
-    private static readonly string[] Forbidden = ["პაროლ", "password", "api key"];
+    private static readonly string[] Forbidden = ["password", "api key"];
 
     public LibraryGuardChatClient(IChatClient inner) : base(inner) { }
 
@@ -57,9 +57,9 @@ public class LibraryGuardChatClient : DelegatingChatClient
         string question = messages.LastOrDefault(m => m.Role == ChatRole.User)?.Text ?? "";
 
         string? refusal =
-            question.Length > 800 ? "შეკითხვა ძალიან გრძელია — მაქსიმუმ 800 სიმბოლო." :
+            question.Length > 800 ? "The question is too long — 800 characters at most." :
             Forbidden.Any(w => question.Contains(w, StringComparison.OrdinalIgnoreCase))
-                ? "ამ თემაზე ვერ დაგეხმარები — მხოლოდ წიგნებზე და ჯავშნებზე." :
+                ? "I can't help with that — only with books and reservations." :
             null;
 
         return refusal is null
@@ -69,11 +69,11 @@ public class LibraryGuardChatClient : DelegatingChatClient
 }
 ```
 
-| TokenCounter-ის ადგილი | ხაზები | total („დეტექტივები გაქვთ თავისუფალი?“) |
+| TokenCounter-ის ადგილი | ხაზები | total ("Do you have detective novels available?") |
 |---|---|---|
 | გარეთ (`UseFunctionInvocation`-ის წინ) | 1 | ~730 |
 | შიგნით (`UseFunctionInvocation`-ის შემდეგ) | 3 (get_genres → find_books → პასუხი) | ~160 + ~240 + ~330 |
 
 ```note
-მესამე მოთხოვნა ყველაზე ძვირია — მასში მთელი ისტორიაა: შეკითხვა, ორივე tool-ის თხოვნა და შედეგი. ქეში: `get_genres` სასარგებლოა (ჟანრები იშვიათად იცვლება), `find_books` — საშიში (წიგნი შეიძლება წაიღონ). შეჩერებულ შეკითხვაზე („რა არის ადმინის პაროლი?“) ლოგში მხოლოდ HTTP ხაზია — `LoggingChatClient` და TokenCounter არ ჩანს.
+მესამე მოთხოვნა ყველაზე ძვირია — მასში მთელი ისტორიაა: შეკითხვა, ორივე tool-ის თხოვნა და შედეგი. ქეში: `get_genres` სასარგებლოა (ჟანრები იშვიათად იცვლება), `find_books` — საშიში (წიგნი შეიძლება წაიღონ). შეჩერებულ შეკითხვაზე ("What is the admin password?") ლოგში მხოლოდ HTTP ხაზია — `LoggingChatClient` და TokenCounter არ ჩანს.
 ```

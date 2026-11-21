@@ -545,7 +545,7 @@ retry პირველი დაცვაა, fallback — მეორე. �
 
 ### 🗣️ როგორ ახსნა
 
-ლექცია 9-ის კითხვაზე: „მთელი მენიუ — ძვირი (ლექცია 7). `LIKE '%ხორცის გარეშე%'` — ლობიოს ვერ იპოვის, მის აღწერაში ეს სიტყვები არ წერია. გვჭირდება ძებნა **მნიშვნელობით** — embeddings.“ საშინაოში ხაზი გაუსვი: **ფასები კონფიგურაციაში**, და შეცდომების ცხრილი — „ეს თქვენი პირველი chaos testing-ია“.
+ლექცია 9-ის კითხვაზე: „მთელი მენიუ — ძვირი (ლექცია 7). `LIKE '%without meat%'` — ლობიოს ვერ იპოვის, მის აღწერაში ეს სიტყვები არ წერია. გვჭირდება ძებნა **მნიშვნელობით** — embeddings.“ საშინაოში ხაზი გაუსვი: **ფასები კონფიგურაციაში**, და შეცდომების ცხრილი — „ეს თქვენი პირველი chaos testing-ია“.
 
 ### ❓ სტუდენტის სავარაუდო კითხვები — პასუხი და ახსნა
 
@@ -604,8 +604,8 @@ public class AiExceptionHandler : IExceptionHandler
         ctx.Response.Headers.RetryAfter = "30";
         await ctx.Response.WriteAsJsonAsync(new ProblemDetails
         {
-            Title = "ასისტენტი დროებით მიუწვდომელია",
-            Detail = "სცადეთ ცოტა ხანში.",
+            Title = "The assistant is temporarily unavailable",
+            Detail = "Try again in a little while.",
             Status = 503
         }, ct);
         return true;
@@ -619,7 +619,7 @@ public class AiExceptionHandler : IExceptionHandler
 ### 🧯 tool-ის exception · 5 წთ
 
 1. `CheckAvailability`-ში დროებით `throw new InvalidOperationException("DB down")`.
-2. `/chat` „20:00-ზე ოთხნი?“ → მოდელი: „სამწუხაროდ, ახლა ვერ შევამოწმე“. 500 არ არის.
+2. `/chat` "Four at 20:00?" → მოდელი: „სამწუხაროდ, ახლა ვერ შევამოწმე“. 500 არ არის.
 3. ლოგი: `FunctionInvokingChatClient` — შეცდომა მოდელს დაუბრუნდა.
 4. 🙋 „exception-ის ტექსტი მოდელმა რატომ არ ნახა?“ → `IncludeDetailedErrors = false` — შიდა დეტალები (connection string!) მოდელამდე და მომხმარებლამდე არ უნდა მივიდეს.
 

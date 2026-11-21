@@ -171,7 +171,7 @@ First we see what the user sees when Gemini fails. Then we sort the errors into 
 
 | კოდი | სტატუსი | რას ნიშნავს |
 |---|---|---|
-| **503** | `UNAVAILABLE` | „მოდელი გადატვირთულია, სცადეთ მოგვიანებით“ — Google-ის მხარეს ძალიან ბევრი მოთხოვნაა |
+| **503** | `UNAVAILABLE` | "The model is overloaded, try again later" — Google-ის მხარეს ძალიან ბევრი მოთხოვნაა |
 | **429** | `RESOURCE_EXHAUSTED` | **ჩვენი** ლიმიტი ამოიწურა: წუთში მოთხოვნების ან ტოკენების რაოდენობა (უფასო key-ზე ლიმიტი პატარაა) |
 
 Google.GenAI ასეთ პასუხზე exception-ს აგდებს: **`ServerError`** (5xx) ან **`ClientError`** (4xx). ორივე **`ApiException`**-ია, `StatusCode` თვისებით. ჩვენ მას არ ვიჭერთ, ამიტომ ASP.NET Core მომხმარებელს **500**-ს უბრუნებს. თანაც, ლექცია 7-ის `/chat`-ში `AppendAsync` პასუხის **შემდეგაა**, ამიტომ შეკითხვაც იკარგება.
@@ -340,7 +340,7 @@ Circuit breaker — a “breaker”: after many failures it temporarily stops th
 builder.Services.AddHttpClient("gemini")
     .AddStandardResilienceHandler(o =>
     {
-        o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(40);   // LLM ნელია
+        o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(40);   // an LLM is slow
         o.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(90);
         o.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(90);
     });
@@ -356,7 +356,7 @@ builder.Services.AddChatClient(sp =>
     })
     .Use(inner => new InputGuardChatClient(inner))
     .UseFunctionInvocation()
-    // ... დანარჩენი ფენები — როგორც იყო
+    // ... the other layers — as before
     </code-block>
     <div class="col" style="gap:12px">
       <i class="codestep" data-for="c1" data-lines="1-7"></i>
@@ -378,7 +378,7 @@ builder.Services.AddChatClient(sp =>
 builder.Services.AddHttpClient("gemini")
     .AddStandardResilienceHandler(o =>
     {
-        o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(40);   // LLM ნელია
+        o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(40);   // an LLM is slow
         o.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(90);
         o.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(90);
     });
@@ -394,7 +394,7 @@ builder.Services.AddChatClient(sp =>
     })
     .Use(inner => new InputGuardChatClient(inner))
     .UseFunctionInvocation()
-    // ... დანარჩენი ფენები — როგორც იყო
+    // ... the other layers — as before
 ```
 
 **რას შეიცავს „standard“ pipeline:**
@@ -479,7 +479,7 @@ public class ChaosHandler : DelegatingHandler
     protected override Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request, CancellationToken ct)
     {
-        // ყოველი 3-დან პირველი ორი → 503
+        // the first two of every 3 → 503
         if (Interlocked.Increment(ref _count) % 3 != 0)
             return Task.FromResult(
                 new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
@@ -490,7 +490,7 @@ public class ChaosHandler : DelegatingHandler
 
 // Program.cs:
 // .AddStandardResilienceHandler(...)
-// .AddHttpMessageHandler<ChaosHandler>();   // შიგნით
+// .AddHttpMessageHandler<ChaosHandler>();   // inside
     </code-block>
     <div class="col" style="gap:12px">
       <div class="con step"><span class="d">info:</span> POST /api/ai-lab/chat
@@ -500,7 +500,7 @@ public class ChaosHandler : DelegatingHandler
 <span class="d">      ⏳ ~4s</span>
 <span class="g">info:</span> Polly · Result: <span class="g">200</span> · Attempt: 2
 <span class="c">info:</span> 🔢 in: 1450, out: 38
-<span class="g">HTTP 200</span> → „ორი მაგიდაა თავისუფალი“</div>
+<span class="g">HTTP 200</span> → "Two tables are free"</div>
       <div class="callout step" style="--a:var(--mvc);font-size:18px">მომხმარებელმა ~6 წამი იცადა — <b>500-ის ნაცვლად</b> პასუხი</div>
       <div class="callout ask step">🙋 Gemini:Model-ში არასწორი სახელი — <b>404</b>. რამდენჯერ ცდის?</div>
       <div class="callout step" data-with style="--a:var(--red);font-size:18px"><b>ერთხელ</b>: 404 მუდმივია, retry არ ხდება</div>
@@ -519,7 +519,7 @@ public class ChaosHandler : DelegatingHandler
     protected override Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request, CancellationToken ct)
     {
-        // ყოველი 3-დან პირველი ორი → 503
+        // the first two of every 3 → 503
         if (Interlocked.Increment(ref _count) % 3 != 0)
             return Task.FromResult(
                 new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
@@ -533,7 +533,7 @@ public class ChaosHandler : DelegatingHandler
 builder.Services.AddTransient<ChaosHandler>();
 builder.Services.AddHttpClient("gemini")
     .AddStandardResilienceHandler(/* ... */)
-    .AddHttpMessageHandler<ChaosHandler>();   // შიგნით, ქსელთან ახლოს
+    .AddHttpMessageHandler<ChaosHandler>();   // inside, close to the network
 ```
 
 `DelegatingHandler` — HttpClient-ის „ფენა“, ზუსტად ისე, როგორც `DelegatingChatClient` (ლექცია 5), ოღონდ HTTP-ის დონეზე. რიგი: **პირველი დამატებული — გარეთ**. resilience გარეთაა, `ChaosHandler` შიგნით: retry ხედავს 503-ს და თავიდან ცდის.
@@ -644,7 +644,7 @@ public class FallbackChatClient : DelegatingChatClient
         }
         catch (Exception ex) when (IsTransient(ex))
         {
-            _logger.LogWarning("🛟 {Error} — სარეზერვო მოდელი", ex.Message);
+            _logger.LogWarning("🛟 {Error} — fallback model", ex.Message);
             return await _fallback.GetResponseAsync(messages, options, cancellationToken);
         }
     }
@@ -698,7 +698,7 @@ public class FallbackChatClient : DelegatingChatClient
         }
         catch (Exception ex) when (IsTransient(ex))
         {
-            _logger.LogWarning("🛟 {Error} — სარეზერვო მოდელი", ex.Message);
+            _logger.LogWarning("🛟 {Error} — fallback model", ex.Message);
             return await _fallback.GetResponseAsync(messages, options, cancellationToken);
         }
     }
@@ -721,7 +721,7 @@ public class FallbackChatClient : DelegatingChatClient
 IChatClient fallback = new Client(apiKey: apiKey)
     .AsIChatClient(builder.Configuration["Gemini:FallbackModel"]!);
 
-builder.Services.AddChatClient(sp => /* gemini — როგორც სლაიდ 11-ზე */)
+builder.Services.AddChatClient(sp => /* gemini — as on slide 11 */)
     .Use(inner => new InputGuardChatClient(inner))
     .UseFunctionInvocation()
     .Use((inner, sp) => new TokenCounterChatClient(inner, /* ... */))
@@ -818,7 +818,7 @@ Exception filter (catch … when) — a catch that only catches the exception wh
 ChatResponse response =
     await base.GetResponseAsync(messages, options, cancellationToken);
 
-// Singleton ფენაში Scoped DbContext → საკუთარი scope
+// a Scoped DbContext in a Singleton layer → its own scope
 using IServiceScope scope = _scopes.CreateScope();
 AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
@@ -882,7 +882,7 @@ public class TokenCounterChatClient : DelegatingChatClient
         ChatResponse response =
             await base.GetResponseAsync(messages, options, cancellationToken);
 
-        // Singleton ფენაში Scoped DbContext → საკუთარი scope
+        // a Scoped DbContext in a Singleton layer → its own scope
         using IServiceScope scope = _scopes.CreateScope();
         AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
@@ -1021,9 +1021,9 @@ Captive dependency — a mistake: a Scoped service is “captured” inside a Si
       <li><b>FallbackChatClient</b> — ყველაზე შიგნით, მხოლოდ დროებით შეცდომაზე</li>
       <li>ტოკენები <b>ბაზაში</b>: ერთი ხაზი = ერთი გამოძახება · IServiceScopeFactory</li></ul></div>
     <div class="col" style="gap:14px">
-      <div class="callout ask">🙋 „რამე მსუბუქი, <b>ხორცის გარეშე</b>“ — მენიუში 200 კერძია. რას ვუგზავნით მოდელს?</div>
+      <div class="callout ask">🙋 "something light, <b>without meat</b>" — მენიუში 200 კერძია. რას ვუგზავნით მოდელს?</div>
       <div class="prob" style="--a:var(--red)"><span class="pi">📋</span><div><b>მთელი მენიუ</b><span>ძვირი — ლექცია 7-ის ბიუჯეტი</span></div></div>
-      <div class="prob" style="--a:var(--red)"><span class="pi">🔤</span><div><b>LIKE '%ხორცის გარეშე%'</b><span>ლობიოს ვერ იპოვის: სიტყვა არ ემთხვევა</span></div></div>
+      <div class="prob" style="--a:var(--red)"><span class="pi">🔤</span><div><b>LIKE '%without meat%'</b><span>ლობიოს ვერ იპოვის: სიტყვა არ ემთხვევა</span></div></div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 9</h3>
         <p class="small"><b>Text Embeddings</b>: ტექსტი რიცხვებად და ძებნა <b>მნიშვნელობით</b>, არა სიტყვებით</p></div>
     </div>
@@ -1039,7 +1039,7 @@ Captive dependency — a mistake: a Scoped service is “captured” inside a Si
 
 ### შემდეგ ლექციაზე
 
-ლექცია 7-ში ვთქვით: კონტექსტში მხოლოდ ის, რაც საჭიროა. მომხმარებელი წერს: „რამე მსუბუქი, ხორცის გარეშე“. მთელი მენიუ (200 კერძი) ძვირია, ხოლო SQL-ის `LIKE '%ხორცის გარეშე%'` ლობიოს ვერ იპოვის, რადგან ეს სიტყვები მის აღწერაში არ წერია. ლექცია 9-ზე: **Text Embeddings** — ტექსტი რიცხვებად (ვექტორებად) და ძებნა **მნიშვნელობით**.
+ლექცია 7-ში ვთქვით: კონტექსტში მხოლოდ ის, რაც საჭიროა. მომხმარებელი წერს: "something light, without meat". მთელი მენიუ (200 კერძი) ძვირია, ხოლო SQL-ის `LIKE '%without meat%'` ლობიოს ვერ იპოვის, რადგან ეს სიტყვები მის აღწერაში არ წერია. ლექცია 9-ზე: **Text Embeddings** — ტექსტი რიცხვებად (ვექტორებად) და ძებნა **მნიშვნელობით**.
   </aside>
   <aside class="study-en">
 ## Summary

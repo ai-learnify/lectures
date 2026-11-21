@@ -8,7 +8,7 @@
 
 **ნაწილი 1 — `IChatClient` DI-ში (მოკლე).** ლექცია 2-ზე client Controller-ში `new`-ით შევქმენით. დღეს ის `Program.cs`-ში `AddChatClient`-ით რეგისტრირდება, key User Secrets-ში გადადის, მოდელის სახელი — `appsettings.json`-ში. **DI-ს არ ვხსნით** — API კურსიდან იციან. ეს 10 წუთი რეფაქტორინგია ნაცნობი ნიმუშით, და არა ახალი თემა.
 
-**ნაწილი 2–3 — Structured output (ლექციის მთავარი ახალი ცნება).** `GetResponseAsync<T>`: მოდელი ტექსტის ნაცვლად C# ტიპს აბრუნებს. ჯერ enum (საშინაო 2-ის classify-ის პრობლემა: `Search.` ≠ `Search`), მერე `record` რამდენიმე ველით („ოთხნი ვართ, ხვალ 8-ზე“ → `BookingRequest`). ბოლოს მთავარი დასკვნა: **ფორმა გარანტირებულია, შინაარსი — არა**.
+**ნაწილი 2–3 — Structured output (ლექციის მთავარი ახალი ცნება).** `GetResponseAsync<T>`: მოდელი ტექსტის ნაცვლად C# ტიპს აბრუნებს. ჯერ enum (საშინაო 2-ის classify-ის პრობლემა: `Search.` ≠ `Search`), მერე `record` რამდენიმე ველით ("There are four of us, tomorrow at 8" → `BookingRequest`). ბოლოს მთავარი დასკვნა: **ფორმა გარანტირებულია, შინაარსი — არა**.
 
 ### 📌 სტუდენტს აუცილებლად უნდა დარჩეს
 
@@ -153,7 +153,7 @@
 - **თუ DI ჯგუფთან ჭედავს →** ნუ ახსნი თეორიას თავიდან. დაფაზე ორი სვეტი: **„API კურსი“** — `builder.Services.AddDbContext<AppDbContext>(...)` / `public ProductsController(AppDbContext db)`; **„დღეს“** — `builder.Services.AddChatClient(...)` / `public AiLabController(IChatClient chat)`. თქვი: „ერთი და იგივე ორი ხაზია, მხოლოდ ტიპი შეიცვალა“. ვისაც კიდევ უჭირს — API კურსის DI ლექციის კონსპექტი სახლში.
 - **„constructor-ი რატომ?“ →** „ASP.NET Core Controller-ს თვითონ ქმნის. ქმნისას ხედავს, რომ constructor-ს `IChatClient` სჭირდება, DI-ში ეძებს და გადასცემს. ჩვენ `new`-ს არასდროს ვწერთ“.
 - **`dotnet user-secrets` ვერ პოულობს პროექტს →** ტერმინალი **პროექტის** საქაღალდეში უნდა იყოს (სადაც `.csproj` არის), არა solution-ის.
-- **`Gemini:ApiKey აკლია` გაშვებისას →** User Secrets-ში სახელი შეცდომით ჩაწერა (`Gemini_ApiKey`, `Gemini::ApiKey`, `gemini:apikey` ზედმეტი ჰარით). სწორი: `Gemini:ApiKey`. VS-ში: მარჯვენა ღილაკი → Manage User Secrets → `secrets.json`-ში ნახე.
+- **`Gemini:ApiKey is missing` გაშვებისას →** User Secrets-ში სახელი შეცდომით ჩაწერა (`Gemini_ApiKey`, `Gemini::ApiKey`, `gemini:apikey` ზედმეტი ჰარით). სწორი: `Gemini:ApiKey`. VS-ში: მარჯვენა ღილაკი → Manage User Secrets → `secrets.json`-ში ნახე.
 - **`AddChatClient` ვერ პოულობს →** `using Microsoft.Extensions.AI;` აკლია `Program.cs`-ში.
 - **Controller-ში `_chat` წითელია →** ველი წაშალეს constructor-თან ერთად; ან constructor-ის სახელი Controller-ის სახელს არ ემთხვევა.
 
@@ -325,7 +325,7 @@ few-shot მოდელს ფორმას **სთხოვს** — ალ
 `GetResponseAsync<T>` — `ChatClientStructuredOutputExtensions` კლასის extension მეთოდი (`Microsoft.Extensions.AI` package). ის **არ** არის `IChatClient`-ის მეთოდი — ამიტომ ყველა provider-ზე მუშაობს:
 
 1. **სქემის გენერაცია.** `AIJsonUtilities.CreateJsonSchema(typeof(T), …)` — `System.Text.Json`-ის სქემის ექსპორტზე დაყრდნობით აგენერირებს JSON Schema-ს. enum → `"enum": [...]` (სახელებით, რადგან Microsoft.Extensions.AI-ის ნაგულისხმევი JSON პარამეტრები enum-ს სტრიქონად წერს). `DateTime` → `"type":"string","format":"date-time"`. nullable → `"type": ["integer","null"]`. `[Description]` → `"description"`.
-2. **wrapper.** თუ `T` JSON ობიექტი არ არის (enum, `int`, `string`, სია), სქემა იხვევა: `{"type":"object","properties":{"data": <T-ის სქემა>},"required":["data"]}`. `ChatResponse<T>.IsWrappedInObject = true`.
+2. **wrapper.** თუ `T` JSON ობიექტი არ არის (enum, `int`, `string`, სია), სქემა იხვევა: `{"type":"object","properties":{"data": <T's schema>},"required":["data"]}`. `ChatResponse<T>.IsWrappedInObject = true`.
 3. **ResponseFormat.** `ChatOptions.ResponseFormat = ChatResponseFormat.ForJsonSchema(schema, name, description)`. თუ შენ `ChatOptions` გადაეცი — ის კოპირდება და ResponseFormat ემატება.
 4. **გამოძახება.** ჩვეულებრივი `GetResponseAsync(messages, options)`. Google-ის provider `ResponseFormat`-ს Gemini-ს `responseMimeType: "application/json"` + სქემად გარდაქმნის (ლექცია 2-ის ცხრილი: `ResponseFormat` → `responseMimeType` + `responseSchema`).
 5. **Deserialization.** `ChatResponse<T>`-ს `Result` თვისება **ზარმაცად** აკეთებს `JsonSerializer.Deserialize<T>`-ს (wrapper-ის შემთხვევაში — `data`-დან). წარუმატებლობისას `Result` exception-ს ისვრის; `TryGetResult(out T? result)` — `false`-ს აბრუნებს.
@@ -351,7 +351,7 @@ ASP.NET Core-ის `System.Text.Json` ნაგულისხმევად e
 
 ### 🔬 უფრო ღრმად — თუ ჰკითხავენ
 
-**სია.** `GetResponseAsync<List<Dish>>` — მუშაობს (wrapper `data`-ში). მაგ. „მენიუდან ვეგეტარიანული კერძები“ → სია.
+**სია.** `GetResponseAsync<List<Dish>>` — მუშაობს (wrapper `data`-ში). მაგ. "vegetarian dishes from the menu" → სია.
 
 **სქემის სანახავად.** `AIJsonUtilities.CreateJsonSchema(typeof(Sentiment))` → `JsonElement` → `ToString()`. ძლიერ ჯგუფთან შეიძლება console-ში დაბეჭდო.
 
@@ -379,7 +379,7 @@ ASP.NET Core-ის `System.Text.Json` ნაგულისხმევად e
 
 #### 12 · GetResponseAsync&lt;Sentiment&gt; · 5 წთ
 
-- **რას აკეთებ:** ლექცია 2-ის `ReviewSentiment`-ს **ერთად ცვლით**: enum ზემოთ; System prompt-იდან „ერთი სიტყვით“ და მაგალითები **წაშალე** („ახლა ფორმას ტიპი იცავს“); `GetResponseAsync<Sentiment>`; `.Result`; `if`; `ToString()`. Swagger — „კერძები კარგი, მაგრამ ძალიან ხმაურიანია“ → `Mixed`.
+- **რას აკეთებ:** ლექცია 2-ის `ReviewSentiment`-ს **ერთად ცვლით**: enum ზემოთ; System prompt-იდან „ერთი სიტყვით“ და მაგალითები **წაშალე** („ახლა ფორმას ტიპი იცავს“); `GetResponseAsync<Sentiment>`; `.Result`; `if`; `ToString()`. Swagger — "The food is good, but it's very noisy" → `Mixed`.
 - **რას ეუბნები:** codestep-ებზე თითო წინადადება. `ToString()`-ზე: „ASP.NET Core enum-ს რიცხვად აბრუნებს — ამიტომ სახელს ხელით ვაბრუნებთ.“
 - **ძლიერ ჯგუფთან:** ჯერ `Ok(response.Result)` დატოვე → Swagger-ში `2` → „რატომ?“
 - **გადასვლა:** „ერთ ხაზში რა ხდება?“
@@ -470,8 +470,8 @@ structured output ტექსტიდან **მთელ ობიექტ�
 {
   "type": "object",
   "properties": {
-    "at":     { "description": "ჯავშნის თარიღი და დრო", "type": ["string", "null"], "format": "date-time" },
-    "guests": { "description": "სტუმრების რაოდენობა",   "type": ["integer", "null"] }
+    "at":     { "description": "Booking date and time", "type": ["string", "null"], "format": "date-time" },
+    "guests": { "description": "Number of guests",      "type": ["integer", "null"] }
   },
   "required": ["at", "guests"],
   "additionalProperties": false
@@ -482,11 +482,11 @@ structured output ტექსტიდან **მთელ ობიექტ�
 
 - **`required`-ში ორივე ველია** — ველი ყოველთვის იქნება, მაგრამ nullable-ზე მნიშვნელობა შეიძლება `null` იყოს. ეს სტრუქტურას სტაბილურს ხდის.
 - **სახელები camelCase-ია** (`at`, `guests`) — Microsoft.Extensions.AI-ის JSON პარამეტრები. C#-ში `At`, `Guests`; deserialization ორივეს ემთხვევა.
-- **`Description` → `"description"`** — მოდელი მას კითხულობს. კარგი აღწერა ორაზროვნებას ამცირებს: მაგ. `"ჯავშნის თარიღი და დრო; თუ საათი 1–11 და კონტექსტი საღამოა, PM"`. მაგრამ: ყველა წესი აღწერაში არ ჯდება — კრიტიკულს C# ამოწმებს.
+- **`Description` → `"description"`** — მოდელი მას კითხულობს. კარგი აღწერა ორაზროვნებას ამცირებს: მაგ. `"Booking date and time; if the hour is 1–11 and the context is evening, PM"`. მაგრამ: ყველა წესი აღწერაში არ ჯდება — კრიტიკულს C# ამოწმებს.
 
 #### nullable — „არ ვიცი“-ს უფლება
 
-`int Guests` სქემაში `"type": "integer"`-ია, და constrained decoding მოდელს **აიძულებს** რიცხვი დაწეროს. თუ ტექსტში რაოდენობა არ არის — მოიგონებს (ხშირად `2`). ეს hallucination-ია, რომელიც **ჩვენმა სქემამ** გამოიწვია. `int?` → `["integer","null"]` → `null` დასაშვებია. prompt-ის ხაზი „რაც არ წერია, დატოვე null“ ამას ამყარებს — სქემა ნებას აძლევს, prompt — ეუბნება, როდის.
+`int Guests` სქემაში `"type": "integer"`-ია, და constrained decoding მოდელს **აიძულებს** რიცხვი დაწეროს. თუ ტექსტში რაოდენობა არ არის — მოიგონებს (ხშირად `2`). ეს hallucination-ია, რომელიც **ჩვენმა სქემამ** გამოიწვია. `int?` → `["integer","null"]` → `null` დასაშვებია. prompt-ის ხაზი "Leave null whatever is not in the text" ამას ამყარებს — სქემა ნებას აძლევს, prompt — ეუბნება, როდის.
 
 **წესი:** ყველა ველი, რომელიც ტექსტში შეიძლება **არ** იყოს, nullable უნდა იყოს. სავალდებულოობას **C#** ამოწმებს, არა სქემა.
 
@@ -507,7 +507,7 @@ structured output ტექსტიდან **მთელ ობიექტ�
 | **C#** | ბიზნეს-წესები, გარანტიით | სამუშაო საათები, `Guests > 0`, თარიღი წარსულში არ არის |
 | **ბიზნეს-ლოგიკა/ბაზა** | ხელმისაწვდომობა, უნიკალურობა | მაგიდა თავისუფალია? (ლექცია 4 — tools) |
 
-„8-ზე“ კლასიკური მაგალითია: ქართულში საღამოს 8-ს ხშირად უბრალოდ „8-ს“ ვეძახით. მოდელი შეიძლება 08:00 ან 20:00 აირჩიოს. ორივე **ფორმით** სწორია. C#: `if (At.Hour < 12) → 12 დაუმატე` ან `BadRequest("დილის თუ საღამოს?")`. ეს ბიზნეს-გადაწყვეტილებაა და არა მოდელის.
+„8-ზე“ კლასიკური მაგალითია: ქართულში საღამოს 8-ს ხშირად უბრალოდ „8-ს“ ვეძახით. მოდელი შეიძლება 08:00 ან 20:00 აირჩიოს. ორივე **ფორმით** სწორია. C#: `if (At.Hour < 12) → add 12` ან `BadRequest("Morning or evening?")`. ეს ბიზნეს-გადაწყვეტილებაა და არა მოდელის.
 
 #### სად ცხოვრობს ეს კოდი რეალურ პროექტში
 
@@ -515,7 +515,7 @@ structured output ტექსტიდან **მთელ ობიექტ�
 
 ### 🔬 უფრო ღრმად — თუ ჰკითხავენ
 
-**ჩადგმული ტიპები.** `record Order(List<OrderItem> Items, string? Note)`, `record OrderItem(string Dish, int Quantity)` — „ორი ხინკალი და ერთი ხაჭაპური“ → `Items` სია. მუშაობს. ძალიან ღრმა ჩადგმაზე სქემის ლიმიტები.
+**ჩადგმული ტიპები.** `record Order(List<OrderItem> Items, string? Note)`, `record OrderItem(string Dish, int Quantity)` — "Two khinkali and one khachapuri" → `Items` სია. მუშაობს. ძალიან ღრმა ჩადგმაზე სქემის ლიმიტები.
 
 **ზედმეტი ველი „confidence“.** ზოგი ამატებს `double Confidence` — მოდელი თვითონ აფასებს დარწმუნებას. ეს მოდელის **თვითშეფასებაა**, არა ალბათობა — ნაკლებად სანდოა. თუ ჰკითხავენ: „სასარგებლო სიგნალია, მაგრამ გადაწყვეტილებას მასზე არ ავაგებთ“.
 
@@ -563,7 +563,7 @@ structured output ტექსტიდან **მთელ ობიექტ�
 
 ### 💡 მაგალითები
 
-- **რესტორანი:** „ორი ხინკალი და ხაჭაპური, ცხელი, მეორე სართულზე“ → `Order { Items, Note, Table }`.
+- **რესტორანი:** "Two khinkali and a khachapuri, hot, to the second floor" → `Order { Items, Note, Table }`.
 - **HR:** CV-ის ტექსტი → `Candidate { Name, YearsOfExperience, Skills, Level }` (ლექცია 1-ის მაგალითი).
 - **ბუღალტერია:** ინვოისის ტექსტი → `Invoice { Number, Date, Total, Vendor }` (PDF-ის ტექსტი — ლექცია 11-ის PdfPig-ით, ობიექტი — დღევანდელი `GetResponseAsync<T>`-ით).
 
@@ -625,7 +625,7 @@ structured output ტექსტიდან **მთელ ობიექტ�
 ### ⚠️ ტიპური შეცდომები
 
 - ყველა ველი non-nullable → ნაწილობრივ ტექსტზე მოგონილი მნიშვნელობები. ჰკითხე: „ტექსტში ეს წერია? საიდან მოიტანა?“
-- სქემა prompt-შიც დაწერეს („დააბრუნე JSON ველებით…“) → არაა შეცდომა, მაგრამ ზედმეტია და Google არ ურჩევს.
+- სქემა prompt-შიც დაწერეს ("Return JSON with the fields…") → არაა შეცდომა, მაგრამ ზედმეტია და Google არ ურჩევს.
 - თარიღიანი ველი, მაგრამ თარიღი prompt-ში არ არის → წელი/თვე არასწორი.
 - `request.Prompt` System-ში ჩასვეს → მომხმარებლის ტექსტი მხოლოდ User-ში (ლექცია 2).
 - enum რიცხვად ჩანს Swagger-ში და ფიქრობენ, რომ შეცდომაა → ნორმალურია; `ToString()` ან `JsonStringEnumConverter`.
@@ -644,7 +644,7 @@ structured output ტექსტიდან **მთელ ობიექტ�
 = `TryGetResult`-ით შეამოწმე, `response.Text` დაალოგე და `MaxOutputTokens` გაზარდე (ან საერთოდ მოხსენი).
 ! ყველაზე ხშირი მიზეზი — JSON ლიმიტზე გაწყდა. მეორე — ტიპში ისეთი რამ, რასაც სქემა ცუდად აღწერს (მაგ. `object`, ციკლური ტიპები). მარტივი record-ები ჩვეულებრივ უპრობლემოდ მუშაობს.
 ? „სხვა თემის ტექსტზე მაინც ავსებს ველებს“
-= System-ში: „რაც ტექსტში არ წერია, დატოვე null“; ველები nullable უნდა იყოს. შეგიძლია `bool IsRelevant` ველიც დაამატო.
+= System-ში: "Leave null whatever is not in the text"; ველები nullable უნდა იყოს. შეგიძლია `bool IsRelevant` ველიც დაამატო.
 ! nullable-ის გარეშე მოდელი იძულებულია რამე ჩაწეროს. `IsRelevant` კარგი პატერნია: ჯერ C# ამოწმებს, ეხება თუ არა ტექსტი თემას, და მხოლოდ მერე იყენებს დანარჩენ ველებს.
 ? „record-ში რამდენი ველი უნდა იყოს?“
 = 3–6 საკმარისია. ბევრი ველი შეცდომის შანსს ზრდის.
@@ -704,7 +704,7 @@ structured output ტექსტიდან **მთელ ობიექტ�
 
 ```csharp TryGetResult — მხოლოდ საჩვენებლად
 if (!response.TryGetResult(out BookingRequest? booking))
-    return StatusCode(502, $"მოდელმა ვერ უპასუხა: {response.FinishReason}");
+    return StatusCode(502, $"The model failed to answer: {response.FinishReason}");
 return Ok(booking);
 ```
 
@@ -737,13 +737,13 @@ public class FakeChatClient(string json) : IChatClient
 
 ### 📝 Description-ის ეფექტი · 5 წთ
 
-1. `BookingRequest`-იდან ორივე `Description` ამოიღე. „ოთხნი ვართ, ხვალ 8-ზე“ — 3-ჯერ. ჩაიწერე საათები.
-2. `At`-ს აღწერა: `"ჯავშნის თარიღი და დრო. რესტორანი მუშაობს 12:00–23:00; ორაზროვანი საათი (1–11) ნიშნავს საღამოს"` → 3-ჯერ.
+1. `BookingRequest`-იდან ორივე `Description` ამოიღე. "There are four of us, tomorrow at 8" — 3-ჯერ. ჩაიწერე საათები.
+2. `At`-ს აღწერა: `"Booking date and time. The restaurant is open 12:00–23:00; an ambiguous hour (1–11) means the evening"` → 3-ჯერ.
 3. შეადარე. დასკვნა: აღწერა მოდელს **კონტექსტს** აძლევს — ისიც prompt-ის ნაწილია, უბრალოდ ველთან მიბმული. მაგრამ მაინც ვამოწმებთ C#-ით.
 
 ### 🍽️ სია ტექსტიდან · 5 წთ
 
-1. `record OrderItem(string Dish, int Quantity);` → `GetResponseAsync<List<OrderItem>>` → „ორი ხინკალი, ერთი ხაჭაპური და სამი ლიმონათი“.
+1. `record OrderItem(string Dish, int Quantity);` → `GetResponseAsync<List<OrderItem>>` → "Two khinkali, one khachapuri and three lemonades".
 2. 🙋 „რა იქნება JSON-ში?“ → `{"data":[…]}` — wrapper სიაზეც.
 3. დასკვნა: ტიპი ნებისმიერი შეიძლება — ჩადგმული, სია. მომდევნო ნაბიჯი: ეს სია მენიუს შევადაროთ — და აქ ისევ tools გვჭირდება (ლექცია 4).
 

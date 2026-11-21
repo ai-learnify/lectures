@@ -41,7 +41,7 @@ public async Task<IActionResult> SearchBooks(string q, string? author, Cancellat
         EmbeddingText.Query(q), cancellationToken: ct));
     IQueryable<Book> books = _db.Books.Where(b => b.Embedding != null);
     if (author is not null)
-        books = books.Where(b => b.Author == author);           // ფილტრი — იმავე SQL-ში
+        books = books.Where(b => b.Author == author);           // the filter — in the same SQL
     var top = await books
         .OrderBy(b => b.Embedding!.CosineDistance(query))
         .Select(b => new { b.Title, Distance = b.Embedding!.CosineDistance(query) })
@@ -55,7 +55,7 @@ public async Task<IActionResult> SearchBooks(string q, string? author, Cancellat
 
 ```csharp Controllers/BooksController.cs · Update
 book.Description = request.Description;
-book.Embedding = null;        // აღწერა შეიცვალა — ვექტორი ძველია
+book.Embedding = null;        // the description changed — the vector is old
 await _db.SaveChangesAsync(ct);
 ```
 

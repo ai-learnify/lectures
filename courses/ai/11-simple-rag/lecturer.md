@@ -10,7 +10,7 @@
 
 **ნაწილი 2 — Ingestion (კოდი).** PDF = ასოები კოორდინატებით; PdfPig + `ContentOrderTextExtractor`; გაწმენდა; chunking (~800, წინადადებებით, overlap 1, გვერდ-გვერდ); `Document` + `DocumentChunk`; `POST /documents`.
 
-**ნაწილი 3 — Query (ლექციის მთავარი კოდი).** `SearchChunksAsync` (top 5 + ზღვარი), `BuildContext` (`[1] (ფაილი, გვ. N)`), წესები system prompt-ში, RAG ლექცია 7-ის `/chat`-ში: augmented შეტყობინება, ისტორიაში ორიგინალი, `sources` response-ში.
+**ნაწილი 3 — Query (ლექციის მთავარი კოდი).** `SearchChunksAsync` (top 5 + ზღვარი), `BuildContext` (`[1] (file, p. N)`), წესები system prompt-ში, RAG ლექცია 7-ის `/chat`-ში: augmented შეტყობინება, ისტორიაში ორიგინალი, `sources` response-ში.
 
 **ეს ლექცია მოდულის პირველი „სრული სისტემაა“:** 1-დან 10-მდე ყველაფერი აქ ერთდება — prompt-ის წესები (2), DI (3), tool-ები (4), ჩატი და ისტორია (7), ვექტორები (9) და ბაზა (10). სტუდენტებს ეს უთხარი — მოტივაციისთვის კარგია.
 
@@ -24,11 +24,11 @@
 
 ### ✅ მომზადება
 
-- **სტუდენტებს წინასწარ (2–3 დღით ადრე) მისწერე:** „ლექცია 11-ზე მოიტანეთ 2–3-გვერდიანი PDF თქვენი პროექტის თემაზე — წესები, FAQ, ინსტრუქცია (Word ან Google Docs → Save as PDF; **არა** სკანი ან ფოტო). შრიფტი: Sylfaen ან Noto Sans Georgian.“
-- **შენი PDF — „რესტორნის წესები“.** Word-ში 4–6 გვერდი, ქვემოთ მოცემული ნიმუშით (📖 „სადემონსტრაციო PDF“), **Save as PDF**. შეამოწმე, რომ PdfPig ტექსტს სწორად კითხულობს (ქართული შრიფტი!) — `ReadPages`-ის შედეგი კონსოლში
+- **სტუდენტებს წინასწარ (2–3 დღით ადრე) მისწერე:** „ლექცია 11-ზე მოიტანეთ 2–3-გვერდიანი PDF თქვენი პროექტის თემაზე, **ინგლისურად** — წესები, FAQ, ინსტრუქცია (Word ან Google Docs → Save as PDF; **არა** სკანი ან ფოტო).“
+- **შენი PDF — „რესტორნის წესები“.** Word-ში 4–6 გვერდი, ქვემოთ მოცემული ნიმუშით (📖 „სადემონსტრაციო PDF“), **Save as PDF**. შეამოწმე, რომ PdfPig ტექსტს სწორად კითხულობს — `ReadPages`-ის შედეგი კონსოლში
 - **RestaurantApi-ში წინასწარ:** NuGet `PdfPig`, `PdfText`, `TextChunker`, `Document`/`DocumentChunk` + migration (HNSW ინდექსით), `UploadDocument`, `SearchChunksAsync`, `BuildContext`, `/chat`-ის ახალი ვერსია, `Rag:MinScore` appsettings-ში. ლექციაზე `UploadDocument` და `/chat`-ის ცვლილება **ერთად** იწერება; `PdfText`, `TextChunker`, entity-ები და `SearchChunksAsync` — ჩასვამ და ახსნი
 - **ზღვარი შენს PDF-ზე:** 5 სწორი და 3 „არარსებული“ შეკითხვა → score-ები → `Rag:MinScore` (ხშირად 0.5–0.6)
-- **ცოცხალი შეკითხვები** (სლაიდები 15–16): „ჯავშანი როგორ გავაუქმო?“, „თხილზე ალერგია მაქვს“, „ბორშის რეცეპტი“ (→ „ინფორმაცია არ მაქვს“) და „ლობიო რა ღირს?“ (→ tool, არა RAG). წინასწარ გაუშვი და დარწმუნდი, რომ პასუხებს `[1]` ახლავს
+- **ცოცხალი შეკითხვები** (სლაიდები 15–16): "How do I cancel a booking?", „თხილზე ალერგია მაქვს“, "a borscht recipe" (→ „ინფორმაცია არ მაქვს“) და "How much is lobio?" (→ tool, არა RAG). წინასწარ გაუშვი და დარწმუნდი, რომ პასუხებს `[1]` ახლავს
 - გაიარე ბოლოში მოცემული ტესტი „✅ მზად ხარ?“
 
 ### 🧩 ბირთვი + ⭐ რეზერვი
@@ -236,7 +236,7 @@
 
 - (10) **PDF = ასოები:** 🙋 „PDF-ში სიტყვები წერია?“ → არა. `PdfText` — **ჩასვი**, codestep 10 (`ContentOrderTextExtractor`), 15–16 (გაწმენდა). ცოცხლად: ერთი გვერდის ტექსტი კონსოლში. ⚠️ სკანი → ცარიელი
 - (11) **chunking:** 🙋 „ერთ ვექტორად?“ → ბუნდოვანი. ორი ნაწილი ეკრანზე, ვარდისფერი overlap. 🙋 „ერთი წინადადება?“ → კონტექსტი იკარგება. `TextChunker` — **ჩასვი**, ერთი წინადადებით ახსენი (დეტალი 📖-ში)
-- (12) **ერთად წერთ** `UploadDocument`; entity-ები — ჩასვი. Swagger: `წესები.pdf` → `chunks: N`. psql: `SELECT "Page", left("Content", 60) FROM "DocumentChunks"`. 🙋 „ლექცია 10-თან რა არის ახალი?“ → მხოლოდ PDF და chunking
+- (12) **ერთად წერთ** `UploadDocument`; entity-ები — ჩასვი. Swagger: `rules.pdf` → `chunks: N`. psql: `SELECT "Page", left("Content", 60) FROM "DocumentChunks"`. 🙋 „ლექცია 10-თან რა არის ახალი?“ → მხოლოდ PDF და chunking
 - ⏱ **0:35**-ზე შესვენებაზე
 
 ### 🆘 თუ ვერ გაიგეს
@@ -272,7 +272,7 @@ PdfPig-ის ტექსტის ამოღება:
 
 #### `EmbeddingText.Document(doc.FileName, c.Content)`
 
-`gemini-embedding-2`-ის დოკუმენტის ფორმატი `title: … | text: …`. სათაურად ფაილის სახელი — მინიმალური კონტექსტი. უკეთესი: სექციის სათაური („ჯავშნის გაუქმება“) — ლექცია 12-ის heading-aware chunking.
+`gemini-embedding-2`-ის დოკუმენტის ფორმატი `title: … | text: …`. სათაურად ფაილის სახელი — მინიმალური კონტექსტი. უკეთესი: სექციის სათაური ("cancelling a booking") — ლექცია 12-ის heading-aware chunking.
 
 #### `IFormFile` და მეხსიერება
 
@@ -282,18 +282,18 @@ PdfPig-ის ტექსტის ამოღება:
 
 `_db.Documents.Add(doc)` + ერთი `SaveChangesAsync` — დოკუმენტი და ყველა ნაწილი ერთად ან არაფერი. თუ embedding-ის გამოძახება შუაში ჩავარდა (ლექცია 8-ის retry-ის შემდეგაც), ბაზაში „ნახევარი დოკუმენტი“ არ რჩება.
 
-#### სადემონსტრაციო PDF — „რესტორნის წესები“ (Word-ში ჩასაწერად)
+#### სადემონსტრაციო PDF — „რესტორნის წესები“ (Restaurant rules, Word-ში ჩასაწერად, ინგლისურად)
 
 თითო სექცია — ცალკე გვერდზე (Ctrl+Enter), რომ გვერდის ნომრები გამოჩნდეს:
 
-1. **ზოგადი ინფორმაცია.** სამუშაო საათები (ორშ–პარ 12:00–23:00, შაბ–კვ 11:00–00:00), მისამართი, პარკინგი (ეზოში 10 ადგილი, უფასო სტუმრებისთვის).
-2. **ჯავშანი.** ჯავშანი საიტზე ან ტელეფონით. მაგიდა 2 საათით ინახება. გაუქმება შესაძლებელია ვიზიტამდე 24 საათით ადრე. 8+ კაციან ჯავშანზე საჭიროა წინასწარი გადახდა 30%. გვიან გაუქმებისას თანხა არ ბრუნდება. დაგვიანება 20 წუთზე მეტი — მაგიდა თავისუფლდება.
-3. **ალერგენები.** ნიგოზი: ბადრიჯანი ნიგვზით, ფხალი, საცივი, ჩურჩხელა. გლუტენი: ხაჭაპური, ხინკალი (მჭადი სიმინდისაა — გლუტენი არ აქვს). რძე: ხაჭაპური, ელარჯი. ალერგიის შესახებ შეკვეთისას უთხარით მიმტანს; სამზარეულო ჯვარედინ კონტამინაციას ვერ გამორიცხავს.
-4. **ბავშვები და ცხოველები.** ბავშვის სკამი — 4 ცალი. ძაღლები დასაშვებია მხოლოდ ტერასაზე, საბელით. სხვა ცხოველები — არა.
-5. **ღონისძიებები.** დაბადების დღე და კორპორატივი 20 კაცამდე — მთავარ დარბაზში; 20+ — „B-2“ დარბაზი (ცალკე შესასვლელით). საკუთარი ტორტი — 15 ლარი მომსახურება. ცოცხალი მუსიკა — პარასკევს 20:00-დან.
-6. **გადახდა.** ბარათი, ნაღდი, Apple/Google Pay. მომსახურების საფასური 10% (5+ კაცზე — 12%). ჩეკის გაყოფა — მაქსიმუმ 4 ნაწილად.
+1. **General information.** Opening hours: Mon–Fri 12:00–23:00, Sat–Sun 11:00–00:00. Address. Parking: 10 spaces in the courtyard, free for guests.
+2. **Bookings.** You can book on the website or by phone. A table is held for 2 hours. Cancellation is possible up to 24 hours before the visit. A booking for 8+ people requires a 30% prepayment. If cancelled late, the money isn't returned. If you are more than 20 minutes late, the table is released.
+3. **Allergens.** Walnut: aubergine with walnuts, pkhali, satsivi, churchkhela. Gluten: khachapuri, khinkali (mchadi is made of corn — it has no gluten). Milk: khachapuri, elarji. Tell the waiter about allergies when ordering; the kitchen cannot rule out cross-contamination.
+4. **Children and pets.** Children's high chairs — 4. Dogs are allowed only on the terrace, on a leash. Other animals — no.
+5. **Events.** Birthdays and corporate events up to 20 people — in the main hall; 20+ — hall "B-2" (with a separate entrance). Your own cake — a 15 GEL service charge. Live music — on Fridays from 20:00.
+6. **Payment.** Card, cash, Apple/Google Pay. Service charge 10% (5+ people — 12%). Splitting the bill — into 4 parts at most.
 
-„B-2“, „15 ლარი“, „12%“ — განზრახ: ლექცია 12-ში ზუსტი სიტყვების/რიცხვების ძებნის საჩვენებლად.
+"B-2", "15 GEL", "12%" — განზრახ: ლექცია 12-ში ზუსტი სიტყვების/რიცხვების ძებნის საჩვენებლად.
 
 ### 🔬 უფრო ღრმად — თუ ჰკითხავენ
 
@@ -372,7 +372,7 @@ PdfPig-ის ტექსტის ამოღება:
 
 ### 📋 ლექციაზე
 
-- (15) `SearchChunksAsync` — **ჩასვი** („ლექცია 10-ის ძებნა, 5 შედეგი“). წყაროების ბლოკი ეკრანზე. ზღვარი: „ბორშის რეცეპტი“ → 0. 🙋 „რატომ ნომრები?“
+- (15) `SearchChunksAsync` — **ჩასვი** („ლექცია 10-ის ძებნა, 5 შედეგი“). წყაროების ბლოკი ეკრანზე. ზღვარი: "a borscht recipe" → 0. 🙋 „რატომ ნომრები?“
 - (16) **ერთად წერთ** `/chat`-ის ცვლილება: `sources`, `augmented`, messages, `AppendAsync([question, …])`. წესები system prompt-ში — **ჩასვი**. ცოცხლად ოთხი შეკითხვა: ჯავშანი → `[1]`; ალერგია → `[1][2]`; ბორში → „ინფორმაცია არ მაქვს“; ლობიო რა ღირს → tool. 🙋 „tool vs ყოველთვის?“
 - ⏱ **0:58**-ზე დავალებაზე
 
@@ -415,7 +415,7 @@ RAG-ის „A“ — უბრალოდ ტექსტია prompt-ში
 
 #### follow-up შეკითხვები
 
-„ჯავშანი როგორ გავაუქმო?“ → „და თანხა დამიბრუნდება?“ — მეორე ძებნა მხოლოდ „და თანხა დამიბრუნდება?“-ით ხდება და ცუდად პოულობს. გამოსავალი: **query rewriting** — ძებნამდე მოდელს ისტორიით სრულ შეკითხვას ვაწერინებთ („ჯავშნის გაუქმებისას თანხა ბრუნდება?“). ფასი — ერთი LLM-გამოძახება. ⭐-ში ან ლექცია 15-ში (აგენტი თვითონ აწყობს ძებნის შეკითხვას).
+"How do I cancel a booking?" → "And will I get my money back?" — მეორე ძებნა მხოლოდ "And will I get my money back?"-ით ხდება და ცუდად პოულობს. გამოსავალი: **query rewriting** — ძებნამდე მოდელს ისტორიით სრულ შეკითხვას ვაწერინებთ („ჯავშნის გაუქმებისას თანხა ბრუნდება?“). ფასი — ერთი LLM-გამოძახება. ⭐-ში ან ლექცია 15-ში (აგენტი თვითონ აწყობს ძებნის შეკითხვას).
 
 ### 🔬 უფრო ღრმად — თუ ჰკითხავენ
 
@@ -441,7 +441,7 @@ RAG-ის „A“ — უბრალოდ ტექსტია prompt-ში
 
 #### 16 · ჩატში · 7.5 წთ
 
-- **რას აკეთებ:** ლექცია 7-ის `/chat` ეკრანზე — **ერთად წერთ** სამ ხაზს: `sources`, `augmented`, messages. codestep 15: „ისტორიაში — question, არა augmented“ — 🙋 „რატომ?“. წესები — ჩასვი. ცოცხლად ოთხი შეკითხვა. „ბორში“ → „ინფორმაცია არ მაქვს“ — „აი, ზღვარი და წესი ერთად“. „ლობიო რა ღირს?“ → tool — „ფასი PDF-დან არ მოდის“. 🙋 „ლექცია 9-ის ⭐-ში ძებნა tool იყო — რა სჯობს?“ — ცხრილი 📖-დან, 1 წუთი.
+- **რას აკეთებ:** ლექცია 7-ის `/chat` ეკრანზე — **ერთად წერთ** სამ ხაზს: `sources`, `augmented`, messages. codestep 15: „ისტორიაში — question, არა augmented“ — 🙋 „რატომ?“. წესები — ჩასვი. ცოცხლად ოთხი შეკითხვა. „ბორში“ → „ინფორმაცია არ მაქვს“ — „აი, ზღვარი და წესი ერთად“. "How much is lobio?" → tool — „ფასი PDF-დან არ მოდის“. 🙋 „ლექცია 9-ის ⭐-ში ძებნა tool იყო — რა სჯობს?“ — ცხრილი 📖-დან, 1 წუთი.
 - **გადასვლა:** „თქვენი PDF — და ჯერ გამოიცანით.“
 
 ### 🎙️ ნიმუშის მონოლოგი — ორიენტირი, არა ტექსტი
@@ -565,10 +565,10 @@ private async IAsyncEnumerable<SseItem<string>> StreamRag(string prompt,
         eventType: "sources");
 
     List<ChatMessage> messages = [SystemPrompt(), new(ChatRole.User, $"""
-        წყაროები:
+        Sources:
         {BuildContext(sources)}
 
-        შეკითხვა: {prompt}
+        Question: {prompt}
         """)];
     await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), ct))
         if (!string.IsNullOrEmpty(update.Text))
@@ -583,7 +583,7 @@ private async IAsyncEnumerable<SseItem<string>> StreamRag(string prompt,
 
 ### 🔁 query rewriting · 8 წთ
 
-1. „ჯავშანი როგორ გავაუქმო?“ → „და თანხა დამიბრუნდება?“ — `/documents/search` მეორეზე: ცუდი შედეგი.
+1. "How do I cancel a booking?" → "And will I get my money back?" — `/documents/search` მეორეზე: ცუდი შედეგი.
 2. ძებნამდე: `GetResponseAsync<string>`-ით (ან უბრალო ტექსტით) — „ისტორიის მიხედვით ეს შეკითხვა სრულად გადაწერე, ძებნისთვის“.
 3. ძებნა გადაწერილით → სწორი გვერდი.
 4. დასკვნა: ფასი — +1 LLM გამოძახება; ლექცია 15-ში აგენტი ამას თვითონ აკეთებს.
@@ -591,7 +591,7 @@ private async IAsyncEnumerable<SseItem<string>> StreamRag(string prompt,
 ### ♻️ დოკუმენტის განახლება · 6 წთ
 
 ```csharp
-await _db.Documents.Where(d => d.FileName == file.FileName).ExecuteDeleteAsync(ct);   // cascade — ნაწილებიც
+await _db.Documents.Where(d => d.FileName == file.FileName).ExecuteDeleteAsync(ct);   // cascade — the chunks too
 ```
 
 🙋 „რა მოხდება, თუ ახალი ფაილის embedding ჩავარდა?“ → ძველი უკვე წაშლილია. სწორი რიგი: ჯერ ახალი, მერე ძველის წაშლა — ერთ ტრანზაქციაში.

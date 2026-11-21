@@ -35,12 +35,13 @@ public async Task<IActionResult> Classify(AskRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "დაახარისხე ბიბლიოთეკის მოთხოვნა. უპასუხე მხოლოდ ერთი სიტყვით: Search, Reserve ან Question."),
-        new(ChatRole.User, "გაქვთ რამე ჰარუკი მურაკამის?"),
+        new(ChatRole.System, "Classify the library request. " +
+            "Answer with one word only: Search, Reserve or Question."),
+        new(ChatRole.User, "Do you have anything by Haruki Murakami?"),
         new(ChatRole.Assistant, "Search"),
-        new(ChatRole.User, "„ჯაყოს ხიზნები“ ხვალამდე გადამიდეთ"),
+        new(ChatRole.User, "Please hold “Jaqo's Dispossessed” for me until tomorrow"),
         new(ChatRole.Assistant, "Reserve"),
-        new(ChatRole.User, "შაბათს რომელ საათამდე ხართ?"),
+        new(ChatRole.User, "Until what time are you open on Saturday?"),
         new(ChatRole.Assistant, "Question"),
         new(ChatRole.User, request.Prompt)
     ];
@@ -52,9 +53,9 @@ public async Task<IActionResult> Classify(AskRequest request)
 
 | ტექსტი | zero-shot | few-shot |
 |---|---|---|
-| „დეტექტივები სად გაქვთ?“ | „ეს არის ძიების მოთხოვნა, რადგან…“ | `Search` |
-| „ორშაბათამდე შემინახეთ ეს წიგნი“ | „დაჯავშნა“ | `Reserve` |
-| „ბარათის აღდგენა რა ღირს?“ | „Question / ინფორმაცია“ | `Question` |
+| "Where are your detective novels?" | "This is a search request, because…" | `Search` |
+| "Hold this book for me until Monday" | „დაჯავშნა“ | `Reserve` |
+| "How much does replacing a library card cost?" | „Question / ინფორმაცია“ | `Question` |
 
 ```note
 zero-shot-ის პასუხი ხშირად სწორია **შინაარსით**, მაგრამ არა **ფორმით**: „დაჯავშნა“ ან მთელი წინადადება `if (label == "Reserve")`-ს ვერ გაივლის. few-shot ფორმას აფიქსირებს. მაინც, Controller-ში პასუხი სიასთან უნდა შევამოწმოთ — მოდელი სავარაუდოს წერს. ლექცია 3-ზე structured output-ით ამას C# ტიპი (enum) დაიცავს.

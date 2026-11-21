@@ -5,7 +5,7 @@
 ## ნაბიჯები
 
 - **1 · ცხრილი** — `AiUsageRecord` (`Id`, `At`, `Model`, `InputTokens`, `OutputTokens`), `DbSet<AiUsageRecord> AiUsage`, migration; `TokenCounterChatClient` ბაზაში წერს (სლაიდი 16)
-- **2 · ფენა** — `BudgetGuardChatClient : DelegatingChatClient`: constructor-ში `IServiceScopeFactory` და `long dailyLimit`; `GetResponseAsync`-ში — scope → დღევანდელი ტოკენების ჯამი (`At >= DateTime.UtcNow.Date`) → თუ ≥ ლიმიტი, **base-ის გარეშე** პასუხი „დღევანდელი ლიმიტი ამოიწურა“
+- **2 · ფენა** — `BudgetGuardChatClient : DelegatingChatClient`: constructor-ში `IServiceScopeFactory` და `long dailyLimit`; `GetResponseAsync`-ში — scope → დღევანდელი ტოკენების ჯამი (`At >= DateTime.UtcNow.Date`) → თუ ≥ ლიმიტი, **base-ის გარეშე** პასუხი "Today's limit has been reached"
 - **3 · pipeline** — ლიმიტი `appsettings.json`-ში (`"Ai": { "DailyTokenLimit": 3000 }`); ფენა **პირველი** `.Use(...)` — ყველაზე გარეთ
 - **4 · შემოწმება** — Swagger-ში რამდენიმე შეკითხვა, სანამ ლიმიტს არ გადააჭარბებ → უარის პასუხი, ლოგში Gemini-ს მოთხოვნა აღარ ჩანს; ბაზაში `SELECT SUM("InputTokens" + "OutputTokens") FROM "AiUsage"`
 

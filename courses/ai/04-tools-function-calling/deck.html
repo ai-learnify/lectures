@@ -69,10 +69,10 @@
   </div>
   <div class="abs" style="right:90px;top:230px;width:520px">
     <div class="col" style="gap:12px">
-      <div class="txt in" style="--d:.5s"><span class="who">მომხმარებელი</span>ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?</div>
+      <div class="txt in" style="--d:.5s"><span class="who">მომხმარებელი</span>There are four of us, tomorrow at 8 — do you have a table?</div>
       <div class="tc in" style="--d:.8s">📞 check_availability(at: …T20:00, guests: 4)</div>
       <div class="tc in" style="--d:1s;--asp:var(--mvc)">📦 { available: true, freeTables: 2 }</div>
-      <div class="txt in" style="--d:1.2s"><span class="who">ასისტენტი</span>დიახ, ხვალ 20:00-ზე ოთხი კაცისთვის ორი მაგიდაა თავისუფალი.</div>
+      <div class="txt in" style="--d:1.2s"><span class="who">ასისტენტი</span>Yes, tomorrow at 20:00 there are two free tables for four.</div>
     </div>
   </div>
   <aside class="study">
@@ -144,13 +144,13 @@ The model only “sees” what we sent in the request (lecture 1: stateless, kno
 
 <section class="slide" data-section="1 · მოდელი და ჩვენი ბაზა">
   <div class="kicker">ლექცია 3-ის კითხვა</div>
-  <h2>„ხვალ 8-ზე ოთხნი ვართ, <span class="c-red">ადგილი გაქვთ?</span>“</h2>
+  <h2>"There are four of us, tomorrow at 8 — <span class="c-red">do you have a table?</span>"</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:32px;align-items:start;margin-top:8px">
     <div class="col" style="gap:14px">
       <p class="sec-l">/ask — მოდელი მარტო:</p>
-      <div class="txt step"><span class="who">ვარიანტი 1</span>დიახ, რა თქმა უნდა! გელოდებით ხვალ 20:00-ზე 😊</div>
+      <div class="txt step"><span class="who">ვარიანტი 1</span>Yes, of course! We're expecting you tomorrow at 20:00 😊</div>
       <div class="callout step" data-with style="--a:var(--red);font-size:18px">მოიგონა: ჯავშნები არ უნახავს — <b>hallucination</b></div>
-      <div class="txt step"><span class="who">ვარიანტი 2</span>სამწუხაროდ, რესტორნის ჯავშნებზე წვდომა არ მაქვს.</div>
+      <div class="txt step"><span class="who">ვარიანტი 2</span>Unfortunately, I don't have access to the restaurant's bookings.</div>
       <div class="callout step" data-with style="--a:var(--asp);font-size:18px">პატიოსანია, მაგრამ <b>უსარგებლო</b></div>
     </div>
     <div class="col" style="gap:14px">
@@ -163,18 +163,18 @@ The model only “sees” what we sent in the request (lecture 1: stateless, kno
   <aside class="study">
 ### მოდელი ჩვენს ბაზას ვერ ხედავს
 
-მომხმარებელი წერს: „ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?“. ლექცია 2-ის `/ask`-ზე მოდელს ჩვენი ბაზა არ აქვს, ამიტომ ორიდან ერთს აკეთებს:
+მომხმარებელი წერს: "There are four of us, tomorrow at 8 — do you have a table?". ლექცია 2-ის `/ask`-ზე მოდელს ჩვენი ბაზა არ აქვს, ამიტომ ორიდან ერთს აკეთებს:
 
 | პასუხი | პრობლემა |
 |---|---|
-| „დიახ, რა თქმა უნდა! გელოდებით“ | **მოიგონა** (hallucination): ჯავშნები არ უნახავს, მაგრამ დამაჯერებლად პასუხობს. მომხმარებელი მოვა და მაგიდა დაკავებული იქნება |
-| „ჯავშნებზე წვდომა არ მაქვს“ | პატიოსანია, მაგრამ მომხმარებელს არაფერში ეხმარება |
+| "Yes, of course! We're expecting you" | **მოიგონა** (hallucination): ჯავშნები არ უნახავს, მაგრამ დამაჯერებლად პასუხობს. მომხმარებელი მოვა და მაგიდა დაკავებული იქნება |
+| "I don't have access to the bookings" | პატიოსანია, მაგრამ მომხმარებელს არაფერში ეხმარება |
 
 **იდეა 1: მთელი ბაზა prompt-ში?** ყველა მაგიდა და ყველა ჯავშანი ტექსტად. ეს ცუდი იდეაა:
 
 - **ბევრი ტოკენი.** ყოველ კითხვაზე, თუნდაც „გამარჯობა“-ზე, ათასობით ტოკენი input-ში (ფასი, ლექცია 1).
 - **ძველდება.** prompt გაგზავნის მომენტის ასლია, ჯავშნები კი წუთში იცვლება.
-- **ზედმეტი.** „ხინკალი რა ღირს?“-ზე ჯავშნები საერთოდ არ სჭირდება.
+- **ზედმეტი.** "How much is khinkali?"-ზე ჯავშნები საერთოდ არ სჭირდება.
 
 **იდეა 2 (სწორი):** მოდელმა თვითონ **გვთხოვოს** ის მონაცემი, რომელიც სჭირდება, და მხოლოდ მაშინ, როცა სჭირდება. ამას ჰქვია **function calling** (ან **tool calling**).
   </aside>
@@ -202,10 +202,10 @@ A user writes: “There are four of us, tomorrow at 8 — do you have a table?�
   <div class="kicker">🔄 ციკლი · 4 ნაბიჯი</div>
   <h2>მოდელი <span class="c-net">ითხოვს</span>, ჩვენი კოდი <span class="c-api">ასრულებს</span></h2>
   <div class="col" style="gap:12px;margin-top:6px">
-    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg" style="--a:var(--api)"><span class="n">1</span><span>შეკითხვა <b>+ tool-ების სია</b>: <code>check_availability(at, guests)</code> — „ამოწმებს თავისუფალ მაგიდას“</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
-    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg r" style="--a:var(--asp)"><span class="n">2</span><span>ტექსტის ნაცვლად <b>თხოვნა</b>: „გამოიძახე <code>check_availability</code>, at = ხვალ 20:00, guests = 4“</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
+    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg" style="--a:var(--api)"><span class="n">1</span><span>შეკითხვა <b>+ tool-ების სია</b>: <code>check_availability(at, guests)</code> — "Checks for a free table"</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
+    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg r" style="--a:var(--asp)"><span class="n">2</span><span>ტექსტის ნაცვლად <b>თხოვნა</b>: "call <code>check_availability</code>, at = tomorrow 20:00, guests = 4"</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
     <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg" style="--a:var(--mvc)"><span class="n">3</span><span><b>ჩვენ</b> ვიძახებთ C# მეთოდს → ბაზა → შედეგს ვუგზავნით: <code>{ available: true, freeTables: 2 }</code></span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
-    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg r" style="--a:var(--net)"><span class="n">4</span><span>ახლა უკვე <b>ტექსტური პასუხი</b>: „დიახ, ხვალ 20:00-ზე ორი მაგიდაა თავისუფალი“</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
+    <div class="lane step"><div class="who" style="--a:var(--api)">🧑‍💻 ჩვენ</div><div class="msg r" style="--a:var(--net)"><span class="n">4</span><span>ახლა უკვე <b>ტექსტური პასუხი</b>: "Yes, tomorrow at 20:00 two tables are free."</span></div><div class="who" style="--a:var(--net)">🤖 Gemini</div></div>
   </div>
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
     <div class="callout ask step">🙋 რამდენჯერ მივმართეთ <b>Gemini</b>-ს?</div>
@@ -216,8 +216,8 @@ A user writes: “There are four of us, tomorrow at 8 — do you have a table?�
 
 მთავარი იდეა: **მოდელი ჩვენს მეთოდს ვერ იძახებს.** ის Google-ის სერვერზეა, ჩვენი ბაზა კი ჩვენთან. მოდელი მხოლოდ **ითხოვს**, ჩვენი კოდი **ასრულებს**.
 
-1. **ჩვენ → მოდელი:** ვაგზავნით შეკითხვას და **tool-ების სიას**. თითო tool-ზე: სახელი (`check_availability`), აღწერა („ამოწმებს თავისუფალ მაგიდას“) და პარამეტრები (`at`, `guests`).
-2. **მოდელი → ჩვენ:** მოდელი ხვდება, რომ პასუხისთვის მონაცემი სჭირდება, და ტექსტის ნაცვლად **გამოძახების თხოვნას** აბრუნებს: „გამოიძახე `check_availability`, `at` = ხვალ 20:00, `guests` = 4“. პარამეტრები მომხმარებლის ტექსტიდან თვითონ შეავსო.
+1. **ჩვენ → მოდელი:** ვაგზავნით შეკითხვას და **tool-ების სიას**. თითო tool-ზე: სახელი (`check_availability`), აღწერა ("Checks for a free table") და პარამეტრები (`at`, `guests`).
+2. **მოდელი → ჩვენ:** მოდელი ხვდება, რომ პასუხისთვის მონაცემი სჭირდება, და ტექსტის ნაცვლად **გამოძახების თხოვნას** აბრუნებს: "call `check_availability`, `at` = tomorrow 20:00, `guests` = 4". პარამეტრები მომხმარებლის ტექსტიდან თვითონ შეავსო.
 3. **ჩვენ → მოდელი:** ჩვენი კოდი იძახებს ნამდვილ C# მეთოდს, მეთოდი ბაზას კითხულობს, და შედეგს (`{ available: true, freeTables: 2 }`) მოდელს ვუგზავნით. ეს **მეორე** მოთხოვნაა Gemini-სთან, და მასში მთელი ისტორიაა: შეკითხვა, თხოვნა და შედეგი.
 4. **მოდელი → ჩვენ:** შედეგის საფუძველზე მოდელი ჩვეულებრივ ტექსტურ პასუხს წერს.
 
@@ -369,7 +369,7 @@ public class RestaurantTools
         _db = db;
     }
 
-    [Description("აბრუნებს რესტორნის მენიუს: კერძის სახელი და ფასი ლარში")]
+    [Description("Returns the restaurant menu: dish name and price in GEL")]
     public async Task<List<MenuItemInfo>> GetMenu()
     {
         return await _db.Products
@@ -410,7 +410,7 @@ public class RestaurantTools
         _db = db;
     }
 
-    [Description("აბრუნებს რესტორნის მენიუს: კერძის სახელი და ფასი ლარში")]
+    [Description("Returns the restaurant menu: dish name and price in GEL")]
     public async Task<List<MenuItemInfo>> GetMenu()
     {
         return await _db.Products
@@ -493,8 +493,8 @@ public async Task<IActionResult> Chat(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, """
-            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
-            მენიუზე მონაცემი მხოლოდ tool-იდან აიღე, არაფერი მოიგონო.
+            You are a restaurant assistant. Answer briefly.
+            Take menu data only from the tool, don't make anything up.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -554,8 +554,8 @@ public async Task<IActionResult> Chat(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, """
-            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
-            მენიუზე მონაცემი მხოლოდ tool-იდან აიღე, არაფერი მოიგონო.
+            You are a restaurant assistant. Answer briefly.
+            Take menu data only from the tool, don't make anything up.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -592,7 +592,7 @@ builder.Services.AddChatClient(
 `.UseFunctionInvocation()`-ის გარეშე `GetResponseAsync` ნაბიჯ 2-ზე დაბრუნდებოდა: პასუხში ტექსტის ნაცვლად გამოძახების თხოვნა იქნებოდა, და tool-ის გამოძახება და მეორე მოთხოვნა ჩვენ თვითონ უნდა დაგვეწერა. ეს ხაზი ციკლს **ჩვენ მაგივრად** ატრიალებს: ხედავს თხოვნას, იძახებს მეთოდს, აგზავნის შედეგს და აბრუნებს მხოლოდ საბოლოო პასუხს. რა არის ეს ხაზი სინამდვილეში, ლექცია 5-ზე ვნახავთ.
 
 ```warn
-`System` prompt-ში მეორე ხაზი („მხოლოდ tool-იდან აიღე“) მნიშვნელოვანია: მის გარეშე მოდელმა შეიძლება მენიუ თავისი „ცოდნიდან“ მოიგონოს და tool არ გამოიძახოს.
+`System` prompt-ში მეორე ხაზი ("Take it only from the tool") მნიშვნელოვანია: მის გარეშე მოდელმა შეიძლება მენიუ თავისი „ცოდნიდან“ მოიგონოს და tool არ გამოიძახოს.
 ```
 
 ```terms
@@ -678,22 +678,22 @@ UseFunctionInvocation — runs the function-calling loop automatically: request 
   <h2>იგივე კითხვა: <span class="c-red">/ask</span> vs <span class="c-mvc">/chat</span></h2>
   <div class="vs" style="margin-top:8px">
     <div class="col" style="gap:12px">
-      <div class="txt"><span class="who">prompt</span>რა კერძები გაქვთ 15 ლარამდე?</div>
+      <div class="txt"><span class="who">prompt</span>What dishes do you have under 15 GEL?</div>
       <div class="swr c-post step" style="--c:#f93e3e">
         <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/ask</span></div>
         <pre class="rb">{
-  <span class="k">"text"</span>: <span class="s">"გვაქვს ხაჭაპური, ხინკალი,
-    მწვადი, ლობიანი…"</span>
+  <span class="k">"text"</span>: <span class="s">"We have khachapuri, khinkali,
+    mtsvadi, lobiani…"</span>
 }</pre>
       </div>
-      <div class="callout step" data-with style="--a:var(--red);font-size:18px">„ტიპური ქართული მენიუ“ — <b>ჩვენი არ არის</b></div>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px">"a typical Georgian menu" — <b>ჩვენი არ არის</b></div>
     </div>
     <div class="col" style="gap:12px">
       <div class="swr c-post step">
         <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/chat</span></div>
         <pre class="rb">{
-  <span class="k">"text"</span>: <span class="s">"15 ლარამდე: ლობიო ქოთანში
-    (12 ₾) და მჭადი (4 ₾)."</span>,
+  <span class="k">"text"</span>: <span class="s">"Under 15 GEL: lobio in a clay pot
+    (12 ₾) and mchadi (4 ₾)."</span>,
   <span class="k">"toolCalls"</span>: [ <span class="s">"get_menu"</span> ]
 }</pre>
       </div>
@@ -705,12 +705,12 @@ UseFunctionInvocation — runs the function-calling loop automatically: request 
   <aside class="study">
 ### შედეგი: `/ask` vs `/chat`
 
-ერთი და იგივე კითხვა ორ endpoint-ზე: „რა კერძები გაქვთ 15 ლარამდე?“
+ერთი და იგივე კითხვა ორ endpoint-ზე: "What dishes do you have under 15 GEL?"
 
 | endpoint | პასუხი | რატომ |
 |---|---|---|
-| `/ask` (ლექცია 2) | „გვაქვს ხაჭაპური, ხინკალი, მწვადი…“ | მოდელმა „ტიპური ქართული რესტორნის“ მენიუ მოიგონა. ჩვენი მენიუ არ იცის |
-| `/chat` (დღეს) | „15 ლარამდე: ლობიო ქოთანში (12 ₾) და მჭადი (4 ₾)“, `toolCalls: ["get_menu"]` | მოდელმა `get_menu` გამოიძახა, მთელი მენიუ მიიღო და **თვითონ** გაფილტრა 15 ლარამდე |
+| `/ask` (ლექცია 2) | "We have khachapuri, khinkali, mtsvadi…" | მოდელმა "a typical Georgian restaurant's" მენიუ მოიგონა. ჩვენი მენიუ არ იცის |
+| `/chat` (დღეს) | "Under 15 GEL: lobio in a clay pot (12 ₾) and mchadi (4 ₾)", `toolCalls: ["get_menu"]` | მოდელმა `get_menu` გამოიძახა, მთელი მენიუ მიიღო და **თვითონ** გაფილტრა 15 ლარამდე |
 
 ფილტრისთვის ცალკე tool არ დაგვჭირდა: მოდელმა მთელი მენიუ მიიღო და კითხვის მიხედვით თვითონ ამოარჩია. პატარა მენიუსთვის ეს ნორმალურია. 500 კერძზე ჯობია tool-ს პარამეტრი ჰქონდეს (მაგ. `maxPrice`), რომ მოდელს მთელი სია არ მივაწოდოთ.
 
@@ -776,10 +776,10 @@ The exact text will differ for you: your database has other dishes and the model
     <code-block id="c4" lang="csharp" cls="sm" title="Ai/RestaurantTools.cs · CheckAvailability">
 public record AvailabilityInfo(bool Available, int FreeTables);
 
-[Description("ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს")]
+[Description("Checks whether a table is free at the given time")]
 public async Task<AvailabilityInfo> CheckAvailability(
-    [Description("ჯავშნის თარიღი და დრო")] DateTime at,
-    [Description("სტუმრების რაოდენობა")] int guests)
+    [Description("Booking date and time")] DateTime at,
+    [Description("Number of guests")] int guests)
 {
     var busyTableIds = await _db.Bookings
         .Where(b => b.At > at.AddHours(-2) && b.At < at.AddHours(2))
@@ -794,7 +794,7 @@ public async Task<AvailabilityInfo> CheckAvailability(
     </code-block>
     <div class="col" style="gap:12px">
       <code-block id="c5" lang="csharp" cls="sm" title="AiLabController.cs · Chat">
-// System-ში: დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+// In System: Today is {DateTime.Now:yyyy-MM-dd, dddd}.
 Tools =
 [
     AIFunctionFactory.Create(
@@ -817,10 +817,10 @@ Tools =
 ```csharp Ai/RestaurantTools.cs · CheckAvailability
 public record AvailabilityInfo(bool Available, int FreeTables);
 
-[Description("ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს")]
+[Description("Checks whether a table is free at the given time")]
 public async Task<AvailabilityInfo> CheckAvailability(
-    [Description("ჯავშნის თარიღი და დრო")] DateTime at,
-    [Description("სტუმრების რაოდენობა")] int guests)
+    [Description("Booking date and time")] DateTime at,
+    [Description("Number of guests")] int guests)
 {
     var busyTableIds = await _db.Bookings
         .Where(b => b.At > at.AddHours(-2) && b.At < at.AddHours(2))
@@ -842,9 +842,9 @@ public async Task<AvailabilityInfo> CheckAvailability(
 
 ```csharp Controllers/AiLabController.cs · Chat
 new(ChatRole.System, $"""
-    შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
-    მენიუზე და თავისუფალ მაგიდებზე მონაცემი მხოლოდ tool-ებიდან აიღე, არაფერი მოიგონო.
-    დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+    You are a restaurant assistant. Answer briefly.
+    Take menu and free-table data only from the tools, don't make anything up.
+    Today is {DateTime.Now:yyyy-MM-dd, dddd}.
     """),
 // ...
 ChatOptions options = new()
@@ -922,26 +922,26 @@ If you also want to see the parameters in `toolCalls`, write `.Select(c => $"{c.
   <h2>4 ტექსტი — <span class="c-asp">2 tool</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:18px 26px;margin-top:6px">
     <div class="col" style="gap:8px">
-      <div class="txt"><span class="who">1</span>ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?</div>
+      <div class="txt"><span class="who">1</span>There are four of us, tomorrow at 8 — do you have a table?</div>
       <div class="step"><span class="tc">📞 check_availability(at: …26T20:00, guests: 4)</span></div>
     </div>
     <div class="col" style="gap:8px">
-      <div class="txt"><span class="who">2</span>ლობიო რა ღირს?</div>
+      <div class="txt"><span class="who">2</span>How much is lobio?</div>
       <div class="step"><span class="tc">📞 get_menu()</span></div>
     </div>
     <div class="col" style="gap:8px">
-      <div class="txt"><span class="who">3</span>გამარჯობა, რამდენ საათამდე მუშაობთ?</div>
-      <div class="step"><span class="tc none">tool არ არის — „ამის შესახებ ინფორმაცია არ მაქვს“</span></div>
+      <div class="txt"><span class="who">3</span>Hi, until what time are you open?</div>
+      <div class="step"><span class="tc none">tool არ არის — "I don't have information about that"</span></div>
     </div>
     <div class="col" style="gap:8px">
-      <div class="txt"><span class="who">4</span>შაბათს 7-ზე ორნი მოვალთ. ვეგეტარიანული რა გაქვთ?</div>
+      <div class="txt"><span class="who">4</span>Two of us are coming on Saturday at 7. What vegetarian dishes do you have?</div>
       <div class="step"><span class="tc">📞 check_availability(…)</span> <span class="tc">📞 get_menu()</span></div>
     </div>
   </div>
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
     <div class="callout step" style="--a:var(--net);font-size:19px">მოდელი <b>ირჩევს</b>: არცერთს, ერთს ან რამდენიმეს. პარამეტრებს ტექსტიდან ავსებს</div>
     <div class="callout ask step">🙋 „ოთხნი ვართ“ — <b>რომელ დღეს</b>? რას იზამს მოდელი?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 დღე არ წერია — კარგი მოდელი tool-ს ჯერ არ გამოიძახებს და დააზუსტებს: „რომელ დღეს და რომელ საათზე?“</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 დღე არ წერია — კარგი მოდელი tool-ს ჯერ არ გამოიძახებს და დააზუსტებს: "Which day and what time?"</div>
   </div>
   <aside class="study">
 ### რომელ tool-ს გამოიძახებს?
@@ -950,14 +950,14 @@ If you also want to see the parameters in `toolCalls`, write `.Select(c => $"{c.
 
 | ტექსტი | რას იძახებს | რა უნდა შენიშნო |
 |---|---|---|
-| „ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?“ | `check_availability(at: …T20:00, guests: 4)` | პარამეტრები ტექსტიდან. „8“ → 20:00 ან 08:00: ეს ისევ მოდელის ვარაუდია (ლექცია 3) |
-| „ლობიო რა ღირს?“ | `get_menu()` | ფასი ბაზიდან |
-| „გამარჯობა, რამდენ საათამდე მუშაობთ?“ | არცერთი | საათების tool არ გვაქვს. სწორი პასუხია „ინფორმაცია არ მაქვს“ (System-ის „არაფერი მოიგონო“ ამიტომ წერია) |
-| „შაბათს 7-ზე ორნი მოვალთ. ვეგეტარიანული რა გაქვთ?“ | `check_availability` **და** `get_menu` | ერთ კითხვაზე ორი tool. `UseFunctionInvocation` ორივეს ასრულებს |
+| "There are four of us, tomorrow at 8 — do you have a table?" | `check_availability(at: …T20:00, guests: 4)` | პარამეტრები ტექსტიდან. „8“ → 20:00 ან 08:00: ეს ისევ მოდელის ვარაუდია (ლექცია 3) |
+| "How much is lobio?" | `get_menu()` | ფასი ბაზიდან |
+| "Hi, until what time are you open?" | არცერთი | საათების tool არ გვაქვს. სწორი პასუხია „ინფორმაცია არ მაქვს“ (System-ის "don't make anything up" ამიტომ წერია) |
+| "Two of us are coming on Saturday at 7. What vegetarian dishes do you have?" | `check_availability` **და** `get_menu` | ერთ კითხვაზე ორი tool. `UseFunctionInvocation` ორივეს ასრულებს |
 
 **მოდელი ირჩევს**: tool არცერთი, ერთი ან რამდენიმე. და თვითონ ავსებს პარამეტრებს ტექსტიდან.
 
-**თუ მონაცემი აკლია?** „ოთხნი ვართ, ადგილი გაქვთ?“: დღე არ წერია. კარგი მოდელი ჯერ **დაგისვამს კითხვას** („რომელ დღეს და რომელ საათზე?“) და tool-ს არ გამოიძახებს. ცუდ შემთხვევაში დღეს თვითონ აირჩევს. ამიტომ tool-ის შიგნით C# შემოწმება მაინც საჭიროა (მაგ. `at` წარსულშია → შედეგი „თარიღი წარსულშია“).
+**თუ მონაცემი აკლია?** "There are four of us — do you have a table?": დღე არ წერია. კარგი მოდელი ჯერ **დაგისვამს კითხვას** ("Which day and what time?") და tool-ს არ გამოიძახებს. ცუდ შემთხვევაში დღეს თვითონ აირჩევს. ამიტომ tool-ის შიგნით C# შემოწმება მაინც საჭიროა (მაგ. `at` წარსულშია → შედეგი "The date is in the past").
 
 ```note
 ზუსტი შედეგი შენთან შეიძლება განსხვავდებოდეს: მოდელი ალბათობით ირჩევს. თუ მოდელი tool-ს მაშინ არ იძახებს, როცა უნდა, ჯერ აღწერა გააუმჯობესე (შემდეგი სლაიდი).
@@ -1003,7 +1003,7 @@ public string Check(string data) { … }
     </div>
     <div class="card accent step" style="--a:var(--mvc)"><h3>✓ ასე</h3>
       <code-block lang="csharp" cls="sm">
-[Description("ამოწმებს თავისუფალ მაგიდას…")]
+[Description("Checks for a free table…")]
 Task<AvailabilityInfo> CheckAvailability(
     [Description("…")] DateTime at,
     [Description("…")] int guests)
@@ -1027,16 +1027,16 @@ Task<AvailabilityInfo> CheckAvailability(
 | წესი | ცუდი | კარგი |
 |---|---|---|
 | **სახელი** = ზმნა + რა | `Check`, `Func1`, `Data` | `check_availability`, `get_menu` |
-| **აღწერა**: რას აკეთებს, რას აბრუნებს, საჭიროების შემთხვევაში როდის გამოიყენოს | არ არის | „ამოწმებს, არის თუ არა თავისუფალი მაგიდა მითითებულ დროს“ |
+| **აღწერა**: რას აკეთებს, რას აბრუნებს, საჭიროების შემთხვევაში როდის გამოიყენოს | არ არის | "Checks whether a table is free at the given time" |
 | **ტიპიზებული პარამეტრები** აღწერით | `string data` („2026-11-26 20:00 4“?) | `DateTime at`, `int guests`, ან enum, თუ მნიშვნელობები სიიდანაა |
 | **ერთი tool, ერთი საქმე** | `DoEverything(string action, string data)` | ცალკე `get_menu` და `check_availability` |
 
 **რატომ ტიპიზებული პარამეტრები?** `string data`-ში მოდელს ფორმატი თვითონ უნდა გამოიცნოს, ჩვენ კი ეს string უნდა დავპარსოთ. `DateTime` და `int` სქემაში ზუსტ ტიპად მიდის, და `AIFunctionFactory` მოდელის JSON-ს C# ტიპებად თვითონ გარდაქმნის.
 
-**რატომ დღეს მხოლოდ კითხვა (read-only)?** თუ მოდელს `create_booking`-ს მივცემთ, ჯავშანს მოდელი **თვითონ გადაწყვეტს**: შეიძლება „8“ დილის 8 ეგონოს და ჯავშანი ისე შექმნას, რომ მომხმარებელს არ ჰკითხოს. ბაზაში ჩამწერ tool-ს მომხმარებლის **დადასტურება** სჭირდება („ვაჯავშნო ხვალ 20:00-ზე 4 კაცზე?“). ამას human-in-the-loop ჰქვია და ლექცია 15-ზე ვნახავთ.
+**რატომ დღეს მხოლოდ კითხვა (read-only)?** თუ მოდელს `create_booking`-ს მივცემთ, ჯავშანს მოდელი **თვითონ გადაწყვეტს**: შეიძლება „8“ დილის 8 ეგონოს და ჯავშანი ისე შექმნას, რომ მომხმარებელს არ ჰკითხოს. ბაზაში ჩამწერ tool-ს მომხმარებლის **დადასტურება** სჭირდება ("Shall I book tomorrow at 20:00 for 4?"). ამას human-in-the-loop ჰქვია და ლექცია 15-ზე ვნახავთ.
 
 ```tip
-თუ მოდელი tool-ს არასწორ დროს იძახებს ან საერთოდ არ იძახებს, კოდს ნუ შეცვლი. ჯერ **აღწერა** გააუმჯობესე: ხშირად ერთი წინადადება საკმარისია („გამოიყენე, როცა მომხმარებელი ფასს ან კერძს კითხულობს“).
+თუ მოდელი tool-ს არასწორ დროს იძახებს ან საერთოდ არ იძახებს, კოდს ნუ შეცვლი. ჯერ **აღწერა** გააუმჯობესე: ხშირად ერთი წინადადება საკმარისია ("Use when the user asks about a price or a dish").
 ```
   </aside>
   <aside class="study-en">

@@ -25,11 +25,11 @@
 ### ✅ მომზადება
 
 - **RestaurantApi-ში წინასწარ:** ლექცია 11-ის RAG მუშაობს; `golden.json` (6 შეკითხვა — სლაიდი 8-ის ცხრილი; ფრაზები **შენი PDF-იდან ზუსტად** დააკოპირე); `EvalRag`; `SearchVector` + migration; `OrQuery`, `HybridSearchAsync`, `Rrf`; `Document.Category` + migration; `_judge` (ცალკე `IChatClient` tool-ების გარეშე, მაგ. keyed service) და `CheckGroundedness` endpoint. ლექციაზე `EvalRag` და `HybridSearchAsync`-ის ორი მოთხოვნა **ერთად** იწერება; `SearchVector`-ის კონფიგურაცია, `OrQuery`, `Rrf` და groundedness — ჩასვამ და ახსნი
-- **შენი PDF (ლექცია 11-ის „რესტორნის წესები“)** — უნდა შეიცავდეს „B-2“, „15 ლარი“, „12%“, „5+ კაცზე“. ეს ზუსტი სიტყვები ნაწილი 2-ის დემოა
+- **შენი PDF (ლექცია 11-ის „რესტორნის წესები“)** — უნდა შეიცავდეს „B-2“, "15 GEL", „12%“, „5+ კაცზე“. ეს ზუსტი სიტყვები ნაწილი 2-ის დემოა
 - **ცოცხალი ციფრები — ორჯერ გაუშვი:** `/rag/eval` vector-only → ჩაიწერე; hybrid → ჩაიწერე. სლაიდის ციფრები (0.67 → 0.83) ნიმუშია — **შენი უკეთესია**. თუ hybrid-მა არ გააუმჯობესა — ნახე miss-ები და golden set-ში დარწმუნდი, რომ ზუსტი სიტყვის შეკითხვები გაქვს
-- **groundedness-ის ორი პასუხი:** ერთი სწორი (5), ერთი „ხელოვნურად“ დამატებული — `ChatResponse` ხელით შექმენი: `new ChatResponse(new ChatMessage(ChatRole.Assistant, "15 ლარი, სანთლები უფასოა [1]"))` → 2–3. ასე დემო პროგნოზირებადია
+- **groundedness-ის ორი პასუხი:** ერთი სწორი (5), ერთი „ხელოვნურად“ დამატებული — `ChatResponse` ხელით შექმენი: `new ChatResponse(new ChatMessage(ChatRole.Assistant, "15 GEL, candles are free [1]"))` → 2–3. ასე დემო პროგნოზირებადია
 - **NuGet:** `Microsoft.Extensions.AI.Evaluation.Quality` (და `Microsoft.Extensions.AI.Evaluation`). ვერსია MEAI-ის ვერსიას უნდა შეესაბამებოდეს — წინასწარ დააინსტალირე
-- **psql:** `SELECT to_tsvector('simple', 'B-2 დარბაზში 20+ სტუმარი');` — სლაიდი 11-ისთვის ცოცხლად
+- **psql:** `SELECT to_tsvector('english', 'Hall B-2 seats 20+ guests');` — სლაიდი 11-ისთვის ცოცხლად
 - გაიარე ბოლოში მოცემული ტესტი „✅ მზად ხარ?“
 
 ### 🧩 ბირთვი + ⭐ რეზერვი
@@ -59,7 +59,7 @@
 **🔴 უჭირთ:**
 
 - hit@3 vs MRR ერევათ; 🆘 ნაწილ 1-ში
-- tsvector/tsquery და `'simple'` — ახალი ცნებები; 🆘 ნაწილ 2-ში
+- tsvector/tsquery და `'english'` (stemmer) — ახალი ცნებები; 🆘 ნაწილ 2-ში
 - RRF-ის ფორმულა — „რატომ 60?“
 
 ### ⏱️ საკონტროლო წერტილები
@@ -99,7 +99,7 @@
 - **reranker-ის კოდი** — თეორია ბირთვში, LLM-rerank ⭐-ში.
 - **semantic chunking-ის კოდი** — მხოლოდ იდეა.
 - **evaluation-ის რეპორტები, ისტორია, CI** — ლექცია 20 და 22.
-- **pg_trgm, ქართულის stemming** — ⭐ / 🔬.
+- **pg_trgm, ქართული ტექსტის full-text** — ⭐ / 🔬.
 - **query rewriting, HyDE** — 🔬, ლექცია 15.
 
 ## 1 · გამეორება და საშინაო · 8 წთ · 1–5
@@ -170,7 +170,7 @@
 
 - **ზომა:** 20–50 შეკითხვა საწყისისთვის; production-ში — ასობით, რეალური ლოგებიდან.
 - **ტიპები:** ჩვეულებრივი; სინონიმი/პერიფრაზი; ზუსტი კოდი/რიცხვი/სახელი; ორ ადგილას პასუხი; „არარსებული“ (სწორი შედეგი — 0 ნაწილი; ჩვენს eval-ში ასეთს `MustContain` არ აქვს — ⭐-ში მისი დამატება: hit = „ცარიელი დაბრუნდა“).
-- **ფრაზა vs Id:** Id chunking-ზეა მიბმული; ფრაზა — დოკუმენტზე. ფრაზა მოკლე და უნიკალური უნდა იყოს („24 საათით ადრე“, არა „ჯავშანი“).
+- **ფრაზა vs Id:** Id chunking-ზეა მიბმული; ფრაზა — დოკუმენტზე. ფრაზა მოკლე და უნიკალური უნდა იყოს ("24 hours before", არა „ჯავშანი“).
 - **ვინ წერს:** საუკეთესოა — დომენის ექსპერტი (რესტორნის მენეჯერი), არა დეველოპერი. ან რეალური მომხმარებლების შეკითხვები.
 - **სინთეზური golden set:** LLM-ს ვთხოვთ თითოეული ნაწილიდან შეკითხვა „მოიგონოს“ — სწრაფია, მაგრამ შეკითხვები ტექსტის სიტყვებს ზედმეტად იმეორებს (ძებნისთვის ზედმეტად „ადვილია“). ხელით გადახედვა აუცილებელია.
 
@@ -245,7 +245,7 @@ retrieval-ის შეფასება დეტერმინისტუ�
 
 ### 📋 ლექციაზე
 
-- (11) **ორი ძებნა:** ვექტორი ✓/✗, full-text ✓/✗. psql: `to_tsvector('simple', …)` ცოცხლად. ⚠️ ქართულს ლექსიკონი არ აქვს. სამი სია → RRF; 🙋 „რატომ რიგი?“
+- (11) **ორი ძებნა:** ვექტორი ✓/✗, full-text ✓/✗. psql: `to_tsvector('english', …)` ცოცხლად: "guests" → 'guest'. ⚠️ ქართულ ტექსტზე — 'simple' (ლექსიკონი არ აქვს). სამი სია → RRF; 🙋 „რატომ რიგი?“
 - (12) `SearchVector` + migration — **ჩასვი**. **ერთად წერთ** `byMeaning` და `byWords`; `OrQuery`, `Rrf` — ჩასვი, 1 წინადადება თითოზე. `/chat`-ში და `EvalRag`-ში `HybridSearchAsync` → **`/rag/eval` ისევ** → ციფრი იზრდება. 🙋 „6 კაცზე — რატომ ისევ miss?“
 - (13) **ფილტრი:** კოდი — 3 ხაზი; ცხრილი; 🙋 „SQL-ში თუ prompt-ში?“
 - ⏱ **0:38**-ზე შესვენებაზე
@@ -268,9 +268,11 @@ retrieval-ის შეფასება დეტერმინისტუ�
 - `to_tsquery(config, 'a | b & c')` — ოპერატორებით; `plainto_tsquery` — ჩვეულებრივი ტექსტი, სიტყვები `&`-ით; `websearch_to_tsquery` — Google-ის სინტაქსი („…“, or, -).
 - `tsvector @@ tsquery` — ემთხვევა; `ts_rank` / `ts_rank_cd` — რელევანტურობა (სიხშირე, სიახლოვე).
 - **GIN** ინდექსი `tsvector`-ზე — სიტყვა → ხაზები (inverted index).
-- **Generated column** (`GENERATED ALWAYS AS (to_tsvector('simple', "Content")) STORED`) — ყოველ INSERT/UPDATE-ზე თვითონ ითვლება. Npgsql: `HasGeneratedTsVectorColumn`.
+- **Generated column** (`GENERATED ALWAYS AS (to_tsvector('english', "Content")) STORED`) — ყოველ INSERT/UPDATE-ზე თვითონ ითვლება. Npgsql: `HasGeneratedTsVectorColumn`.
 
-#### ქართული
+#### 'english' და ქართული
+
+ჩვენი დოკუმენტები ინგლისურადაა — `'english'`: stemmer ("guests" → 'guest', "cancelled" → 'cancel') და stop-word-ები. ყურადღება: `to_tsvector` და `to_tsquery` **ერთი** კონფიგით, თორემ lexeme-ები არ დაემთხვევა. სტუდენტს თუ დოკუმენტები ქართულადაა:
 
 PostgreSQL-ში ქართულის text search configuration (dictionary + stemmer) არ არის. `'simple'` — lower-case + split, stemming-ის გარეშე. შედეგად „დარბაზი“, „დარბაზში“, „დარბაზის“ — სამი სხვადასხვა lexeme. ვარიანტები:
 
@@ -317,7 +319,7 @@ Cormack, Clarke, Buettcher (2009) — `RRF(d) = Σ 1/(k + rank_i(d))`, k = 60. �
 
 #### 11 · ორი ძებნა + RRF · 5 წთ
 
-- **რას აკეთებ:** ვექტორი — ✓/✗. ნაბიჯი: full-text — ✓/✗. „ერთმანეთის სარკეა.“ ნაბიჯი: psql-ში `to_tsvector` ცოცხლად — „‚b-2‘ ცალკე სიტყვაა — ზუსტად იპოვის“. ⚠️ ქართული — „დარბაზი ≠ დარბაზში — ეს ნორმალურია, ბრუნვებს ვექტორი იპოვის“. ნაბიჯი: სამი სია — „#33 ორივეშია — პირველი“. ფორმულა. **გაჩერდი:** 🙋 „რატომ რიგი და არა score?“ — „0.71 და 0.04 — ერთ ერთეულში არ არის.“
+- **რას აკეთებ:** ვექტორი — ✓/✗. ნაბიჯი: full-text — ✓/✗. „ერთმანეთის სარკეა.“ ნაბიჯი: psql-ში `to_tsvector` ცოცხლად — „‚b-2‘ ცალკე სიტყვაა — ზუსტად იპოვის“. 'english' — „‚guests‘ → ‚guest‘, ‚is‘, ‚the‘ იშლება. შეკითხვაც იმავე კონფიგით.“ ⚠️ ქართულ დოკუმენტებზე — 'simple': „დარბაზი ≠ დარბაზში — ბრუნვებს ვექტორი იპოვის“. ნაბიჯი: სამი სია — „#33 ორივეშია — პირველი“. ფორმულა. **გაჩერდი:** 🙋 „რატომ რიგი და არა score?“ — „0.71 და 0.04 — ერთ ერთეულში არ არის.“
 - **გადასვლა:** „კოდში — ორი მოთხოვნა.“
 
 #### 12 · HybridSearchAsync · 6.5 წთ
@@ -356,8 +358,8 @@ Cormack, Clarke, Buettcher (2009) — `RRF(d) = Σ 1/(k + rank_i(d))`, k = 60. �
 ```check
 ? „Elasticsearch რატომ არ გამოვიყენოთ?“
 = ძლიერია (BM25, ანალიზატორები), მაგრამ ცალკე სისტემაა. ჩვენთან ყველაფერი PostgreSQL-შია — ერთი ბაზა, ერთი ტრანზაქცია (ლექცია 10-ის არგუმენტი).
-? „'english' რომ დავწერო?“
-= ინგლისურ სიტყვებს stemming გაუკეთებს, ქართულს — არა, და stop-word-ებს ამოაგდებს. შერეულ ტექსტზე 'simple' სანდოა.
+? „'english' რატომ და არა 'simple'?“
+= დოკუმენტები ინგლისურადაა: stemmer "guests"-ს და "guest"-ს ერთ lexeme-ად აქცევს, stop-word-ები (is, the) შედეგს აღარ „აბინძურებს“. 'simple' — ქართული ან შერეული ტექსტისთვის, სადაც ლექსიკონი არ გვაქვს.
 ? „k = 60 რომ შევცვალო?“
 = შეიძლება, მაგრამ იშვიათად ცვლის შედეგს. თუ შეცვლი — golden set-ზე გაზომე.
 ```
@@ -399,7 +401,7 @@ chunking-ს და ძებნას ვაუმჯობესებთ **�
 
 #### reranking — დეტალები
 
-- **cross-encoder** — transformer, რომელიც `[შეკითხვა] [SEP] [ნაწილი]`-ს ერთად კითხულობს და ერთ logit-ს აბრუნებს. სიზუსტე bi-encoder-ზე მაღალია, რადგან შეკითხვისა და ნაწილის სიტყვები ერთმანეთს „ხედავს“ (attention).
+- **cross-encoder** — transformer, რომელიც `[question] [SEP] [chunk]`-ს ერთად კითხულობს და ერთ logit-ს აბრუნებს. სიზუსტე bi-encoder-ზე მაღალია, რადგან შეკითხვისა და ნაწილის სიტყვები ერთმანეთს „ხედავს“ (attention).
 - **Rerank API-ები:** Cohere Rerank (v3.5+), Voyage rerank, Jina reranker — ყველა მრავალენოვანია (ქართულის ხარისხი — შეამოწმე!). ფასი — მოთხოვნაზე/დოკუმენტზე.
 - **LLM-rerank** (⭐) — მოქნილი, მაგრამ ძვირი და არადეტერმინისტული; listwise (ყველა ერთად დაალაგე) vs pointwise (თითოეულს ქულა 0–10).
 - **როდის ღირს:** როცა hit@20 მაღალია, hit@3 — დაბალი (სწორი მოიძებნა, მაგრამ დაბლაა). თუ hit@20-იც დაბალია — reranker ვერ უშველის, ჯერ ძებნა.
@@ -519,7 +521,7 @@ chunking-ს და ძებნას ვაუმჯობესებთ **�
 ### ⚠️ ტიპური შეცდომები
 
 - ფრაზა ზედმეტად ზოგადია („ჯავშანი“) → ყველა ნაწილში წერია, hit ყოველთვის 1.
-- ფრაზა ბრუნვით/ჰარებით არ ემთხვევა → 0.
+- ფრაზა ფორმით/ჰარებით არ ემთხვევა ("terraces" vs "terrace") → 0.
 - `golden.json` — არასწორი JSON (ბოლო მძიმე).
 - `File.ReadAllTextAsync` controller-ში → `System.IO.File`.
 
@@ -562,7 +564,7 @@ chunking-ს და ძებნას ვაუმჯობესებთ **�
 ### 📋 ლექციაზე
 
 - ბირთვი დასრულდა და დრო რჩება? აირჩიე **1–2 აქტივობა** — სლაიდები არ სჭირდება
-- 🥇 LLM-rerank (10′) · 🔤 pg_trgm და ქართული ბრუნვები (6′) · 🔎 `RetrievalEvaluator` (6′) · 🗺️ ნაწილი 1-ის რუკა (8′) · ❓ კითხვა-პასუხი
+- 🥇 LLM-rerank (10′) · 🔤 pg_trgm და ბეჭდვის შეცდომები (6′) · 🔎 `RetrievalEvaluator` (6′) · 🗺️ ნაწილი 1-ის რუკა (8′) · ❓ კითხვა-პასუხი
 - სუსტი ჯგუფი: დრო უკვე მეტრიკებსა და hybrid-ზე დაიხარჯა — ნორმალურია
 
 ### 🥇 LLM-rerank · 10 წთ
@@ -574,10 +576,10 @@ private async Task<List<FoundChunk>> RerankAsync(string q, List<FoundChunk> cand
 {
     string list = string.Join("\n\n", candidates.Select((c, i) => $"[{i}] {c.Content}"));
     ChatResponse<RankResult> r = await _judge.GetResponseAsync<RankResult>($"""
-        შეკითხვა: {q}
+        Question: {q}
 
-        ქვემოთ არის ნაწილები. დააბრუნე 5 ნაწილის ნომერი, რომლებიც ამ შეკითხვას
-        ყველაზე კარგად პასუხობს, რელევანტურობის კლებით.
+        Below are the chunks. Return the numbers of the 5 chunks that answer
+        this question best, in decreasing order of relevance.
 
         {list}
         """, cancellationToken: ct);
@@ -592,16 +594,16 @@ private async Task<List<FoundChunk>> RerankAsync(string q, List<FoundChunk> cand
 3. 🙋 „ღირს? ყოველ შეკითხვაზე +1–3 წამი და ჩატის მოდელის ფასი.“
 4. დასკვნა: reranker-ს ზომით ვირჩევთ, როგორც ყველაფერს.
 
-### 🔤 pg_trgm და ქართული ბრუნვები · 6 წთ
+### 🔤 pg_trgm და ბეჭდვის შეცდომები · 6 წთ
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
-SELECT similarity('დარბაზი', 'დარბაზში'), similarity('დარბაზი', 'ჯავშანი');
+SELECT similarity('cancellation', 'cancelation'), similarity('cancellation', 'booking');
 SELECT "Page", left("Content", 60) FROM "DocumentChunks"
-WHERE "Content" % 'დარბაზი' ORDER BY similarity("Content", 'დარბაზი') DESC LIMIT 3;
+WHERE "Content" % 'cancelation' ORDER BY similarity("Content", 'cancelation') DESC LIMIT 3;
 ```
 
-🙋 „ბრუნვები დაიჭირა?“ — სიტყვა-სიტყვაზე — კი; გრძელ ტექსტზე `similarity` მთელ ტექსტს ადარებს და დაბალია — `word_similarity` / `%>` სჯობს. დასკვნა: ინსტრუმენტი არსებობს, მაგრამ hybrid-ში ბრუნვებს უკვე ვექტორი ფარავს.
+🙋 „შეცდომით დაწერილი სიტყვა დაიჭირა?“ — სიტყვა-სიტყვაზე — კი (stemmer ამას ვერ შველის: "cancelation" სხვა lexeme-ა); გრძელ ტექსტზე `similarity` მთელ ტექსტს ადარებს და დაბალია — `word_similarity` / `%>` სჯობს. ქართულ დოკუმენტებზე იგივე ხერხი ბრუნვებსაც („დარბაზი“ / „დარბაზში“) იჭერს. დასკვნა: ინსტრუმენტი არსებობს, მაგრამ hybrid-ში ბევრს უკვე ვექტორი ფარავს.
 
 ### 🔎 `RetrievalEvaluator` · 6 წთ
 

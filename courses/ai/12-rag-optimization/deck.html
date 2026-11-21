@@ -77,12 +77,12 @@
   <aside class="study">
 ## ლექცია 12: RAG ოპტიმიზაცია და შეფასება
 
-ლექცია 11-ში RAG ავაწყვეთ და საშინაოში ვნახეთ: ზოგჯერ არასწორ ნაწილს პოულობს — განსაკუთრებით ზუსტ სიტყვებზე („B-2“, „15 ლარი“). მაგრამ „ზოგჯერ“ ციფრი არ არის: chunk-ის ზომა შევცვალოთ — უკეთესი გახდება? ვერ ვიტყვით. დღეს RAG-ის ხარისხს **ვზომავთ** (golden set, hit@k, MRR), და ყოველ გაუმჯობესებას — hybrid search, metadata filtering, chunking-ის სტრატეგიები — ციფრით ვამოწმებთ. ბოლოს ვზომავთ პასუხის **groundedness**-ს: მოდელმა მხოლოდ წყაროებიდან უპასუხა თუ რამე დაამატა?
+ლექცია 11-ში RAG ავაწყვეთ და საშინაოში ვნახეთ: ზოგჯერ არასწორ ნაწილს პოულობს — განსაკუთრებით ზუსტ სიტყვებზე („B-2“, "15 GEL"). მაგრამ „ზოგჯერ“ ციფრი არ არის: chunk-ის ზომა შევცვალოთ — უკეთესი გახდება? ვერ ვიტყვით. დღეს RAG-ის ხარისხს **ვზომავთ** (golden set, hit@k, MRR), და ყოველ გაუმჯობესებას — hybrid search, metadata filtering, chunking-ის სტრატეგიები — ციფრით ვამოწმებთ. ბოლოს ვზომავთ პასუხის **groundedness**-ს: მოდელმა მხოლოდ წყაროებიდან უპასუხა თუ რამე დაამატა?
   </aside>
   <aside class="study-en">
 ## Lecture 12: RAG Optimization and Evaluation
 
-In lecture 11 we built RAG, and in the homework we saw: sometimes it finds the wrong part — especially on exact words (“B-2”, “15 lari”). But “sometimes” isn't a number: if we change the chunk size, will it get better? We can't tell. Today we **measure** RAG's quality (golden set, hit@k, MRR), and check every improvement — hybrid search, metadata filtering, chunking strategies — with a number. Finally we measure the answer's **groundedness**: did the model answer only from the sources, or did it add something?
+In lecture 11 we built RAG, and in the homework we saw: sometimes it finds the wrong part — especially on exact words (“B-2”, “15 GEL”). But “sometimes” isn't a number: if we change the chunk size, will it get better? We can't tell. Today we **measure** RAG's quality (golden set, hit@k, MRR), and check every improvement — hybrid search, metadata filtering, chunking strategies — with a number. Finally we measure the answer's **groundedness**: did the model answer only from the sources, or did it add something?
   </aside>
 </section>
 
@@ -146,7 +146,7 @@ First we see where RAG can make a mistake. Then — the golden set and two numbe
   <h2>RAG <span class="c-red">ორ ადგილას</span> ცდება</h2>
   <div class="col" style="gap:14px;margin-top:4px">
     <div class="pipe" style="--a:var(--net)">
-      <div class="box"><i>🙋</i>შეკითხვა<small>„B-2 დარბაზი?“</small></div><span class="ar">→</span>
+      <div class="box"><i>🙋</i>შეკითხვა<small>"Hall B-2?"</small></div><span class="ar">→</span>
       <div class="box" style="--a:var(--red)"><i>🔎</i>Retrieval<small>სწორი ნაწილი იპოვა?</small></div><span class="ar">→</span>
       <div class="box" style="--a:var(--red)"><i>🤖</i>Generation<small>მხოლოდ წყაროებით უპასუხა?</small></div><span class="ar">→</span>
       <div class="box"><i>💬</i>პასუხი<small>[1]</small></div>
@@ -165,8 +165,8 @@ First we see where RAG can make a mistake. Then — the golden set and two numbe
 
 | სად | რა ხდება | მაგალითი |
 |---|---|---|
-| **Retrieval** (ძებნა) | სწორი ნაწილი top 5-ში არ მოხვდა | „B-2 დარბაზი?“ — ვექტორმა ზოგადად „დარბაზებზე“ ნაწილები იპოვა, B-2-ის გვერდი — არა |
-| **Generation** (პასუხი) | ნაწილი სწორია, მოდელმა კი რაღაც დაამატა | წყაროში: „ტორტი — 15 ლარი“; პასუხში: „ტორტი — 15 ლარი, სანთლები უფასოა“ |
+| **Retrieval** (ძებნა) | სწორი ნაწილი top 5-ში არ მოხვდა | "Hall B-2?" — ვექტორმა ზოგადად „დარბაზებზე“ ნაწილები იპოვა, B-2-ის გვერდი — არა |
+| **Generation** (პასუხი) | ნაწილი სწორია, მოდელმა კი რაღაც დაამატა | წყაროში: "Cake — 15 GEL"; პასუხში: "Cake — 15 GEL, candles are free" |
 
 პრაქტიკაში **retrieval-ის შეცდომა ყველაზე ხშირია**: თუ სწორი ნაწილი არ მოიძებნა, საუკეთესო მოდელიც ვერ უპასუხებს. ამიტომ ჯერ ძებნას ვზომავთ.
 
@@ -186,7 +186,7 @@ In lecture 11's homework we made a table: “6 out of 8 are correct”. That's a
 | Where | What happens | Example |
 |---|---|---|
 | **Retrieval** (search) | the right part didn't make it into the top 5 | “Hall B-2?” — the vector found parts about “halls” in general, but not B-2's page |
-| **Generation** (answer) | the part is right, but the model added something | in the source: “cake — 15 lari”; in the answer: “cake — 15 lari, candles are free” |
+| **Generation** (answer) | the part is right, but the model added something | in the source: “cake — 15 GEL”; in the answer: “cake — 15 GEL, candles are free” |
 
 In practice **retrieval errors are the most common**: if the right part wasn't found, even the best model can't answer. That's why we measure the search first.
 
@@ -207,12 +207,12 @@ Evaluation (evals) — measuring a system's quality on examples prepared in adva
     <div class="col" style="gap:10px">
       <table class="menu">
         <tr><th>შეკითხვა</th><th>ნაწილში უნდა წერდეს</th><th>რიგი</th></tr>
-        <tr class="hit"><td>ჯავშანი როგორ გავაუქმო?</td><td>24 საათით ადრე</td><td class="c">1</td></tr>
-        <tr class="hit"><td>თხილზე ალერგია მაქვს</td><td>ნიგოზი</td><td class="c">1</td></tr>
-        <tr class="hit"><td>ძაღლით შეიძლება?</td><td>ტერასაზე</td><td class="c">2</td></tr>
-        <tr class="miss"><td>B-2 დარბაზი სადაა?</td><td>B-2</td><td class="c">—</td></tr>
-        <tr class="hit"><td>საკუთარი ტორტი შეიძლება?</td><td>15 ლარი</td><td class="c">3</td></tr>
-        <tr class="miss"><td>მომსახურება 6 კაცზე?</td><td>12%</td><td class="c">5</td></tr>
+        <tr class="hit"><td>How do I cancel a booking?</td><td>24 hours before</td><td class="c">1</td></tr>
+        <tr class="hit"><td>I'm allergic to nuts</td><td>walnut</td><td class="c">1</td></tr>
+        <tr class="hit"><td>Can I bring a dog?</td><td>terrace</td><td class="c">2</td></tr>
+        <tr class="miss"><td>Where is hall B-2?</td><td>B-2</td><td class="c">—</td></tr>
+        <tr class="hit"><td>Can I bring my own cake?</td><td>15 GEL</td><td class="c">3</td></tr>
+        <tr class="miss"><td>Service charge for 6 people?</td><td>12%</td><td class="c">5</td></tr>
       </table>
     </div>
     <div class="col" style="gap:12px">
@@ -227,7 +227,7 @@ Evaluation (evals) — measuring a system's quality on examples prepared in adva
 
 **Golden set** — შეკითხვების ნაკრები, რომლებზეც **ჩვენ ვიცით**, რა უნდა მოიძებნოს. ხელით ვადგენთ, ერთხელ, და ყოველი ცვლილების შემდეგ ვუშვებთ. კარგი golden set რეალურ შეკითხვებს ჰგავს: ჩვეულებრივი, სინონიმით, ზუსტი რიცხვით/სახელით, ორ ადგილას პასუხით და ისეთიც, რაც დოკუმენტში არ არის. ლექცია 11-ის საშინაოს ცხრილი — მისი პირველი ვერსიაა.
 
-თითოეულ შეკითხვაზე ვწერთ **ფრაზას, რომელიც სწორ ნაწილში უნდა წერდეს** („24 საათით ადრე“, „B-2“). რატომ ფრაზა და არა chunk-ის Id? როცა chunking-ს შევცვლით, ნაწილები თავიდან იჭრება და Id-ები იცვლება — golden set კი უნდა დარჩეს. ფრაზა chunking-ის ნებისმიერ სტრატეგიაზე მუშაობს.
+თითოეულ შეკითხვაზე ვწერთ **ფრაზას, რომელიც სწორ ნაწილში უნდა წერდეს** ("24 hours before", „B-2“). რატომ ფრაზა და არა chunk-ის Id? როცა chunking-ს შევცვლით, ნაწილები თავიდან იჭრება და Id-ები იცვლება — golden set კი უნდა დარჩეს. ფრაზა chunking-ის ნებისმიერ სტრატეგიაზე მუშაობს.
 
 **hit@k** — რა წილ შეკითხვაზე იყო სწორი ნაწილი პირველ k-ში. ცხრილში: 6-დან 4-ზე პირველ სამშია → **hit@3 = 0.67**. RAG-ისთვის ეს მთავარი ციფრია: თუ სწორი ნაწილი კონტექსტში არ მოხვდა, მოდელი ვერ უპასუხებს.
 
@@ -295,9 +295,9 @@ public async Task<IActionResult> EvalRag(CancellationToken ct)
     </code-block>
     <div class="col" style="gap:12px">
       <div class="vec">[
-  { <span class="k">"question"</span>: "ჯავშანი როგორ გავაუქმო?",
-    <span class="k">"mustContain"</span>: "24 საათით ადრე" },
-  { <span class="k">"question"</span>: "B-2 დარბაზი სადაა?",
+  { <span class="k">"question"</span>: "How do I cancel a booking?",
+    <span class="k">"mustContain"</span>: "24 hours before" },
+  { <span class="k">"question"</span>: "Where is hall B-2?",
     <span class="k">"mustContain"</span>: "B-2" }, …
 ]</div>
       <i class="codestep" data-for="c1" data-lines="13"></i>
@@ -305,7 +305,7 @@ public async Task<IActionResult> EvalRag(CancellationToken ct)
       <div class="swr c-post step">
         <div class="rh"><span class="m">POST</span><span class="p">/rag/eval</span></div>
         <pre class="rb">{ <span class="k">"hitAt3"</span>: <span class="n">0.67</span>, <span class="k">"mrr"</span>: <span class="n">0.51</span>,
-  <span class="k">"misses"</span>: [ <span class="s">"B-2 დარბაზი სადაა?"</span>, <span class="s">"მომსახურება 6 კაცზე?"</span> ] }</pre>
+  <span class="k">"misses"</span>: [ <span class="s">"Where is hall B-2?"</span>, <span class="s">"Service charge for 6 people?"</span> ] }</pre>
       </div>
       <div class="callout ask step">🙋 ორივე miss-ში რა არის <b>საერთო</b>?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ორივე ზუსტი სიტყვაა — კოდი და რიცხვი, რომელსაც ვექტორი ცუდად „ხედავს“</div>
@@ -318,12 +318,12 @@ golden set — JSON ფაილი პროექტში (`golden.json`, „
 
 ```json golden.json
 [
-  { "question": "ჯავშანი როგორ გავაუქმო?",   "mustContain": "24 საათით ადრე" },
-  { "question": "თხილზე ალერგია მაქვს",       "mustContain": "ნიგოზი" },
-  { "question": "ძაღლით შეიძლება?",           "mustContain": "ტერასაზე" },
-  { "question": "B-2 დარბაზი სადაა?",         "mustContain": "B-2" },
-  { "question": "საკუთარი ტორტი შეიძლება?",   "mustContain": "15 ლარი" },
-  { "question": "მომსახურება 6 კაცზე?",       "mustContain": "12%" }
+  { "question": "How do I cancel a booking?",   "mustContain": "24 hours before" },
+  { "question": "I'm allergic to nuts",         "mustContain": "walnut" },
+  { "question": "Can I bring a dog?",           "mustContain": "terrace" },
+  { "question": "Where is hall B-2?",           "mustContain": "B-2" },
+  { "question": "Can I bring my own cake?",     "mustContain": "15 GEL" },
+  { "question": "Service charge for 6 people?", "mustContain": "12%" }
 ]
 ```
 
@@ -333,14 +333,14 @@ public record GoldenItem(string Question, string MustContain);
 [HttpPost("rag/eval")]
 public async Task<IActionResult> EvalRag(CancellationToken ct)
 {
-    string json = await System.IO.File.ReadAllTextAsync("golden.json", ct);   // ControllerBase.File — სხვაა
+    string json = await System.IO.File.ReadAllTextAsync("golden.json", ct);   // ControllerBase.File is something else
     var golden = JsonSerializer.Deserialize<List<GoldenItem>>(json, JsonSerializerOptions.Web)!;
 
     int hits = 0; double rr = 0; List<string> misses = [];
     foreach (GoldenItem item in golden)
     {
-        List<FoundChunk> found = await SearchChunksAsync(item.Question, ct);         // ლექცია 11-ის ძებნა
-        int rank = found.FindIndex(c => c.Content.Contains(item.MustContain)) + 1;   // 1, 2, 3… ან 0
+        List<FoundChunk> found = await SearchChunksAsync(item.Question, ct);         // lecture 11's search
+        int rank = found.FindIndex(c => c.Content.Contains(item.MustContain)) + 1;   // 1, 2, 3… or 0
 
         if (rank is >= 1 and <= 3) hits++; else misses.Add(item.Question);
         if (rank > 0) rr += 1.0 / rank;
@@ -369,12 +369,12 @@ The golden set — a JSON file in the project (`golden.json`, “Copy to Output 
 
 ```json golden.json
 [
-  { "question": "ჯავშანი როგორ გავაუქმო?",   "mustContain": "24 საათით ადრე" },
-  { "question": "თხილზე ალერგია მაქვს",       "mustContain": "ნიგოზი" },
-  { "question": "ძაღლით შეიძლება?",           "mustContain": "ტერასაზე" },
-  { "question": "B-2 დარბაზი სადაა?",         "mustContain": "B-2" },
-  { "question": "საკუთარი ტორტი შეიძლება?",   "mustContain": "15 ლარი" },
-  { "question": "მომსახურება 6 კაცზე?",       "mustContain": "12%" }
+  { "question": "How do I cancel a booking?",   "mustContain": "24 hours before" },
+  { "question": "I'm allergic to nuts",         "mustContain": "walnut" },
+  { "question": "Can I bring a dog?",           "mustContain": "terrace" },
+  { "question": "Where is hall B-2?",           "mustContain": "B-2" },
+  { "question": "Can I bring my own cake?",     "mustContain": "15 GEL" },
+  { "question": "Service charge for 6 people?", "mustContain": "12%" }
 ]
 ```
 
@@ -440,11 +440,11 @@ Exact words are hard for a vector. PostgreSQL has full-text search, which looks 
   <h2>ვექტორი — <span class="c-net">მნიშვნელობით</span>, full-text — <span class="c-asp">სიტყვით</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:24px;align-items:start;margin-top:4px">
     <div class="col" style="gap:10px">
-      <div class="prob" style="--a:var(--net)"><span class="pi">🧭</span><div><b>ვექტორი</b><span>„ხორცის გარეშე“ → ლობიო ✓ · „B-2“, „12%“, „SKU-1234“ → ✗ ბუნდოვანი</span></div></div>
-      <div class="prob step" style="--a:var(--asp)"><span class="pi">🔤</span><div><b>full-text (tsvector)</b><span>„B-2“ → ზუსტად ის ნაწილი ✓ · „ხორცის გარეშე“ → ✗ სიტყვები არ წერია</span></div></div>
-      <div class="vec step">to_tsvector(<span class="g">'simple'</span>, 'B-2 დარბაზში 20+ სტუმარი')
-<span class="d">→ 'b-2' 'b' '2' 'დარბაზში' '20' 'სტუმარი'</span></div>
-      <div class="callout step" style="--a:var(--red);font-size:16px">ქართულს PostgreSQL-ში <b>ლექსიკონი არ აქვს</b>: „დარბაზი“ ≠ „დარბაზში“. ამიტომ <b>'simple'</b> — და ვექტორი ამას ავსებს</div>
+      <div class="prob" style="--a:var(--net)"><span class="pi">🧭</span><div><b>ვექტორი</b><span>"without meat" → ლობიო ✓ · „B-2“, „12%“, „SKU-1234“ → ✗ ბუნდოვანი</span></div></div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">🔤</span><div><b>full-text (tsvector)</b><span>„B-2“ → ზუსტად ის ნაწილი ✓ · "without meat" → ✗ სიტყვები არ წერია</span></div></div>
+      <div class="vec step">to_tsvector(<span class="g">'english'</span>, 'Hall B-2 seats 20+ guests')
+<span class="d">→ 'hall' 'b-2' 'b' '2' 'seat' '20' 'guest'</span></div>
+      <div class="callout step" style="--a:var(--asp);font-size:16px"><b>'english'</b> — stemmer: "guests" = "guest", stop-word-ები (is, the, where) იშლება. ქართულ ტექსტზე — <b>'simple'</b> (ლექსიკონი არ აქვს)</div>
     </div>
     <div class="col" style="gap:10px">
       <div class="lists step">
@@ -463,16 +463,16 @@ Exact words are hard for a vector. PostgreSQL has full-text search, which looks 
   <aside class="study">
 ### Hybrid search: ვექტორი + full-text
 
-**ვექტორი** მნიშვნელობას პოულობს: „ხორცის გარეშე“ → ლობიო. მაგრამ ზუსტი სიტყვები — კოდები, ნომრები, სახელები („B-2“, „12%“, „SKU-1234“) — ვექტორში „იხსნება“: embedding აზრს ინახავს, არა ზუსტ ასოებს. **სიტყვებით ძებნა** პირიქით მუშაობს: „B-2“-ს ზუსტად პოულობს, „ხორცის გარეშე“-ს — ვერა. ლექცია 9-ში ვთქვით: „LIKE-ს არ ვაგდებთ — ვავსებთ“. **Hybrid search** ორივე ძებნას ერთად უშვებს და შედეგებს აერთიანებს.
+**ვექტორი** მნიშვნელობას პოულობს: "without meat" → ლობიო. მაგრამ ზუსტი სიტყვები — კოდები, ნომრები, სახელები („B-2“, „12%“, „SKU-1234“) — ვექტორში „იხსნება“: embedding აზრს ინახავს, არა ზუსტ ასოებს. **სიტყვებით ძებნა** პირიქით მუშაობს: „B-2“-ს ზუსტად პოულობს, "without meat"-ს — ვერა. ლექცია 9-ში ვთქვით: „LIKE-ს არ ვაგდებთ — ვავსებთ“. **Hybrid search** ორივე ძებნას ერთად უშვებს და შედეგებს აერთიანებს.
 
 **PostgreSQL-ის full-text search** — LIKE-ზე ბევრად ძლიერი:
 
-- **`tsvector`** — ტექსტი, დაშლილი სიტყვებად (lexeme-ებად): `to_tsvector('simple', 'B-2 დარბაზში 20+ სტუმარი')` → `'b-2' 'b' '2' 'დარბაზში' '20' 'სტუმარი'`.
-- **`tsquery`** — შეკითხვა: `'b-2' | 'დარბაზი'` (`|` — ან, `&` — და).
+- **`tsvector`** — ტექსტი, დაშლილი სიტყვებად (lexeme-ებად): `to_tsvector('english', 'Hall B-2 seats 20+ guests')` → `'hall' 'b-2' 'b' '2' 'seat' '20' 'guest'`.
+- **`tsquery`** — შეკითხვა: `'b-2' | 'hall'` (`|` — ან, `&` — და).
 - **`@@`** — ემთხვევა თუ არა; **`ts_rank`** — რამდენად კარგად (რამდენი სიტყვა, რამდენჯერ).
 - **GIN ინდექსი** — სწრაფი ძებნა სიტყვებით.
 
-**ქართული და `'simple'`.** PostgreSQL-ს ინგლისურისთვის (და ბევრი ენისთვის) აქვს ლექსიკონი და stemmer: `'english'` „rooms“-ს „room“-ად აქცევს. **ქართულისთვის ასეთი ლექსიკონი არ არის** — ამიტომ `'simple'`: სიტყვა იწერება ისე, როგორც არის (პატარა ასოებით). „დარბაზი“ და „დარბაზში“ სხვადასხვა სიტყვაა. ეს ნორმალურია: full-text-ს **ზუსტი** სიტყვებისთვის ვიყენებთ (კოდი, ნომერი, სახელი), ბრუნვებს ვექტორი ფარავს.
+**კონფიგურაცია: `'english'`.** ჩვენი დოკუმენტები ინგლისურადაა, და PostgreSQL-ს ინგლისურისთვის აქვს ლექსიკონი და stemmer: `'english'` "guests"-ს "guest"-ად აქცევს, "rooms"-ს — "room"-ად, და stop-word-ებს (is, the, where…) აგდებს. შეკითხვაც **იმავე** კონფიგით უნდა დამუშავდეს (`ToTsQuery("english", …)`), თორემ "guests" ≠ "guest". **ქართულისთვის** ასეთი ლექსიკონი არ არის — ქართულ ტექსტზე `'simple'` გამოიყენება: სიტყვა იწერება ისე, როგორც არის, და ბრუნვებს („დარბაზი“ / „დარბაზში“) ვექტორი ფარავს.
 
 **RRF (Reciprocal Rank Fusion)** — ორი სიის გაერთიანება **რიგით**:
 
@@ -483,7 +483,7 @@ Exact words are hard for a vector. PostgreSQL has full-text search, which looks 
 ```terms
 Hybrid search — ძებნა მნიშვნელობით (ვექტორი) და სიტყვებით (full-text) ერთად, შედეგების გაერთიანებით
 tsvector / tsquery — PostgreSQL-ის full-text: ტექსტი სიტყვებად / შეკითხვა სიტყვებით
-'simple' — full-text-ის კონფიგურაცია ლექსიკონის გარეშე: სიტყვა იწერება ისე, როგორც არის
+'english' / 'simple' — full-text-ის კონფიგურაცია: ინგლისური ლექსიკონით და stemmer-ით / ლექსიკონის გარეშე (სიტყვა ისე, როგორც არის)
 RRF (Reciprocal Rank Fusion) — რამდენიმე სიის გაერთიანება რიგით: Σ 1/(60 + რიგი)
 ```
   </aside>
@@ -494,12 +494,12 @@ The **vector** finds meaning: “without meat” → lobio. But exact words — 
 
 **PostgreSQL's full-text search** — much stronger than LIKE:
 
-- **`tsvector`** — the text, split into words (lexemes): `to_tsvector('simple', 'B-2 დარბაზში 20+ სტუმარი')` → `'b-2' 'b' '2' 'დარბაზში' '20' 'სტუმარი'`.
-- **`tsquery`** — the query: `'b-2' | 'დარბაზი'` (`|` — or, `&` — and).
+- **`tsvector`** — the text, split into words (lexemes): `to_tsvector('english', 'Hall B-2 seats 20+ guests')` → `'hall' 'b-2' 'b' '2' 'seat' '20' 'guest'`.
+- **`tsquery`** — the query: `'b-2' | 'hall'` (`|` — or, `&` — and).
 - **`@@`** — whether it matches; **`ts_rank`** — how well (how many words, how many times).
 - **The GIN index** — a fast search by words.
 
-**Georgian and `'simple'`.** PostgreSQL has a dictionary and a stemmer for English (and many languages): `'english'` turns “rooms” into “room”. **There's no such dictionary for Georgian** — so `'simple'`: a word is stored as it is (in lower case). “დარბაზი” and “დარბაზში” (hall / in the hall) are different words. That's fine: we use full-text for **exact** words (a code, a number, a name), and the vector covers the grammatical forms.
+**The configuration: `'english'`.** Our documents are in English, and PostgreSQL has a dictionary and a stemmer for English: `'english'` turns “guests” into “guest”, “rooms” into “room”, and throws away stop words (is, the, where…). The query must be processed with the **same** configuration (`ToTsQuery("english", …)`), otherwise “guests” ≠ “guest”. **For Georgian** there's no such dictionary — Georgian text uses `'simple'`: a word is stored as it is, and the vector covers the grammatical forms (“დარბაზი” / “დარბაზში” — hall / in the hall).
 
 **RRF (Reciprocal Rank Fusion)** — merging two lists **by rank**:
 
@@ -510,7 +510,7 @@ A part that's high in **both** lists comes first. Why the rank and not the score
 ```terms
 Hybrid search — searching by meaning (vector) and by words (full-text) together, merging the results
 tsvector / tsquery — PostgreSQL's full-text: the text as words / a query with words
-'simple' — a full-text configuration without a dictionary: a word is stored as it is
+'english' / 'simple' — a full-text configuration: with the English dictionary and stemmer / without a dictionary (a word as it is)
 RRF (Reciprocal Rank Fusion) — merging several lists by rank: Σ 1/(60 + rank)
 ```
   </aside>
@@ -523,7 +523,7 @@ RRF (Reciprocal Rank Fusion) — merging several lists by rank: Σ 1/(60 + rank)
     <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · HybridSearchAsync">
 var query = new Vector(await _embeddings.GenerateVectorAsync(
     EmbeddingText.Query(q), cancellationToken: ct));
-var words = EF.Functions.ToTsQuery("simple", OrQuery(q));
+var words = EF.Functions.ToTsQuery("english", OrQuery(q));
 
 List<int> byMeaning = await _db.DocumentChunks
     .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
@@ -547,19 +547,19 @@ static IEnumerable<int> Rrf(params List<int>[] lists) => lists
       <code-block lang="csharp" cls="sm" title="Data/AppDbContext.cs · OnModelCreating">
 modelBuilder.Entity<DocumentChunk>()
     .HasGeneratedTsVectorColumn(
-        c => c.SearchVector, "simple", c => new { c.Content })
+        c => c.SearchVector, "english", c => new { c.Content })
     .HasIndex(c => c.SearchVector)
     .HasMethod("GIN");
       </code-block>
       <i class="codestep" data-for="c2" data-lines="3"></i>
-      <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🔀</span><div><b>OrQuery: „ან“ სიტყვებს შორის</b><span>„B-2 დარბაზი სადაა“ → <span class="mono">b-2 | დარბაზი | სადაა</span>. „და“-თი — ყველა სიტყვა უნდა იყოს</span></div></div>
+      <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🔀</span><div><b>OrQuery: „ან“ სიტყვებს შორის</b><span>"Where is hall B-2" → <span class="mono">Where | is | hall | B-2</span>. „და“-თი — ყველა სიტყვა უნდა იყოს</span></div></div>
       <div class="swr c-post step">
         <div class="rh"><span class="m">POST</span><span class="p">/rag/eval · hybrid</span></div>
         <pre class="rb">{ <span class="k">"hitAt3"</span>: <span class="n">0.83</span>, <span class="k">"mrr"</span>: <span class="n">0.72</span>,
-  <span class="k">"misses"</span>: [ <span class="s">"მომსახურება 6 კაცზე?"</span> ] }</pre>
+  <span class="k">"misses"</span>: [ <span class="s">"Service charge for 6 people?"</span> ] }</pre>
       </div>
       <div class="callout ask step">🙋 „6 კაცზე“ — რატომ ისევ <b>miss</b>?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 წერია „5+ კაცზე — 12%“: არც სიტყვა, არც მნიშვნელობა ზუსტად არ ემთხვევა — reranker ან tool</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 წერია "5+ people — 12%": არც სიტყვა, არც მნიშვნელობა ზუსტად არ ემთხვევა — reranker ან tool</div>
     </div>
   </div>
   <aside class="study">
@@ -575,20 +575,20 @@ public NpgsqlTsVector SearchVector { get; set; } = null!;
 
 ```csharp Data/AppDbContext.cs · OnModelCreating
 modelBuilder.Entity<DocumentChunk>()
-    .HasGeneratedTsVectorColumn(c => c.SearchVector, "simple", c => new { c.Content })
+    .HasGeneratedTsVectorColumn(c => c.SearchVector, "english", c => new { c.Content })
     .HasIndex(c => c.SearchVector)
     .HasMethod("GIN");
 ```
 
 migration-ის შემდეგ ძველ ნაწილებსაც უჩნდებათ `SearchVector` — generated column ყველა ხაზზე ითვლება. ხელახალი ატვირთვა არ გვჭირდება.
 
-**2. შეკითხვა სიტყვებით.** `plainto_tsquery` სიტყვებს **„და“-თი** აერთებს: „B-2 დარბაზი სადაა“ მხოლოდ იმ ნაწილს იპოვის, სადაც სამივე სიტყვაა — ბუნებრივ შეკითხვაზე ხშირად 0 შედეგი. ჩვენ „ან“-ით ვაერთებთ, და `ts_rank` მეტი დამთხვევის მქონეს მაღლა აყენებს:
+**2. შეკითხვა სიტყვებით.** `plainto_tsquery` სიტყვებს **„და“-თი** აერთებს: "Where is hall B-2" მხოლოდ იმ ნაწილს იპოვის, სადაც ყველა სიტყვაა — ბუნებრივ შეკითხვაზე ხშირად 0 შედეგი. ჩვენ „ან“-ით ვაერთებთ, და `ts_rank` მეტი დამთხვევის მქონეს მაღლა აყენებს:
 
 ```csharp Controllers/AiLabController.cs · OrQuery
 private static string OrQuery(string q)
 {
     var words = Regex.Matches(q, @"[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*").Select(m => m.Value);
-    return string.Join(" | ", words);   // "B-2 დარბაზი სადაა?" → "B-2 | დარბაზი | სადაა"
+    return string.Join(" | ", words);   // "Where is hall B-2?" → "Where | is | hall | B-2"
 }
 ```
 
@@ -602,14 +602,14 @@ private async Task<List<FoundChunk>> HybridSearchAsync(string q, CancellationTok
     float minScore = _config.GetValue<float>("Rag:MinScore");
     var query = new Vector(await _embeddings.GenerateVectorAsync(
         EmbeddingText.Query(q), cancellationToken: ct));
-    var words = EF.Functions.ToTsQuery("simple", OrQuery(q));
+    var words = EF.Functions.ToTsQuery("english", OrQuery(q));
 
-    List<int> byMeaning = await _db.DocumentChunks                    // ვექტორით, ზღვრით
+    List<int> byMeaning = await _db.DocumentChunks                    // by vector, with a threshold
         .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
         .OrderBy(c => c.Embedding!.CosineDistance(query))
         .Select(c => c.Id).Take(20).ToListAsync(ct);
 
-    List<int> byWords = await _db.DocumentChunks                      // სიტყვებით
+    List<int> byWords = await _db.DocumentChunks                      // by words
         .Where(c => c.SearchVector.Matches(words))
         .OrderByDescending(c => c.SearchVector.Rank(words))
         .Select(c => c.Id).Take(20).ToListAsync(ct);
@@ -621,7 +621,7 @@ private async Task<List<FoundChunk>> HybridSearchAsync(string q, CancellationTok
         .Select(c => new { c.Id, c.Document.FileName, c.Page, c.Content })
         .ToDictionaryAsync(c => c.Id, ct);
     return top.Select((id, i) => new FoundChunk(chunks[id].FileName, chunks[id].Page,
-        chunks[id].Content, Score: 1.0 / (i + 1))).ToList();        // Score — აქ უბრალოდ რიგის მიხედვით
+        chunks[id].Content, Score: 1.0 / (i + 1))).ToList();        // Score — here simply by rank
 }
 
 private static IEnumerable<int> Rrf(params List<int>[] lists) => lists
@@ -636,7 +636,7 @@ private static IEnumerable<int> Rrf(params List<int>[] lists) => lists
 - **ბოლო მოთხოვნა** ნაწილებს Id-ებით ტვირთავს; `top`-ის რიგს ვინარჩუნებთ (`WHERE IN` რიგს არ იცავს).
 - `SearchChunksAsync`-ის ნაცვლად `/chat`-ში და `/rag/eval`-ში — `HybridSearchAsync`. **ისევ გაზომე.**
 
-**შედეგი (ნიმუში):** hit@3 0.67 → **0.83**, MRR 0.51 → **0.72**. „B-2“ გამოსწორდა. „მომსახურება 6 კაცზე?“ — ისევ miss: დოკუმენტში წერია „5+ კაცზე — 12%“. არც სიტყვა („6“), არც მნიშვნელობა ზუსტად არ ემთხვევა — ეს ძებნის საზღვარია. ასეთ შეკითხვას სჯობს reranking ან tool, რომელიც წესს კოდით ითვლის.
+**შედეგი (ნიმუში):** hit@3 0.67 → **0.83**, MRR 0.51 → **0.72**. „B-2“ გამოსწორდა. "Service charge for 6 people?" — ისევ miss: დოკუმენტში წერია "5+ people — 12%". არც სიტყვა („6“), არც მნიშვნელობა ზუსტად არ ემთხვევა — ეს ძებნის საზღვარია. ასეთ შეკითხვას სჯობს reranking ან tool, რომელიც წესს კოდით ითვლის.
 
 ```terms
 Generated column — სვეტი, რომელსაც PostgreSQL თვითონ ითვლის სხვა სვეტებიდან
@@ -656,20 +656,20 @@ public NpgsqlTsVector SearchVector { get; set; } = null!;
 
 ```csharp Data/AppDbContext.cs · OnModelCreating
 modelBuilder.Entity<DocumentChunk>()
-    .HasGeneratedTsVectorColumn(c => c.SearchVector, "simple", c => new { c.Content })
+    .HasGeneratedTsVectorColumn(c => c.SearchVector, "english", c => new { c.Content })
     .HasIndex(c => c.SearchVector)
     .HasMethod("GIN");
 ```
 
 After the migration the old parts get a `SearchVector` too — a generated column is calculated on every row. We don't need to upload again.
 
-**2. The query with words.** `plainto_tsquery` joins the words with **“and”**: “B-2 დარბაზი სადაა” would only find the part that has all three words — on a natural question often 0 results. We join them with “or”, and `ts_rank` puts the one with more matches higher:
+**2. The query with words.** `plainto_tsquery` joins the words with **“and”**: “Where is hall B-2” would only find the part that has all the words — on a natural question often 0 results. We join them with “or”, and `ts_rank` puts the one with more matches higher:
 
 ```csharp Controllers/AiLabController.cs · OrQuery
 private static string OrQuery(string q)
 {
     var words = Regex.Matches(q, @"[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*").Select(m => m.Value);
-    return string.Join(" | ", words);   // "B-2 დარბაზი სადაა?" → "B-2 | დარბაზი | სადაა"
+    return string.Join(" | ", words);   // "Where is hall B-2?" → "Where | is | hall | B-2"
 }
 ```
 
@@ -683,7 +683,7 @@ private async Task<List<FoundChunk>> HybridSearchAsync(string q, CancellationTok
     float minScore = _config.GetValue<float>("Rag:MinScore");
     var query = new Vector(await _embeddings.GenerateVectorAsync(
         EmbeddingText.Query(q), cancellationToken: ct));
-    var words = EF.Functions.ToTsQuery("simple", OrQuery(q));
+    var words = EF.Functions.ToTsQuery("english", OrQuery(q));
 
     List<int> byMeaning = await _db.DocumentChunks                    // by vector, with a threshold
         .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
@@ -736,7 +736,7 @@ IQueryable<DocumentChunk> chunks = _db.DocumentChunks;
 if (category is not null)
     chunks = chunks.Where(c => c.Document.Category == category);
 
-// byMeaning და byWords — chunks-იდან, არა _db.DocumentChunks-იდან
+// byMeaning and byWords — from chunks, not from _db.DocumentChunks
       </code-block>
       <table class="menu step">
         <tr><th>metadata</th><th>როდის</th></tr>
@@ -767,10 +767,10 @@ IQueryable<DocumentChunk> chunks = _db.DocumentChunks;
 if (category is not null)
     chunks = chunks.Where(c => c.Document.Category == category);
 
-// byMeaning და byWords — chunks-იდან:
+// byMeaning and byWords — from chunks:
 List<int> byMeaning = await chunks
     .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
-    // ... როგორც ადრე
+    // ... as before
 ```
 
 ლექცია 10-ის საშინაოს „ფილტრი + მნიშვნელობა ერთ SQL-ში“ — ზუსტად ეს არის.
@@ -889,11 +889,11 @@ Four chunking strategies and how to choose (by measuring). Reranking — a secon
 | **სათაურებით** (heading-aware / structure-aware) | ნაწილი = სექცია; სათაური ნაწილს ერთვის | თემა არ ირევა; სათაური — ძლიერი კონტექსტი | სტრუქტურა სჭირდება (Word-ის სტილები, Markdown); PDF-ში სათაურის ამოცნობა რთულია |
 | **მნიშვნელობით** (semantic) | მომდევნო წინადადებების ვექტორებს ადარებს და ჭრის, სადაც მსგავსება ეცემა | თემის საზღვარს თვითონ პოულობს | ყოველ წინადადებაზე embedding — ძვირი; კვლევებით ყოველთვის არ სჯობს მარტივს |
 
-**სათაური prefix-ში.** ლექცია 9-ის დოკუმენტის ფორმატი: `title: … | text: …`. ლექცია 11-ში სათაურად ფაილის სახელი ჩავწერეთ. სათაურებით დაჭრისას — **სექციის სათაური**: `title: ჯავშნის გაუქმება | text: …`. ნაწილის ვექტორი ახლა თემასაც „იცის“, თუნდაც ტექსტში სიტყვა „ჯავშანი“ არ ეწეროს. ეს ერთ-ერთი ყველაზე იაფი და ეფექტური გაუმჯობესებაა.
+**სათაური prefix-ში.** ლექცია 9-ის დოკუმენტის ფორმატი: `title: … | text: …`. ლექცია 11-ში სათაურად ფაილის სახელი ჩავწერეთ. სათაურებით დაჭრისას — **სექციის სათაური**: `title: Cancelling a booking | text: …`. ნაწილის ვექტორი ახლა თემასაც „იცის“, თუნდაც ტექსტში სიტყვა „ჯავშანი“ არ ეწეროს. ეს ერთ-ერთი ყველაზე იაფი და ეფექტური გაუმჯობესებაა.
 
 **როგორ ავირჩიოთ — მხოლოდ გაზომვით.** ცვლილება → დოკუმენტების თავიდან ატვირთვა (ვექტორები ახალ ნაწილებზე) → `/rag/eval`. ნიმუშზე: სათაურებით 0.92; 300-სიმბოლოიანი ნაწილები — **უარესი** (0.75): ნაწილები ზედმეტად პატარაა და კონტექსტს კარგავს. „უფრო პატარა = უფრო ზუსტი“ ყოველთვის არ მუშაობს — ამიტომ ვზომავთ.
 
-**golden set chunking-ის შეცვლას უძლებს**, რადგან ფრაზით ამოწმებს („24 საათით ადრე“), არა Id-ით — ნაწილი 1-ის გადაწყვეტილება აქ ამართლებს.
+**golden set chunking-ის შეცვლას უძლებს**, რადგან ფრაზით ამოწმებს ("24 hours before"), არა Id-ით — ნაწილი 1-ის გადაწყვეტილება აქ ამართლებს.
 
 ```terms
 Recursive chunking — ჯერ დიდი საზღვრით (აბზაცი), მერე პატარით (წინადადება, სიტყვა), სანამ ნაწილი ზომაში არ ჩაეტევა
@@ -954,7 +954,7 @@ Semantic chunking — cutting where the meaning of consecutive sentences changes
 
 ჩვენი ძებნა (ვექტორი და full-text) **სწრაფია**, მაგრამ „უხეში“: embedding მოდელი შეკითხვას და ნაწილს **ცალ-ცალკე** ხედავს. ნაწილის ვექტორი ingestion-ისას დაითვალა — შეკითხვის შესახებ არაფერი იცოდა. ასეთ მოდელს **bi-encoder** ჰქვია.
 
-**Reranker** (ჩვეულებრივ **cross-encoder**) შეკითხვას და ნაწილს **ერთად** კითხულობს და ერთ ციფრს აბრუნებს: რამდენად პასუხობს ეს ნაწილი ამ შეკითხვას. ეს ბევრად ზუსტია — „მომსახურება 6 კაცზე?“ ↔ „5+ კაცზე — 12%“ reranker-ისთვის აშკარა წყვილია. მაგრამ წინასწარ ვერაფერს დაითვლი: ყოველ შეკითხვაზე ყოველ წყვილს ცალკე გამოთვლა სჭირდება.
+**Reranker** (ჩვეულებრივ **cross-encoder**) შეკითხვას და ნაწილს **ერთად** კითხულობს და ერთ ციფრს აბრუნებს: რამდენად პასუხობს ეს ნაწილი ამ შეკითხვას. ეს ბევრად ზუსტია — "Service charge for 6 people?" ↔ "5+ people — 12%" reranker-ისთვის აშკარა წყვილია. მაგრამ წინასწარ ვერაფერს დაითვლი: ყოველ შეკითხვაზე ყოველ წყვილს ცალკე გამოთვლა სჭირდება.
 
 **ამიტომ ორი ფენა:** სწრაფი ძებნა ირჩევს 20–50 კანდიდატს → reranker ზუსტად ალაგებს და 5 მიდის კონტექსტში. მილიონ ნაწილზე reranker-ს ვერ გაუშვებ — 20-ზე კი შეგიძლია.
 
@@ -963,7 +963,7 @@ Semantic chunking — cutting where the meaning of consecutive sentences changes
 | | როგორ | ფასი |
 |---|---|---|
 | **Rerank API** — Cohere Rerank, Voyage, Jina | HTTP: შეკითხვა + 20 ტექსტი → 20 score | ცალკე key და ანგარიში; ფასი მოთხოვნაზე; +100–300 მწ |
-| **LLM როგორც reranker** | Gemini-ს ვთხოვთ: „დაალაგე ეს 20 ნაწილი რელევანტურობით“ — structured output (ლექცია 2) | ჩატის მოდელის ფასი — ძვირი; ნელი (წამები) |
+| **LLM როგორც reranker** | Gemini-ს ვთხოვთ: "Sort these 20 parts by relevance" — structured output (ლექცია 2) | ჩატის მოდელის ფასი — ძვირი; ნელი (წამები) |
 | **ლოკალური cross-encoder** | ღია მოდელი (მაგ. bge-reranker) საკუთარ სერვერზე | GPU/CPU, ინფრასტრუქტურა |
 
 Gemini API-ს ცალკე rerank მოდელი არ აქვს. ჩვენ Gemini-ზე ვართ, ამიტომ reranking-ს ლექციაზე ვხსნით, კოდი კი ⭐-შია (LLM-rerank). რეალურ სისტემებში reranking ხშირად ყველაზე დიდ ნახტომს იძლევა hit@3-ში — ფასის და დაყოვნების ფასად. და ისევ: **გაზომე**, ღირს თუ არა.
@@ -1020,11 +1020,11 @@ EvaluationResult result = await evaluator.EvaluateAsync(
 
 NumericMetric g = result.Get<NumericMetric>(
     GroundednessEvaluator.GroundednessMetricName);
-// g.Value: 1–5 · g.Reason: რატომ
+// g.Value: 1–5 · g.Reason: why
     </code-block>
     <div class="col" style="gap:10px">
-      <div class="prob" style="--a:var(--mvc)"><span class="pi">5</span><div><b>„ტორტი — 15 ლარი მომსახურება [1]“</b><span>ყველაფერი წყაროშია</span></div></div>
-      <div class="prob step" style="--a:var(--red)"><span class="pi">2</span><div><b>„15 ლარი, სანთლები უფასოა [1]“</b><span>„სანთლები“ წყაროში <b>არ წერია</b> — მოდელმა დაამატა</span></div></div>
+      <div class="prob" style="--a:var(--mvc)"><span class="pi">5</span><div><b>"Cake — 15 GEL service charge [1]"</b><span>ყველაფერი წყაროშია</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">2</span><div><b>"15 GEL, candles are free [1]"</b><span>„სანთლები“ წყაროში <b>არ წერია</b> — მოდელმა დაამატა</span></div></div>
       <div class="callout step" style="--a:var(--net);font-size:16px">NuGet: <b>Microsoft.Extensions.AI.Evaluation.Quality</b> · მსაჯი — ისევ Gemini (IChatClient)</div>
       <div class="callout ask step">🙋 მსაჯი-მოდელს <b>რატომ</b> არ ვენდობით ბოლომდე?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მსაჯიც მოდელია: ცდება და საკუთარ პასუხებს რბილად აფასებს — ბევრ მაგალითზე და ხანდახან ხელით</div>
@@ -1035,7 +1035,7 @@ NumericMetric g = result.Get<NumericMetric>(
 
 ნაწილი 1-ში ძებნას ვზომავდით. მეორე ადგილი, სადაც RAG ცდება — **პასუხი**: ნაწილი სწორია, მოდელმა კი რაღაც დაამატა. **Groundedness** — რამდენად ეყრდნობა პასუხი **მხოლოდ** მოცემულ წყაროებს.
 
-ამის გაზომვა `Contains`-ით შეუძლებელია: „15 ლარი“ შეიძლება „თხუთმეტი ლარი“-ც იყოს. ამიტომ **LLM-as-judge**: სხვა (ან იგივე) მოდელს ვაძლევთ შეკითხვას, წყაროებს და პასუხს და ვეკითხებით: „ყველაფერი, რაც პასუხში წერია, წყაროებიდანაა?“
+ამის გაზომვა `Contains`-ით შეუძლებელია: "15 GEL" შეიძლება "fifteen lari"-ც იყოს. ამიტომ **LLM-as-judge**: სხვა (ან იგივე) მოდელს ვაძლევთ შეკითხვას, წყაროებს და პასუხს და ვეკითხებით: "Is everything in the answer from the sources?"
 
 **`Microsoft.Extensions.AI.Evaluation.Quality`** — მზა evaluator-ები Microsoft.Extensions.AI-ზე: `GroundednessEvaluator`, `RelevanceEvaluator`, `CompletenessEvaluator`, `RetrievalEvaluator` და სხვ. მსაჯი — ნებისმიერი `IChatClient` (ჩვენთან Gemini):
 
@@ -1046,14 +1046,14 @@ using Microsoft.Extensions.AI.Evaluation.Quality;
 IEvaluator evaluator = new GroundednessEvaluator();
 
 EvaluationResult result = await evaluator.EvaluateAsync(
-    [new ChatMessage(ChatRole.User, question)],                       // რა იკითხეს
-    response,                                                          // რა უპასუხა ჩვენმა RAG-მა (ChatResponse)
-    new ChatConfiguration(_judge),                                     // მსაჯი — IChatClient
-    [new GroundednessEvaluatorContext(BuildContext(sources))],         // წყაროები, რომლებიც მოდელმა მიიღო
+    [new ChatMessage(ChatRole.User, question)],                       // what was asked
+    response,                                                          // what our RAG answered (ChatResponse)
+    new ChatConfiguration(_judge),                                     // the judge — an IChatClient
+    [new GroundednessEvaluatorContext(BuildContext(sources))],         // the sources the model received
     ct);
 
 NumericMetric g = result.Get<NumericMetric>(GroundednessEvaluator.GroundednessMetricName);
-// g.Value — 1-დან 5-მდე; g.Reason — მსაჯის ახსნა
+// g.Value — from 1 to 5; g.Reason — the judge's explanation
 ```
 
 - **`_judge`** — `IChatClient` მსაჯისთვის. ჩატის pipeline-ის client tool-ებით და middleware-ით (ლექცია 4–5, 8) მსაჯს არ სჭირდება — სჯობს ცალკე, მარტივი client (keyed service, ⭐ ლექცია 8) ან უფრო ძლიერი მოდელი.
@@ -1076,7 +1076,7 @@ Microsoft.Extensions.AI.Evaluation — .NET-ის ბიბლიოთეკ�
 
 In part 1 we measured the search. The second place where RAG fails is the **answer**: the part is right, but the model added something. **Groundedness** — how much the answer relies **only** on the given sources.
 
-You can't measure this with `Contains`: “15 lari” could also be “fifteen lari”. So — **LLM-as-judge**: we give another (or the same) model the question, the sources and the answer, and ask: “is everything written in the answer from the sources?”
+You can't measure this with `Contains`: “15 GEL” could also be “fifteen lari”. So — **LLM-as-judge**: we give another (or the same) model the question, the sources and the answer, and ask: “is everything written in the answer from the sources?”
 
 **`Microsoft.Extensions.AI.Evaluation.Quality`** — ready-made evaluators on Microsoft.Extensions.AI: `GroundednessEvaluator`, `RelevanceEvaluator`, `CompletenessEvaluator`, `RetrievalEvaluator` and others. The judge is any `IChatClient` (Gemini for us):
 
@@ -1125,7 +1125,7 @@ Microsoft.Extensions.AI.Evaluation — .NET libraries for evaluating the quality
     <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
       <li>RAG ცდება <b>ძებნაში</b> (ყველაზე ხშირად) და <b>პასუხში</b></li>
       <li><b>golden set</b> — ფრაზით, არა Id-ით · <b>hit@3</b> და <b>MRR</b> · misses</li>
-      <li><b>hybrid</b>: ვექტორი + tsvector ('simple'), <b>RRF</b> — რიგით</li>
+      <li><b>hybrid</b>: ვექტორი + tsvector ('english'), <b>RRF</b> — რიგით</li>
       <li><b>ფილტრი</b> SQL-ში, მოდელამდე — ხარისხიც და უსაფრთხოებაც</li>
       <li><b>chunking</b>: სათაური prefix-ში · პატარა ≠ უკეთესი — გაზომე</li>
       <li><b>reranker</b> 20 → 5 · <b>groundedness</b> — LLM-as-judge</li></ul></div>
@@ -1142,7 +1142,7 @@ Microsoft.Extensions.AI.Evaluation — .NET libraries for evaluating the quality
 
 - RAG **ორ ადგილას** ცდება: **ძებნაში** (სწორი ნაწილი ვერ მოიძებნა — ყველაზე ხშირი) და **პასუხში** (მოდელმა დაამატა). „თვალით“ ვერ ვიტყვით, გაუმჯობესდა თუ არა — ვზომავთ.
 - **Golden set** — შეკითხვები ფრაზით, რომელიც სწორ ნაწილში უნდა წერდეს (არა Id-ით — chunking-ს უძლებს). **hit@3** — რა წილზე იყო სწორი პირველ სამში; **MRR** — საშუალო 1/რიგი; **misses** — რა გამოვასწოროთ. `/rag/eval` LLM-ს არ იძახებს — იაფია.
-- **Hybrid search:** ვექტორი (მნიშვნელობა) + PostgreSQL full-text (`tsvector`, `'simple'` — ქართულს ლექსიკონი არ აქვს; ზუსტი სიტყვები, კოდები, რიცხვები), შერწყმა **RRF**-ით: Σ 1/(60 + რიგი).
+- **Hybrid search:** ვექტორი (მნიშვნელობა) + PostgreSQL full-text (`tsvector`, `'english'` — stemmer და stop-word-ები; ზუსტი სიტყვები, კოდები, რიცხვები), შერწყმა **RRF**-ით: Σ 1/(60 + რიგი).
 - **Metadata filtering:** კატეგორია, tenant, ენა, თარიღი, უფლებები — **SQL-ში, მოდელამდე**. ხარისხიც და უსაფრთხოებაც.
 - **Chunking:** ზომით / წინადადებით / სათაურებით / მნიშვნელობით. სათაური prefix-ში — იაფი და ეფექტური. პატარა ნაწილი ყოველთვის არ სჯობს — **გაზომე**.
 - **Reranking:** სწრაფი ძებნა 20 კანდიდატს ირჩევს, cross-encoder ზუსტად ალაგებს და 5 მიდის კონტექსტში. ფასი და დაყოვნება — გაზომე, ღირს თუ არა.
@@ -1161,7 +1161,7 @@ Microsoft.Extensions.AI.Evaluation — .NET libraries for evaluating the quality
 
 - RAG fails in **two places**: in the **search** (the right part wasn't found — the most common) and in the **answer** (the model added something). We can't tell “by eye” whether it improved — we measure.
 - **Golden set** — questions with a phrase that must appear in the right part (not by Id — it survives the chunking). **hit@3** — on what share the right one was in the top three; **MRR** — the average 1/rank; **misses** — what to fix. `/rag/eval` doesn't call the LLM — it's cheap.
-- **Hybrid search:** the vector (meaning) + PostgreSQL full-text (`tsvector`, `'simple'` — Georgian has no dictionary; exact words, codes, numbers), merged with **RRF**: Σ 1/(60 + rank).
+- **Hybrid search:** the vector (meaning) + PostgreSQL full-text (`tsvector`, `'english'` — a stemmer and stop words; exact words, codes, numbers), merged with **RRF**: Σ 1/(60 + rank).
 - **Metadata filtering:** the category, tenant, language, date, permissions — **in SQL, before the model**. Both quality and security.
 - **Chunking:** by size / by sentences / by headings / by meaning. The heading in the prefix — cheap and effective. A smaller part isn't always better — **measure**.
 - **Reranking:** a fast search picks 20 candidates, a cross-encoder sorts them precisely and 5 go into the context. The cost and the latency — measure whether it's worth it.

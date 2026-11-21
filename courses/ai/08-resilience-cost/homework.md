@@ -18,7 +18,7 @@
 ## ⭐ ბონუსი
 
 - **fallback სტრიმინგზე:** `GetStreamingResponseAsync` override — სარეზერვოზე გადასვლა მხოლოდ **პირველ ნაწილამდე** (რატომ არა შუაში?)
-- **მეგობრული შეცდომა:** `IExceptionHandler` (API კურსი) — `ApiException`-ზე 503 + `ProblemDetails` „ასისტენტი დროებით მიუწვდომელია“ და `Retry-After` header
+- **მეგობრული შეცდომა:** `IExceptionHandler` (API კურსი) — `ApiException`-ზე 503 + `ProblemDetails` "The assistant is temporarily unavailable" და `Retry-After` header
 - **structured output-ის შეცდომა:** ლექცია 3-ის endpoint-ში `TryGetResult` — ცუდ JSON-ზე 422 exception-ის ნაცვლად
 
 ## 💡 დეტალები
@@ -55,7 +55,7 @@ public async Task<IActionResult> UsageToday(CancellationToken ct)
 ```
 
 ```csharp Program.cs · pipeline
-builder.Services.AddChatClient(sp => /* Gemini ჩვენი HttpClient-ით, Attempts = 1 */)
+builder.Services.AddChatClient(sp => /* Gemini with our HttpClient, Attempts = 1 */)
     .Use(inner => new LibraryGuardChatClient(inner))
     .UseFunctionInvocation()
     .Use((inner, sp) => new TokenCounterChatClient(inner, sp.GetRequiredService<IServiceScopeFactory>()))
@@ -68,7 +68,7 @@ builder.Services.AddChatClient(sp => /* Gemini ჩვენი HttpClient-ით
 |---|---|---|---|
 | ორი 503 | 3 (2 ჩავარდა) | პასუხი ~6 წამში | `Standard-Retry · Result: 503 · Attempt: 0`, `Attempt: 1`, მერე 200 |
 | `Gemini:Model = "gemini-0"` | 1 | 500 (404 NOT_FOUND) | retry-ს ხაზი არ არის — 404 მუდმივია |
-| ყოველთვის 503 | 4 მთავარზე + 1 სარეზერვოზე | პასუხი ~14 წამში | 3 retry → `🛟 … სარეზერვო მოდელი`; `AiUsage.Model` = სარეზერვოს სახელი |
+| ყოველთვის 503 | 4 მთავარზე + 1 სარეზერვოზე | პასუხი ~14 წამში | 3 retry → `🛟 … fallback model`; `AiUsage.Model` = სარეზერვოს სახელი |
 
 ```note
 retry ჯერ თავის სამ ცდას ამოწურავს (2 + 4 + 8 წამი ≈ 14 წამი), და მხოლოდ მერე ჩაერთვება fallback: ის retry-ის **შიგნით** არ არის, retry არის HttpClient-ში, fallback — IChatClient-ში. 404-ზე fallback-იც არ ჩაერთო: `IsTransient` 404-ს მუდმივად თვლის. ფასები `appsettings.json`-შია, ამიტომ `/usage/today` ახალი მოდელისთვის 0-ს აჩვენებს, სანამ ფასს არ ჩავწერთ — ეს შეგნებულია.

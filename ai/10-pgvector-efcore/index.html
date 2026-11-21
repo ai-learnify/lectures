@@ -484,9 +484,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <span class="k">FROM</span> "Products"
 <span class="k">ORDER BY</span> distance
 <span class="k">LIMIT</span> 3;
-<span class="d">-- ლობიო ქოთანში      0.29</span>
-<span class="d">-- ბადრიჯანი ნიგვზით  0.32</span>
-<span class="d">-- პომიდვრის სალათი   0.37</span></div>
+<span class="d">-- Lobio in a clay pot     0.29</span>
+<span class="d">-- Aubergine with walnuts  0.32</span>
+<span class="d">-- Tomato salad            0.37</span></div>
   </div>
 </section>
 
@@ -631,8 +631,8 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <i class="codestep" data-for="c2" data-lines="15-16"></i>
       <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🐘</span><div><b>CosineDistance → &lt;=&gt;</b><span>LINQ SQL-ად ითარგმნება: დალაგება ბაზაში ხდება, C#-ში მხოლოდ 3 ხაზი მოდის</span></div></div>
       <div class="swr c-get step">
-        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=ხორცის გარეშე</span></div>
-        <pre class="rb">[ { <span class="k">"name"</span>: <span class="s">"ლობიო ქოთანში"</span>, <span class="k">"score"</span>: <span class="n">0.71</span> }, … ]</pre>
+        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=without meat</span></div>
+        <pre class="rb">[ { <span class="k">"name"</span>: <span class="s">"Lobio in a clay pot"</span>, <span class="k">"score"</span>: <span class="n">0.71</span> }, … ]</pre>
       </div>
       <div class="callout ask step">🙋 აპი <b>გადატვირთე</b> და ისევ ეძებე. რა მოხდება?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 იგივე შედეგი — ვექტორები ბაზაშია, /menu/index აღარ გვჭირდება</div>
@@ -732,7 +732,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <li>store-ის შეცვლა — კოდის შეცვლის გარეშე (როგორც IChatClient)</li>
       <li>✓ როცა ვექტორები <b>ცალკე</b> ბაზაშია ან ის შეიძლება შეიცვალოს</li></ul></div>
   </div>
-  <div class="callout ask step mt">🙋 კერძის ფასი ბაზაშია, ვექტორი — Qdrant-ში. „ხორცის გარეშე, <b>20 ლარამდე</b>“ — როგორ ვეძებთ?</div>
+  <div class="callout ask step mt">🙋 კერძის ფასი ბაზაშია, ვექტორი — Qdrant-ში. "without meat, <b>under 20 GEL</b>" — როგორ ვეძებთ?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ორი სისტემა: ფასი Qdrant-შიც უნდა დავაკოპიროთ, ან ორი მოთხოვნა და გაერთიანება C#-ში. ჩვენთან — ერთი WHERE</div>
 </section>
 
@@ -778,7 +778,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <li><b>HNSW</b> — მიახლოებითი, სწრაფი; ოპერატორი = ძებნის ფუნქცია</li>
       <li>ერთ PostgreSQL-ში — EF Core; ცალკე store-ზე — VectorData</li></ul></div>
     <div class="col" style="gap:14px">
-      <div class="callout ask">🙋 „როგორ გავაუქმო ჯავშანი?“ — ამის პასუხი <b>მენიუში</b> წერია?</div>
+      <div class="callout ask">🙋 "How do I cancel a booking?" — ამის პასუხი <b>მენიუში</b> წერია?</div>
       <div class="prob" style="--a:var(--red)"><span class="pi">📄</span><div><b>პასუხი დოკუმენტშია</b><span>რესტორნის წესები, ალერგენები, FAQ — PDF-ებში, ათობით გვერდი</span></div></div>
       <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⏭️</span>ლექცია 11</h3>
         <p class="small"><b>Simple RAG</b>: PDF → ნაწილები → ვექტორები ბაზაში → მოდელი პასუხობს დოკუმენტიდან, წყაროს მითითებით</p></div>

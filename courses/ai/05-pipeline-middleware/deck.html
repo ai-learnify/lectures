@@ -251,9 +251,9 @@ Controller → FunctionInvocation → Logging → Gemini client → Google
 - **რიგი:** `Program.cs`-ში **პირველი** `.Use…()` Controller-თან ყველაზე **ახლოა** (გარე ფენა), ბოლო კი Gemini-სთან.
 
 ```csharp Program.cs
-builder.Services.AddChatClient(gemini)   // შიგნით: Gemini client
-    .UseFunctionInvocation()             // 1 — გარე ფენა (Controller-თან ახლოს)
-    .UseLogging();                       // 2 — შიდა ფენა (Gemini-სთან ახლოს)
+builder.Services.AddChatClient(gemini)   // inside: the Gemini client
+    .UseFunctionInvocation()             // 1 — outer layer (close to the Controller)
+    .UseLogging();                       // 2 — inner layer (close to Gemini)
 ```
 
 **Controller არაფერს იცის** ფენებზე: მას constructor-ით `IChatClient` მოსდის. ფენის დამატება ან მოშორება მხოლოდ `Program.cs`-ში ხდება. ეს იგივე სარგებელია, რაც ლექცია 3-ის DI-ში: Controller-ის კოდი არ იცვლება.
@@ -331,7 +331,7 @@ builder.Services.AddChatClient(
       </code-block>
     </div>
     <div class="col" style="gap:12px">
-      <p class="sec-l">/chat · „ლობიო რა ღირს?“ · კონსოლი (გამარტივებული)</p>
+      <p class="sec-l">/chat · "How much is lobio?" · კონსოლი (გამარტივებული)</p>
       <div class="con"><span class="d">dbug:</span> <span class="c">LoggingChatClient</span>
       GetResponseAsync invoked.
 <span class="d">dbug:</span> <span class="c">LoggingChatClient</span>
@@ -369,7 +369,7 @@ builder.Services.AddChatClient(
 }
 ```
 
-**რას დავინახავთ** `/chat`-ზე („ლობიო რა ღირს?“): აპლიკაციის კონსოლში Gemini-სთან **ორი** მოთხოვნა (`GetResponseAsync invoked` / `completed`) და მათ შორის `get_menu`-ს გამოძახება. ეს ლექცია 4-ის ციკლია, ახლა ლოგში. ზუსტი ტექსტი ბიბლიოთეკის ვერსიაზეა დამოკიდებული.
+**რას დავინახავთ** `/chat`-ზე ("How much is lobio?"): აპლიკაციის კონსოლში Gemini-სთან **ორი** მოთხოვნა (`GetResponseAsync invoked` / `completed`) და მათ შორის `get_menu`-ს გამოძახება. ეს ლექცია 4-ის ციკლია, ახლა ლოგში. ზუსტი ტექსტი ბიბლიოთეკის ვერსიაზეა დამოკიდებული.
 
 **რატომ ჩანს ორივე მოთხოვნა?** `UseLogging` **შიდა** ფენაა (ბოლოს დავამატეთ), Gemini-სთან ყველაზე ახლოს. `FunctionInvocation`-ის ციკლის ყოველი მოთხოვნა მასში გადის.
 
@@ -427,12 +427,12 @@ builder.Services.AddChatClient(
       <div class="callout step" style="--a:var(--asp);font-size:18px">გასაღები = <b>შეტყობინებები + პარამეტრები</b>. ზუსტად იგივე → პასუხი მეხსიერებიდან</div>
     </div>
     <div class="col" style="gap:12px">
-      <p class="sec-l">/ask · „რა არის RAG? ერთი წინადადებით“ · ორჯერ</p>
+      <p class="sec-l">/ask · "What is RAG? In one sentence" · ორჯერ</p>
       <div class="metric">
         <div class="m step" style="--a:var(--net)"><div class="v">2.1 s</div><div class="l">1-ლი: Gemini · ლოგში 2 ხაზი</div></div>
         <div class="m step" style="--a:var(--mvc)"><div class="v">4 ms</div><div class="l">მე-2: ქეში · ლოგი ცარიელია</div></div>
       </div>
-      <div class="callout ask step">🙋 „ხვალ 8-ზე ოთხნი, ადგილი გაქვთ?“ — <b>დავაქეშოთ</b>?</div>
+      <div class="callout ask step">🙋 "Four of us tomorrow at 8, do you have a table?" — <b>დავაქეშოთ</b>?</div>
       <div class="prob step" data-with style="--a:var(--red)"><span class="pi">⚠️</span><div><b>არა: პასუხი ძველდება</b><span>ათ წუთში მაგიდა დაიჯავშნა, ქეში კი ისევ „თავისუფალია“-ს იტყვის</span></div></div>
       <div class="callout step" style="--a:var(--mvc);font-size:18px">ქეში — <b>უცვლელ</b> პასუხებზე: FAQ, თარგმანი, კლასიფიკაცია. ჩვენს ჩატში <b>ვაშორებთ</b></div>
     </div>
@@ -466,7 +466,7 @@ builder.Services.AddChatClient(
 `Usage`-ში მეორე პასუხზეც იგივე ტოკენები ჩანს: ეს **შენახული** პასუხის ასლია. რეალურად ტოკენები მეორედ არ დახარჯულა. ამას ლოგი და დრო ამტკიცებს.
 ```
 
-**როდის არის ქეში სახიფათო?** „ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?“ — ეს კითხვა ტექსტით იგივეა, პასუხი კი ბაზაზეა დამოკიდებული. ათ წუთში მაგიდა შეიძლება დაიჯავშნოს, ქეში კი ისევ „თავისუფალია“-ს დააბრუნებს. ქეში კარგია, როცა **ერთსა და იმავე შეკითხვაზე პასუხი არ იცვლება**: FAQ, თარგმანი, ერთი და იგივე ტექსტის კლასიფიკაცია.
+**როდის არის ქეში სახიფათო?** "There are four of us, tomorrow at 8 — do you have a table?" — ეს კითხვა ტექსტით იგივეა, პასუხი კი ბაზაზეა დამოკიდებული. ათ წუთში მაგიდა შეიძლება დაიჯავშნოს, ქეში კი ისევ „თავისუფალია“-ს დააბრუნებს. ქეში კარგია, როცა **ერთსა და იმავე შეკითხვაზე პასუხი არ იცვლება**: FAQ, თარგმანი, ერთი და იგივე ტექსტის კლასიფიკაცია.
 
 **ჩვენს RestaurantApi-ში** `/chat` tool-ებით მუშაობს და ხელმისაწვდომობა იცვლება, ამიტომ `UseDistributedCache`-ს და `AddDistributedMemoryCache`-ს **ვაშორებთ**. ესეც pipeline-ის უპირატესობაა: ფენის მოშორება ერთი ხაზის წაშლაა.
 
@@ -564,10 +564,10 @@ public class TokenCounterChatClient : DelegatingChatClient
         ChatOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        // ↓ აქ მოთხოვნაა — ჯერ Gemini-მდე არ მისულა
+        // ↓ here is the request — it hasn't reached Gemini yet
         ChatResponse response =
             await base.GetResponseAsync(messages, options, cancellationToken);
-        // ↑ აქ პასუხია — Gemini-მ უკვე უპასუხა
+        // ↑ here is the response — Gemini has already answered
 
         _logger.LogInformation("🔢 in: {In}, out: {Out}, total: {Total}",
             response.Usage?.InputTokenCount,
@@ -608,10 +608,10 @@ public class TokenCounterChatClient : DelegatingChatClient
         ChatOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        // ↓ აქ მოთხოვნაა — ჯერ Gemini-მდე არ მისულა
+        // ↓ here is the request — it hasn't reached Gemini yet
         ChatResponse response =
             await base.GetResponseAsync(messages, options, cancellationToken);
-        // ↑ აქ პასუხია — Gemini-მ უკვე უპასუხა
+        // ↑ here is the response — Gemini has already answered
 
         _logger.LogInformation("🔢 in: {In}, out: {Out}, total: {Total}",
             response.Usage?.InputTokenCount,
@@ -713,7 +713,7 @@ DelegatingChatClient — a base class for a layer: it passes every request to th
       <div class="callout step" data-with style="--a:var(--net);font-size:17px"><b>2 ხაზი</b>: Gemini-ს <b>ყოველი</b> მოთხოვნა ცალკე</div>
     </div>
   </div>
-  <div class="callout ask mt">🙋 /chat „ლობიო რა ღირს?“ — A-ზე რამდენ ხაზს დაწერს? B-ზე? ჯერ გამოიცანი</div>
+  <div class="callout ask mt">🙋 /chat "How much is lobio?" — A-ზე რამდენ ხაზს დაწერს? B-ზე? ჯერ გამოიცანი</div>
   <aside class="study">
 ### რეგისტრაცია და რიგი
 
@@ -728,7 +728,7 @@ builder.Services.AddChatClient(
     .UseLogging();
 ```
 
-**რიგი ცვლის შედეგს.** `/chat` „ლობიო რა ღირს?“ — tool-ის ციკლით Gemini-სთან ორი მოთხოვნაა:
+**რიგი ცვლის შედეგს.** `/chat` "How much is lobio?" — tool-ის ციკლით Gemini-სთან ორი მოთხოვნაა:
 
 | სად დგას მთვლელი | ლოგში | რას ითვლის |
 |---|---|---|
@@ -787,7 +787,7 @@ public class InputGuardChatClient : DelegatingChatClient
         if (question is not null && question.Length > MaxLength)
         {
             ChatMessage answer = new(ChatRole.Assistant,
-                $"შეკითხვა ძალიან გრძელია — მაქსიმუმ {MaxLength} სიმბოლო.");
+                $"The question is too long — {MaxLength} characters at most.");
             return Task.FromResult(new ChatResponse(answer));
         }
 
@@ -830,7 +830,7 @@ public class InputGuardChatClient : DelegatingChatClient
         if (question is not null && question.Length > MaxLength)
         {
             ChatMessage answer = new(ChatRole.Assistant,
-                $"შეკითხვა ძალიან გრძელია — მაქსიმუმ {MaxLength} სიმბოლო.");
+                $"The question is too long — {MaxLength} characters at most.");
             return Task.FromResult(new ChatResponse(answer));
         }
 
@@ -848,11 +848,11 @@ public class InputGuardChatClient : DelegatingChatClient
 ```csharp Program.cs
 builder.Services.AddChatClient(
         new Client(apiKey: apiKey).AsIChatClient(model))
-    .Use(inner => new InputGuardChatClient(inner))          // 1 — აჩერებს ყველაზე ადრე
-    .UseFunctionInvocation()                                // 2 — tool-ების ციკლი
-    .Use((inner, sp) => new TokenCounterChatClient(         // 3 — Gemini-ს ყოველი მოთხოვნა
+    .Use(inner => new InputGuardChatClient(inner))          // 1 — stops earliest
+    .UseFunctionInvocation()                                // 2 — the tool loop
+    .Use((inner, sp) => new TokenCounterChatClient(         // 3 — every Gemini request
         inner, sp.GetRequiredService<ILogger<TokenCounterChatClient>>()))
-    .UseLogging();                                          // 4 — Gemini-სთან ყველაზე ახლოს
+    .UseLogging();                                          // 4 — closest to Gemini
 ```
 
 **რატომ დაცვა პირველი?** რაც უფრო ადრე გავაჩერებთ, მით ნაკლები სამუშაო: დაბლოკილი მოთხოვნა არც tool-ის ციკლს, არც მთვლელს და არც ლოგს არ აღწევს.
@@ -942,7 +942,7 @@ Short-circuit — a layer doesn't pass the request to the next layer and returns
     <div class="col" style="gap:14px">
       <code-block lang="csharp" cls="sm" title="TokenCounterChatClient · InputGuardChatClient">
 public override async Task<ChatResponse> GetResponseAsync(…)
-// GetStreamingResponseAsync — override არ არის
+// GetStreamingResponseAsync — not overridden
       </code-block>
       <div class="callout ask">🙋 ჩვენი ორივე ფენა მხოლოდ <b>GetResponseAsync</b>-ს ფარავს. თუ პასუხი ნაწილ-ნაწილ მოვა, <b>სტრიმინგით</b>?</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 6</h3>

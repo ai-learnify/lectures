@@ -58,18 +58,18 @@
     <p class="lead in mt" style="--d:.35s">PDF → ნაწილები → ძებნა → პასუხი წყაროს მითითებით</p>
   </div>
   <div class="abs" style="right:90px;top:250px;width:560px">
-    <div class="vec in" style="--d:.5s"><span class="k">🙋 ჯავშანი როგორ გავაუქმო?</span>
+    <div class="vec in" style="--d:.5s"><span class="k">🙋 How do I cancel a booking?</span>
 
 <span class="d">    ↓ ძებნა წესებში</span>
-<span class="g">[1] წესები.pdf · გვ. 3</span>
+<span class="g">[1] rules.pdf · p. 3</span>
 
-🤖 ჯავშნის გაუქმება შეიძლება ვიზიტამდე
-   24 საათით ადრე, ტელეფონით ან საიტზე [1].</div>
+🤖 A booking can be cancelled up to 24 hours
+   before the visit, by phone or on the website [1].</div>
   </div>
   <aside class="study">
 ## ლექცია 11: Simple RAG
 
-მომხმარებელი კითხულობს: „ჯავშანი როგორ გავაუქმო?“ ან „თხილზე ალერგია მაქვს — რა მივირთვა?“. ამის პასუხი მენიუში არ წერია. ის რესტორნის **დოკუმენტებშია**: წესების, ალერგენების და FAQ-ის PDF-ებში. მოდელმა ეს დოკუმენტები არ იცის, მთელი PDF-ის კონტექსტში ჩადება კი ძვირია (ლექცია 7). დღეს ვაწყობთ **RAG**-ს (Retrieval-Augmented Generation): PDF-ს ნაწილებად ვჭრით, ნაწილებს ვექტორებად ვინახავთ (ლექცია 10), შეკითხვაზე რელევანტურ ნაწილებს ვპოულობთ და მოდელს ვაწვდით — ის პასუხობს მხოლოდ მათზე დაყრდნობით და **წყაროს** ასახელებს.
+მომხმარებელი კითხულობს: "How do I cancel a booking?" ან "I'm allergic to nuts — what can I eat?". ამის პასუხი მენიუში არ წერია. ის რესტორნის **დოკუმენტებშია**: წესების, ალერგენების და FAQ-ის PDF-ებში. მოდელმა ეს დოკუმენტები არ იცის, მთელი PDF-ის კონტექსტში ჩადება კი ძვირია (ლექცია 7). დღეს ვაწყობთ **RAG**-ს (Retrieval-Augmented Generation): PDF-ს ნაწილებად ვჭრით, ნაწილებს ვექტორებად ვინახავთ (ლექცია 10), შეკითხვაზე რელევანტურ ნაწილებს ვპოულობთ და მოდელს ვაწვდით — ის პასუხობს მხოლოდ მათზე დაყრდნობით და **წყაროს** ასახელებს.
   </aside>
   <aside class="study-en">
 ## Lecture 11: Simple RAG
@@ -138,13 +138,13 @@ First we see why “the whole PDF in the context” and fine-tuning don't work. 
   <h2>მოდელმა რესტორნის <span class="c-red">წესები არ იცის</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:26px;align-items:start;margin-top:6px">
     <div class="col" style="gap:10px">
-      <p class="sec-l">წესები.pdf · 18 გვერდი</p>
+      <p class="sec-l">rules.pdf · 18 გვერდი</p>
       <table class="menu">
         <tr><th>შეკითხვა</th><th>სად წერია</th></tr>
-        <tr><td>ჯავშანი როგორ გავაუქმო?</td><td>გვ. 3</td></tr>
-        <tr><td>თხილზე ალერგია მაქვს</td><td>გვ. 9–10</td></tr>
-        <tr><td>ძაღლით შეიძლება?</td><td>გვ. 14</td></tr>
-        <tr><td>დაბადების დღე 20 კაცზე?</td><td>გვ. 16</td></tr>
+        <tr><td>How do I cancel a booking?</td><td>გვ. 3</td></tr>
+        <tr><td>I'm allergic to nuts</td><td>გვ. 9–10</td></tr>
+        <tr><td>Can I bring a dog?</td><td>გვ. 14</td></tr>
+        <tr><td>A birthday for 20 people?</td><td>გვ. 16</td></tr>
       </table>
       <div class="callout ask step">🙋 მოდელს ეს <b>როგორ</b> ვაცოდინოთ?</div>
     </div>
@@ -203,7 +203,7 @@ Lost in the middle — in a long context the model more often “misses” infor
     <div class="lane" style="--a:var(--asp)">
       <div class="lh">INGESTION · დოკუმენტის ატვირთვისას · ერთხელ</div>
       <div class="pipe" style="--a:var(--asp)">
-        <div class="box"><i>📄</i>PDF<small>წესები.pdf</small></div><span class="ar">→</span>
+        <div class="box"><i>📄</i>PDF<small>rules.pdf</small></div><span class="ar">→</span>
         <div class="box"><i>🔤</i>ტექსტი<small>გვერდებით</small></div><span class="ar">→</span>
         <div class="box"><i>✂️</i>ნაწილები<small>chunks</small></div><span class="ar">→</span>
         <div class="box"><i>🧭</i>ვექტორები<small>embedding</small></div><span class="ar">→</span>
@@ -348,17 +348,17 @@ public static class PdfText
         using PdfDocument doc = PdfDocument.Open(pdf);
         return doc.GetPages()
             .Select(p => (p.Number, Clean(ContentOrderTextExtractor.GetText(p))))
-            .Where(p => p.Item2.Length > 0)          // ცარიელი გვერდები გამოვტოვოთ
+            .Where(p => p.Item2.Length > 0)          // skip empty pages
             .ToList();
     }
 
     private static string Clean(string text) =>
-        Regex.Replace(text, @"\s+", " ").Trim();     // ზედმეტი ჰარები და ხაზები
+        Regex.Replace(text, @"\s+", " ").Trim();     // extra spaces and line breaks
 }
 ```
 
 - **`ContentOrderTextExtractor.GetText(page)`** — ასოებს **კითხვის რიგით** აწყობს (ხაზები, სვეტები). მარტივი `page.Text` ასოებს ფაილის რიგით აბრუნებს და ხშირად სიტყვებს აწებებს ან ურევს.
-- **გვერდის ნომერი** (`p.Number`) რჩება — ის წყაროს მითითებისთვის გვჭირდება („წესები.pdf, გვ. 3“).
+- **გვერდის ნომერი** (`p.Number`) რჩება — ის წყაროს მითითებისთვის გვჭირდება ("rules.pdf, p. 3").
 - **გაწმენდა** — ჰარების და ხაზების ნორმალიზაცია. რეალურ დოკუმენტებში ამას ემატება განმეორებადი header/footer-ის (გვერდის ნომერი, კომპანიის სახელი) ამოღება.
 
 ```warn
@@ -422,12 +422,12 @@ OCR — recognizing text in an image; a scanned PDF needs it
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">✂️</span><div><b>ნაწილი = ერთი აზრი</b><span>~800 სიმბოლო, წინადადების საზღვარზე · ვექტორი ზუსტია, კონტექსტში იაფია</span></div></div>
       <div class="prob step" style="--a:var(--pink)"><span class="pi">🔗</span><div><b>overlap — ერთი წინადადება</b><span>ნაწილის ბოლო წინადადება შემდეგშიც მეორდება — აზრი საზღვარზე <b>არ წყდება</b></span></div></div>
       <div class="callout ask step">🙋 ნაწილი <b>ძალიან</b> პატარა რომ იყოს — ერთი წინადადება?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ვექტორი ზუსტია, მაგრამ კონტექსტი იკარგება: „ეს წესი 8+ კაცზე ვრცელდება“ — რომელი წესი?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ვექტორი ზუსტია, მაგრამ კონტექსტი იკარგება: "this rule applies to 8+ people" — რომელი წესი?</div>
     </div>
     <div class="col" style="gap:10px">
       <div class="chunks">
-        <div class="chunk" style="--a:var(--asp)"><span class="meta">chunk 7 · გვ. 3</span>ჯავშანი შეიძლება საიტზე ან ტელეფონით. ჯავშანი 2 საათით ინახება. <span class="ov">გაუქმება შესაძლებელია ვიზიტამდე 24 საათით ადრე.</span></div>
-        <div class="chunk" style="--a:var(--asp)"><span class="meta">chunk 8 · გვ. 3</span><span class="ov">გაუქმება შესაძლებელია ვიზიტამდე 24 საათით ადრე.</span> 8+ კაციან ჯავშანზე საჭიროა წინასწარი გადახდა 30%. გვიან გაუქმებისას თანხა არ ბრუნდება.</div>
+        <div class="chunk" style="--a:var(--asp)"><span class="meta">chunk 7 · გვ. 3</span>You can book on the website or by phone. A booking is held for 2 hours. <span class="ov">Cancellation is possible up to 24 hours before the visit.</span></div>
+        <div class="chunk" style="--a:var(--asp)"><span class="meta">chunk 8 · გვ. 3</span><span class="ov">Cancellation is possible up to 24 hours before the visit.</span> A booking for 8+ people requires a 30% prepayment. If cancelled late, the money isn't returned.</div>
       </div>
       <div class="step"><code-block lang="csharp" cls="sm" title="Ai/TextChunker.cs">
 var chunks = TextChunker.Split(text, maxChars: 800, overlap: 1);
@@ -437,7 +437,7 @@ var chunks = TextChunker.Split(text, maxChars: 800, overlap: 1);
   <aside class="study">
 ### Chunking: ტექსტი ნაწილებად
 
-**რატომ არა მთელი დოკუმენტი ერთ ვექტორად?** ვექტორი ტექსტის „საშუალო მნიშვნელობაა“. 18 გვერდის ვექტორი ჯავშნის, ალერგენების, ცხოველების და ღონისძიებების ნაზავია — „ჯავშნის გაუქმება“ მას ცუდად ედრება. ამას ემატება: embedding მოდელს შეყვანის ლიმიტი აქვს (`gemini-embedding-2` — 8 192 ტოკენი), და ნაპოვნი ტექსტი კონტექსტში უნდა ჩავდოთ — 18 გვერდი ისევ ძვირია.
+**რატომ არა მთელი დოკუმენტი ერთ ვექტორად?** ვექტორი ტექსტის „საშუალო მნიშვნელობაა“. 18 გვერდის ვექტორი ჯავშნის, ალერგენების, ცხოველების და ღონისძიებების ნაზავია — "cancelling a booking" მას ცუდად ედრება. ამას ემატება: embedding მოდელს შეყვანის ლიმიტი აქვს (`gemini-embedding-2` — 8 192 ტოკენი), და ნაპოვნი ტექსტი კონტექსტში უნდა ჩავდოთ — 18 გვერდი ისევ ძვირია.
 
 **Chunk (ნაწილი)** — დოკუმენტის მონაკვეთი, რომელიც ერთ აზრს ფარავს. თითოეული ცალკე ვექტორად ინახება და ცალკე იძებნება.
 
@@ -445,11 +445,11 @@ var chunks = TextChunker.Split(text, maxChars: 800, overlap: 1);
 
 | ზომა | პლიუსი | მინუსი |
 |---|---|---|
-| ძალიან პატარა (1 წინადადება) | ვექტორი ზუსტია | კონტექსტი იკარგება: „ეს წესი 8+ კაცზე ვრცელდება“ — რომელი წესი? |
+| ძალიან პატარა (1 წინადადება) | ვექტორი ზუსტია | კონტექსტი იკარგება: "this rule applies to 8+ people" — რომელი წესი? |
 | ძალიან დიდი (გვერდები) | კონტექსტი სრულია | ვექტორი ბუნდოვანია, კონტექსტში ძვირია |
 | **საშუალო (~500–1000 სიმბოლო)** | ერთი აზრი + მისი კონტექსტი | — ჩვენი არჩევანი: 800 |
 
-**Overlap (გადაფარვა).** ნაწილის ბოლო წინადადება შემდეგი ნაწილის დასაწყისშიც მეორდება. თუ აზრი ორ ნაწილს შორის გაიყო („გაუქმება 24 საათით ადრე“ + „გვიან გაუქმებისას თანხა არ ბრუნდება“), ორივე ნაწილს აქვს „ხიდი“.
+**Overlap (გადაფარვა).** ნაწილის ბოლო წინადადება შემდეგი ნაწილის დასაწყისშიც მეორდება. თუ აზრი ორ ნაწილს შორის გაიყო ("cancellation 24 hours before" + "If cancelled late, the money isn't returned"), ორივე ნაწილს აქვს „ხიდი“.
 
 **ჩვენი chunker** — წინადადებებით:
 
@@ -467,7 +467,7 @@ public static class TextChunker
             if (current.Count > 0 && current.Sum(s => s.Length) + sentence.Length > maxChars)
             {
                 chunks.Add(string.Join(" ", current));
-                current = current.TakeLast(overlap).ToList();   // overlap: ბოლო წინადადება რჩება
+                current = current.TakeLast(overlap).ToList();   // overlap: the last sentence stays
             }
             current.Add(sentence);
         }
@@ -595,7 +595,7 @@ public class DocumentChunk
 }
       </code-block>
       <div class="swr c-post step">
-        <div class="rh"><span class="m">POST</span><span class="p">/documents · წესები.pdf</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/documents · rules.pdf</span></div>
         <pre class="rb">{ <span class="k">"id"</span>: <span class="n">1</span>, <span class="k">"chunks"</span>: <span class="n">41</span> }</pre>
       </div>
       <div class="callout ask step">🙋 ლექცია 10-თან შედარებით რა არის <b>ახალი</b>?</div>
@@ -623,8 +623,8 @@ public class DocumentChunk
     public int Id { get; set; }
     public int DocumentId { get; set; }
     public Document Document { get; set; } = null!;
-    public int Page { get; set; }                       // წყაროსთვის: „გვ. 3“
-    public string Content { get; set; } = "";           // ნაწილის ტექსტი — კონტექსტში ეს ჩაიდება
+    public int Page { get; set; }                       // for the source: “p. 3”
+    public string Content { get; set; } = "";           // the part's text — this goes into the context
 
     [Column(TypeName = "vector(768)")]
     public Vector? Embedding { get; set; }
@@ -643,13 +643,13 @@ public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToke
     using var ms = new MemoryStream();
     await file.CopyToAsync(ms, ct);
 
-    // 1–2: PDF → გვერდები → ნაწილები
+    // 1–2: PDF → pages → parts
     var doc = new Document { FileName = file.FileName, UploadedAt = DateTime.UtcNow };
     foreach (var (page, text) in PdfText.ReadPages(ms.ToArray()))
         foreach (string chunk in TextChunker.Split(text))
             doc.Chunks.Add(new DocumentChunk { Page = page, Content = chunk });
 
-    // 3: ვექტორები, 100-იანი batch-ებით
+    // 3: vectors, in batches of 100
     string model = _config["Gemini:EmbeddingModel"]!;
     foreach (DocumentChunk[] batch in doc.Chunks.Chunk(100))
     {
@@ -663,7 +663,7 @@ public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToke
         }
     }
 
-    // 4: ბაზაში — დოკუმენტი და ყველა ნაწილი ერთად
+    // 4: into the database — the document and all its parts together
     _db.Documents.Add(doc);
     await _db.SaveChangesAsync(ct);
     return Ok(new { doc.Id, Chunks = doc.Chunks.Count });
@@ -780,7 +780,7 @@ IFormFile — ASP.NET Core's type for an uploaded file (multipart/form-data)
   <aside class="study">
 ## ნაწილი 3 · Query: პასუხი წყაროთი
 
-შეკითხვაზე ვპოულობთ 5 ყველაზე ახლოს მყოფ ნაწილს, ვსვამთ მათ prompt-ში გადანომრილ წყაროებად და ვწერთ წესებს: „მხოლოდ წყაროებიდან, ნომრით, თუ არ წერია — თქვი“. ბოლოს ეს ყველაფერი ლექცია 7-ის ჩატში ერთდება.
+შეკითხვაზე ვპოულობთ 5 ყველაზე ახლოს მყოფ ნაწილს, ვსვამთ მათ prompt-ში გადანომრილ წყაროებად და ვწერთ წესებს: "only from the sources, with a number; if it isn't there — say". ბოლოს ეს ყველაფერი ლექცია 7-ის ჩატში ერთდება.
   </aside>
   <aside class="study-en">
 ## Part 3 · Query: an answer with a source
@@ -814,15 +814,15 @@ private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationTok
       </code-block>
     </div>
     <div class="col" style="gap:12px">
-      <div class="vec step"><span class="k">წყაროები:</span>
-<span class="g">[1] (წესები.pdf, გვ. 3)</span>
-ჯავშანი 2 საათით ინახება. გაუქმება
-შესაძლებელია ვიზიტამდე 24 საათით ადრე…
-<span class="g">[2] (წესები.pdf, გვ. 4)</span>
-8+ კაციან ჯავშანზე საჭიროა…
+      <div class="vec step"><span class="k">Sources:</span>
+<span class="g">[1] (rules.pdf, p. 3)</span>
+A booking is held for 2 hours. Cancellation
+is possible up to 24 hours before the visit…
+<span class="g">[2] (rules.pdf, p. 4)</span>
+A booking for 8+ people requires…
 
-<span class="k">შეკითხვა:</span> ჯავშანი როგორ გავაუქმო?</div>
-      <div class="prob step" style="--a:var(--net)"><span class="pi">📏</span><div><b>ზღვარი — ისევ</b><span>„ბორშის რეცეპტი“ — 0 ნაწილი. ზღვრის გარეშე მოდელს 5 უაზრო ნაწილს მივცემდით</span></div></div>
+<span class="k">Question:</span> How do I cancel a booking?</div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">📏</span><div><b>ზღვარი — ისევ</b><span>"a borscht recipe" — 0 ნაწილი. ზღვრის გარეშე მოდელს 5 უაზრო ნაწილს მივცემდით</span></div></div>
       <div class="callout ask step">🙋 რატომ <b>ნომრები</b> და გვერდი?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მოდელი პასუხში [1]-ს წერს — ვიცით ფაილი და გვერდი: მომხმარებელი ამოწმებს, ჩვენ ვხედავთ, რომელი ნაწილი იყო ცუდი</div>
     </div>
@@ -837,7 +837,7 @@ public record FoundChunk(string File, int Page, string Content, double Score);
 
 private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationToken ct)
 {
-    float minScore = _config.GetValue<float>("Rag:MinScore");   // ცდებით — ლექცია 9-ის საშინაოს მსგავსად
+    float minScore = _config.GetValue<float>("Rag:MinScore");   // by testing — like lecture 9's homework
     var query = new Vector(await _embeddings.GenerateVectorAsync(
         EmbeddingText.Query(q), cancellationToken: ct));
 
@@ -854,15 +854,15 @@ private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationTok
 ```
 
 - **top 5** — რამდენიმე ნაწილი: პასუხი შეიძლება ორ ადგილას იყოს. მეტი — კონტექსტი ძვირდება და „ხმაური“ იზრდება.
-- **ზღვარი** — ლექცია 9-ის გაკვეთილი: ძებნა **ყოველთვის** რაღაცას პოულობს. „ბორშის რეცეპტი“ რესტორნის წესებში ხუთ „ყველაზე ახლოს“ ნაწილს მაინც დააბრუნებდა — და მოდელი მათზე დაყრდნობით რაღაცას „უპასუხებდა“. ზღვარი ასეთ შემთხვევაში 0 ნაწილს აბრუნებს.
+- **ზღვარი** — ლექცია 9-ის გაკვეთილი: ძებნა **ყოველთვის** რაღაცას პოულობს. "a borscht recipe" რესტორნის წესებში ხუთ „ყველაზე ახლოს“ ნაწილს მაინც დააბრუნებდა — და მოდელი მათზე დაყრდნობით რაღაცას „უპასუხებდა“. ზღვარი ასეთ შემთხვევაში 0 ნაწილს აბრუნებს.
 
 **Augment** — ნაწილებს prompt-ში გადანომრილ წყაროებად ვსვამთ:
 
 ```csharp Controllers/AiLabController.cs · BuildContext
 private static string BuildContext(List<FoundChunk> chunks) =>
     chunks.Count == 0
-        ? "(წყაროებში შესაბამისი ინფორმაცია ვერ მოიძებნა)"
-        : string.Join("\n\n", chunks.Select((c, i) => $"[{i + 1}] ({c.File}, გვ. {c.Page})\n{c.Content}"));
+        ? "(No relevant information was found in the sources)"
+        : string.Join("\n\n", chunks.Select((c, i) => $"[{i + 1}] ({c.File}, p. {c.Page})\n{c.Content}"));
 ```
 
 რატომ ნომრები და გვერდი: მოდელს შეუძლია პასუხში დაწეროს `[1]` — და ჩვენ ვიცით, რომელ ფაილსა და გვერდს ნიშნავს. მომხმარებელი წყაროს თვითონ ამოწმებს, ჩვენ კი ვხედავთ, საიდან მოვიდა პასუხი (და არასწორი პასუხისას — რომელი ნაწილი იყო ცუდი).
@@ -907,8 +907,8 @@ private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationTok
 ```csharp Controllers/AiLabController.cs · BuildContext
 private static string BuildContext(List<FoundChunk> chunks) =>
     chunks.Count == 0
-        ? "(წყაროებში შესაბამისი ინფორმაცია ვერ მოიძებნა)"
-        : string.Join("\n\n", chunks.Select((c, i) => $"[{i + 1}] ({c.File}, გვ. {c.Page})\n{c.Content}"));
+        ? "(No relevant information was found in the sources)"
+        : string.Join("\n\n", chunks.Select((c, i) => $"[{i + 1}] ({c.File}, p. {c.Page})\n{c.Content}"));
 ```
 
 Why numbers and the page: the model can write `[1]` in the answer — and we know which file and page it means. The user checks the source themselves, and we see where the answer came from (and with a wrong answer — which part was bad).
@@ -933,10 +933,10 @@ IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
 List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);
 ChatMessage question = new(ChatRole.User, request.Prompt);
 ChatMessage augmented = new(ChatRole.User, $"""
-    წყაროები:
+    Sources:
     {BuildContext(sources)}
 
-    შეკითხვა: {request.Prompt}
+    Question: {request.Prompt}
     """);
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
@@ -949,17 +949,17 @@ return Ok(new { conversationId, response.Text,
     </div>
     <div class="col" style="gap:12px">
       <div class="vec"><span class="k">SystemPrompt() + წესები:</span>
-რესტორნის წესებზე უპასუხე მხოლოდ
-წყაროებიდან და მიუთითე ნომერი: [1].
-თუ წყაროებში არ არის — თქვი:
-„ამ საკითხზე ინფორმაცია არ მაქვს“.
-მენიუ და ფასები — tool-ებიდან.</div>
+On the restaurant's rules answer only
+from the sources and give the number: [1].
+If it isn't in the sources — say:
+“I don't have information on this”.
+The menu and prices — from the tools.</div>
       <i class="codestep" data-for="c4" data-lines="15"></i>
       <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">💾</span><div><b>ისტორიაში — ორიგინალი შეკითხვა</b><span>წყაროები მხოლოდ <b>ამ</b> მოთხოვნისთვისაა — ისტორიას არ ბერავს</span></div></div>
       <div class="swr c-post step">
         <div class="rh"><span class="m">POST</span><span class="p">/chat</span></div>
-        <pre class="rb"><span class="k">"text"</span>: <span class="s">"გაუქმება შეიძლება ვიზიტამდე 24 საათით ადრე [1]."</span>
-<span class="k">"sources"</span>: [ { <span class="k">"n"</span>: <span class="n">1</span>, <span class="k">"file"</span>: <span class="s">"წესები.pdf"</span>, <span class="k">"page"</span>: <span class="n">3</span> } ]</pre>
+        <pre class="rb"><span class="k">"text"</span>: <span class="s">"You can cancel up to 24 hours before the visit [1]."</span>
+<span class="k">"sources"</span>: [ { <span class="k">"n"</span>: <span class="n">1</span>, <span class="k">"file"</span>: <span class="s">"rules.pdf"</span>, <span class="k">"page"</span>: <span class="n">3</span> } ]</pre>
       </div>
       <div class="callout ask step">🙋 ლექცია 9-ის ⭐-ში ძებნა <b>tool</b> იყო. რა სჯობს?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ორივე რეალური გზაა: „ყოველთვის“ — მარტივი და პროგნოზირებადი; tool — ძებნა მხოლოდ საჭიროებისას (ლექცია 15)</div>
@@ -977,10 +977,10 @@ IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
 List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);   // retrieve
 ChatMessage question = new(ChatRole.User, request.Prompt);
 ChatMessage augmented = new(ChatRole.User, $"""
-    წყაროები:
+    Sources:
     {BuildContext(sources)}
 
-    შეკითხვა: {request.Prompt}
+    Question: {request.Prompt}
     """);                                                                  // augment
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
@@ -994,24 +994,24 @@ return Ok(new { conversationId, response.Text,
 **წესები `SystemPrompt()`-ში** (ლექცია 2-ის ტექნიკით):
 
 ```text
-რესტორნის წესებზე, ალერგენებზე და პოლიტიკაზე უპასუხე მხოლოდ მოცემული წყაროებიდან
-და ყოველ ფაქტს მიუთითე წყაროს ნომერი: [1], [2].
-თუ პასუხი წყაროებში არ არის, თქვი: „ამ საკითხზე ინფორმაცია არ მაქვს“ — და არაფერი მოიგონო.
-მენიუზე, ფასებსა და თავისუფალ მაგიდებზე მონაცემი — მხოლოდ tool-ებიდან (როგორც ადრე).
+Answer about the restaurant's rules, allergens and policy only from the given sources
+and give the source number for every fact: [1], [2].
+If the answer isn't in the sources, say: “I don't have information on this” — and make nothing up.
+Data on the menu, prices and free tables — only from the tools (as before).
 ```
 
 **სამი მნიშვნელოვანი დეტალი:**
 
 1. **ისტორიაში ორიგინალი შეკითხვა ინახება** (`question`), არა `augmented`. წყაროები მხოლოდ ამ მოთხოვნისთვისაა: შემდეგ შეკითხვაზე სხვა წყაროები მოიძებნება. თუ წყაროებს ისტორიაში შევინახავდით, ყოველი შეტყობინება ხუთი ნაწილით „გაიბერებოდა“ (ლექცია 7-ის ბიუჯეტი).
 2. **„ინფორმაცია არ მაქვს“** — ზუსტი ფრაზა: ასე კოდშიც შეგვიძლია ამოვიცნოთ (ლოგი, სტატისტიკა: რა შეკითხვებზე არ ვიცით პასუხი — რომელი დოკუმენტი აკლია).
-3. **წყაროები response-ში** — UI-ს შეუძლია `[1]`-ზე ბმული აჩვენოს: „წესები.pdf, გვ. 3“.
+3. **წყაროები response-ში** — UI-ს შეუძლია `[1]`-ზე ბმული აჩვენოს: "rules.pdf, p. 3".
 
 **„ყოველთვის ვეძებთ“ vs tool.** ჩვენი ჩატი ძებნას **ყოველ** შეკითხვაზე აკეთებს — „გამარჯობა“-ზეც (ზღვარი 0 ნაწილს დააბრუნებს, მაგრამ embedding-ის გამოძახება მაინც ხდება). ლექცია 9-ის ⭐-ში `search_menu` tool იყო: მოდელი თვითონ წყვეტს, როდის მოძებნოს. ორივე რეალური გზაა:
 
 | | ყოველთვის ვეძებთ (დღეს) | ძებნა tool-ად (ლექცია 15) |
 |---|---|---|
 | პლიუსი | მარტივი, პროგნოზირებადი, მოდელი ძებნას „ვერ დაივიწყებს“ | ძებნა მხოლოდ საჭიროებისას; მოდელი შეკითხვას თვითონ აზუსტებს |
-| მინუსი | ზედმეტი ძებნა; შეკითხვა „და ბავშვებზე?“ წინა კონტექსტის გარეშე იძებნება | მოდელმა შეიძლება არ მოძებნოს, როცა საჭიროა |
+| მინუსი | ზედმეტი ძებნა; შეკითხვა "And for children?" წინა კონტექსტის გარეშე იძებნება | მოდელმა შეიძლება არ მოძებნოს, როცა საჭიროა |
 
 ```terms
 Augmented შეტყობინება — მომხმარებლის შეკითხვა, რომელსაც ნაპოვნი წყაროები ერთვის; მხოლოდ ამ მოთხოვნაში იგზავნება
@@ -1029,10 +1029,10 @@ IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
 List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);   // retrieve
 ChatMessage question = new(ChatRole.User, request.Prompt);
 ChatMessage augmented = new(ChatRole.User, $"""
-    წყაროები:
+    Sources:
     {BuildContext(sources)}
 
-    შეკითხვა: {request.Prompt}
+    Question: {request.Prompt}
     """);                                                                  // augment
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
@@ -1099,7 +1099,7 @@ Augmented message — the user's question with the found sources attached; sent 
 - **RAG** (Retrieval-Augmented Generation) — მოდელი პასუხობს ჩვენი დოკუმენტებიდან: **retrieve** (რელევანტური ნაწილები) → **augment** (prompt-ში) → **generate** (პასუხი წყაროთი). მთელ დოკუმენტზე იაფია, fine-tuning-ზე მარტივი და წყაროს ასახელებს.
 - **Ingestion** (ერთხელ): PDF → ტექსტი გვერდებით (**PdfPig**, `ContentOrderTextExtractor`) → გაწმენდა → **chunks** → ვექტორები → `DocumentChunk` ცხრილი (ლექცია 10-ის გზით). სკანირებულ PDF-ს OCR სჭირდება.
 - **Chunking:** ~800 სიმბოლო, წინადადების საზღვარზე, **overlap** ერთი წინადადება; გვერდ-გვერდ — ზუსტი წყაროსთვის. ზომა — კომპრომისი სიზუსტესა და კონტექსტს შორის.
-- **Query:** top 5 ნაწილი + **ზღვარი** → გადანომრილი წყაროები `[1] (ფაილი, გვ. N)` → წესები system prompt-ში: მხოლოდ წყაროებიდან, ნომრით, „ამ საკითხზე ინფორმაცია არ მაქვს“.
+- **Query:** top 5 ნაწილი + **ზღვარი** → გადანომრილი წყაროები `[1] (file, p. N)` → წესები system prompt-ში: მხოლოდ წყაროებიდან, ნომრით, "I don't have information on this".
 - **ჩატში:** ისტორიაში **ორიგინალი** შეკითხვა, წყაროები — მხოლოდ ამ მოთხოვნაში; response-ში — `sources`.
 
 ### შემდეგ ლექციაზე

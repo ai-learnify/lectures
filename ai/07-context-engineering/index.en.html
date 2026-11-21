@@ -561,7 +561,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 
 <section class="slide" data-section="1 · Context">
   <div class="kicker">The problem · two separate requests</div>
-  <h2>“And at 21:00?” — <span class="c-red">what about 21:00?</span></h2>
+  <h2>"And at 21:00?" — <span class="c-red">what about 21:00?</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start;margin-top:6px">
     <div class="col" style="gap:12px">
       <p class="sec-l">Request 1 · POST /chat</p>
@@ -754,7 +754,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="Practice">
   <div class="kicker">🧑‍💻 You do it · in class</div>
   <h2>Your chat — with a history</h2>
-  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
     <div class="card accent" style="--a:var(--mvc)">
       <h3><span class="ico">📝</span>Your project or RestaurantApi · with code · Swagger and the database</h3>
       <ul class="clean small">
@@ -763,13 +763,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <li><strong>3 · The endpoint</strong> — <code class="i">ChatRequest(Guid? ConversationId, string Prompt)</code>; <code class="i">/chat</code>: load → <code class="i">[SystemPrompt(), .. history, question]</code> → <code class="i">GetResponseAsync</code> → <code class="i">AppendAsync([question, .. response.Messages])</code> → <code class="i">conversationId</code> in the response</li>
 <li><strong>4 · Check</strong> — two questions in Swagger with one <code class="i">conversationId</code>, where the second makes no sense without the first (e.g. “And at 21:00?”); then in the database <code class="i">SELECT "Position", "Role", "Json" FROM "ChatMessages"</code></li>
 </ul>
-      <p class="tiny" style="margin-top:14px">✓ Done when: The model answers the second question taking the first one into account; the database shows every message in order, including the <code>assistant</code> (<code>functionCall</code>) and <code>tool</code> (<code>functionResult</code>) rows</p>
+      
     </div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
-<li><code class="i">MessageCountingChatReducer(4)</code> — and ask about something you said 3 questions ago. Does it remember?</li>
-<li>Searching inside jsonb: <code class="i">SELECT "Json" FROM "ChatMessages" WHERE "Json" @&gt; '{"contents":[{"$type":"functionCall"}]}'</code> — how many times did the model call a tool?</li>
-<li>Add <code class="i">InputTokenCount</code> to the response and see how it grows with every question</li>
-</ul></div>
+    
   </div>
   <div class="callout mt" style="--a:var(--api)">Rule: <b>try it yourself first</b> → ask your neighbour → then me</div>
 </section>
@@ -805,7 +801,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="Homework">
   <div class="kicker">🏠 Homework</div>
   <h2>History in the streaming chat, and the budget</h2>
-  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
     <div class="card accent" style="--a:var(--net)">
       <h3><span class="ico">🏠</span>With code · your project · a table in the README</h3>
       <ul class="clean small">
@@ -816,13 +812,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <li><strong>README — a budget table:</strong> one conversation with 6 questions (2 of them call a tool that returns a lot of data). Columns: question · InputTokenCount without a reducer · InputTokenCount with <code class="i">MessageCountingChatReducer(6)</code></li>
 <li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
 </ul>
-      <p class="tiny" style="margin-top:14px">✓ Done when: Two questions with <code>curl -N</code> and one <code>conversationId</code> — the second takes the first into account; after the stream there are new rows in the database; <code>/conversations/{id}</code> doesn't show the tool rows; the README has a table where the growth stops with the reducer, and the quiz score</p>
+      
     </div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
-<li><strong>Summarization:</strong> <code class="i">SummarizingChatReducer(_chat, targetCount: 4, threshold: 2)</code> — ask about something you said 6 questions ago; does it remember? What do you see in the log (<code class="i">UseLogging</code>)?</li>
-<li><strong>A <code class="i">Conversation</code> table:</strong> <code class="i">Id</code>, <code class="i">Title</code>, <code class="i">CreatedAt</code> — the <code class="i">Title</code> from the first question (its first 40 characters); a list at <code class="i">GET /conversations</code></li>
-<li><strong>Cancellation:</strong> Ctrl+C halfway through the stream — what's stored in the database? What should be stored?</li>
-</ul></div>
+    
   </div>
   <div class="callout mt" style="--a:var(--api)">At the start of the next lecture we'll <b>go through this homework together</b></div>
 </section>

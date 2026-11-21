@@ -250,10 +250,10 @@ await foreach (ChatResponseUpdate update in
 `IChatClient`-ს ორი მეთოდი აქვს. აქამდე მხოლოდ პირველს ვიყენებდით:
 
 ```csharp
-// 1) ერთი პასუხი, ბოლოს
+// 1) one answer, at the end
 ChatResponse response = await _chat.GetResponseAsync(messages);
 
-// 2) ბევრი ნაწილი, მოსვლისთანავე
+// 2) many pieces, as they arrive
 await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(messages))
 {
     Console.Write(update.Text);
@@ -320,9 +320,9 @@ public async Task<IActionResult> ChatChunks(AskRequest request)
       <div class="swr c-post step">
         <div class="rh"><span class="m">POST</span><span class="p">/chat/chunks</span></div>
         <pre class="rb">[
-  { <span class="k">"ms"</span>: <span class="n">640</span>,  <span class="k">"text"</span>: <span class="s">"ქართული სამზარეულო"</span> },
-  { <span class="k">"ms"</span>: <span class="n">910</span>,  <span class="k">"text"</span>: <span class="s">" ცნობილია ხინკლით…"</span> },
-  { <span class="k">"ms"</span>: <span class="n">1180</span>, <span class="k">"text"</span>: <span class="s">" და ხაჭაპურით…"</span> },
+  { <span class="k">"ms"</span>: <span class="n">640</span>,  <span class="k">"text"</span>: <span class="s">"Georgian cuisine"</span> },
+  { <span class="k">"ms"</span>: <span class="n">910</span>,  <span class="k">"text"</span>: <span class="s">" is famous for khinkali…"</span> },
+  { <span class="k">"ms"</span>: <span class="n">1180</span>, <span class="k">"text"</span>: <span class="s">" and khachapuri…"</span> },
   …
   { <span class="k">"ms"</span>: <span class="n">5420</span>, <span class="k">"text"</span>: <span class="s">"."</span> }
 ]</pre>
@@ -352,7 +352,7 @@ public async Task<IActionResult> ChatChunks(AskRequest request)
 }
 ```
 
-`Stopwatch` (`using System.Diagnostics;`) ზომავს, რამდენი მილიწამი გავიდა თითო ნაწილის მოსვლამდე. „მოგვიყევი ქართულ სამზარეულოზე“-ს ნიმუშად შედეგი ასეთია:
+`Stopwatch` (`using System.Diagnostics;`) ზომავს, რამდენი მილიწამი გავიდა თითო ნაწილის მოსვლამდე. "Tell us about Georgian cuisine"-ს ნიმუშად შედეგი ასეთია:
 
 | ms | text |
 |---|---|
@@ -469,11 +469,11 @@ SSE ჩვეულებრივი HTTP-ა. სერვერი პას�
 HTTP/1.1 200 OK
 Content-Type: text/event-stream
 
-data: ხვალ 20:00-ზე
+data: Tomorrow at 20:00
 
-data:  ოთხი კაცისთვის
+data:  for four people
 
-data:  ორი მაგიდაა თავისუფალი
+data:  two tables are free
 
 ```
 
@@ -549,9 +549,9 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
-            მენიუზე და მაგიდებზე მონაცემი მხოლოდ tool-ებიდან აიღე.
-            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+            You are a restaurant assistant. Answer briefly.
+            Take menu and table data only from the tools.
+            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
             """),
         new(ChatRole.User, prompt)
     ];
@@ -591,9 +591,9 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            შენ ხარ რესტორნის ასისტენტი. უპასუხე მოკლედ.
-            მენიუზე და მაგიდებზე მონაცემი მხოლოდ tool-ებიდან აიღე.
-            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
+            You are a restaurant assistant. Answer briefly.
+            Take menu and table data only from the tools.
+            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
             """),
         new(ChatRole.User, prompt)
     ];
@@ -647,15 +647,15 @@ Swagger-ში ეს endpoint **არ გამოგადგება**: Swa
 ```html wwwroot/chat.html
 <!doctype html>
 <meta charset="utf-8">
-<input id="q" size="60" placeholder="შეკითხვა">
-<button onclick="ask()">გაგზავნა</button>
+<input id="q" size="60" placeholder="Question">
+<button onclick="ask()">Send</button>
 <pre id="out"></pre>
 <script>
   function ask() {
     out.textContent = '';
     const es = new EventSource('/api/ai-lab/chat/stream?prompt=' + encodeURIComponent(q.value));
     es.onmessage = e => out.textContent += e.data;
-    es.onerror = () => es.close();   // სტრიმი დასრულდა — ხელახლა აღარ დაუკავშირდეს
+    es.onerror = () => es.close();   // the stream ended — don't reconnect
   }
 </script>
 ```
@@ -839,7 +839,7 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
 2. **`[EnumeratorCancellation]`** — async iterator-ის token-ის პარამეტრზე. ის აკავშირებს iterator-ის token-ს იმ token-თან, რომელსაც `ServerSentEvents` იტერაციისას გადასცემს. ატრიბუტის გარეშე კომპილატორი გაფრთხილებას წერს.
 3. **`GetStreamingResponseAsync(..., cancellationToken)`** — token Gemini-ს HTTP მოთხოვნამდე მიდის. გაუქმებისას კავშირი წყდება და Gemini აღარ წერს.
 
-**შემოწმება:** `curl -N`-ით გრძელი პასუხი („მოგვიყევი ქართულ სამზარეულოზე დეტალურად“), შუაში **Ctrl+C**. სერვერის ლოგში (`UseLogging`, ლექცია 5) გამოჩნდება, რომ მოთხოვნა გაუქმდა (`canceled`), და არა ჩვეულებრივად დასრულდა (`completed`).
+**შემოწმება:** `curl -N`-ით გრძელი პასუხი ("Tell us about Georgian cuisine in detail"), შუაში **Ctrl+C**. სერვერის ლოგში (`UseLogging`, ლექცია 5) გამოჩნდება, რომ მოთხოვნა გაუქმდა (`canceled`), და არა ჩვეულებრივად დასრულდა (`completed`).
 
 ```tip
 წესი API კურსიდან: **ყოველ** async გამოძახებას, რომელიც `CancellationToken`-ს იღებს, token გადაეცი: `ToListAsync`, `GetResponseAsync`, `GetStreamingResponseAsync`. AI-სთან ეს განსაკუთრებით მნიშვნელოვანია, რადგან მოთხოვნები გრძელია და ფული ჯდება.
@@ -907,8 +907,8 @@ CancellationToken — a “stop” signal; in ASP.NET Core it comes as an action
       <li><b>TypedResults.ServerSentEvents</b> (.NET 10); შემოწმება — <b>curl -N</b></li>
       <li><b>CancellationToken</b> სამ ადგილას: მომხმარებელი წავიდა → Gemini ჩერდება</li></ul></div>
     <div class="col" style="gap:14px">
-      <div class="txt"><span class="who">1-ლი შეკითხვა</span>ხვალ 8-ზე ოთხნი ვართ, ადგილი გაქვთ?</div>
-      <div class="txt"><span class="who">მე-2 შეკითხვა</span>და 9-ზე?</div>
+      <div class="txt"><span class="who">1-ლი შეკითხვა</span>There are four of us, tomorrow at 8 — do you have a table?</div>
+      <div class="txt"><span class="who">მე-2 შეკითხვა</span>And at 9?</div>
       <div class="callout ask">🙋 მეორე შეკითხვას მოდელი <b>გაიგებს</b>?</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 7</h3>
         <p class="small">არა: ყოველი მოთხოვნა ცალკეა, მოდელი stateless-ია. <b>Context Engineering</b>: საუბრის ისტორია, ტოკენების ბიუჯეტი და ისტორია PostgreSQL-ში</p></div>
@@ -926,7 +926,7 @@ CancellationToken — a “stop” signal; in ASP.NET Core it comes as an action
 
 ### შემდეგ ლექციაზე
 
-ჩვენი ჩატი სტრიმავს, მაგრამ ყოველი შეკითხვა ცალკეა: „ხვალ 8-ზე ოთხნი ვართ?“ და მერე „და 9-ზე?“. მეორეს მოდელი ვერ გაიგებს, რადგან პირველი არ ახსოვს (stateless, ლექცია 1). ლექცია 7-ზე: **Context Engineering**. რა შედის მოდელის კონტექსტში, საუბრის ისტორია, ტოკენების ბიუჯეტი და ისტორიის შენახვა PostgreSQL-ში.
+ჩვენი ჩატი სტრიმავს, მაგრამ ყოველი შეკითხვა ცალკეა: "Four of us tomorrow at 8?" და მერე "And at 9?". მეორეს მოდელი ვერ გაიგებს, რადგან პირველი არ ახსოვს (stateless, ლექცია 1). ლექცია 7-ზე: **Context Engineering**. რა შედის მოდელის კონტექსტში, საუბრის ისტორია, ტოკენების ბიუჯეტი და ისტორიის შენახვა PostgreSQL-ში.
   </aside>
   <aside class="study-en">
 ## Summary

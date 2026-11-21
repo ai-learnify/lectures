@@ -656,7 +656,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <span class="d">      ⏳ ~4s</span>
 <span class="g">info:</span> Polly · Result: <span class="g">200</span> · Attempt: 2
 <span class="c">info:</span> 🔢 in: 1450, out: 38
-<span class="g">HTTP 200</span> → “Two tables are free”</div>
+<span class="g">HTTP 200</span> → "Two tables are free"</div>
       <div class="callout step" style="--a:var(--mvc);font-size:18px">The user waited ~6 seconds — an answer <b>instead of a 500</b></div>
       <div class="callout ask step">🙋 A wrong name in Gemini:Model — <b>404</b>. How many times does it try?</div>
       <div class="callout step" data-with style="--a:var(--red);font-size:18px"><b>Once</b>: a 404 is permanent, no retry</div>
@@ -720,7 +720,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="Practice">
   <div class="kicker">🧑‍💻 You do it · in class</div>
   <h2>A daily limit — a layer that stops</h2>
-  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
     <div class="card accent" style="--a:var(--mvc)">
       <h3><span class="ico">📝</span>Your project or RestaurantApi · with code · a layer + Swagger</h3>
       <ul class="clean small">
@@ -729,13 +729,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <li><strong>3 · The pipeline</strong> — the limit in <code class="i">appsettings.json</code> (<code class="i">"Ai": { "DailyTokenLimit": 3000 }</code>); the layer as the <strong>first</strong> <code class="i">.Use(...)</code> — the outermost</li>
 <li><strong>4 · Check</strong> — several questions in Swagger until you go over the limit → the refusal answer, and the log no longer shows a Gemini request; in the database <code class="i">SELECT SUM("InputTokens" + "OutputTokens") FROM "AiUsage"</code></li>
 </ul>
-      <p class="tiny" style="margin-top:14px">✓ Done when: <code>AiUsage</code> gets a new row for every call; after the limit the chat refuses without calling Gemini; the limit can only be changed through <code>appsettings.json</code></p>
+      
     </div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
-<li>A limit <strong>per user</strong>, not for the whole app: add a <code class="i">ConversationId</code> to <code class="i">AiUsageRecord</code> and count the limit per conversation. What has to be passed to the layer, and how?</li>
-<li>Instead of refusing, <strong>switch to a cheaper model</strong> at 80% of the limit</li>
-<li>What's better in a browser/UI: a 200 with the refusal text, or a 429? Why?</li>
-</ul></div>
+    
   </div>
   <div class="callout mt" style="--a:var(--api)">Rule: <b>try it yourself first</b> → ask your neighbour → then me</div>
 </section>
@@ -758,7 +754,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
       <li><b>FallbackChatClient</b> — innermost, only on a transient error</li>
       <li>Tokens <b>in the database</b>: one row = one call · IServiceScopeFactory</li></ul></div>
     <div class="col" style="gap:14px">
-      <div class="callout ask">🙋 “Something light, <b>without meat</b>” — the menu has 200 dishes. What do we send the model?</div>
+      <div class="callout ask">🙋 "something light, <b>without meat</b>" — the menu has 200 dishes. What do we send the model?</div>
       <div class="prob" style="--a:var(--red)"><span class="pi">📋</span><div><b>The whole menu</b><span>Expensive — lecture 7's budget</span></div></div>
       <div class="prob" style="--a:var(--red)"><span class="pi">🔤</span><div><b>LIKE '%without meat%'</b><span>Won't find the lobio: the words don't match</span></div></div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>Lecture 9</h3>
@@ -770,7 +766,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="Homework">
   <div class="kicker">🏠 Homework</div>
   <h2>A chat that survives errors, and today&#x27;s cost</h2>
-  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
     <div class="card accent" style="--a:var(--net)">
       <h3><span class="ico">🏠</span>With code · your project · a table in the README</h3>
       <ul class="clean small">
@@ -781,13 +777,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <li><strong>README — an error table:</strong> three tests with <code class="i">ChaosHandler</code> and configuration: (1) two 503s · (2) a wrong model name · (3) always 503. Columns: test · how many requests went out · what the user got · 1–2 lines of the log</li>
 <li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
 </ul>
-      <p class="tiny" style="margin-top:14px">✓ Done when: On two 503s the user gets an answer; on a 404 there's no retry; on “always 503” the answer comes from the fallback model and <code>AiUsage</code> shows its name; <code>/usage/today</code> shows the cost; the README has the table and the quiz score</p>
+      
     </div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
-<li><strong>Fallback with streaming:</strong> a <code class="i">GetStreamingResponseAsync</code> override — switch to the fallback only <strong>before the first piece</strong> (why not in the middle?)</li>
-<li><strong>A friendly error:</strong> an <code class="i">IExceptionHandler</code> (API course) — on an <code class="i">ApiException</code> a 503 + <code class="i">ProblemDetails</code> “The assistant is temporarily unavailable” and a <code class="i">Retry-After</code> header</li>
-<li><strong>A structured output error:</strong> <code class="i">TryGetResult</code> in lecture 3's endpoint — a 422 on bad JSON instead of an exception</li>
-</ul></div>
+    
   </div>
   <div class="callout mt" style="--a:var(--api)">At the start of the next lecture we'll <b>go through this homework together</b></div>
 </section>

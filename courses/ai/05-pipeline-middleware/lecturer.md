@@ -25,7 +25,7 @@
 - **RestaurantApi-ში წინასწარ** დაწერე ორივე ფენა (`TokenCounterChatClient`, `InputGuardChatClient`) და საბოლოო pipeline; შეამოწმე, რომ მუშაობს. ლექციაზე `UseLogging` და `TokenCounter` ერთად იწერება, `InputGuard` — ჩასვამ და ახსნი
 - **`appsettings.Development.json`-ში** `"Microsoft.Extensions.AI": "Debug"` — და გაუშვი `/chat` tool-იანი კითხვით. **ნახე, რა ტექსტს წერს შენი ვერსია** (სლაიდ 10-ის კონსოლი გამარტივებულია) — ლექციაზე ნამდვილი კონსოლი აჩვენე
 - **კონსოლის ფანჯარა პროექტორზე:** Visual Studio-ში აპი კონსოლით (Kestrel) გაუშვი, არა IIS Express-ით, რომ ლოგი ჩანდეს. შრიფტი გაზარდე
-- **ქეშის ცდისთვის** (სლაიდი 11) — შეარჩიე `/ask`-ის კითხვა, რომელსაც Gemini-ს 2+ წამი სჭირდება („რა არის RAG? ერთი წინადადებით“ კარგია)
+- **ქეშის ცდისთვის** (სლაიდი 11) — შეარჩიე `/ask`-ის კითხვა, რომელსაც Gemini-ს 2+ წამი სჭირდება ("What is RAG? In one sentence" კარგია)
 - **რიგის ექსპერიმენტი** (სლაიდი 15) — ორივე ვარიანტი ერთხელ გაუშვი და ნახე, რამდენ ხაზს წერს. ციფრები სლაიდზე ნიმუშია
 - გაიარე ბოლოში მოცემული ტესტი „✅ მზად ხარ?“
 
@@ -163,9 +163,9 @@
 
 ```
 inner = Gemini client
-inner = Logging(inner)            ← ბოლო .Use — პირველი იქმნება, შიგნით
-inner = FunctionInvocation(inner) ← პირველი .Use — ბოლოს იქმნება, გარეთ
-return inner                       ← ეს მიდის DI-ში, როგორც IChatClient
+inner = Logging(inner)            ← last .Use — created first, innermost
+inner = FunctionInvocation(inner) ← first .Use — created last, outermost
+return inner                       ← this goes into DI as the IChatClient
 ```
 
 ამიტომ **პირველი `.Use…()` = გარე ფენა**. ზუსტად ASP.NET Core-ის middleware-ის წესი: `app.Use…()`-ის რიგით გადის მოთხოვნა.
@@ -256,7 +256,7 @@ return inner                       ← ეს მიდის DI-ში, რო�
 
 ### 📋 ლექციაზე
 
-- (10) **ერთად:** `.UseLogging()` Program.cs-ში + `appsettings.Development.json` (`Debug`). `/chat` „ლობიო რა ღირს?“ → **ნამდვილი კონსოლი** პროექტორზე → 2 მოთხოვნა + `get_menu`. ⚠️ Trace = მთელი ტექსტი
+- (10) **ერთად:** `.UseLogging()` Program.cs-ში + `appsettings.Development.json` (`Debug`). `/chat` "How much is lobio?" → **ნამდვილი კონსოლი** პროექტორზე → 2 მოთხოვნა + `get_menu`. ⚠️ Trace = მთელი ტექსტი
 - (11) ქეში: `AddDistributedMemoryCache` + `.UseDistributedCache()` (პირველად). `/ask` ერთი კითხვა 2-ჯერ → დრო და ცარიელი ლოგი. 🙋 „ადგილი გაქვთ?“-ს დავაქეშოთ? → საფრთხე → **ქეშს ვაშორებთ**
 - ⏱ **0:30**-ზე შესვენებაზე. ჩამორჩი? ქეში — მხოლოდ საფრთხე, ცოცხალი ცდის გარეშე
 
@@ -318,13 +318,13 @@ return inner                       ← ეს მიდის DI-ში, რო�
 
 #### 10 · UseLogging · 6 წთ
 
-- **რას აკეთებ:** **ერთად:** Program.cs — `.UseLogging()` **ბოლოს** (FunctionInvocation-ის შემდეგ). `appsettings.Development.json`. F5. Swagger `/chat` „ლობიო რა ღირს?“. **კონსოლი პროექტორზე** — ერთად დაითვალეთ: invoked, completed, get_menu, invoked, completed. „ლექცია 4-ზე თეორიით ვთქვით ‚ორჯერ‘ — აი, ლოგში.“ ⚠️ ბოლოს: Trace.
+- **რას აკეთებ:** **ერთად:** Program.cs — `.UseLogging()` **ბოლოს** (FunctionInvocation-ის შემდეგ). `appsettings.Development.json`. F5. Swagger `/chat` "How much is lobio?". **კონსოლი პროექტორზე** — ერთად დაითვალეთ: invoked, completed, get_menu, invoked, completed. „ლექცია 4-ზე თეორიით ვთქვით ‚ორჯერ‘ — აი, ლოგში.“ ⚠️ ბოლოს: Trace.
 - **ძლიერ ჯგუფთან (1 წთ):** დონე → Trace, იგივე კითხვა → მთელი JSON ლოგში. „ეს ხედავს ყველაფერს — მომხმარებლის ტექსტსაც. production-ში — არა.“ დააბრუნე Debug.
 - **გადასვლა:** „ლოგი გვაჩვენებს. ახლა ფენა, რომელიც Gemini-ს მიმართვასაც გვაცილებს.“
 
 #### 11 · UseDistributedCache · 5 წთ
 
-- **რას აკეთებ:** `AddDistributedMemoryCache()` + `.UseDistributedCache()` **პირველად**. `/ask` „რა არის RAG? ერთი წინადადებით“ — დრო (Swagger აჩვენებს duration-ს) + ლოგი. იგივე მეორედ → მილიწამები, ლოგი ცარიელი. „ლოგი ცარიელია — რატომ? ქეში გარეთაა, შიგნით არ ჩავიდა.“ 🙋 „ადგილი გაქვთ?“-ს დავაქეშოთ? — მოისმინე. საფრთხე. „ამიტომ ჩვენს ჩატს ქეში არ სჭირდება — **ვშლით** ორ ხაზს.“ წაშალე ეკრანზე.
+- **რას აკეთებ:** `AddDistributedMemoryCache()` + `.UseDistributedCache()` **პირველად**. `/ask` "What is RAG? In one sentence" — დრო (Swagger აჩვენებს duration-ს) + ლოგი. იგივე მეორედ → მილიწამები, ლოგი ცარიელი. „ლოგი ცარიელია — რატომ? ქეში გარეთაა, შიგნით არ ჩავიდა.“ 🙋 „ადგილი გაქვთ?“-ს დავაქეშოთ? — მოისმინე. საფრთხე. „ამიტომ ჩვენს ჩატს ქეში არ სჭირდება — **ვშლით** ორ ხაზს.“ წაშალე ეკრანზე.
 - **რას ეუბნები:** „ქეში — მხოლოდ იქ, სადაც კითხვაზე პასუხი დროში არ იცვლება. და ფენის მოშორება — ერთი ხაზის წაშლაა.“
 - **გადასვლა:** „შესვენების შემდეგ — ჩვენი ფენა.“
 
@@ -387,7 +387,7 @@ return inner                       ← ეს მიდის DI-ში, რო�
 
 ```
 API:  await next(context);        →  AI:  await base.GetResponseAsync(...)
-      // აქ — უკვე პასუხი                    // აქ — უკვე პასუხი
+      // here — already the response          // here — already the response
 ```
 
 - **`Use((inner, sp) => …)` ერევათ →** „ეს lambda-ა: მომეცი შიდა ფენა (`inner`) და DI (`sp`), დაგიბრუნებ ახალ ფენას. ლოგერი DI-დან გვჭირდება — ამიტომ `sp`.“
@@ -415,9 +415,9 @@ API:  await next(context);        →  AI:  await base.GetResponseAsync(...)
 #### `Use` overload-ები
 
 ```csharp
-.Use(inner => new InputGuardChatClient(inner))                           // მხოლოდ შიდა client
+.Use(inner => new InputGuardChatClient(inner))                           // only the inner client
 .Use((inner, sp) => new TokenCounterChatClient(inner, sp.GetRequiredService<ILogger<TokenCounterChatClient>>()))  // + DI
-.Use(async (messages, options, next, ct) => { …; await next(messages, options, ct); })  // lambda — ორივე მეთოდისთვის, მაგრამ პასუხს ვერ ხედავს
+.Use(async (messages, options, next, ct) => { …; await next(messages, options, ct); })  // lambda — for both methods, but it can't see the response
 ```
 
 მესამე ფორმა („shared delegate“) მოკლეა და `GetResponseAsync`-საც და სტრიმინგსაც ფარავს, მაგრამ **პასუხს ვერ ხედავს** — მხოლოდ მოთხოვნას (შეცვლა ან შეჩერება exception-ით). TokenCounter-ისთვის არ გამოდგება. ჩვენ კლასს ვწერთ — ცხადია და სტრიმინგსაც ლექცია 6-ზე იმავე კლასში დავამატებთ.
@@ -521,7 +521,7 @@ API:  await next(context);        →  AI:  await base.GetResponseAsync(...)
 ### 🆘 თუ ვერ გაიგეს
 
 - **იდეა არ აქვთ →** „აჩერებს“: ცარიელი ან 3 სიმბოლოზე მოკლე შეკითხვა; სიტყვები „პაროლი“, „key“. „უყურებს“: Stopwatch.
-- **პროექტი არ ეშვება →** RestaurantApi-ზე: „აჩერებს“ — შეკითხვა, რომელშიც რესტორანთან დაკავშირებული სიტყვა არ არის (`მენიუ`, `მაგიდა`, `ჯავშ`) → „მხოლოდ რესტორნის საკითხებზე“.
+- **პროექტი არ ეშვება →** RestaurantApi-ზე: „აჩერებს“ — შეკითხვა, რომელშიც რესტორანთან დაკავშირებული სიტყვა არ არის (`menu`, `table`, `book`) → "Only restaurant questions, please".
 - **ლოგი არ ჩანს →** ჯერ ნაბიჯი 1 — 🆘 ნაწილ 3-ში.
 
 ### 🎯 მიზანი
@@ -597,7 +597,7 @@ API:  await next(context);        →  AI:  await base.GetResponseAsync(...)
 ### 🧊 ქეშის საფრთხე ცოცხლად · 5 წთ
 
 1. დროებით დააბრუნე `.UseDistributedCache()` **პირველად** (+ `AddDistributedMemoryCache`).
-2. `/chat` „ხვალ 8-ზე ოთხნი, ადგილი გაქვთ?“ → „კი, 2 მაგიდა“.
+2. `/chat` "Four of us tomorrow at 8, do you have a table?" → „კი, 2 მაგიდა“.
 3. ბაზაში (SQL ან Swagger-ის booking endpoint) ხვალ 20:00-ზე ყველა მაგიდა დაჯავშნე.
 4. იგივე კითხვა → ისევ „კი, 2 მაგიდა“, მილიწამებში, ლოგი ცარიელი. 🙋 „რა მოხდა?“
 5. დასკვნა: ქეშმა „სამყაროს ცვლილება“ ვერ დაინახა. მოაშორე.
@@ -614,7 +614,7 @@ public class GeorgianOnlyChatClient : DelegatingChatClient
     public override Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages,
         ChatOptions? options = null, CancellationToken cancellationToken = default)
     {
-        List<ChatMessage> changed = [new(ChatRole.System, "ყოველთვის უპასუხე ქართულად."), .. messages];
+        List<ChatMessage> changed = [new(ChatRole.System, "Always answer in Georgian."), .. messages];
         return base.GetResponseAsync(changed, options, cancellationToken);
     }
 }
@@ -649,7 +649,7 @@ builder.Services.AddChatClient(gemini)
 .Use(async (messages, options, next, ct) =>
 {
     if (messages.LastOrDefault()?.Text?.Length > 1000)
-        throw new InvalidOperationException("ძალიან გრძელია");
+        throw new InvalidOperationException("Too long");
     await next(messages, options, ct);
 })
 ```

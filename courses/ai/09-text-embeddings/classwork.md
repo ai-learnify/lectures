@@ -24,4 +24,4 @@
 - **`TensorPrimitives` ვერ პოულობს?** NuGet `System.Numerics.Tensors` და `using System.Numerics.Tensors;`
 - **`AsIEmbeddingGenerator` ვერ პოულობს?** `using Microsoft.Extensions.AI;` და Google.GenAI-ის ის ვერსია, რაც ლექცია 2-დან გაქვს
 - **ვექტორები:** `GeneratedEmbeddings<Embedding<float>> v = await _embeddings.GenerateAsync([a, b], cancellationToken: ct);` → `v[0].Vector.Span`, `v[1].Vector.Span`
-- **წყვილის იდეები:** „მაგიდის დაჯავშნა“ ↔ „book a table“ · „ცხარე კერძი“ ↔ „ცხელი კერძი“ · „ხინკალი“ ↔ „ჩურჩხელა“
+- **წყვილის იდეები:** "booking a table" ↔ „book a table“ · "a spicy dish" ↔ "a hot dish" · „ხინკალი“ ↔ „ჩურჩხელა“

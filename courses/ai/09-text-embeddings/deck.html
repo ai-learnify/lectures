@@ -62,18 +62,18 @@
     <p class="lead in mt" style="--d:.35s">ტექსტი → ვექტორი · IEmbeddingGenerator · cosine similarity</p>
   </div>
   <div class="abs" style="right:90px;top:250px;width:540px">
-    <div class="vec in" style="--d:.5s"><span class="k">"რამე მსუბუქი, ხორცის გარეშე"</span>
+    <div class="vec in" style="--d:.5s"><span class="k">"something light, without meat"</span>
 <span class="d">        ↓ embedding</span>
 [ 0.0213, -0.0471, 0.0089, 0.0632,
  -0.0154, 0.0398, …  <span class="d">768 რიცხვი</span> ]
 <span class="d">        ↓ ყველაზე ახლოს</span>
-<span class="g">🥗 ლობიო ქოთანში · 0.71</span>
-<span class="g">🍆 ბადრიჯანი ნიგვზით · 0.68</span></div>
+<span class="g">🥗 Lobio in a clay pot · 0.71</span>
+<span class="g">🍆 Aubergine with walnuts · 0.68</span></div>
   </div>
   <aside class="study">
 ## ლექცია 9: Text Embeddings
 
-მომხმარებელი წერს: „რამე მსუბუქი, ხორცის გარეშე“. მენიუში 200 კერძია. მთელი მენიუს მოდელისთვის გაგზავნა ძვირია (ლექცია 7), ხოლო SQL-ის `LIKE '%ხორცის გარეშე%'` ლობიოს ვერ იპოვის, რადგან ეს სიტყვები მის აღწერაში არ წერია. გვჭირდება ძებნა **მნიშვნელობით**, არა სიტყვებით. დღეს ვსწავლობთ **embedding**-ს: ტექსტის გადაქცევას რიცხვების სიად (ვექტორად), სადაც მსგავსი მნიშვნელობის ტექსტები ახლოს არიან. ვაგენერირებთ ვექტორებს Gemini-თი, ვზომავთ მსგავსებას და ვწერთ მენიუს სემანტიკურ ძებნას.
+მომხმარებელი წერს: "something light, without meat". მენიუში 200 კერძია. მთელი მენიუს მოდელისთვის გაგზავნა ძვირია (ლექცია 7), ხოლო SQL-ის `LIKE '%without meat%'` ლობიოს ვერ იპოვის, რადგან ეს სიტყვები მის აღწერაში არ წერია. გვჭირდება ძებნა **მნიშვნელობით**, არა სიტყვებით. დღეს ვსწავლობთ **embedding**-ს: ტექსტის გადაქცევას რიცხვების სიად (ვექტორად), სადაც მსგავსი მნიშვნელობის ტექსტები ახლოს არიან. ვაგენერირებთ ვექტორებს Gemini-თი, ვზომავთ მსგავსებას და ვწერთ მენიუს სემანტიკურ ძებნას.
   </aside>
   <aside class="study-en">
 ## Lecture 9: Text Embeddings
@@ -96,7 +96,7 @@ The user writes: “something light, without meat”. The menu has 200 dishes. S
     <div class="stop" style="--a:var(--api)"><span class="sn">2</span><h3>🧑‍💻 ვექტორი კოდში</h3><p>Gemini-ს embedding მოდელი, ისევ ერთი interface</p><span class="from">IEmbeddingGenerator · task prefix</span></div>
     <div class="stop" style="--a:var(--asp)"><span class="sn">3</span><h3>🔎 მსგავსება და ძებნა</h3><p>ორი ვექტორის „კუთხე“ და მენიუს ძებნა მნიშვნელობით</p><span class="from">cosine similarity · top 3</span></div>
   </div>
-  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>მენიუ</b>, რომელიც „ხორცის გარეშე“-ზე ლობიოს პოულობს</div>
+  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>მენიუ</b>, რომელიც "without meat"-ზე ლობიოს პოულობს</div>
   <aside class="study">
 ### ლექციის გეგმა: 3 ნაბიჯი
 
@@ -139,23 +139,23 @@ First we see why searching by words isn't enough. Then the idea: the “coordina
 
 <section class="slide" data-section="1 · embedding">
   <div class="kicker">პრობლემა · სიტყვები ≠ მნიშვნელობა</div>
-  <h2>„ხორცის გარეშე“ — <span class="c-red">0 შედეგი</span></h2>
+  <h2>"without meat" — <span class="c-red">0 შედეგი</span></h2>
   <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:26px;align-items:start;margin-top:6px">
     <div class="col" style="gap:10px">
-      <p class="sec-l">SELECT … WHERE "Description" LIKE '%ხორცის გარეშე%'</p>
+      <p class="sec-l">SELECT … WHERE "Description" LIKE '%without meat%'</p>
       <table class="menu">
-        <tr><th>კერძი</th><th>აღწერა</th></tr>
-        <tr class="miss"><td>ლობიო ქოთანში</td><td>წითელი ლობიო, ხახვი, ქინძი, ცხელი მჭადით</td></tr>
-        <tr class="miss"><td>ბადრიჯანი ნიგვზით</td><td>შემწვარი ბადრიჯანი, ნიგვზის პასტა, ბროწეული</td></tr>
-        <tr class="miss"><td>მწვადი</td><td>ღორის ხორცი შამფურზე, ხახვით</td></tr>
-        <tr class="miss"><td>ხინკალი</td><td>საქონლისა და ღორის ხორცი, ცომში</td></tr>
-        <tr class="miss"><td>პომიდვრის სალათი</td><td>პომიდორი, კიტრი, ნიგოზი</td></tr>
+        <tr><th>Name</th><th>Description</th></tr>
+        <tr class="miss"><td>Lobio in a clay pot</td><td>red beans, onion, coriander, with hot mchadi</td></tr>
+        <tr class="miss"><td>Aubergine with walnuts</td><td>fried aubergine, walnut paste, pomegranate</td></tr>
+        <tr class="miss"><td>Mtsvadi</td><td>pork on a skewer, with onion</td></tr>
+        <tr class="miss"><td>Khinkali</td><td>beef and pork, in dough</td></tr>
+        <tr class="miss"><td>Tomato salad</td><td>tomato, cucumber, walnut</td></tr>
       </table>
     </div>
     <div class="col" style="gap:12px">
       <div class="callout ask">🙋 რომელი კერძები <b>შეესაბამება</b>?</div>
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">🧠</span><div><b>ადამიანი მაშინვე ხედავს</b><span>ლობიო, ბადრიჯანი, სალათი — და პირიქით: „ხორცი“ წერია მწვადსა და ხინკალში</span></div></div>
-      <div class="prob step" style="--a:var(--red)"><span class="pi">🔤</span><div><b>LIKE სიტყვებს ეძებს</b><span>„ხორცის გარეშე“ არსად წერია → 0. „ხორცი“-ს ძებნა კი ზუსტად <b>არასწორ</b> კერძებს იპოვის</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">🔤</span><div><b>LIKE სიტყვებს ეძებს</b><span>"without meat" არსად წერია → 0. „ხორცი“-ს ძებნა კი ზუსტად <b>არასწორ</b> კერძებს იპოვის</span></div></div>
       <div class="callout ask step">🙋 როგორ ვასწავლოთ კომპიუტერს <b>მნიშვნელობა</b>?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მნიშვნელობა რიცხვებად უნდა ვაქციოთ — ესაა embedding</div>
     </div>
@@ -163,11 +163,11 @@ First we see why searching by words isn't enough. Then the idea: the “coordina
   <aside class="study">
 ### პრობლემა: სიტყვებით ძებნა მნიშვნელობას ვერ ხედავს
 
-მომხმარებელი წერს „რამე მსუბუქი, ხორცის გარეშე“. ჩვეულებრივი ძებნა სიტყვებს ეძებს:
+მომხმარებელი წერს "something light, without meat". ჩვეულებრივი ძებნა სიტყვებს ეძებს:
 
 ```sql
-SELECT "Name" FROM "Products" WHERE "Description" ILIKE '%ხორცის გარეშე%';
--- 0 შედეგი
+SELECT "Name" FROM "Products" WHERE "Description" ILIKE '%without meat%';
+-- 0 results
 ```
 
 | კერძი | აღწერა | LIKE |
@@ -178,7 +178,7 @@ SELECT "Name" FROM "Products" WHERE "Description" ILIKE '%ხორცის გ
 | ხინკალი | საქონლისა და ღორის ხორცი, ცომში | ✗ |
 | პომიდვრის სალათი | პომიდორი, კიტრი, ნიგოზი | ✗ |
 
-ადამიანი მაშინვე ხედავს, რომ ლობიო, ბადრიჯანი და სალათი შეესაბამება. ხოლო თუ სიტყვა „ხორცი“-ს მოვძებნით, LIKE ზუსტად **არასწორ** კერძებს იპოვის: მწვადს და ხინკალს. სიტყვა და მნიშვნელობა სხვადასხვა რამეა: „ხორცის გარეშე“, „ვეგეტარიანული“ და „vegetarian“ ერთსა და იმავეს ნიშნავს, ერთი ასოც არ ემთხვევა.
+ადამიანი მაშინვე ხედავს, რომ ლობიო, ბადრიჯანი და სალათი შეესაბამება. ხოლო თუ სიტყვა „ხორცი“-ს მოვძებნით, LIKE ზუსტად **არასწორ** კერძებს იპოვის: მწვადს და ხინკალს. სიტყვა და მნიშვნელობა სხვადასხვა რამეა: "without meat", „ვეგეტარიანული“ და „vegetarian“ ერთსა და იმავეს ნიშნავს, ერთი ასოც არ ემთხვევა.
 
 ლექცია 7-ის ენით: გვინდა **შერჩევა** — კონტექსტში მხოლოდ ის კერძები, რომლებიც შეკითხვას შეესაბამება. ამისთვის მნიშვნელობით ძებნა გვჭირდება.
   </aside>
@@ -220,7 +220,7 @@ In lecture 7's terms: we want **selection** — only the dishes that match the q
       <div class="pt" style="--a:var(--red);left:620px;top:250px"><i></i>მწვადი</div>
       <div class="pt" style="--a:var(--red);left:680px;top:330px"><i></i>ხინკალი</div>
       <div class="pt" style="--a:var(--net);left:560px;top:80px"><i></i>ჩურჩხელა</div>
-      <div class="pt q step" style="--a:var(--pink);left:230px;top:65px"><i></i>„ხორცის გარეშე“</div>
+      <div class="pt q step" style="--a:var(--pink);left:230px;top:65px"><i></i>“without meat”</div>
       <div class="pt q step" data-with style="--a:var(--pink);left:300px;top:270px"><i></i>„vegetarian“</div>
     </div>
     <div class="col" style="gap:12px">
@@ -233,13 +233,13 @@ In lecture 7's terms: we want **selection** — only the dishes that match the q
   <aside class="study">
 ### embedding: ტექსტის „მნიშვნელობის კოორდინატები“
 
-**Embedding** — ტექსტის გადაქცევა რიცხვების სიად: `"ლობიო ქოთანში"` → `[0.021, -0.047, 0.009, 0.063, …]`. ამ სიას **ვექტორი** ჰქვია. ვექტორი სივრცეში წერტილია: ორ რიცხვს რუკაზე წერტილი შეესაბამება (x, y), 768 რიცხვს — წერტილი 768-განზომილებიან სივრცეში.
+**Embedding** — ტექსტის გადაქცევა რიცხვების სიად: `"Lobio in a clay pot"` → `[0.021, -0.047, 0.009, 0.063, …]`. ამ სიას **ვექტორი** ჰქვია. ვექტორი სივრცეში წერტილია: ორ რიცხვს რუკაზე წერტილი შეესაბამება (x, y), 768 რიცხვს — წერტილი 768-განზომილებიან სივრცეში.
 
 **მთავარი თვისება:** embedding მოდელი ისეა გავარჯიშებული, რომ **მსგავსი მნიშვნელობის ტექსტები ახლოს** დგანან:
 
-- „ლობიო ქოთანში“, „ბადრიჯანი ნიგვზით“, „პომიდვრის სალათი“ — ერთ მხარეს (ბოსტნეული, ხორცის გარეშე);
+- "Lobio in a clay pot", "Aubergine with walnuts", "Tomato salad" — ერთ მხარეს (ბოსტნეული, ხორცის გარეშე);
 - „მწვადი“, „ხინკალი“ — მეორე მხარეს (ხორცი);
-- შეკითხვა „ხორცის გარეშე“ პირველ ჯგუფთან ჯდება, და **„vegetarian“-იც იქვე**: ენა სხვაა, მნიშვნელობა — ერთი.
+- შეკითხვა "without meat" პირველ ჯგუფთან ჯდება, და **„vegetarian“-იც იქვე**: ენა სხვაა, მნიშვნელობა — ერთი.
 
 სლაიდზე ორგანზომილებიანი ნახატია, რომ თვალით დავინახოთ. სინამდვილეში ერთ ვექტორში ასობით ან ათასობით რიცხვია, და თითოეული რიცხვი მნიშვნელობის რაღაც „მიმართულებაა“, რომელიც მოდელმა ვარჯიშისას თვითონ ისწავლა (ადამიანისთვის გასაგები სახელი არც ერთს არ აქვს).
 
@@ -491,9 +491,9 @@ GenerateAsync — the vectors of many texts in one call
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:8px">
     <div class="col" style="gap:12px">
       <p class="sec-l">შეკითხვა (მოკლე, „რა მინდა“)</p>
-      <div class="vec"><span class="k">task: search result | query:</span> რამე მსუბუქი, ხორცის გარეშე</div>
+      <div class="vec"><span class="k">task: search result | query:</span> something light, without meat</div>
       <p class="sec-l step" style="margin-top:6px">დოკუმენტი (რაც უნდა ვიპოვოთ)</p>
-      <div class="vec step" data-with><span class="k">title:</span> ლობიო ქოთანში <span class="k">| text:</span> წითელი ლობიო, ხახვი, ქინძი…</div>
+      <div class="vec step" data-with><span class="k">title:</span> Lobio in a clay pot <span class="k">| text:</span> red beans, onion, coriander…</div>
       <code-block lang="csharp" cls="sm" title="Ai/EmbeddingText.cs">
 public static class EmbeddingText
 {
@@ -506,7 +506,7 @@ public static class EmbeddingText
       </code-block>
     </div>
     <div class="col" style="gap:12px">
-      <div class="callout ask">🙋 „რამე მსუბუქი?“ და „ლობიო ქოთანში — წითელი ლობიო…“ — ერთნაირ <b>ტექსტს</b> ჰგავს?</div>
+      <div class="callout ask">🙋 "something light?" და "Lobio in a clay pot — red beans…" — ერთნაირ <b>ტექსტს</b> ჰგავს?</div>
       <div class="prob step" style="--a:var(--asp)"><span class="pi">↔️</span><div><b>ასიმეტრიული ძებნა</b><span>შეკითხვა მოკლეა, დოკუმენტი გრძელი. prefix მოდელს ეუბნება, რომელია რომელი</span></div></div>
       <div class="prob step" style="--a:var(--net)"><span class="pi">📘</span><div><b>gemini-embedding-2-ის წესი</b><span>Google ტექსტური ამოცანებისთვის პრეფიქსს მკაცრად გვირჩევს</span></div></div>
       <div class="prob step" style="--a:var(--red)"><span class="pi">⚠️</span><div><b>ერთხელ არჩეული — ყველგან</b><span>დოკუმენტი ერთი ფორმატით, შეკითხვა — მეორით. ყოველთვის</span></div></div>
@@ -515,12 +515,12 @@ public static class EmbeddingText
   <aside class="study">
 ### task prefix: შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით
 
-შეკითხვა („რამე მსუბუქი?“) და მისი პასუხი (კერძის აღწერა) ერთნაირ ტექსტს არ ჰგავს: შეკითხვა მოკლეა და „სურვილს“ აღწერს, დოკუმენტი — გრძელი და „ფაქტებს“. ასეთ ძებნას **ასიმეტრიული** ჰქვია. `gemini-embedding-2`-ისთვის Google ტექსტურ ამოცანებზე **გვირჩევს**, რომ ტექსტს წინ ამოცანის აღწერა (prefix) მივუწეროთ:
+შეკითხვა ("something light?") და მისი პასუხი (კერძის აღწერა) ერთნაირ ტექსტს არ ჰგავს: შეკითხვა მოკლეა და „სურვილს“ აღწერს, დოკუმენტი — გრძელი და „ფაქტებს“. ასეთ ძებნას **ასიმეტრიული** ჰქვია. `gemini-embedding-2`-ისთვის Google ტექსტურ ამოცანებზე **გვირჩევს**, რომ ტექსტს წინ ამოცანის აღწერა (prefix) მივუწეროთ:
 
 | რა | ფორმატი |
 |---|---|
-| **შეკითხვა** | `task: search result \| query: {შეკითხვა}` |
-| **დოკუმენტი** | `title: {სათაური} \| text: {ტექსტი}` (სათაურის გარეშე — `title: none`) |
+| **შეკითხვა** | `task: search result \| query: {query}` |
+| **დოკუმენტი** | `title: {title} \| text: {text}` (სათაურის გარეშე — `title: none`) |
 
 ```csharp Ai/EmbeddingText.cs
 public static class EmbeddingText
@@ -616,15 +616,15 @@ We have two vectors. How close are they? We learn cosine similarity, write it in
             <marker id="ahr" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--red)"/></marker>
           </defs>
           <line x1="30" y1="220" x2="250" y2="50" stroke="var(--net)" stroke-width="5" marker-end="url(#ahn)"/>
-          <text x="200" y="34" font-size="17" font-weight="700" fill="var(--net)">„ხორცის გარეშე“</text>
+          <text x="200" y="34" font-size="17" font-weight="700" fill="var(--net)">"without meat"</text>
           <line x1="30" y1="220" x2="300" y2="95" stroke="var(--mvc)" stroke-width="5" marker-end="url(#ahm)"/>
           <text x="312" y="98" font-size="17" font-weight="700" fill="var(--mvc)">ლობიო</text>
           <line x1="30" y1="220" x2="330" y2="205" stroke="var(--red)" stroke-width="5" marker-end="url(#ahr)"/>
           <text x="340" y="210" font-size="17" font-weight="700" fill="var(--red)">მწვადი</text>
         </svg>
       </div>
-      <div class="pair" style="--a:var(--mvc)"><span>„ხორცის გარეშე“</span><span>ლობიო ქოთანში</span><span class="v">0.71</span></div>
-      <div class="pair" style="--a:var(--red)"><span>„ხორცის გარეშე“</span><span>მწვადი</span><span class="v">0.38</span></div>
+      <div class="pair" style="--a:var(--mvc)"><span>"without meat"</span><span>ლობიო ქოთანში</span><span class="v">0.71</span></div>
+      <div class="pair" style="--a:var(--red)"><span>"without meat"</span><span>მწვადი</span><span class="v">0.38</span></div>
     </div>
     <div class="col" style="gap:12px">
       <code-block lang="csharp" cls="sm" title="ხელით — როგორ ითვლება">
@@ -665,9 +665,9 @@ static float Cosine(ReadOnlySpan<float> a, ReadOnlySpan<float> b)
     float dot = 0, na = 0, nb = 0;
     for (int i = 0; i < a.Length; i++)
     {
-        dot += a[i] * b[i];   // სკალარული ნამრავლი
-        na  += a[i] * a[i];   // a-ს სიგრძე²
-        nb  += b[i] * b[i];   // b-ს სიგრძე²
+        dot += a[i] * b[i];   // the dot product
+        na  += a[i] * a[i];   // the length of a, squared
+        nb  += b[i] * b[i];   // the length of b, squared
     }
     return dot / (MathF.Sqrt(na) * MathF.Sqrt(nb));
 }
@@ -680,7 +680,7 @@ using System.Numerics.Tensors;   // NuGet: System.Numerics.Tensors
 float score = TensorPrimitives.CosineSimilarity(a.Span, b.Span);
 ```
 
-**ციფრებს როგორ ვკითხულობთ.** ნიმუში: „ხორცის გარეშე“ ↔ ლობიო **0.71**, ↔ მწვადი **0.38**. აბსოლუტური ციფრი მოდელზეა დამოკიდებული: ზოგ მოდელზე სრულიად უცხო ტექსტებიც 0.4-ს აჩვენებს. ამიტომ ციფრს ცალკე არ ვაფასებთ („0.7 კარგია?“), არამედ **ვადარებთ**: რომელია უფრო ახლოს. ძებნაში სწორედ ესაა საჭირო — დალაგება.
+**ციფრებს როგორ ვკითხულობთ.** ნიმუში: "without meat" ↔ ლობიო **0.71**, ↔ მწვადი **0.38**. აბსოლუტური ციფრი მოდელზეა დამოკიდებული: ზოგ მოდელზე სრულიად უცხო ტექსტებიც 0.4-ს აჩვენებს. ამიტომ ციფრს ცალკე არ ვაფასებთ („0.7 კარგია?“), არამედ **ვადარებთ**: რომელია უფრო ახლოს. ძებნაში სწორედ ესაა საჭირო — დალაგება.
 
 ```terms
 Cosine similarity — ორი ვექტორის მსგავსების საზომი მათ შორის კუთხით: 1 — ერთი მიმართულება, 0 — არაფერი საერთო
@@ -766,11 +766,11 @@ public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
     </code-block>
     <div class="col" style="gap:12px">
       <div class="swr c-get step">
-        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=ხორცის გარეშე</span></div>
+        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=without meat</span></div>
         <pre class="rb">[
-  { <span class="k">"name"</span>: <span class="s">"ლობიო ქოთანში"</span>,     <span class="k">"score"</span>: <span class="n">0.71</span> },
-  { <span class="k">"name"</span>: <span class="s">"ბადრიჯანი ნიგვზით"</span>, <span class="k">"score"</span>: <span class="n">0.68</span> },
-  { <span class="k">"name"</span>: <span class="s">"პომიდვრის სალათი"</span>,  <span class="k">"score"</span>: <span class="n">0.63</span> }
+  { <span class="k">"name"</span>: <span class="s">"Lobio in a clay pot"</span>,     <span class="k">"score"</span>: <span class="n">0.71</span> },
+  { <span class="k">"name"</span>: <span class="s">"Aubergine with walnuts"</span>, <span class="k">"score"</span>: <span class="n">0.68</span> },
+  { <span class="k">"name"</span>: <span class="s">"Tomato salad"</span>,  <span class="k">"score"</span>: <span class="n">0.63</span> }
 ]</pre>
       </div>
       <div class="callout step" style="--a:var(--mvc);font-size:18px">LIKE — 0 · embeddings — <b>სწორი სამი</b>. ერთი სიტყვაც არ ემთხვევა</div>
@@ -825,10 +825,10 @@ public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
 ```
 
 - **`GenerateAsync(texts)`** — ყველა კერძი **ერთი** გამოძახებით; `vectors[i]` იმავე რიგითაა, რაც `products[i]`.
-- **დოკუმენტი:** `title: სახელი | text: აღწერა`. embedding მხოლოდ იმას „ხედავს“, რასაც მივცემთ: თუ კერძს აღწერა არ აქვს, ძებნა სუსტია. (`Product`-ს `Description` თუ არ აქვს, დაამატე migration-ით.)
+- **დოკუმენტი:** `title: Name | text: Description`. embedding მხოლოდ იმას „ხედავს“, რასაც მივცემთ: თუ კერძს აღწერა არ აქვს, ძებნა სუსტია. (`Product`-ს `Description` თუ არ აქვს, დაამატე migration-ით.)
 - **ძებნა:** შეკითხვის ვექტორი (`task: search result | query: …`) → cosine ყველა კერძთან → დალაგება → სამი საუკეთესო.
 
-**შედეგი (ნიმუში):** „ხორცის გარეშე“ → ლობიო 0.71, ბადრიჯანი 0.68, სალათი 0.63. LIKE-მა 0 იპოვა.
+**შედეგი (ნიმუში):** "without meat" → ლობიო 0.71, ბადრიჯანი 0.68, სალათი 0.63. LIKE-მა 0 იპოვა.
 
 **რატომ არ ვითვლით მენიუს ვექტორებს ყოველ შეკითხვაზე?** 200 კერძი ყოველ ჯერზე — ფული და წამები. მენიუ იშვიათად იცვლება: ერთხელ ვითვლით და ვინახავთ. ხელახლა — მხოლოდ კერძის დამატებისას ან შეცვლისას.
 
@@ -922,7 +922,7 @@ For now the vectors are **in memory**: they disappear when the app restarts, and
   <aside class="study">
 ## შეჯამება
 
-- **Embedding** ტექსტს ვექტორად (რიცხვების სიად) აქცევს ისე, რომ **მსგავსი მნიშვნელობა ახლოს** იყოს — ენის მიუხედავადაც („ხორცის გარეშე“ ≈ „vegetarian“). ასე ძებნა სიტყვებით კი არა, **მნიშვნელობით** ხდება.
+- **Embedding** ტექსტს ვექტორად (რიცხვების სიად) აქცევს ისე, რომ **მსგავსი მნიშვნელობა ახლოს** იყოს — ენის მიუხედავადაც ("without meat" ≈ „vegetarian“). ასე ძებნა სიტყვებით კი არა, **მნიშვნელობით** ხდება.
 - ვექტორს **ცალკე embedding მოდელი** აგენერირებს: ჩვენთან `gemini-embedding-2`, **768** განზომილებით. ერთი მოდელი — ერთი „რუკა“: სხვადასხვა მოდელის ვექტორები ერთმანეთს არ შეედრება.
 - **`IEmbeddingGenerator`** — Microsoft.Extensions.AI-ის interface (`IChatClient`-ის გვერდით): `AddEmbeddingGenerator`, `AsIEmbeddingGenerator(model, defaultModelDimensions)`, `GenerateVectorAsync` (ერთი) და `GenerateAsync` (ბევრი).
 - **Task prefix:** შეკითხვა — `task: search result | query: …`, დოკუმენტი — `title: … | text: …`. ყოველთვის ერთი და იგივე წესით.

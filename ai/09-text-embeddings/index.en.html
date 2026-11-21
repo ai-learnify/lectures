@@ -557,7 +557,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="col" style="gap:10px">
       <p class="sec-l">SELECT … WHERE "Description" LIKE '%without meat%'</p>
       <table class="menu">
-        <tr><th>Dish</th><th>Description</th></tr>
+        <tr><th>Name</th><th>Description</th></tr>
         <tr class="miss"><td>Lobio in a clay pot</td><td>red beans, onion, coriander, with hot mchadi</td></tr>
         <tr class="miss"><td>Aubergine with walnuts</td><td>fried aubergine, walnut paste, pomegranate</td></tr>
         <tr class="miss"><td>Mtsvadi</td><td>pork on a skewer, with onion</td></tr>
@@ -709,15 +709,15 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
             <marker id="ahr" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="13" refY="8" orient="auto"><path d="M0,0 L16,8 L0,16 z" fill="var(--red)"/></marker>
           </defs>
           <line x1="30" y1="220" x2="250" y2="50" stroke="var(--net)" stroke-width="5" marker-end="url(#ahn)"/>
-          <text x="200" y="34" font-size="17" font-weight="700" fill="var(--net)">“without meat”</text>
+          <text x="200" y="34" font-size="17" font-weight="700" fill="var(--net)">"without meat"</text>
           <line x1="30" y1="220" x2="300" y2="95" stroke="var(--mvc)" stroke-width="5" marker-end="url(#ahm)"/>
           <text x="312" y="98" font-size="17" font-weight="700" fill="var(--mvc)">lobio</text>
           <line x1="30" y1="220" x2="330" y2="205" stroke="var(--red)" stroke-width="5" marker-end="url(#ahr)"/>
           <text x="340" y="210" font-size="17" font-weight="700" fill="var(--red)">Mtsvadi</text>
         </svg>
       </div>
-      <div class="pair" style="--a:var(--mvc)"><span>“without meat”</span><span>Lobio in a clay pot</span><span class="v">0.71</span></div>
-      <div class="pair" style="--a:var(--red)"><span>“without meat”</span><span>Mtsvadi</span><span class="v">0.38</span></div>
+      <div class="pair" style="--a:var(--mvc)"><span>"without meat"</span><span>Lobio in a clay pot</span><span class="v">0.71</span></div>
+      <div class="pair" style="--a:var(--red)"><span>"without meat"</span><span>Mtsvadi</span><span class="v">0.38</span></div>
     </div>
     <div class="col" style="gap:12px">
       <pre class="code sm"><span class="ttl">by hand — how it's calculated</span><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="nf">Cosine</span><span class="p">(</span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">na</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">nb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">dot</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">na</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">nb</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">na</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">nb</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
@@ -751,7 +751,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="Practice">
   <div class="kicker">🧑‍💻 You do it · in class</div>
   <h2>The similarity game — guess first, then measure</h2>
-  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
     <div class="card accent" style="--a:var(--mvc)">
       <h3><span class="ico">📝</span>Your project or RestaurantApi · with code · Swagger and a table in your notebook</h3>
       <ul class="clean small">
@@ -760,13 +760,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <li><strong>3 · Guess first</strong> — in your notebook, 5 pairs on your project's theme and <strong>your prediction</strong> for each (high / medium / low) — before running Swagger. One pair Georgian ↔ English, one with the same words but a different meaning</li>
 <li><strong>4 · Measure</strong> — all five in Swagger; sort them by score. Where were you wrong?</li>
 </ul>
-      <p class="tiny" style="margin-top:14px">✓ Done when: <code>/similarity</code> returns a score; the table has 5 pairs, the prediction and the real score; the Georgian ↔ English pair is higher than “same words — different meaning”</p>
+      
     </div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
-<li>The same pairs <strong>with the prefix</strong>: <code class="i">a</code> — <code class="i">EmbeddingText.Query</code>, <code class="i">b</code> — <code class="i">EmbeddingText.Document</code>. Did the order change?</li>
-<li><code class="i">defaultModelDimensions: 3072</code> — did the scores and the order change? How many times bigger is the vector?</li>
-<li>Cosine <strong>by hand</strong> (the loop from slide 15) — does it give the same number as <code class="i">TensorPrimitives</code>?</li>
-</ul></div>
+    
   </div>
   <div class="callout mt" style="--a:var(--api)">Rule: <b>try it yourself first</b> → ask your neighbour → then me</div>
 </section>
@@ -801,7 +797,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="Homework">
   <div class="kicker">🏠 Homework</div>
   <h2>Semantic search in your project</h2>
-  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
     <div class="card accent" style="--a:var(--net)">
       <h3><span class="ico">🏠</span>With code · your project · a comparison table in the README</h3>
       <ul class="clean small">
@@ -812,13 +808,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <li><strong>README — a comparison table:</strong> 5 questions (one in English, one about something that isn't in your data at all). Columns: question · the <code class="i">LIKE</code> result · the embeddings top 3 with scores · correct?</li>
 <li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
 </ul>
-      <p class="tiny" style="margin-top:14px">✓ Done when: A question asked with a “synonym” or in English finds the right record where LIKE finds nothing; on a “non-existent” question the threshold returns an empty list; the README has the table and the quiz score</p>
+      
     </div>
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
-<li><strong>A tool for the chat:</strong> <code class="i">search_menu(query)</code> — a lecture 4 tool that uses the semantic search instead of <code class="i">get_menu</code>. Ask the chat “something light?” — how many tokens did you save (lecture 7's budget)?</li>
-<li><strong>Updating the index:</strong> when a record is added/changed its vector is recalculated — without the whole index</li>
-<li><strong>Size:</strong> 768 vs 3072 — indexing time, memory (<code class="i">768 × 4</code> bytes per record) and changes in the top 3</li>
-</ul></div>
+    
   </div>
   <div class="callout mt" style="--a:var(--api)">At the start of the next lecture we'll <b>go through this homework together</b></div>
 </section>

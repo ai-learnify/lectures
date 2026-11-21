@@ -177,7 +177,7 @@ Gemini-ს REST API-ს ორი მეთოდი აქვს: `generateCont
 
 `FunctionInvokingChatClient`-ს `GetStreamingResponseAsync`-იც აქვს: სტრიმს კითხულობს, `FunctionCallContent`-ს ხედავს, tool-ს ასრულებს და ახალ სტრიმს იწყებს. tool-ის ნაწილები (`FunctionCallContent`, `FunctionResultContent`) **ასევე** მოდის update-ებად — ტექსტის გარეშე. ამიტომ `if (!string.IsNullOrEmpty(update.Text))`.
 
-**TTFT tool-იან კითხვაზე** დიდია: პირველი მოთხოვნა (Gemini ფიქრობს, tool-ს ითხოვს) + tool (ბაზა) + მეორე მოთხოვნის პირველი ნაწილი. 2–3 წამი ნორმალურია. რეალურ UI-ში ამ დროს სტატუსს აჩვენებენ („ვამოწმებ მაგიდებს…“) — საშინაოს ⭐.
+**TTFT tool-იან კითხვაზე** დიდია: პირველი მოთხოვნა (Gemini ფიქრობს, tool-ს ითხოვს) + tool (ბაზა) + მეორე მოთხოვნის პირველი ნაწილი. 2–3 წამი ნორმალურია. რეალურ UI-ში ამ დროს სტატუსს აჩვენებენ ("Checking the tables…") — საშინაოს ⭐.
 
 #### `/chat/chunks` — რატომ ვწერთ
 
@@ -217,7 +217,7 @@ Gemini-ს REST API-ს ორი მეთოდი აქვს: `generateCont
 
 #### 9 · /chat/chunks · 6 წთ
 
-- **რას აკეთებ:** **ერთად წერთ.** Stopwatch, სია, `await foreach`, `Ok(chunks)`. Swagger, გრძელი კითხვა („მოგვიყევი ქართულ სამზარეულოზე“). ms-ები — „პირველი 600-ზე, ბოლო 5000-ზე“. 🙋 „თუ Gemini 600 ms-ზე უკვე გვიგზავნიდა — Swagger-მა რატომ 5 წამის შემდეგ აჩვენა?“ — დაელოდე. „ჩვენ **ვაგროვებთ** — `chunks.Add` და ბოლოს `Ok`.“
+- **რას აკეთებ:** **ერთად წერთ.** Stopwatch, სია, `await foreach`, `Ok(chunks)`. Swagger, გრძელი კითხვა ("Tell us about Georgian cuisine"). ms-ები — „პირველი 600-ზე, ბოლო 5000-ზე“. 🙋 „თუ Gemini 600 ms-ზე უკვე გვიგზავნიდა — Swagger-მა რატომ 5 წამის შემდეგ აჩვენა?“ — დაელოდე. „ჩვენ **ვაგროვებთ** — `chunks.Add` და ბოლოს `Ok`.“
 - **გადასვლა:** „ნაწილები Controller-მდე მოდის — და აქ ჩერდება. შესვენების შემდეგ — როგორ გავატაროთ კლიენტამდე.“
 
 ### 🎙️ ნიმუშის მონოლოგი — ორიენტირი, არა ტექსტი
@@ -287,12 +287,12 @@ SSE — ჩვეულებრივი HTTP, რომელიც ღია 
 #### SSE ფორმატი (WHATWG სტანდარტი)
 
 ```
-event: status          ← არასავალდებულო; ნაგულისხმევად "message"
-id: 42                 ← არასავალდებულო; reconnect-ისთვის (Last-Event-ID)
-retry: 3000            ← არასავალდებულო; reconnect-ის დაყოვნება ms
-data: პირველი ხაზი
-data: მეორე ხაზი       ← რამდენიმე data: = ერთი შეტყობინება, \n-ით გაერთიანებული
-                       ← ცარიელი ხაზი = შეტყობინების ბოლო
+event: status          ← optional; "message" by default
+id: 42                 ← optional; for reconnect (Last-Event-ID)
+retry: 3000            ← optional; reconnect delay in ms
+data: first line
+data: second line      ← several data: lines = one message, joined with \n
+                       ← an empty line = end of the message
 ```
 
 - **Content-Type: `text/event-stream`**, UTF-8.
@@ -608,7 +608,7 @@ public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseA
         base.GetStreamingResponseAsync(messages, options, cancellationToken))
     {
         updates.Add(update);
-        yield return update;          // ჯერ ვაგზავნით — სტრიმი არ ჩერდება
+        yield return update;          // send first — the stream doesn't stop
     }
 
     UsageDetails? usage = updates.ToChatResponse().Usage;
@@ -620,7 +620,7 @@ public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseA
 
 ### 🚦 სტატუსის მოვლენები · 8 წთ
 
-tool-იან კითხვაზე 2–3 წამი არაფერი ჩანს. რეალური UI: „ვამოწმებ მაგიდებს…“.
+tool-იან კითხვაზე 2–3 წამი არაფერი ჩანს. რეალური UI: "Checking the tables…".
 
 ```csharp SseItem — მხოლოდ საჩვენებლად
 private async IAsyncEnumerable<SseItem<string>> StreamWithStatus(string prompt,

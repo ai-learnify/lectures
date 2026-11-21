@@ -6,7 +6,7 @@
 
 - **Tools კლასი:** `Ai/<შენი>Tools.cs`, `AddScoped`, მონაცემი **შენი ბაზიდან** (ან შენი არსებული სერვისიდან)
 - **2 tool:** ერთი **პარამეტრის გარეშე**, ერთი **მინიმუმ 2 პარამეტრით**; ორივე **მხოლოდ კითხულობს**; `[Description]` მეთოდებზე და პარამეტრებზე; სახელები ზმნა + რა
-- **`POST /api/ai-lab/chat`:** System — ასისტენტის როლი, „მონაცემი მხოლოდ tool-ებიდან“, დღევანდელი თარიღი (თუ თარიღიანი პარამეტრი გაქვს); პასუხში `Text` და `ToolCalls` **პარამეტრებით**
+- **`POST /api/ai-lab/chat`:** System — ასისტენტის როლი, "Data only from the tools", დღევანდელი თარიღი (თუ თარიღიანი პარამეტრი გაქვს); პასუხში `Text` და `ToolCalls` **პარამეტრებით**
 - **README-ში ცხრილი — 5 ტექსტი:** tool-ის გარეშე · პირველი tool · მეორე tool · ორივე ერთად · ისეთი, სადაც პარამეტრი აკლია. სვეტები: ტექსტი · `toolCalls` (არგუმენტებით) · პასუხი სწორია? · რა შენიშნე
 - კონსპექტის ბოლოს **ტესტი** (11 კითხვა) — ქულა ჩაწერე
 
@@ -38,13 +38,13 @@ public class LibraryTools
     private readonly AppDbContext _db;
     public LibraryTools(AppDbContext db) => _db = db;
 
-    [Description("აბრუნებს ბიბლიოთეკის ჟანრების სიას")]
+    [Description("Returns the list of library genres")]
     public async Task<List<string>> GetGenres() =>
         await _db.Books.Select(b => b.Genre).Distinct().ToListAsync();
-    [Description("ეძებს წიგნებს ავტორით და/ან ჟანრით; აბრუნებს, თავისუფალია თუ არა")]
+    [Description("Searches books by author and/or genre; returns whether each is available")]
     public async Task<List<BookInfo>> FindBooks(
-        [Description("ავტორის გვარი ან მისი ნაწილი; ცარიელი — ნებისმიერი")] string? author,
-        [Description("ჟანრი get_genres-ის სიიდან; ცარიელი — ნებისმიერი")] string? genre) =>
+        [Description("The author's surname or part of it; empty — any")] string? author,
+        [Description("A genre from the get_genres list; empty — any")] string? genre) =>
         await _db.Books
             .Where(b => author == null || b.Author.Contains(author))
             .Where(b => genre == null || b.Genre == genre)
@@ -61,8 +61,8 @@ public async Task<IActionResult> Chat(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, """
-            შენ ხარ ბიბლიოთეკის ასისტენტი. უპასუხე მოკლედ.
-            წიგნებზე და ჟანრებზე მონაცემი მხოლოდ tool-ებიდან აიღე, არაფერი მოიგონო.
+            You are a library assistant. Answer briefly.
+            Take book and genre data only from the tools, don't make anything up.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -91,10 +91,10 @@ public async Task<IActionResult> Chat(AskRequest request)
 | ტექსტი | `toolCalls` | სწორია? | რა შევნიშნე |
 |---|---|---|---|
 | „გამარჯობა!“ | — | ✓ | tool არ სჭირდებოდა |
-| „რა ჟანრები გაქვთ?“ | `get_genres()` | ✓ | სია ბაზიდან |
-| „ჯავახიშვილის წიგნები?“ | `find_books([author, ჯავახიშვილი])` | ✓ | `genre` = null |
-| „რა დეტექტივები გაქვთ თავისუფალი?“ | `get_genres()`, `find_books([genre, დეტექტივი])` | ✓ | ჯერ ჟანრის ზუსტი სახელი გაარკვია — აღწერაში „get_genres-ის სიიდან“ ამიტომ წერია |
-| „ის წიგნი მინდა“ | — | ✓ | ჰკითხა: „რომელი წიგნი?“ |
+| "What genres do you have?" | `get_genres()` | ✓ | სია ბაზიდან |
+| "Books by Javakhishvili?" | `find_books([author, Javakhishvili])` | ✓ | `genre` = null |
+| "Which detective novels do you have available?" | `get_genres()`, `find_books([genre, Detective])` | ✓ | ჯერ ჟანრის ზუსტი სახელი გაარკვია — აღწერაში „get_genres-ის სიიდან“ ამიტომ წერია |
+| "I want that book" | — | ✓ | ჰკითხა: "Which book?" |
 
 ```note
 `author` და `genre` nullable-ია — ასე მოდელი ერთს შეავსებს და მეორეს გამოტოვებს. `Take(10)` — ბიბლიოთეკაში ათასობით წიგნია, მოდელს მთელი სია არ სჭირდება (ტოკენები). შედეგი `BookInfo`-ა და არა `Book` entity. ორივე tool მხოლოდ კითხულობს — დაჯავშნა ჯერ კიდევ საშინაო 3-ის `from-text` endpoint-ითაა, C#-ის შემოწმებით.

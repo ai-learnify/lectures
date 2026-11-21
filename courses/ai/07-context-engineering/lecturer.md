@@ -4,7 +4,7 @@
 
 ## 🎯 მიმოხილვა
 
-ლექცია ლექცია 6-ის ბოლო კითხვით იწყება: „ხვალ 20:00-ზე ოთხნი ვართ?“ → „და 21:00-ზე?“ — მეორეს მოდელი ვერ იგებს. სამი ნაწილია.
+ლექცია ლექცია 6-ის ბოლო კითხვით იწყება: "Four of us tomorrow at 20:00?" → "And at 21:00?" — მეორეს მოდელი ვერ იგებს. სამი ნაწილია.
 
 **ნაწილი 1 — კონტექსტი (თეორია, კოდის გარეშე).** stateless-ის პრობლემა ცოცხლად. კონტექსტის „ანატომია“: System, tool-ები, ისტორია, tool-ების შედეგები, შეკითხვა — და ყველაზე დიდი ნაწილი tool-ების შედეგებია. Prompt engineering vs context engineering.
 
@@ -118,7 +118,7 @@
 
 ### 🎯 მთავარი სათქმელი
 
-ლექცია 6-ის ბოლო კითხვა: „და 21:00-ზე?“ — გაიგებს? დღეს ამით ვიწყებთ.
+ლექცია 6-ის ბოლო კითხვა: "And at 21:00?" — გაიგებს? დღეს ამით ვიწყებთ.
 
 ### 🗣️ როგორ ახსნა
 
@@ -138,7 +138,7 @@
 
 ### 📋 ლექციაზე
 
-- (7) **ცოცხლად:** `/chat`-ზე ორი ცალკე მოთხოვნა — „ხვალ 20:00-ზე ოთხნი ვართ?“ → „და 21:00-ზე?“ → „რა 21:00-ზე?“. 🙋 „რატომ დაავიწყდა?“ → stateless. 🙋 „როგორ გავახსენოთ?“ → ისტორიას ვუგზავნით
+- (7) **ცოცხლად:** `/chat`-ზე ორი ცალკე მოთხოვნა — "Four of us tomorrow at 20:00?" → "And at 21:00?" → „რა 21:00-ზე?“. 🙋 „რატომ დაავიწყდა?“ → stateless. 🙋 „როგორ გავახსენოთ?“ → ისტორიას ვუგზავნით
 - (8) **ანატომია:** ხუთი ზოლი სათითაოდ. 🙋 „ყველაზე დიდი რომელია?“ — დაელოდე. tool შედეგები. prompt engineering vs context engineering
 - ⏱ **0:18**-ზე ნაწილ 2-ზე (9)
 
@@ -202,7 +202,7 @@ Gemini-ს REST API (`generateContent`) ყოველ მოთხოვნა
 
 #### 7 · პრობლემა ცოცხლად · 4.5 წთ
 
-- **რას აკეთებ:** Swagger, ლექცია 6-ის `/chat` (ისტორიის გარეშე). პირველი შეკითხვა → „ორი მაგიდაა“. მეორე: „და 21:00-ზე?“ → „რა გაინტერესებთ?“. **გაჩერდი:** 🙋 „რატომ?“ — დაელოდე. თუ „stateless“ თქვეს — შესანიშნავია. 🙋 „როგორ გავასწოროთ?“ — „ისტორია გავუგზავნოთ“. ნაბიჯები სლაიდზე.
+- **რას აკეთებ:** Swagger, ლექცია 6-ის `/chat` (ისტორიის გარეშე). პირველი შეკითხვა → „ორი მაგიდაა“. მეორე: "And at 21:00?" → „რა გაინტერესებთ?“. **გაჩერდი:** 🙋 „რატომ?“ — დაელოდე. თუ „stateless“ თქვეს — შესანიშნავია. 🙋 „როგორ გავასწოროთ?“ — „ისტორია გავუგზავნოთ“. ნაბიჯები სლაიდზე.
 - **რას ეუბნები:** „მეხსიერება მოდელში არ არის. ის ჩვენს კოდშია — ან არსად.“
 - **გადასვლა:** „მაშინ ვნახოთ, რა მიდის ერთ მოთხოვნაში სინამდვილეში.“
 
@@ -273,8 +273,8 @@ Gemini-ს REST API (`generateContent`) ყოველ მოთხოვნა
 public class ChatMessage
 {
     public ChatRole Role { get; set; }              // system / user / assistant / tool
-    public IList<AIContent> Contents { get; set; }  // ← სხვადასხვა ტიპის ნაწილები
-    public string Text => ...;                      // მხოლოდ TextContent-ების გაერთიანება
+    public IList<AIContent> Contents { get; set; }  // ← parts of different types
+    public string Text => ...;                      // only the TextContents joined
     public string? AuthorName { get; set; }
     public string? MessageId { get; set; }
     public AdditionalPropertiesDictionary? AdditionalProperties { get; set; }
@@ -357,7 +357,7 @@ jsonb key-ებს თავისებურად ალაგებს: `{"
 
 #### 12 · /chat ისტორიით · 5 წთ
 
-- **რას აკეთებ:** **ერთად წერთ.** `ChatRequest` — `Guid?`. `?? Guid.NewGuid()`. `LoadAsync`. `[SystemPrompt(), .. history, question]` — `..`-ს ახსნა. `GetResponseAsync`. `AppendAsync([question, .. response.Messages])` — „შეკითხვაც და **ყველაფერი**, რაც მოდელმა დაამატა“. Swagger: 1) id-ის გარეშე → id პასუხში; 2) იგივე id-ით „და 21:00-ზე?“ → **„21:00-ზე ერთი მაგიდაა“**. აჩვენე `InputTokenCount` ორივეზე.
+- **რას აკეთებ:** **ერთად წერთ.** `ChatRequest` — `Guid?`. `?? Guid.NewGuid()`. `LoadAsync`. `[SystemPrompt(), .. history, question]` — `..`-ს ახსნა. `GetResponseAsync`. `AppendAsync([question, .. response.Messages])` — „შეკითხვაც და **ყველაფერი**, რაც მოდელმა დაამატა“. Swagger: 1) id-ის გარეშე → id პასუხში; 2) იგივე id-ით "And at 21:00?" → **"One table is free at 21:00"**. აჩვენე `InputTokenCount` ორივეზე.
 - **რას ეუბნები:** „System prompt ბაზაში არ ინახება — ჩვენია და ყოველ ჯერზე ახლიდან.“
 - **გადასვლა:** „ბაზაში ჩავიხედოთ.“
 
@@ -505,7 +505,7 @@ public interface IChatReducer
 
 #### 18 · reducer · 4 წთ
 
-- **რას აკეთებ:** **ერთად წერთ:** static ველი, `ReduceAsync`, `.. recent`. MEAI001 — „experimental — API შეიძლება შეიცვალოს“. Swagger: იგივე საუბარი გააგრძელე — InputTokenCount დაეცა. 🙋 „მენიუ აღარ არის — ფასს საიდან?“ — ჰკითხე „ლობიო რა ღირს?“ → ლოგში `get_menu` **თავიდან**.
+- **რას აკეთებ:** **ერთად წერთ:** static ველი, `ReduceAsync`, `.. recent`. MEAI001 — „experimental — API შეიძლება შეიცვალოს“. Swagger: იგივე საუბარი გააგრძელე — InputTokenCount დაეცა. 🙋 „მენიუ აღარ არის — ფასს საიდან?“ — ჰკითხე "How much is lobio?" → ლოგში `get_menu` **თავიდან**.
 - **რას ეუბნები:** „ბაზა არ შეგვიცვლია — მხოლოდ ის, რაც მოდელს ვაჩვენეთ.“
 - **გადასვლა:** „ახლა თქვენი ჩატი.“
 
@@ -680,7 +680,7 @@ public class LastTurnsReducer(int count) : IChatReducer
 ### 🔎 jsonb-ში ძებნა · 5 წთ
 
 ```sql
--- რომელ tool-ს რამდენჯერ იძახებს მოდელი
+-- which tool the model calls, and how often
 SELECT c->>'name' AS tool, COUNT(*)
 FROM "ChatMessages", jsonb_array_elements("Json"->'contents') AS c
 WHERE c->>'$type' = 'functionCall'

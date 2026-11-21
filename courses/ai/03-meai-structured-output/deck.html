@@ -59,7 +59,7 @@
   <div class="abs" style="right:90px;top:220px;width:520px">
     <div class="swr c-post in" style="--d:.6s">
       <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/parse-booking</span></div>
-      <div class="lab">„ოთხნი ვართ, ხვალ 8-ზე“ → Response · 200</div>
+      <div class="lab">"There are four of us, tomorrow at 8" → Response · 200</div>
       <pre class="rb">{
   <span class="k">"at"</span>: <span class="s">"2026-11-25T20:00:00"</span>,
   <span class="k">"guests"</span>: <span class="n">4</span>
@@ -208,15 +208,15 @@ using Microsoft.Extensions.AI;
 var builder = WebApplication.CreateBuilder(args);
 
 string apiKey = builder.Configuration["Gemini:ApiKey"]
-    ?? throw new InvalidOperationException("Gemini:ApiKey აკლია");
+    ?? throw new InvalidOperationException("Gemini:ApiKey is missing");
 string model = builder.Configuration["Gemini:Model"]
-    ?? throw new InvalidOperationException("Gemini:Model აკლია");
+    ?? throw new InvalidOperationException("Gemini:Model is missing");
 
 builder.Services.AddChatClient(
     new Client(apiKey: apiKey).AsIChatClient(model));
 
 builder.Services.AddControllers();
-// ... დანარჩენი — როგორც იყო
+// ... the rest — as it was
     </code-block>
     <div class="col" style="gap:12px">
       <code-block lang="json" cls="sm" title="appsettings.json">
@@ -246,15 +246,15 @@ using Microsoft.Extensions.AI;
 var builder = WebApplication.CreateBuilder(args);
 
 string apiKey = builder.Configuration["Gemini:ApiKey"]
-    ?? throw new InvalidOperationException("Gemini:ApiKey აკლია");
+    ?? throw new InvalidOperationException("Gemini:ApiKey is missing");
 string model = builder.Configuration["Gemini:Model"]
-    ?? throw new InvalidOperationException("Gemini:Model აკლია");
+    ?? throw new InvalidOperationException("Gemini:Model is missing");
 
 builder.Services.AddChatClient(
     new Client(apiKey: apiKey).AsIChatClient(model));
 
 builder.Services.AddControllers();
-// ... დანარჩენი — როგორც იყო
+// ... the rest — as it was
 ```
 
 - **`AddChatClient(...)`** — `Microsoft.Extensions.AI`-ის extension. `IChatClient`-ს არეგისტრირებს **Singleton**-ად: მთელ აპლიკაციაზე ერთი client, ერთი HTTP კავშირების pool. Gemini-ს client thread-safe-ია, ამიტომ ერთდროულ მოთხოვნებს უპრობლემოდ ემსახურება.
@@ -386,7 +386,7 @@ public class AiLabController : ControllerBase
         _chat = chat;
     }
 
-    // ask, assistant, review-sentiment — უცვლელი
+    // ask, assistant, review-sentiment — unchanged
 }
     </code-block>
     <div class="col" style="gap:14px">
@@ -415,7 +415,7 @@ public class AiLabController : ControllerBase
         _chat = chat;
     }
 
-    // ask, assistant, review-sentiment — უცვლელი
+    // ask, assistant, review-sentiment — unchanged
 }
 ```
 
@@ -481,7 +481,7 @@ None of the three touches the Controller.
   <aside class="study">
 ## ნაწილი 2 · Structured output
 
-ლექცია 2-ზე few-shot-ით მივაღწიეთ, რომ მოდელი თითქმის ყოველთვის ზუსტ სიტყვას აბრუნებდა. „თითქმის“ კოდისთვის საკმარისი არ არის. **Structured output** მოდელს სთხოვს არა „ერთი სიტყვით უპასუხე“, არამედ — „უპასუხე ზუსტად ამ C# ტიპის ფორმით“.
+ლექცია 2-ზე few-shot-ით მივაღწიეთ, რომ მოდელი თითქმის ყოველთვის ზუსტ სიტყვას აბრუნებდა. „თითქმის“ კოდისთვის საკმარისი არ არის. **Structured output** მოდელს სთხოვს არა "Answer in one word", არამედ — "Answer in exactly the shape of this C# type".
   </aside>
   <aside class="study-en">
 ## Part 2 · Structured output
@@ -553,7 +553,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "დაახარისხე რესტორნის შეფასება."),
+        new(ChatRole.System, "Classify the restaurant review."),
         new(ChatRole.User, request.Prompt)
     ];
 
@@ -561,7 +561,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
         await _chat.GetResponseAsync<Sentiment>(messages);
 
     Sentiment sentiment = response.Result;
-    if (sentiment == Sentiment.Negative) { /* მენეჯერს ვატყობინებთ */ }
+    if (sentiment == Sentiment.Negative) { /* notify the manager */ }
 
     return Ok(sentiment.ToString());
 }
@@ -570,7 +570,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
       <i class="codestep" data-for="c3" data-lines="1"></i>
       <div class="callout step" data-with style="--a:var(--net)"><b>enum</b> = დასაშვები პასუხების სია</div>
       <i class="codestep" data-for="c3" data-lines="8"></i>
-      <div class="callout step" data-with style="--a:var(--muted)">„ერთი სიტყვით უპასუხე“ და მაგალითები <b>აღარ</b> გვჭირდება ფორმისთვის</div>
+      <div class="callout step" data-with style="--a:var(--muted)">"Answer in one word" და მაგალითები <b>აღარ</b> გვჭირდება ფორმისთვის</div>
       <i class="codestep" data-for="c3" data-lines="12-13"></i>
       <div class="callout step" data-with style="--a:var(--api)"><b>&lt;T&gt;</b> — რა ფორმით გვინდა პასუხი</div>
       <i class="codestep" data-for="c3" data-lines="15-16"></i>
@@ -590,7 +590,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "დაახარისხე რესტორნის შეფასება."),
+        new(ChatRole.System, "Classify the restaurant review."),
         new(ChatRole.User, request.Prompt)
     ];
 
@@ -598,7 +598,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
         await _chat.GetResponseAsync<Sentiment>(messages);
 
     Sentiment sentiment = response.Result;
-    if (sentiment == Sentiment.Negative) { /* მენეჯერს ვატყობინებთ */ }
+    if (sentiment == Sentiment.Negative) { /* notify the manager */ }
 
     return Ok(sentiment.ToString());
 }
@@ -607,7 +607,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
 ხაზ-ხაზ:
 
 - **`enum Sentiment`** — დასაშვები პასუხების სია. მოდელი ამის გარეთ ვერაფერს დააბრუნებს. enum შეგიძლია ცალკე ფაილში გაიტანო.
-- **System prompt მოკლდება.** „უპასუხე მხოლოდ ერთი სიტყვით: Positive, Negative ან Mixed“ და few-shot მაგალითები **ფორმისთვის** აღარ გვჭირდება — ფორმას ტიპი განსაზღვრავს. ნაკლები ტექსტი = ნაკლები input ტოკენი.
+- **System prompt მოკლდება.** "Answer with one word only: Positive, Negative or Mixed" და few-shot მაგალითები **ფორმისთვის** აღარ გვჭირდება — ფორმას ტიპი განსაზღვრავს. ნაკლები ტექსტი = ნაკლები input ტოკენი.
 - **`GetResponseAsync<Sentiment>(messages)`** — იგივე `GetResponseAsync`, ოღონდ ტიპით. აბრუნებს **`ChatResponse<Sentiment>`**-ს: ჩვეულებრივ `ChatResponse`-ს (`Text`, `Usage`, `FinishReason`) პლუს `Result`.
 - **`response.Result`** — უკვე `Sentiment`, არა `string`. `if (sentiment == Sentiment.Negative)` ყოველთვის სწორად მუშაობს.
 - **`sentiment.ToString()`** — ASP.NET Core enum-ს JSON-ში ნაგულისხმევად **რიცხვად** აბრუნებს (`Mixed` → `2`). `ToString()` სახელს გვიბრუნებს.
@@ -752,12 +752,12 @@ An enum is one value. In real tasks we need **several** pieces of data from text
 
 <section class="slide" data-section="3 · ტექსტი → ობიექტი">
   <div class="kicker">🧑‍💻 ვწერთ · parse-booking</div>
-  <h2>„ოთხნი ვართ, ხვალ 8-ზე“ → <span class="mono c-api">BookingRequest</span></h2>
+  <h2>"There are four of us, tomorrow at 8" → <span class="mono c-api">BookingRequest</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
     <code-block id="c4" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ParseBooking">
 public record BookingRequest(
-    [property: Description("ჯავშნის თარიღი და დრო")] DateTime? At,
-    [property: Description("სტუმრების რაოდენობა")] int? Guests);
+    [property: Description("Booking date and time")] DateTime? At,
+    [property: Description("Number of guests")] int? Guests);
 
 [HttpPost("parse-booking")]
 public async Task<IActionResult> ParseBooking(AskRequest request)
@@ -765,9 +765,9 @@ public async Task<IActionResult> ParseBooking(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            ამოიღე ჯავშნის მონაცემები მომხმარებლის ტექსტიდან.
-            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
-            რაც ტექსტში არ წერია, დატოვე null.
+            Extract the booking details from the user's text.
+            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+            Leave null whatever is not in the text.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -790,12 +790,12 @@ public async Task<IActionResult> ParseBooking(AskRequest request)
   <aside class="study">
 ### `BookingRequest`: ობიექტი რამდენიმე ველით
 
-მომხმარებელი წერს: „ოთხნი ვართ, ხვალ 8-ზე“. ჯავშნის ლოგიკას კი სჭირდება `DateTime` და `int`. structured output ამ ორს შორის ხიდია:
+მომხმარებელი წერს: "There are four of us, tomorrow at 8". ჯავშნის ლოგიკას კი სჭირდება `DateTime` და `int`. structured output ამ ორს შორის ხიდია:
 
 ```csharp Controllers/AiLabController.cs · ParseBooking
 public record BookingRequest(
-    [property: Description("ჯავშნის თარიღი და დრო")] DateTime? At,
-    [property: Description("სტუმრების რაოდენობა")] int? Guests);
+    [property: Description("Booking date and time")] DateTime? At,
+    [property: Description("Number of guests")] int? Guests);
 
 [HttpPost("parse-booking")]
 public async Task<IActionResult> ParseBooking(AskRequest request)
@@ -803,9 +803,9 @@ public async Task<IActionResult> ParseBooking(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            ამოიღე ჯავშნის მონაცემები მომხმარებლის ტექსტიდან.
-            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
-            რაც ტექსტში არ წერია, დატოვე null.
+            Extract the booking details from the user's text.
+            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+            Leave null whatever is not in the text.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -821,11 +821,11 @@ public async Task<IActionResult> ParseBooking(AskRequest request)
 **სამი მნიშვნელოვანი დეტალი:**
 
 1. **დღევანდელი თარიღი prompt-ში.** მოდელმა არ იცის, დღეს რა რიცხვია: ის stateless-ია და მისი ცოდნა ვარჯიშის დღეზე ჩერდება (ლექცია 1). „ხვალ“ რომ გაიგოს, თარიღს ჩვენ ვაწვდით — ლექცია 2-ის prompt შაბლონით (`$"""…{…}…"""`).
-2. **Nullable ველები (`DateTime?`, `int?`).** `?` მოდელს ეუბნება: „ეს შეიძლება არ იცოდე“. `?`-ის გარეშე მოდელი **იძულებულია** რაიმე დაწეროს — და მოიგონებს. prompt-ის ხაზი „რაც არ წერია, დატოვე null“ იგივეს ამყარებს.
+2. **Nullable ველები (`DateTime?`, `int?`).** `?` მოდელს ეუბნება: "you may not know this". `?`-ის გარეშე მოდელი **იძულებულია** რაიმე დაწეროს — და მოიგონებს. prompt-ის ხაზი "Leave null whatever is not in the text" იგივეს ამყარებს.
 3. **`[property: Description(...)]`** — აღწერა სქემაში ჯდება და მოდელს ველის მნიშვნელობას უხსნის. `property:` საჭიროა, რადგან `record`-ის პარამეტრზე ატრიბუტი თვისებას (property) უნდა მიეწეროს.
 
 ```tip
-Google-ის რეკომენდაცია: სქემა prompt-ში **არ გაიმეორო** (მაგ. „დააბრუნე JSON ველებით at და guests“) — ის ისედაც მოთხოვნასთან მიდის, და გამეორება ხარისხს აუარესებს. prompt-ში წერე **რა** ამოიღოს და **რა წესით**.
+Google-ის რეკომენდაცია: სქემა prompt-ში **არ გაიმეორო** (მაგ. "Return JSON with the fields at and guests") — ის ისედაც მოთხოვნასთან მიდის, და გამეორება ხარისხს აუარესებს. prompt-ში წერე **რა** ამოიღოს და **რა წესით**.
 ```
   </aside>
   <aside class="study-en">
@@ -876,19 +876,19 @@ Google's recommendation: **don't repeat** the schema in the prompt (e.g. “retu
   <h2>3 ტექსტი — <span class="c-net">ერთი ტიპი</span></h2>
   <div class="grid3" style="gap:20px;margin-top:6px;align-items:start">
     <div class="col" style="gap:10px">
-      <div class="txt"><span class="who">1 · სრული</span>ოთხნი ვართ, ხვალ 8-ზე</div>
+      <div class="txt"><span class="who">1 · სრული</span>there are four of us, tomorrow at 8</div>
       <div class="obj step" style="--a:var(--asp)">{ <span class="k">at</span>: <span class="n">"…T08:00"</span>,
   <span class="k">guests</span>: <span class="n">4</span> }</div>
       <div class="callout step" data-with style="--a:var(--red);font-size:17px">დილის 8? რესტორანი <b>12:00</b>-დან მუშაობს</div>
     </div>
     <div class="col" style="gap:10px">
-      <div class="txt"><span class="who">2 · ნაწილობრივი</span>მაგიდა მინდა შაბათს საღამოს</div>
+      <div class="txt"><span class="who">2 · ნაწილობრივი</span>I'd like a table on Saturday evening</div>
       <div class="obj step" style="--a:var(--asp)">{ <span class="k">at</span>: <span class="n">"…T19:00"</span>,
   <span class="k">guests</span>: <span class="z">null</span> }</div>
       <div class="callout step" data-with style="--a:var(--asp);font-size:17px">„საღამო“ → 19:00 — <b>მოდელის ვარაუდი</b></div>
     </div>
     <div class="col" style="gap:10px">
-      <div class="txt"><span class="who">3 · სხვა თემა</span>ხინკალი რა ღირს?</div>
+      <div class="txt"><span class="who">3 · სხვა თემა</span>How much is khinkali?</div>
       <div class="obj step" style="--a:var(--asp)">{ <span class="k">at</span>: <span class="z">null</span>,
   <span class="k">guests</span>: <span class="z">null</span> }</div>
       <div class="callout step" data-with style="--a:var(--mvc);font-size:17px">ფორმა მაინც სწორია</div>
@@ -905,9 +905,9 @@ Google's recommendation: **don't repeat** the schema in the prompt (e.g. “retu
 
 | ტექსტი | შედეგი | რა უნდა შენიშნო |
 |---|---|---|
-| „ოთხნი ვართ, ხვალ 8-ზე“ | `at: …T08:00`, `guests: 4` | „8“ ორაზროვანია. მოდელმა შეიძლება დილის 8 აირჩიოს, რესტორანი კი 12:00-დან მუშაობს |
-| „მაგიდა მინდა შაბათს საღამოს“ | `at: …T19:00`, `guests: null` | სტუმრების რაოდენობა არ წერია → `null` (არ მოიგონა). „საღამო“ → 19:00 კი **მოდელის ვარაუდია** |
-| „ხინკალი რა ღირს?“ | `at: null`, `guests: null` | ჯავშანი არ არის — ფორმა მაინც სწორია, ყველაფერი `null` |
+| "There are four of us, tomorrow at 8" | `at: …T08:00`, `guests: 4` | „8“ ორაზროვანია. მოდელმა შეიძლება დილის 8 აირჩიოს, რესტორანი კი 12:00-დან მუშაობს |
+| "I'd like a table on Saturday evening" | `at: …T19:00`, `guests: null` | სტუმრების რაოდენობა არ წერია → `null` (არ მოიგონა). „საღამო“ → 19:00 კი **მოდელის ვარაუდია** |
+| "How much is khinkali?" | `at: null`, `guests: null` | ჯავშანი არ არის — ფორმა მაინც სწორია, ყველაფერი `null` |
 
 ზუსტი შედეგი შენთან შეიძლება განსხვავდებოდეს — მოდელი ალბათობით მუშაობს.
 
@@ -916,12 +916,12 @@ Google's recommendation: **don't repeat** the schema in the prompt (e.g. “retu
 ```csharp
 BookingRequest b = response.Result;
 
-if (b.At is null) return BadRequest("რომელ დღეს და რომელ საათზე?");
-if (b.Guests is null) return BadRequest("რამდენი ხართ?");
+if (b.At is null) return BadRequest("Which day and what time?");
+if (b.Guests is null) return BadRequest("How many of you?");
 if (b.At.Value.Hour < 12 || b.At.Value.Hour >= 23)
-    return BadRequest("ვმუშაობთ 12:00–23:00");
+    return BadRequest("We're open 12:00–23:00");
 
-// აქედან — შენი არსებული ჯავშნის ლოგიკა
+// from here — your existing booking logic
 ```
 
 ეს იგივე წესია, რაც ლექცია 2-ზე: **prompt და მოდელი ალბათობას ცვლის, აუცილებელს კი C# ამოწმებს.**
@@ -972,7 +972,7 @@ It's the same rule as in lecture 2: **the prompt and the model change the probab
       <li><b>T?</b> და „დატოვე null“ — არ მოიგონოს</li>
       <li><b>ფორმა</b> გარანტირებულია, <b>შინაარსს</b> C# ამოწმებს</li></ul></div>
     <div class="col" style="gap:14px">
-      <div class="obj" style="--a:var(--asp)">„ოთხნი ვართ, ხვალ 8-ზე“ →
+      <div class="obj" style="--a:var(--asp)">"There are four of us, tomorrow at 8" →
 { <span class="k">at</span>: <span class="n">"…T20:00"</span>, <span class="k">guests</span>: <span class="n">4</span> }</div>
       <div class="callout ask">🙋 მოდელმა ჯავშანი ამოიღო. <b>იცის</b>, ხვალ 20:00-ზე მაგიდა თავისუფალია?</div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 4</h3>
@@ -986,7 +986,7 @@ It's the same rule as in lecture 2: **the prompt and the model change the probab
 - **პროვაიდერის შეცვლა** — მხოლოდ `Program.cs`; **მოდელის შეცვლა** — მხოლოდ `appsettings.json`. Controller-ს არცერთი არ ეხება.
 - **`GetResponseAsync<T>`** — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემას მისდევს, პასუხი `response.Result`-ში უკვე `T` ტიპისაა.
 - **enum** — ერთი მნიშვნელობა დასაშვები სიიდან (კლასიფიკაცია). **record** — რამდენიმე ველი ტექსტიდან (ამოღება).
-- **nullable ველები** (`DateTime?`, `int?`) და prompt-ში „რაც არ წერია, დატოვე null“ — მოდელს ნებას აძლევს, არ მოიგონოს.
+- **nullable ველები** (`DateTime?`, `int?`) და prompt-ში "Leave null whatever is not in the text" — მოდელს ნებას აძლევს, არ მოიგონოს.
 - **ფორმა გარანტირებულია, შინაარსი — არა.** ობიექტს ბაზამდე C# ამოწმებს.
 
 ### შემდეგ ლექციაზე

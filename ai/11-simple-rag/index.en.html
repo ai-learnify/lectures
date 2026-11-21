@@ -740,7 +740,7 @@ The menu and prices — from the tools.</div>
     <div class="card accent" style="--a:var(--mvc)">
       <h3><span class="ico">📝</span>Your project or RestaurantApi · with code · Swagger and a table in your notebook</h3>
       <ul class="clean small">
-<li><strong>1 · PDF</strong> — your 2–3 page PDF (rules, FAQ, instructions on your project's topic), upload it with <code class="i">POST /documents</code>. How many parts came out?</li>
+<li><strong>1 · PDF</strong> — your 2–3 page PDF <strong>in English</strong> (rules, FAQ, instructions on your project's topic), upload it with <code class="i">POST /documents</code>. How many parts came out?</li>
 <li><strong>2 · endpoint</strong> — <code class="i">GET /api/ai-lab/documents/search?q=</code> — the result of <code class="i">SearchChunksAsync</code>: the file, the page, the score and the first 100 characters of the text (<code class="i">Content[..Math.Min(100, Content.Length)]</code>)</li>
 <li><strong>3 · guess first</strong> — in your notebook 5 questions and for each one <strong>your prediction</strong>: which page is the answer on? One question — in other words (a synonym), one — with an exact number or name, one — something that <strong>isn't</strong> in the PDF</li>
 <li><strong>4 · search</strong> — all five in Swagger: is the first part on the right page? Did the threshold work on the “non-existent” one?</li>

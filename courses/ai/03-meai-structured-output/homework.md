@@ -38,7 +38,7 @@ public async Task<IActionResult> Classify(AskRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "დაახარისხე ბიბლიოთეკის მომხმარებლის მოთხოვნა."),
+        new(ChatRole.System, "Classify the library user's request."),
         new(ChatRole.User, request.Prompt)
     ];
 
@@ -51,8 +51,8 @@ public async Task<IActionResult> Classify(AskRequest request)
 
 ```csharp Controllers/ReservationsController.cs · FromText
 public record ReservationDraft(
-    [property: Description("წიგნის სათაური")] string? Title,
-    [property: Description("რომელ დღემდე შევინახოთ")] DateOnly? Until);
+    [property: Description("Book title")] string? Title,
+    [property: Description("Hold until which day")] DateOnly? Until);
 
 [HttpPost("from-text")]
 public async Task<IActionResult> FromText(AskRequest request)
@@ -60,9 +60,9 @@ public async Task<IActionResult> FromText(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            ამოიღე წიგნის დაჯავშნის მონაცემები ტექსტიდან.
-            დღეს არის {DateTime.Now:yyyy-MM-dd, dddd}.
-            რაც ტექსტში არ წერია, დატოვე null.
+            Extract the book reservation details from the text.
+            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+            Leave null whatever is not in the text.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -71,8 +71,8 @@ public async Task<IActionResult> FromText(AskRequest request)
         await _chat.GetResponseAsync<ReservationDraft>(messages);
     ReservationDraft d = response.Result;
 
-    if (d.Title is null) return BadRequest("რომელი წიგნი?");
-    if (d.Until is null) return BadRequest("რომელ დღემდე შევინახოთ?");
+    if (d.Title is null) return BadRequest("Which book?");
+    if (d.Until is null) return BadRequest("Until which day should we hold it?");
 
     Reservation created = await _reservations.CreateAsync(d.Title, d.Until.Value);
     return Ok(created);
@@ -81,9 +81,9 @@ public async Task<IActionResult> FromText(AskRequest request)
 
 | ტექსტი | few-shot | enum | `inputTokens` few-shot / enum |
 |---|---|---|---|
-| „დეტექტივები სად გაქვთ?“ | `Search` | `Search` | ~95 / ~35 |
-| „ორშაბათამდე შემინახეთ ეს წიგნი“ | `Reserve.` | `Reserve` | ~95 / ~35 |
-| „ბარათის აღდგენა რა ღირს?“ | `Question` | `Question` | ~95 / ~35 |
+| "Where are your detective novels?" | `Search` | `Search` | ~95 / ~35 |
+| "Hold this book for me until Monday" | `Reserve.` | `Reserve` | ~95 / ~35 |
+| "How much does replacing a library card cost?" | `Question` | `Question` | ~95 / ~35 |
 
 ```note
 enum-ის ვერსიაში მაგალითები აღარ არის — ამიტომ `inputTokens` მცირდება, და `Reserve.`-ის მსგავსი პასუხი ვეღარ მოვა. `from-text` ჩანაწერს მხოლოდ შემოწმების შემდეგ ქმნის: მოდელი ფორმას იძლევა, აუცილებელს C# ამოწმებს. `_reservations` — ის სერვისი, რომლითაც ბიბლიოთეკის API-ში ჯავშანს უკვე ქმნი; Controller-ში ის `IChatClient`-ის გვერდით, constructor-ით მოდის.

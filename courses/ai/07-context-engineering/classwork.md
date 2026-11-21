@@ -7,7 +7,7 @@
 - **1 · ცხრილი** — `ChatMessageRecord` (`Id`, `ConversationId`, `Position`, `Role`, `Json` — `[Column(TypeName = "jsonb")]`, `CreatedAt`), `DbSet` `AppDbContext`-ში, migration
 - **2 · store** — `ChatHistoryStore`: `LoadAsync` და `AppendAsync`, JSON პარამეტრებით `new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true }`; `AddScoped` `Program.cs`-ში
 - **3 · endpoint** — `ChatRequest(Guid? ConversationId, string Prompt)`; `/chat`: ჩატვირთე → `[SystemPrompt(), .. history, question]` → `GetResponseAsync` → `AppendAsync([question, .. response.Messages])` → პასუხში `conversationId`
-- **4 · შემოწმება** — Swagger-ში ორი შეკითხვა ერთი `conversationId`-ით, სადაც მეორე პირველის გარეშე გაუგებარია (მაგ. „და 21:00-ზე?“); მერე ბაზაში `SELECT "Position", "Role", "Json" FROM "ChatMessages"`
+- **4 · შემოწმება** — Swagger-ში ორი შეკითხვა ერთი `conversationId`-ით, სადაც მეორე პირველის გარეშე გაუგებარია (მაგ. "And at 21:00?"); მერე ბაზაში `SELECT "Position", "Role", "Json" FROM "ChatMessages"`
 
 ## ✓ მზადაა, როცა
 

@@ -19,7 +19,7 @@
 
 - ორივე ვარიანტი დაწერე და Program.cs-ში სწორი რიგით დასვი
 - extension მეთოდი: `public static ChatClientBuilder UseInputGuard(this ChatClientBuilder b) => b.Use(inner => new InputGuardChatClient(inner));` → Program.cs-ში `.UseInputGuard()`
-- ფენამ მომხმარებლის შეკითხვას ბოლოში მიუწეროს „უპასუხე ქართულად“ — მოთხოვნის **შეცვლა** base-მდე
+- ფენამ მომხმარებლის შეკითხვას ბოლოში მიუწეროს "Answer in Georgian" — მოთხოვნის **შეცვლა** base-მდე
 
 ## 💡 თუ გაიჭედე
 

@@ -35,7 +35,8 @@ public async Task<IActionResult> Classify(AskRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the library request. Answer with one word only: Search, Reserve or Question."),
+        new(ChatRole.System, "Classify the library request. " +
+            "Answer with one word only: Search, Reserve or Question."),
         new(ChatRole.User, "Do you have anything by Haruki Murakami?"),
         new(ChatRole.Assistant, "Search"),
         new(ChatRole.User, "Please hold “Jaqo's Dispossessed” for me until tomorrow"),

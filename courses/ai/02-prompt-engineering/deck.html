@@ -208,7 +208,7 @@ provider — a library that implements the common interface for a specific servi
   <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:30px;align-items:start">
     <div class="col" style="gap:16px">
       <div class="term"><div class="bar"><i></i><i></i><i></i><span>Terminal (Windows)</span></div>
-        <div class="body"><div class="cmd">dotnet user-secrets init</div><div class="cmd">dotnet user-secrets set "Gemini:ApiKey" "AIza…"</div><div class="ok">Successfully saved Gemini:ApiKey</div><div class="out"># ან VS: პროექტზე მარჯვენა → Manage User Secrets</div></div></div>
+        <div class="body"><div class="cmd">dotnet user-secrets init</div><div class="cmd">dotnet user-secrets set "Gemini:ApiKey" "AIza…"</div><div class="ok">Successfully saved Gemini:ApiKey</div><div class="out"># or VS: right-click the project → Manage User Secrets</div></div></div>
       <div class="callout ask">🙋 key <b>არ გაქვს?</b> დაჯექი key-იან მეზობელთან — სახლში აიღებ</div>
     </div>
     <div class="col" style="gap:14px">
@@ -314,7 +314,7 @@ public class AiLabController : ControllerBase
 {
     private readonly IChatClient _chat;
 
-    // დროებით აქვე ვქმნით — ლექცია 3-ზე DI-ში გადავა
+    // created here for now — moves to DI in lecture 3
     public AiLabController(IConfiguration config)
     {
         _chat = new Client(apiKey: config["Gemini:ApiKey"])
@@ -382,7 +382,7 @@ public class AiLabController : ControllerBase
 {
     private readonly IChatClient _chat;
 
-    // დროებით აქვე ვქმნით — ლექცია 3-ზე DI-ში გადავა
+    // created here for now — moves to DI in lecture 3
     public AiLabController(IConfiguration config)
     {
         _chat = new Client(apiKey: config["Gemini:ApiKey"])
@@ -826,22 +826,22 @@ In lecture 1 we saw that the model picks the next token based on **the whole tex
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ნაწილობრივ ვარჯიშმა, მაგრამ კონკრეტულ ქცევას — ენას, თემას, ტონს — system prompt წყვეტს, რომელსაც აპლიკაცია წერს</div>
   <div class="grid2 mt" style="grid-template-columns:1.25fr 1fr;gap:30px;align-items:start">
     <div class="msgs">
-      <div class="msg step" style="--a:var(--net)"><b>System<small>ჩვენ · კოდში</small></b><span>შენ ხარ რესტორან „სუფრის“ ასისტენტი. პასუხობ მოკლედ…</span></div>
-      <div class="msg step" data-with style="--a:var(--api)"><b>User<small>მომხმარებელი</small></b><span>ვეგეტარიანული რა გაქვთ?</span></div>
-      <div class="msg step" style="--a:var(--mvc)"><b>Assistant<small>მოდელის პასუხი</small></b><span>გირჩევთ ფხალს და ბადრიჯანს ნიგვზით…</span></div>
-      <div class="msg next step" data-with style="--a:var(--mvc)"><b>Assistant<small>მოდელი წერს</small></b><span>ახლა ის აგრძელებს — სიაში ყველაფრის გათვალისწინებით</span></div>
+      <div class="msg step" style="--a:var(--net)"><b>System<small>ჩვენ · კოდში</small></b><span>You are the assistant of the restaurant Supra. You answer briefly…</span></div>
+      <div class="msg step" data-with style="--a:var(--api)"><b>User<small>მომხმარებელი</small></b><span>What do you have that's vegetarian?</span></div>
+      <div class="msg step" style="--a:var(--mvc)"><b>Assistant<small>მოდელის პასუხი</small></b><span>I recommend pkhali and eggplant with walnuts…</span></div>
+      <div class="msg next step" data-with style="--a:var(--mvc)"><b>Assistant<small>მოდელი წერს</small></b><span>now it continues — taking everything in the list into account</span></div>
     </div>
     <div class="col step" style="gap:14px">
       <code-block lang="csharp" cls="sm" title="C#-ში">
 List<ChatMessage> messages =
 [
-    new(ChatRole.System, "შენ ხარ…"),
+    new(ChatRole.System, "You are…"),
     new(ChatRole.User, request.Prompt)
 ];
 
 await _chat.GetResponseAsync(messages);
       </code-block>
-      <div class="callout" style="--a:var(--asp);font-size:19px"><code class="i">GetResponseAsync("ტექსტი")</code> = სია ერთი <b>User</b> შეტყობინებით</div>
+      <div class="callout" style="--a:var(--asp);font-size:19px"><code class="i">GetResponseAsync("text")</code> = სია ერთი <b>User</b> შეტყობინებით</div>
     </div>
   </div>
   <aside class="study">
@@ -864,7 +864,7 @@ C#-ში სია ასე იწყობა:
 ```csharp
 List<ChatMessage> messages =
 [
-    new(ChatRole.System, "შენ ხარ…"),
+    new(ChatRole.System, "You are…"),
     new(ChatRole.User, request.Prompt)
 ];
 
@@ -872,7 +872,7 @@ ChatResponse response = await _chat.GetResponseAsync(messages);
 ```
 
 ```note
-`GetResponseAsync("ტექსტი")`, რომელიც ნაწილ 1-ში გამოვიყენეთ, სინამდვილეში იგივეა: სია **ერთი User შეტყობინებით**. ისტორიას (წინა User/Assistant შეტყობინებებს) ლექცია 7-ზე დავამატებთ — ამით მოდელს „მეხსიერება“ გაუჩნდება.
+`GetResponseAsync("text")`, რომელიც ნაწილ 1-ში გამოვიყენეთ, სინამდვილეში იგივეა: სია **ერთი User შეტყობინებით**. ისტორიას (წინა User/Assistant შეტყობინებებს) ლექცია 7-ზე დავამატებთ — ამით მოდელს „მეხსიერება“ გაუჩნდება.
 ```
 
 ```terms
@@ -923,7 +923,7 @@ ChatMessage — one message with a role (ChatRole.System / User / Assistant) and
   <h2>რესტორნის ასისტენტი: <span class="c-net">4 ნაწილი</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:24px">
     <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Assistant">
-private const string RestaurantName = "სუფრა";
+private const string RestaurantName = "Supra";
 private const string OpenHours = "12:00–23:00";
 
 [HttpPost("assistant")]
@@ -932,11 +932,11 @@ public async Task<IActionResult> Assistant(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            შენ ხარ რესტორან „{RestaurantName}“-ის ასისტენტი.
-            პასუხობ მხოლოდ მენიუზე, ჯავშანზე და სამუშაო საათებზე ({OpenHours}).
-            პასუხი: მაქსიმუმ 3 წინადადება, იმ ენაზე, რომელზეც გწერენ.
-            სხვა თემაზე თავაზიანად უარს ამბობ და ეუბნები, რაში შეგიძლია დახმარება.
-            ფასს და შემადგენლობას არ იგონებ — ამბობ, რომ ეს მენიუშია.
+            You are the assistant of the restaurant "{RestaurantName}".
+            You answer only about the menu, bookings and hours ({OpenHours}).
+            Answer: at most 3 sentences, in the language the user writes in.
+            On any other topic you politely decline and say what you can help with.
+            You don't invent prices or ingredients — you say they are on the menu.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -964,7 +964,7 @@ public async Task<IActionResult> Assistant(AskRequest request)
 ვამატებთ მეორე endpoint-ს — `POST /api/ai-lab/assistant`. მას აქვს **system prompt**: ინსტრუქცია, რომელიც ყოველ მოთხოვნაში მომხმარებლის კითხვამდე მიდის.
 
 ```csharp Controllers/AiLabController.cs · Assistant
-private const string RestaurantName = "სუფრა";
+private const string RestaurantName = "Supra";
 private const string OpenHours = "12:00–23:00";
 
 [HttpPost("assistant")]
@@ -973,11 +973,11 @@ public async Task<IActionResult> Assistant(AskRequest request)
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            შენ ხარ რესტორან „{RestaurantName}“-ის ასისტენტი.
-            პასუხობ მხოლოდ მენიუზე, ჯავშანზე და სამუშაო საათებზე ({OpenHours}).
-            პასუხი: მაქსიმუმ 3 წინადადება, იმ ენაზე, რომელზეც გწერენ.
-            სხვა თემაზე თავაზიანად უარს ამბობ და ეუბნები, რაში შეგიძლია დახმარება.
-            ფასს და შემადგენლობას არ იგონებ — ამბობ, რომ ეს მენიუშია.
+            You are the assistant of the restaurant "{RestaurantName}".
+            You answer only about the menu, bookings and hours ({OpenHours}).
+            Answer: at most 3 sentences, in the language the user writes in.
+            On any other topic you politely decline and say what you can help with.
+            You don't invent prices or ingredients — you say they are on the menu.
             """),
         new(ChatRole.User, request.Prompt)
     ];
@@ -999,7 +999,7 @@ public async Task<IActionResult> Assistant(AskRequest request)
 **შაბლონი (`$"""…"""`)** — C#-ის raw string interpolation. `{RestaurantName}` და `{OpenHours}` გაშვებისას ჩაისმება. ახლა ესენი const-ებია; მოგვიანებით ამ ადგილას **ბაზიდან** წამოღებული მონაცემი ჩაჯდება (ლექცია 4: tools, ლექცია 11: RAG).
 
 ```tip
-„იყავი ჭკვიანი და დაეხმარე“ მოდელს არაფერს ეუბნება. კონკრეტული როლი, თემები, ფორმა და საზღვარი — ეუბნება. წერე ისე, როგორც ახალ თანამშრომელს აუხსნიდი პირველ სამუშაო დღეს.
+"Be smart and help" მოდელს არაფერს ეუბნება. კონკრეტული როლი, თემები, ფორმა და საზღვარი — ეუბნება. წერე ისე, როგორც ახალ თანამშრომელს აუხსნიდი პირველ სამუშაო დღეს.
 ```
 
 ```terms
@@ -1023,7 +1023,7 @@ public async Task<IActionResult> Assistant(AskRequest request)
         new(ChatRole.System, $"""
             You are the assistant of the restaurant "{RestaurantName}".
             You answer only about the menu, bookings and hours ({OpenHours}).
-            Answer: at most 3 sentences, in the language you are written in.
+            Answer: at most 3 sentences, in the language the user writes in.
             On any other topic you politely decline and say what you can help with.
             You don't invent prices or ingredients — you say they are on the menu.
             """),
@@ -1061,16 +1061,16 @@ prompt template — a prompt template into which data from code is inserted
   <h2>3 კითხვა <span class="c-net">ასისტენტს</span></h2>
   <div class="grid3" style="gap:20px;margin-top:8px;align-items:start">
     <div class="col" style="gap:10px">
-      <div class="bubble" style="font-size:19px"><span class="who">1 · ჩვეულებრივი</span>ხვალ 8-ზე ოთხნი ვიქნებით. ვეგეტარიანული გაქვთ?</div>
-      <div class="bubble me step" style="font-size:19px"><span class="who">ასისტენტი</span>რა თქმა უნდა! მენიუში გვაქვს ვეგეტარიანული კერძები. ჯავშნისთვის…</div>
+      <div class="bubble" style="font-size:19px"><span class="who">1 · ჩვეულებრივი</span>There'll be four of us tomorrow at 8. Do you have anything vegetarian?</div>
+      <div class="bubble me step" style="font-size:19px"><span class="who">ასისტენტი</span>Of course! Our menu has vegetarian dishes. For the reservation…</div>
     </div>
     <div class="col" style="gap:10px">
-      <div class="bubble" style="font-size:19px"><span class="who">2 · სხვა თემა</span>დამიწერე ლექსი დედის დაბადების დღეზე</div>
-      <div class="bubble me no step" style="font-size:19px"><span class="who">ასისტენტი</span>ამაში ვერ დაგეხმარებით 🙂 შემიძლია მენიუზე ან ჯავშანზე გიპასუხოთ.</div>
+      <div class="bubble" style="font-size:19px"><span class="who">2 · სხვა თემა</span>Write me a poem for my mom's birthday</div>
+      <div class="bubble me no step" style="font-size:19px"><span class="who">ასისტენტი</span>I can't help with that 🙂 I can answer about the menu or a reservation.</div>
     </div>
     <div class="col" style="gap:10px">
-      <div class="bubble" style="font-size:19px"><span class="who">3 · ფასი</span>ხინკალი რა ღირს?</div>
-      <div class="bubble me step" style="font-size:19px"><span class="who">ასისტენტი</span>ზუსტ ფასს მენიუში ნახავთ — შემიძლია ჯავშანში დაგეხმაროთ.</div>
+      <div class="bubble" style="font-size:19px"><span class="who">3 · ფასი</span>How much is khinkali?</div>
+      <div class="bubble me step" style="font-size:19px"><span class="who">ასისტენტი</span>You'll find the exact price on the menu — I can help with a reservation.</div>
     </div>
   </div>
   <div class="callout ask mt2">🙋 system prompt-ის <b>გარეშე</b> რას იზამდა მე-2 და მე-3 კითხვაზე?</div>
@@ -1080,14 +1080,14 @@ prompt template — a prompt template into which data from code is inserted
 
 `POST /api/ai-lab/assistant`-ზე სამი კითხვა:
 
-1. **ჩვეულებრივი:** „ხვალ 8-ზე ოთხნი ვიქნებით. ვეგეტარიანული გაქვთ?“ — პასუხობს მოკლედ, თემაზე.
-2. **სხვა თემა:** „დამიწერე ლექსი დედის დაბადების დღეზე“ — თავაზიანად უარს ამბობს და თავის თემას უბრუნდება.
-3. **ფასი:** „ხინკალი რა ღირს?“ — ფასს არ იგონებს.
+1. **ჩვეულებრივი:** "There'll be four of us tomorrow at 8. Do you have anything vegetarian?" — პასუხობს მოკლედ, თემაზე.
+2. **სხვა თემა:** "Write me a poem for my mom's birthday" — თავაზიანად უარს ამბობს და თავის თემას უბრუნდება.
+3. **ფასი:** "How much is khinkali?" — ფასს არ იგონებს.
 
 შემდეგ იგივე კითხვები **`/ask`-ზე** გაუშვი (system prompt-ის გარეშე) და შეადარე: ლექსს სიამოვნებით დაწერს, ფასსაც დამაჯერებლად „მოიგონებს“ — ეს ლექცია 1-ის hallucination-ია.
 
 ```warn
-**System prompt უსაფრთხოების გარანტია არ არის.** ის ცვლის, რა არის **სავარაუდო**, მაგრამ მოდელი მაინც შეიძლება შეცდეს ან მომხმარებელმა „გადაარწმუნოს“ („დაივიწყე წინა ინსტრუქციები…“ — ამას prompt injection ჰქვია). რაც **აუცილებლად** უნდა შესრულდეს — ფასი, ფასდაკლება, ვის რისი უფლება აქვს — ამოწმებს C# კოდი. დაწვრილებით ლექცია 19-ზე.
+**System prompt უსაფრთხოების გარანტია არ არის.** ის ცვლის, რა არის **სავარაუდო**, მაგრამ მოდელი მაინც შეიძლება შეცდეს ან მომხმარებელმა „გადაარწმუნოს“ ("Ignore the previous instructions…" — ამას prompt injection ჰქვია). რაც **აუცილებლად** უნდა შესრულდეს — ფასი, ფასდაკლება, ვის რისი უფლება აქვს — ამოწმებს C# კოდი. დაწვრილებით ლექცია 19-ზე.
 ```
   </aside>
   <aside class="study-en">
@@ -1112,12 +1112,12 @@ Then send the same questions to **`/ask`** (without a system prompt) and compare
   <h2>Zero-shot vs <span class="c-mvc">few-shot</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
     <div class="card accent" style="--a:var(--red)"><h3><span class="ico">0</span>Zero-shot — მხოლოდ ახსნა</h3>
-      <p class="small">„დაახარისხე შეფასება: დადებითი თუ უარყოფითი“</p>
-      <p style="font-size:21px;margin:12px 0 10px"><b>„კერძები კარგი, მაგრამ ძალიან ხმაურიანია“</b> →</p>
+      <p class="small">"Classify the review: positive or negative"</p>
+      <p style="font-size:21px;margin:12px 0 10px"><b>"The food is good, but it's very noisy"</b> →</p>
       <div class="lab-out step"><span class="bad">უარყოფითი</span><span class="bad">ეს შეფასება შერეულია, რადგან…</span><span class="bad">Positive 😊</span></div></div>
     <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">3</span>Few-shot — მაგალითებით</h3>
       <p class="small">ახსნა + 3 მაგალითი:</p>
-      <p class="mono" style="font-size:19px;line-height:1.7;margin:4px 0 10px">„გემრიელი, სწრაფი“ → Positive<br>„საათი ველოდეთ“ → Negative<br>„კარგი, მაგრამ ძვირი“ → Mixed</p>
+      <p class="mono" style="font-size:19px;line-height:1.7;margin:4px 0 10px">“Tasty, fast” → Positive<br>“We waited an hour” → Negative<br>“Good, but pricey” → Mixed</p>
       <div class="lab-out"><span class="good">Mixed</span><span class="good">Mixed</span><span class="good">Mixed</span></div></div>
   </div>
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:28px;align-items:center">
@@ -1145,7 +1145,7 @@ zero-shot-მა შეიძლება შინაარსით სწო�
 | ფასი | ნაკლები ტოკენი | მაგალითები ყოველ მოთხოვნაში მიდის — მეტი input |
 
 ```tip
-მაგალითებში აუცილებლად ჩასვი **რთული** შემთხვევა (აქ — „კარგი, მაგრამ ძვირი“ → `Mixed`). სწორედ საზღვარზე ცდება zero-shot ყველაზე ხშირად.
+მაგალითებში აუცილებლად ჩასვი **რთული** შემთხვევა (აქ — "Good, but pricey" → `Mixed`). სწორედ საზღვარზე ცდება zero-shot ყველაზე ხშირად.
 ```
 
 ```terms
@@ -1194,13 +1194,13 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "დაახარისხე რესტორნის შეფასება. " +
-            "უპასუხე მხოლოდ ერთი სიტყვით: Positive, Negative ან Mixed."),
-        new(ChatRole.User, "ხინკალი გემრიელი იყო, მომსახურება — სწრაფი"),
+        new(ChatRole.System, "Classify the restaurant review. " +
+            "Answer with one word only: Positive, Negative or Mixed."),
+        new(ChatRole.User, "The khinkali was delicious, the service fast"),
         new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "ერთი საათი ველოდეთ, საჭმელი ცივი მოვიდა"),
+        new(ChatRole.User, "We waited an hour, the food came cold"),
         new(ChatRole.Assistant, "Negative"),
-        new(ChatRole.User, "კერძები კარგია, მაგრამ ფასები ძალიან მაღალია"),
+        new(ChatRole.User, "The dishes are good, but the prices are very high"),
         new(ChatRole.Assistant, "Mixed"),
         new(ChatRole.User, request.Prompt)
     ];
@@ -1231,13 +1231,13 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "დაახარისხე რესტორნის შეფასება. " +
-            "უპასუხე მხოლოდ ერთი სიტყვით: Positive, Negative ან Mixed."),
-        new(ChatRole.User, "ხინკალი გემრიელი იყო, მომსახურება — სწრაფი"),
+        new(ChatRole.System, "Classify the restaurant review. " +
+            "Answer with one word only: Positive, Negative or Mixed."),
+        new(ChatRole.User, "The khinkali was delicious, the service fast"),
         new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "ერთი საათი ველოდეთ, საჭმელი ცივი მოვიდა"),
+        new(ChatRole.User, "We waited an hour, the food came cold"),
         new(ChatRole.Assistant, "Negative"),
-        new(ChatRole.User, "კერძები კარგია, მაგრამ ფასები ძალიან მაღალია"),
+        new(ChatRole.User, "The dishes are good, but the prices are very high"),
         new(ChatRole.Assistant, "Mixed"),
         new(ChatRole.User, request.Prompt)
     ];
@@ -1247,7 +1247,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
 }
 ```
 
-**სცადე Swagger-ში:** „კერძები კარგი, მაგრამ ძალიან ხმაურიანია“ → `Mixed`. შემდეგ მაგალითები (8–13 ხაზები) კომენტარში გადაიტანე და იგივე გაუშვი — zero-shot-ის პასუხი შეადარე. ასევე შეადარე `inputTokens`: მაგალითები ტოკენებია და ყოველ მოთხოვნაზე მიდის.
+**სცადე Swagger-ში:** "The food is good, but it's very noisy" → `Mixed`. შემდეგ მაგალითები (8–13 ხაზები) კომენტარში გადაიტანე და იგივე გაუშვი — zero-shot-ის პასუხი შეადარე. ასევე შეადარე `inputTokens`: მაგალითები ტოკენებია და ყოველ მოთხოვნაზე მიდის.
 
 ```note
 **ზუსტი სიტყვა ჯერ კიდევ არ არის C# ტიპი.** მოდელი სავარაუდოს წერს, ამიტომ Controller-ში პასუხი სიასთან უნდა შევამოწმოთ (მაგ. `Positive` / `Negative` / `Mixed`, სხვა შემთხვევაში — შეცდომა ან `Mixed`). შემდეგ ლექციაზე **structured output**-ით (`GetResponseAsync<T>`) პასუხს პირდაპირ C# ობიექტად მივიღებთ — enum-ით და ველებით.

@@ -5,7 +5,7 @@
 ## მოთხოვნები
 
 - **golden set** — 10 შეკითხვა (2 ზუსტი სიტყვით/კოდით/რიცხვით, 2 სინონიმით, 1 ორ ადგილას პასუხით); `/rag/eval` — `HitAt3`, `Mrr`, `Misses`
-- **hybrid search** — `tsvector` generated column (`'simple'`) + GIN ინდექსი, `OrQuery`, ვექტორი + full-text → RRF → top 5; `/chat` და `/rag/eval` hybrid-ს იყენებს
+- **hybrid search** — `tsvector` generated column (`'english'`) + GIN ინდექსი, `OrQuery`, ვექტორი + full-text → RRF → top 5; `/chat` და `/rag/eval` hybrid-ს იყენებს
 - **metadata filtering** — `Document`-ს ერთი metadata ველი (კატეგორია, ენა, ფილიალი…), ატვირთვისას ივსება; ძებნას ფილტრის პარამეტრი, ფილტრი — SQL-ში
 - **ერთი chunking-ის ექსპერიმენტი** — ზომა (მაგ. 400 ან 1500) **ან** სათაური prefix-ში; თავიდან ატვირთვა და გაზომვა
 - **groundedness** — 3 პასუხზე `GroundednessEvaluator`: ციფრი და `Reason`
@@ -19,7 +19,7 @@
 ## ⭐ ბონუსი
 
 - **LLM-rerank:** hybrid-ის 20 კანდიდატი → Gemini (`GetResponseAsync<RankResult>`) → 5. hit@3 და დრო — ღირს?
-- **pg_trgm:** `CREATE EXTENSION pg_trgm` და `similarity()` — ქართულ ბრუნვებზე („დარბაზი“ / „დარბაზში“) უშველა?
+- **pg_trgm:** `CREATE EXTENSION pg_trgm` და `similarity()` — ბეჭდვის შეცდომებზე ("cancelation" / "cancellation") უშველა?
 - **eval ტესტად:** xUnit ტესტი, რომელიც `/rag/eval`-ს უშვებს და ჩავარდება, თუ `HitAt3 < 0.8` (ლექცია 22-ის წინასწარი ვერსია)
 
 ## 💡 დეტალები
@@ -37,7 +37,7 @@
 IQueryable<DocumentChunk> chunks = _db.DocumentChunks;
 if (category is not null)
     chunks = chunks.Where(c => c.Document.Category == category);
-var words = EF.Functions.ToTsQuery("simple", OrQuery(q));
+var words = EF.Functions.ToTsQuery("english", OrQuery(q));
 
 List<int> byMeaning = await chunks
     .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
@@ -54,17 +54,17 @@ List<int> top = Rrf(byMeaning, byWords).Take(5).ToList();
 
 | ვერსია | hitAt3 | MRR | misses |
 |---|---|---|---|
-| vector-only (ლექცია 11) | 0.70 | 0.58 | „B-12 ოთახი“, „შაბათს“, „ISBN 978…“ |
+| vector-only (ლექცია 11) | 0.70 | 0.58 | "room B-12", „შაბათს“, „ISBN 978…“ |
 | hybrid | 0.90 | 0.76 | „შაბათს“ |
 | hybrid + სათაური prefix-ში | **1.00** | **0.85** | — |
-| hybrid + chunk 400 | 0.80 | 0.66 | „შაბათს“, „ჯარიმა 30 დღეზე მეტზე“ |
+| hybrid + chunk 400 | 0.80 | 0.66 | „შაბათს“, "a fine for more than 30 days" |
 
 | პასუხი | groundedness | Reason (მოკლედ) |
 |---|---|---|
-| „14 დღე [1]“ | 5 | სრულად წყაროშია |
-| „ჯარიმა დღეში 0.5 ლარი [1], მაქსიმუმ 20 ლარი“ | 3 | „მაქსიმუმ 20 ლარი“ წყაროში არ არის |
-| „ამ საკითხზე ინფორმაცია არ მაქვს“ (Wi-Fi) | 5 | არაფერი მოგონილა |
+| "14 days [1]" | 5 | სრულად წყაროშია |
+| "A fine of 0.5 GEL a day [1], 20 GEL at most" | 3 | "20 GEL at most" წყაროში არ არის |
+| "I don't have information on this" (Wi-Fi) | 5 | არაფერი მოგონილა |
 
 ```note
-**დასკვნა:** hybrid-მა ზუსტი კოდები გამოასწორა (B-12, ISBN). „შაბათს“ სათაურით გამოსწორდა: ორ გვერდზე სამუშაო საათებია, სათაურმა („სამკითხველო დარბაზი“) ნაწილი სწორ თემას მიაბა. 400-სიმბოლოიანი ნაწილები — უარესი: ჯარიმის წესი ორ ნაწილად გაიყო. Production-ში: hybrid + სათაური prefix-ში, 800. groundedness 3-ის შემდეგ system prompt-ში დავამატე: „რიცხვები მხოლოდ წყაროდან“ — თავიდან გაშვებაზე 5.
+**დასკვნა:** hybrid-მა ზუსტი კოდები გამოასწორა (B-12, ISBN). „შაბათს“ სათაურით გამოსწორდა: ორ გვერდზე სამუშაო საათებია, სათაურმა ("the reading room") ნაწილი სწორ თემას მიაბა. 400-სიმბოლოიანი ნაწილები — უარესი: ჯარიმის წესი ორ ნაწილად გაიყო. Production-ში: hybrid + სათაური prefix-ში, 800. groundedness 3-ის შემდეგ system prompt-ში დავამატე: „რიცხვები მხოლოდ წყაროდან“ — თავიდან გაშვებაზე 5.
 ```

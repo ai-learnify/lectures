@@ -18,12 +18,12 @@
 
 - **ბრაუზერის გვერდი:** `wwwroot/chat.html` `EventSource`-ით (ნიმუში კონსპექტში, ნაწილი 2) + `app.UseStaticFiles()`
 - **TokenCounter სტრიმინგზე:** override, რომელიც ნაწილებს აგროვებს და ბოლოს `updates.ToChatResponse().Usage`-ს წერს ლოგში
-- **სტატუსის მოვლენები:** `IAsyncEnumerable<SseItem<string>>` და `TypedResults.ServerSentEvents(...)` — tool-ის ციკლის დროს `event: status` („ვამოწმებ მაგიდებს…“), მერე ტექსტი
+- **სტატუსის მოვლენები:** `IAsyncEnumerable<SseItem<string>>` და `TypedResults.ServerSentEvents(...)` — tool-ის ციკლის დროს `event: status` ("Checking the tables…"), მერე ტექსტი
 
 ## 💡 დეტალები
 
 - iterator-ში `yield return`-ის **გარეშე** სიაში ნუ შეაგროვებ — სტრიმი გაწყდება
-- `ChatResponseUpdate`-ის შექმნა: `new ChatResponseUpdate(ChatRole.Assistant, "ტექსტი")`
+- `ChatResponseUpdate`-ის შექმნა: `new ChatResponseUpdate(ChatRole.Assistant, "text")`
 - override-ის სიგნატურა: `public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)`
 - tool-იან კითხვაზე TTFT დიდია — ჯერ tool-ის ციკლი სრულდება; ცხრილში ეს უნდა ჩანდეს
 
@@ -36,7 +36,7 @@ public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseA
     IEnumerable<ChatMessage> messages, ChatOptions? options = null,
     [EnumeratorCancellation] CancellationToken cancellationToken = default)
 {
-    string? refusal = Check(messages);   // იგივე შემოწმება, რაც GetResponseAsync-ში
+    string? refusal = Check(messages);   // the same check as in GetResponseAsync
     if (refusal is not null)
     {
         yield return new ChatResponseUpdate(ChatRole.Assistant, refusal);
@@ -62,8 +62,8 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
     List<ChatMessage> messages =
     [
         new(ChatRole.System, """
-            შენ ხარ ბიბლიოთეკის ასისტენტი. უპასუხე მოკლედ.
-            წიგნებზე და ჟანრებზე მონაცემი მხოლოდ tool-ებიდან აიღე.
+            You are a library assistant. Answer briefly.
+            Take book and genre data only from the tools.
             """),
         new(ChatRole.User, prompt)
     ];
@@ -80,8 +80,8 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
 | კითხვა | პირველი ნაწილი | ბოლო ნაწილი | ნაწილები |
 |---|---|---|---|
 | „გამარჯობა!“ | ~550 ms | ~700 ms | 2 |
-| „მოგვიყევი დეტექტივის ჟანრზე“ | ~650 ms | ~6100 ms | 18 |
-| „რა დეტექტივები გაქვთ თავისუფალი?“ | ~2900 ms | ~4300 ms | 6 |
+| "Tell us about the detective genre" | ~650 ms | ~6100 ms | 18 |
+| "Which detective novels do you have available?" | ~2900 ms | ~4300 ms | 6 |
 
 ```note
 `Check(messages)` — ლექცია 5-ის შემოწმება, ცალკე private მეთოდში გატანილი, რომ ორივე override-მა (`GetResponseAsync` და `GetStreamingResponseAsync`) ერთი და იგივე გამოიყენოს. tool-იან კითხვაზე TTFT ~3 წამია: ჯერ `get_genres` და `find_books` სრულდება, ტექსტი მხოლოდ მერე იწყებს მოსვლას. გაუქმების ლოგში `GetStreamingResponseAsync canceled` ჩანს — `completed` არა.

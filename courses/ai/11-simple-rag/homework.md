@@ -5,20 +5,20 @@
 ## მოთხოვნები
 
 - **Ingestion:** `Document` + `DocumentChunk` (`vector(768)`, `Page`, HNSW ინდექსი), `POST .../documents` — PdfPig, `TextChunker` (800 / overlap 1), `Chunk(100)`
-- **Query:** `SearchChunksAsync` (top 5, ზღვარი `appsettings.json`-ში), `BuildContext` — `[N] (ფაილი, გვ. P)`
-- **ჩატში:** შენი ლექცია 7-ის `/chat` — augmented შეტყობინება, ისტორიაში ორიგინალი შეკითხვა, response-ში `sources`; system prompt-ში წესები: მხოლოდ წყაროებიდან, ნომრით, ზუსტი ფრაზა „ამ საკითხზე ინფორმაცია არ მაქვს“
+- **Query:** `SearchChunksAsync` (top 5, ზღვარი `appsettings.json`-ში), `BuildContext` — `[N] (file, p. P)`
+- **ჩატში:** შენი ლექცია 7-ის `/chat` — augmented შეტყობინება, ისტორიაში ორიგინალი შეკითხვა, response-ში `sources`; system prompt-ში წესები: მხოლოდ წყაროებიდან, ნომრით, ზუსტი ფრაზა "I don't have information on this"
 - **README — ტესტის ცხრილი:** 8 შეკითხვა შენს PDF-ზე (2 — რაც PDF-ში არ არის, 1 — ორ სხვადასხვა გვერდზე პასუხით, 1 — ზუსტი რიცხვით/სახელით). სვეტები: შეკითხვა · სწორი გვერდი · ნაპოვნი წყაროები · პასუხი სწორია? · წყარო სწორია?
 - კონსპექტის ბოლოს **ტესტი** (10 კითხვა) — ქულა ჩაწერე
 
 ## ✓ მზადაა, როცა
 
-პასუხებს წყაროს ნომერი ახლავს და `sources` სწორ გვერდზე მიუთითებს; ორივე „არარსებულ“ შეკითხვაზე — „ამ საკითხზე ინფორმაცია არ მაქვს“; README-ში 8-ხაზიანი ცხრილი და ტესტის ქულა
+პასუხებს წყაროს ნომერი ახლავს და `sources` სწორ გვერდზე მიუთითებს; ორივე „არარსებულ“ შეკითხვაზე — "I don't have information on this"; README-ში 8-ხაზიანი ცხრილი და ტესტის ქულა
 
 ## ⭐ ბონუსი
 
 - **Streaming + წყაროები:** `/chat/stream` (ლექცია 6) — ჯერ `SseItem` `eventType: "sources"`-ით, მერე ტექსტის ნაწილები
 - **დოკუმენტის განახლება:** იგივე `FileName`-ით ატვირთვისას ძველი ნაწილები იშლება (`ExecuteDeleteAsync`) და ახალი ემატება
-- **query rewriting:** შეკითხვა „და თანხა დამიბრუნდება?“ — ძებნამდე მოდელს სთხოვე ისტორიის გათვალისწინებით სრული შეკითხვა დაწეროს (structured output, ლექცია 2) — ძებნა გაუმჯობესდა?
+- **query rewriting:** შეკითხვა "And will I get my money back?" — ძებნამდე მოდელს სთხოვე ისტორიის გათვალისწინებით სრული შეკითხვა დაწეროს (structured output, ლექცია 2) — ძებნა გაუმჯობესდა?
 
 ## 💡 დეტალები
 
@@ -35,10 +35,10 @@
 List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);
 ChatMessage question = new(ChatRole.User, request.Prompt);
 ChatMessage augmented = new(ChatRole.User, $"""
-    წყაროები:
+    Sources:
     {BuildContext(sources)}
 
-    შეკითხვა: {request.Prompt}
+    Question: {request.Prompt}
     """);
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
@@ -51,21 +51,21 @@ return Ok(new { conversationId, response.Text, Sources = cited });
 ```
 
 ```text System prompt · წესები
-ბიბლიოთეკის წესებზე უპასუხე მხოლოდ მოცემული წყაროებიდან და ყოველ ფაქტს მიუთითე ნომერი: [1], [2].
-თუ პასუხი წყაროებში არ არის, თქვი: „ამ საკითხზე ინფორმაცია არ მაქვს“ — და არაფერი მოიგონო.
-წიგნების ძებნა და ხელმისაწვდომობა — მხოლოდ tool-ებიდან.
+Answer about the library's rules only from the given sources and give the number for every fact: [1], [2].
+If the answer isn't in the sources, say: “I don't have information on this” — and make nothing up.
+Searching for books and their availability — only from the tools.
 ```
 
 | შეკითხვა | სწორი გვერდი | ნაპოვნი | პასუხი | წყარო |
 |---|---|---|---|---|
-| „წიგნი რამდენი დღით გავიტანო?“ | 2 | [1] გვ. 2 · [2] გვ. 3 | ✓ 14 დღე | ✓ |
-| „დაგვიანებაზე რა ჯარიმაა?“ | 3 | [1] გვ. 3 | ✓ | ✓ |
-| „სამკითხველო დარბაზი შაბათს?“ | 4 | [1] გვ. 5 · [2] გვ. 4 | ✓ | ~ პირველი არასწორი |
-| „B-12 ოთახი სად არის?“ | 5 | [1] გვ. 1 · [2] გვ. 4 | ✗ | ✗ კოდი ვერ იპოვა |
-| „ბავშვები შეიძლება?“ (სინონიმი: „არასრულწლოვანი“) | 4 | [1] გვ. 4 | ✓ | ✓ |
-| „წიგნის დაბრუნება და ახლის გატანა ერთდროულად?“ | 2, 3 | [1] გვ. 2 · [2] გვ. 3 | ✓ | ✓ |
-| „Wi-Fi-ს პაროლი?“ (არ არის) | — | [] | ✓ „ინფორმაცია არ მაქვს“ | ✓ |
-| „ბორშის რეცეპტი“ (არ არის) | — | [] | ✓ „ინფორმაცია არ მაქვს“ | ✓ |
+| "For how many days can I borrow a book?" | 2 | [1] გვ. 2 · [2] გვ. 3 | ✓ 14 დღე | ✓ |
+| "What's the fine for being late?" | 3 | [1] გვ. 3 | ✓ | ✓ |
+| "The reading room on Saturday?" | 4 | [1] გვ. 5 · [2] გვ. 4 | ✓ | ~ პირველი არასწორი |
+| "Where is room B-12?" | 5 | [1] გვ. 1 · [2] გვ. 4 | ✗ | ✗ კოდი ვერ იპოვა |
+| "Are children allowed?" (სინონიმი: „არასრულწლოვანი“) | 4 | [1] გვ. 4 | ✓ | ✓ |
+| "Returning a book and borrowing a new one at the same time?" | 2, 3 | [1] გვ. 2 · [2] გვ. 3 | ✓ | ✓ |
+| "The Wi-Fi password?" (არ არის) | — | [] | ✓ „ინფორმაცია არ მაქვს“ | ✓ |
+| "a borscht recipe" (არ არის) | — | [] | ✓ „ინფორმაცია არ მაქვს“ | ✓ |
 
 ```note
 8-დან 6 სრულად სწორია. ორი პრობლემა ტიპურია: **„B-12“** — ზუსტი კოდი, რომელსაც embedding კარგად ვერ „ხედავს“ (ლექცია 12 — hybrid search), და **„შაბათს“** — პირველი ნაწილი სხვა გვერდიდანაა, რადგან ორივე გვერდზე სამუშაო საათებია (ლექცია 12 — chunking და metadata). `Sources`-ში მხოლოდ ციტირებული წყაროებია — UI-ში ზედმეტი ბმული არ ჩანს.

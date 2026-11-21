@@ -3,7 +3,7 @@
   "why": "Lecture 11's RAG sometimes finds the wrong part — especially on exact words (“B-2”, “12%”). But “sometimes” isn't a number, and “I think it's better” doesn't count. In real teams every RAG change — chunking, the search method, the prompt — is proven by measurement. Today we measure (golden set, hit@k, MRR), improve (hybrid search, filtering, chunking) and check the answer's groundedness.",
   "outcomes": [
     "You'll explain where RAG fails (retrieval vs generation), put together a golden set and calculate hit@3 and MRR with `/rag/eval`",
-    "You'll build hybrid search: the vector + PostgreSQL full-text (`tsvector`, `'simple'`), merged with RRF, and prove the improvement with a number",
+    "You'll build hybrid search: the vector + PostgreSQL full-text (`tsvector`, `'english'`), merged with RRF, and prove the improvement with a number",
     "You'll add metadata filtering in SQL and explain why it's also a security matter",
     "You'll compare chunking strategies and reranking, and evaluate the answer's groundedness with `GroundednessEvaluator`"
   ],
@@ -26,8 +26,8 @@
     {"q": "RAG's most common mistake:", "options": ["The model can't write Georgian", "retrieval — the right part didn't get into the top k, and the model has nothing to answer with", "Streaming stops", "The history is lost"], "explain": "That's why we measure the search first."},
     {"q": "Out of 6 questions, the right part is in the top three for 4. hit@3 =", "options": ["4", "0.67", "0.4", "1"], "explain": "4 / 6 ≈ 0.67."},
     {"q": "Why do we write a “must appear in the part” phrase in the golden set and not the chunk's Id?", "options": ["The Id is secret", "When the chunking changes, the parts are cut again and the Ids change — a phrase works with any strategy", "A phrase is shorter", "EF Core can't read the Id"], "explain": "A golden set must survive changes."},
-    {"q": "The `/rag/eval` misses show “Hall B-2” and “12%”. What do they have in common?", "options": ["They're long questions", "Exact words — a code and a number that the vector “sees” badly", "They're in English", "The threshold is low"], "explain": "Hybrid search solves this."},
-    {"q": "Why do we use `'simple'` for Georgian in PostgreSQL's full-text?", "options": ["It's faster", "There's no dictionary or stemmer for Georgian — 'simple' stores the word as it is; the vector covers the grammatical forms", "'english' is better for Georgian", "'simple' calculates vectors"], "explain": "Full-text is for exact words: a code, a number, a name."},
+    {"q": "The `/rag/eval` misses show “Where is hall B-2?” and “12%”. What do they have in common?", "options": ["They're long questions", "Exact words — a code and a number that the vector “sees” badly", "They're too short", "The threshold is low"], "explain": "Hybrid search solves this."},
+    {"q": "In `to_tsvector('english', 'Hall B-2 seats 20+ guests')`, what does \"guests\" become, and why?", "options": ["It stays \"guests\"", "\"guest\" — the 'english' configuration has a stemmer; the query must be processed with the same configuration", "It's removed — it's a stop word", "A vector"], "explain": "Georgian text has no dictionary — there it's 'simple'."},
     {"q": "Why does RRF merge two lists by rank?", "options": ["It's faster", "The vector score and ts_rank are in different “units” — adding them makes no sense; the rank is the same everywhere", "The scores are negative", "PostgreSQL doesn't return a score"], "explain": "Σ 1/(60 + rank): the one high in both lists comes first."},
     {"q": "Why do we join the words with “or” (`|`) instead of `plainto_tsquery`?", "options": ["So there are fewer results", "plainto_tsquery uses “and” — in a natural question all the words are rarely in one part, so the result is 0; “or” + ts_rank puts more matches higher", "“and” is a syntax error", "Gemini requires it"], "explain": "OrQuery also throws away punctuation — to avoid to_tsquery's error."},
     {"q": "In a multi-client system, where should another client's document be hidden?", "options": ["In the system prompt: “don't show others' documents”", "In SQL, before the search — a filter by TenantId; nothing should reach the model", "After the answer", "In the UI"], "explain": "Getting into the context is already a leak."},
@@ -37,7 +37,7 @@
     "summary": [
       "RAG fails in **two places**: **retrieval** (the most common) and **generation** — we don't check “by eye”, we **measure**.",
       "**Golden set** — a question + a phrase (not an Id); **hit@3**, **MRR**, **misses**; `/rag/eval` doesn't call the LLM.",
-      "**Hybrid search:** the vector + `tsvector` (`'simple'` — Georgian has no dictionary), **RRF**: Σ 1/(60 + rank); a query with “or”.",
+      "**Hybrid search:** the vector + `tsvector` (`'english'` — a stemmer and stop words), **RRF**: Σ 1/(60 + rank); a query with “or”.",
       "**Metadata filtering** in SQL, before the model — quality and security (tenant, permissions).",
       "**Chunking:** the heading in the prefix; smaller ≠ better — measure. **Reranker:** 20 → 5. **Groundedness:** `GroundednessEvaluator`, 1–5, LLM-as-judge."
     ],

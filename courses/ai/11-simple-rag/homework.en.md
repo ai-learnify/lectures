@@ -35,10 +35,10 @@ A sample — the library API (rules: borrowing books, fines, reading rooms).
 List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);
 ChatMessage question = new(ChatRole.User, request.Prompt);
 ChatMessage augmented = new(ChatRole.User, $"""
-    წყაროები:
+    Sources:
     {BuildContext(sources)}
 
-    შეკითხვა: {request.Prompt}
+    Question: {request.Prompt}
     """);
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
