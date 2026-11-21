@@ -68,43 +68,39 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .course>h2 .syl:hover{border-color:var(--c)}
 .course>h2 small{font:500 13px var(--mono);color:var(--muted)}
 .course .soon{color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:22px;text-align:center}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
-.card{position:relative;display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 20px 0;overflow:hidden;
-  transition:transform .18s,box-shadow .18s,border-color .18s;box-shadow:0 1px 2px rgba(30,33,50,.04)}
-.card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--c,var(--accent))}
-.card:hover{transform:translateY(-3px);box-shadow:0 14px 32px -12px color-mix(in srgb,var(--c,var(--accent)) 35%,transparent);border-color:color-mix(in srgb,var(--c,var(--accent)) 40%,var(--line))}
-.card .head{display:flex;align-items:center;gap:12px}
-.card .no{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:13px;font:700 19px var(--mono);
-  color:var(--c,var(--accent));background:color-mix(in srgb,var(--c,var(--accent)) 11%,var(--card));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 22%,var(--card))}
-.card .kick{display:flex;flex-direction:column;line-height:1.25}
-.card .kick b{font-size:13px;font-weight:700;color:var(--c,var(--accent));letter-spacing:.02em}
-.card .kick span{font-size:13px;color:var(--muted)}
-.title{font-weight:800;font-size:19px;line-height:1.32;color:var(--ink);text-decoration:none;flex:1;letter-spacing:-.005em}
-.title::after{content:"";position:absolute;inset:0;border-radius:18px}
-.card:hover .title{color:var(--c,var(--accent))}
-.chips{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:6px}
-.chip{display:inline-flex;align-items:center;gap:5px;font:600 13px var(--sans);color:var(--ink);text-decoration:none;padding:4px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
-.chip:hover{border-color:var(--c,var(--accent));color:var(--c,var(--accent))}
-.chip i{font-style:normal;font:700 12px var(--mono);color:var(--muted)}
-.meta{position:relative;z-index:1;font:600 13px var(--sans)}
-.meta summary{cursor:pointer;color:var(--teal);list-style:none}.meta summary::-webkit-details-marker{display:none}
-.meta details a{display:inline-block;margin:6px 10px 0 0;color:var(--teal);text-decoration:none}.meta details a:hover{text-decoration:underline}
-.acts{position:relative;z-index:1;display:flex;gap:8px}
-.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;font:700 14px var(--sans);text-decoration:none;border-radius:11px;padding:10px 12px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);transition:background .15s,border-color .15s}
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(30,33,50,.04)}
+.part{display:flex;align-items:center;gap:10px;padding:10px 18px;background:color-mix(in srgb,var(--c,var(--accent)) 8%,var(--card));border-bottom:1px solid var(--line);font:700 14px var(--sans);color:var(--c,var(--accent))}
+.part small{margin-left:auto;font:500 12px var(--mono);color:var(--muted)}
+.tbl .part:not(:first-child){border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:52px minmax(0,1fr) 64px auto;align-items:center;gap:12px;padding:8px 14px 8px 18px;border-bottom:1px solid var(--line);transition:background .12s}
+.row:last-child{border-bottom:0}
+.row:hover{background:color-mix(in srgb,var(--c,var(--accent)) 5%,var(--card))}
+.row .no{font:700 15px var(--mono);color:var(--c,var(--accent))}
+.row .title{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-size:16px;color:var(--ink);text-decoration:none}
+.row .title:hover{color:var(--c,var(--accent))}
+.row .sl{font:500 13px var(--mono);color:var(--muted);text-align:right;white-space:nowrap}
+.acts{display:flex;align-items:center;gap:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:700 13.5px var(--sans);text-decoration:none;border-radius:9px;padding:6px 12px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);transition:background .15s,border-color .15s}
 .btn:hover{border-color:var(--ink)}
-.btn.play{flex:1.5;background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:var(--on);box-shadow:0 4px 12px -4px color-mix(in srgb,var(--c,var(--accent)) 60%,transparent)}
+.btn.play{background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:var(--on)}
 .btn.play:hover{filter:brightness(.93)}
-.foot{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px -20px 0;padding:11px 20px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 60%,var(--card))}
-.foot a,.foot button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font:600 13px var(--sans);color:var(--muted);padding:4px 8px;margin:-4px -8px;border-radius:8px}
-.foot a:hover,.foot button:hover{color:var(--ink);background:var(--card)}
-.foot button:disabled{cursor:progress;opacity:.7}
-.foot .sp{flex:1}
+.btn.ic{padding:6px 9px}
+.btn.off{visibility:hidden}
+.mats{grid-column:2/-1;font:600 13px var(--sans)}
+.mats summary{cursor:pointer;color:var(--teal);list-style:none}.mats summary::-webkit-details-marker{display:none}
+.mats a{display:inline-block;margin:4px 10px 0 0;color:var(--teal);text-decoration:none}.mats a:hover{text-decoration:underline}
+.th{display:grid;grid-template-columns:52px minmax(0,1fr) 64px auto;gap:12px;padding:8px 14px 8px 18px;font:600 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line)}
+.th .r{text-align:right}
 .empty{display:none;color:var(--muted);text-align:center;padding:40px 0}
 .hidden{display:none!important}
 footer{color:var(--muted);font-size:14px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
 footer kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
 @media (max-width:640px){
   h1{font-size:28px}.search{flex-basis:100%}
+  .th{display:none}
+  .row{grid-template-columns:40px minmax(0,1fr) auto;row-gap:6px}
+  .row .sl{grid-column:3;grid-row:1}
+  .row .acts{grid-column:2/-1}
 }
 </style></head>
 <body><main>
@@ -120,7 +116,7 @@ footer kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:
 <footer>პრეზენტაციაში: <kbd>F</kbd> სრული ეკრანი · <kbd>←</kbd> <kbd>→</kbd> ნავიგაცია · <kbd>P</kbd> კონსპექტი სლაიდებთან ერთად · <kbd>O</kbd> ყველა სლაიდი</footer>
 </main>
 <script>
-const CATALOG = [{"slug": "ai", "title": "AI აგენტები .NET-ში", "order": 1, "lectures": [{"num": 1, "slug": "01-genai-llm-intro", "title": "შესავალი Generative AI-სა და LLM API-ებში", "slides": 34, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 12, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 2, "slug": "02-prompt-engineering", "title": "პირველი გამოძახება და Prompt Engineering", "slides": 24, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 3, "slug": "03-meai-structured-output", "title": "Microsoft.Extensions.AI: DI და Structured Output", "slides": 21, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 4, "slug": "04-tools-function-calling", "title": "Tools და Function Calling", "slides": 22, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 5, "slug": "05-pipeline-middleware", "title": "Chat Client Pipeline და Middleware", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 6, "slug": "06-streaming", "title": "Streaming და Real-time AI პასუხები", "slides": 19, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 7, "slug": "07-context-engineering", "title": "Context Engineering: კონტექსტისა და მეხსიერების მართვა", "slides": 22, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 8, "slug": "08-resilience-cost", "title": "Error Handling, Resilience და ხარჯის კონტროლი", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 9, "slug": "09-text-embeddings", "title": "Text Embeddings: ტექსტის ვექტორიზაცია", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 10, "slug": "10-pgvector-efcore", "title": "PostgreSQL pgvector და EF Core", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 11, "slug": "11-simple-rag", "title": "Simple RAG: პასუხი დოკუმენტებიდან", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true}, {"num": 12, "slug": "12-rag-optimization", "title": "RAG ოპტიმიზაცია და შეფასება", "slides": 22, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true}], "syllabus": true}];
+const CATALOG = [{"slug": "ai", "title": "AI აგენტები .NET-ში", "order": 1, "lectures": [{"num": 1, "slug": "01-genai-llm-intro", "title": "შესავალი Generative AI-სა და LLM API-ებში", "slides": 34, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 12, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 2, "slug": "02-prompt-engineering", "title": "პირველი გამოძახება და Prompt Engineering", "slides": 24, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 3, "slug": "03-meai-structured-output", "title": "Microsoft.Extensions.AI: DI და Structured Output", "slides": 21, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 4, "slug": "04-tools-function-calling", "title": "Tools და Function Calling", "slides": 22, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 5, "slug": "05-pipeline-middleware", "title": "Chat Client Pipeline და Middleware", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 6, "slug": "06-streaming", "title": "Streaming და Real-time AI პასუხები", "slides": 19, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 11, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 7, "slug": "07-context-engineering", "title": "Context Engineering: კონტექსტისა და მეხსიერების მართვა", "slides": 22, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 8, "slug": "08-resilience-cost", "title": "Error Handling, Resilience და ხარჯის კონტროლი", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 9, "slug": "09-text-embeddings", "title": "Text Embeddings: ტექსტის ვექტორიზაცია", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 10, "slug": "10-pgvector-efcore", "title": "PostgreSQL pgvector და EF Core", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 11, "slug": "11-simple-rag", "title": "Simple RAG: პასუხი დოკუმენტებიდან", "slides": 20, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}, {"num": 12, "slug": "12-rag-optimization", "title": "RAG ოპტიმიზაცია და შეფასება", "slides": 22, "materials": [], "study": true, "classwork": true, "homework": true, "quiz": 10, "lecturer": true, "study_en": true, "deck_en": true, "part": "AI-ის საფუძვლები, Microsoft.Extensions.AI და RAG"}], "syllabus": true}];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const total = CATALOG.reduce((n, c) => n + c.lectures.length, 0);
 document.getElementById('sub').textContent = `${total} ლექცია`;
@@ -128,23 +124,29 @@ document.getElementById('sub').textContent = `${total} ლექცია`;
 const COLORS = ['var(--k1)', 'var(--k2)', 'var(--k3)', 'var(--k4)', 'var(--k5)'];   // light/dark — page-theme-ში
 const courses = CATALOG.map((c, i) => ({ ...c, color: COLORS[i % COLORS.length], count: c.lectures.length }));
 
-const card = c => l => {
+const row = c => l => {
   const href = `${c.slug}/${l.slug}/`;
   const name = `${esc(c.title)} · ${l.num} — ${esc(l.title)}`;
-  const mats = l.materials.length ? `<div class="meta"><details><summary>📎 მასალები · ${l.materials.length} ფაილი</summary>${l.materials.map(m => `<a href="${href}materials/${encodeURIComponent(m)}" download>${esc(m)}</a>`).join('')}</details></div>` : '';
-  const files = ['index.html', l.deck_en && 'index.en.html', l.study && 'study.html', l.study_en && 'study.en.html', l.lecturer && 'lecturer.html'].filter(Boolean);
-  return `<article class="card" data-text="${esc((c.title + ' ' + l.title + ' ' + l.materials.join(' ')).toLowerCase())}">
-    <div class="head"><span class="no">${String(l.num).padStart(2, '0')}</span><span class="kick"><b>ლექცია ${l.num}</b><span>${l.slides} სლაიდი</span></span></div>
-    <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
+  const mats = l.materials.length ? `<details class="mats"><summary>📎 მასალები · ${l.materials.length} ფაილი</summary>${l.materials.map(m => `<a href="${href}materials/${encodeURIComponent(m)}" download>${esc(m)}</a>`).join('')}</details>` : '';
+  return `<div class="row" data-text="${esc((c.title + ' ' + l.title + ' ' + (l.part || '') + ' ' + l.materials.join(' ')).toLowerCase())}">
+    <span class="no">${String(l.num).padStart(2, '0')}</span>
+    <a class="title" href="${href}" data-open="${name}" title="${esc(l.title)}">${esc(l.title)}</a>
+    <span class="sl">${l.slides} სლ.</span>
+    <span class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : `<span class="btn off">📖 კონსპექტი</span>`}${l.lecturer ? `<a class="btn ic" href="${href}lecturer.html" title="ლექტორისთვის">🎓</a>` : `<span class="btn ic off">🎓</span>`}</span>
     ${mats}
-    <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
-    <div class="foot">${l.lecturer ? `<a href="${href}lecturer.html">🎓 ლექტორისთვის</a>` : '<span></span>'}<button class="dl" type="button" data-dl="${href}" data-files="${files.join(',')}" title="${files.join(', ')}">⬇ გადმოწერა · ${files.length} HTML</button></div>
-  </article>`;
+  </div>`;
+};
+// ლექციები სილაბუსის ნაწილებით (## სათაური syllabus.md-ში); ნაწილის გარეშე — ერთი სია
+const table = c => {
+  const groups = [];
+  c.lectures.forEach(l => { const g = groups[groups.length - 1]; if (g && g.part === (l.part || '')) g.items.push(l); else groups.push({ part: l.part || '', items: [l] }); });
+  return `<div class="tbl"><div class="th"><span>#</span><span>ლექცია</span><span class="r">სლაიდი</span><span></span></div>${groups.map(g =>
+    `<div class="grp">${g.part ? `<div class="part">${esc(g.part)}<small>${g.items.length} ლექცია</small></div>` : ''}${g.items.map(row(c)).join('')}</div>`).join('')}</div>`;
 };
 document.getElementById('courses').innerHTML = courses.map(c => `
   <section class="course" data-cat="${esc(c.slug)}" style="--c:${c.color}">
     <h2>${esc(c.title)}<small>${c.count} ლექცია</small>${c.syllabus ? `<a class="syl" href="${esc(c.slug)}/syllabus.html">📄 სილაბუსი</a>` : ``}</h2>
-    ${c.count ? `<div class="grid">${c.lectures.map(card(c)).join('')}</div>` : `<div class="soon">ლექციები მალე დაემატება</div>`}
+    ${c.count ? table(c) : `<div class="soon">ლექციები მალე დაემატება</div>`}
   </section>`).join('');
 
 // category tabs — the choice lives in the URL (#devops), so a category can be linked directly
@@ -182,32 +184,16 @@ function applyFilter() {
   document.querySelectorAll('.course').forEach(sec => {
     const inCat = !cur || sec.dataset.cat === cur;
     let n = 0;
-    sec.querySelectorAll('.card').forEach(r => { const hit = words.every(w => r.dataset.text.includes(w)); r.classList.toggle('hidden', !hit); n += hit; });
+    sec.querySelectorAll('.row').forEach(r => { const hit = words.every(w => r.dataset.text.includes(w)); r.classList.toggle('hidden', !hit); n += hit; });
+    sec.querySelectorAll('.grp').forEach(g => g.classList.toggle('hidden', !g.querySelector('.row:not(.hidden)')));
     // an empty course shows its "soon" note only when its own tab is picked
-    const soon = !sec.querySelector('.card') && cur === sec.dataset.cat && !words.length;
+    const soon = !sec.querySelector('.row') && cur === sec.dataset.cat && !words.length;
     sec.classList.toggle('hidden', !inCat || !(n || soon));
     if (inCat) any += n || soon;
   });
   document.getElementById('empty').style.display = any ? 'none' : 'block';
   lastEl.classList.toggle('hidden', !!words.length);
 }
-// ⬇ გადმოწერა: ლექციის ყველა გვერდი ცალკე HTML ფაილად (სახელები უცვლელია — ერთ საქაღალდეში ერთმანეთს ხსნიან)
-document.addEventListener('click', async e => {
-  const b = e.target.closest('button.dl'); if (!b) return;
-  const label = b.textContent; b.disabled = true;
-  try {
-    for (const f of b.dataset.files.split(',')) {
-      b.textContent = `⬇ ${f}…`;
-      const r = await fetch(b.dataset.dl + f); if (!r.ok) throw new Error(f + ': ' + r.status);
-      const url = URL.createObjectURL(await r.blob());
-      const a = document.createElement('a'); a.href = url; a.download = f; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-      await new Promise(res => setTimeout(res, 350));
-    }
-    b.textContent = '✓ გადმოწერილია';
-  } catch (err) { b.textContent = '✗ ვერ გადმოიწერა'; console.error(err); }
-  setTimeout(() => { b.textContent = label; b.disabled = false; }, 2500);
-});
 q.addEventListener('input', applyFilter);
 showCat(location.hash.slice(1));
 addEventListener('hashchange', () => showCat(location.hash.slice(1)));

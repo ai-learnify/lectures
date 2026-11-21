@@ -882,6 +882,20 @@ def write_syllabus(cdir, course):
     return True
 
 # ---------- everything ----------
+def syllabus_parts(cdir):
+    """syllabus.md: `## ნაწილი (N ლექცია)` + `### NN. …` → {NN: 'ნაწილი'} — მთავარ გვერდზე ლექციები ნაწილებად ჯგუფდება"""
+    f = cdir / 'syllabus.md'
+    if not f.exists():
+        return {}
+    out, cur = {}, ''
+    for line in f.read_text().splitlines():
+        if line.startswith('## '):
+            cur = re.sub(r'\s*\(\d+ ლექცია\)\s*$', '', line[3:]).strip()
+        m = re.match(r'### (\d+)\.', line)
+        if m:
+            out[int(m.group(1))] = cur
+    return out
+
 def main(filters):
     OUT.mkdir(parents=True, exist_ok=True)
     marker = OUT / GENERATED
@@ -910,6 +924,9 @@ def main(filters):
                 if info: lectures.append(info)
             prev = {'meta': meta, 'num': int(ldir.name.split('-', 1)[0]), 'homework': md_doc(ldir / 'homework.md'),
                     'homework_en': md_doc(ldir / 'homework.en.md'), 'href': f'../{ldir.name}/'}
+        parts = syllabus_parts(cdir)
+        for l in lectures:
+            l['part'] = parts.get(l['num'], '')
         has_syl = write_syllabus(cdir, course)
         catalog.append({'slug': cdir.name, 'title': course['title'], 'order': course.get('order', 99), 'lectures': lectures, 'syllabus': has_syl})
     catalog.sort(key=lambda c: c['order'])
