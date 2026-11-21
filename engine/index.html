@@ -49,11 +49,10 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .row .title:hover{color:var(--c,var(--accent))}
 .row .sl{font:500 13px var(--mono);color:var(--muted);text-align:right;white-space:nowrap}
 .acts{display:flex;align-items:center;gap:6px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:700 13.5px var(--sans);text-decoration:none;border-radius:9px;padding:6px 12px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);transition:background .15s,border-color .15s}
+.btn{display:inline-flex;align-items:center;justify-content:center;width:38px;height:34px;padding:0;font:700 16px var(--sans);text-decoration:none;border-radius:9px;border:1px solid var(--line2);color:var(--ink);background:var(--card);transition:background .15s,border-color .15s}
 .btn:hover{border-color:var(--ink)}
 .btn.play{background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:var(--on)}
 .btn.play:hover{filter:brightness(.93)}
-.btn.ic{padding:6px 9px}
 .btn.off{visibility:hidden}
 .mats{grid-column:2/-1;font:600 13px var(--sans)}
 .mats summary{cursor:pointer;color:var(--teal);list-style:none}.mats summary::-webkit-details-marker{display:none}
@@ -101,7 +100,7 @@ const row = c => l => {
     <span class="no">${String(l.num).padStart(2, '0')}</span>
     <a class="title" href="${href}" data-open="${name}" title="${esc(l.title)}">${esc(l.title)}</a>
     <span class="sl">${l.slides} სლ.</span>
-    <span class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : `<span class="btn off">📖 კონსპექტი</span>`}${l.lecturer ? `<a class="btn ic" href="${href}lecturer.html" title="ლექტორისთვის">🎓</a>` : `<span class="btn ic off">🎓</span>`}</span>
+    <span class="acts"><a class="btn play" href="${href}" data-open="${name}" title="პრეზენტაცია" aria-label="პრეზენტაცია">▶</a>${l.study ? `<a class="btn" href="${href}study.html" title="კონსპექტი" aria-label="კონსპექტი">📖</a>` : `<span class="btn off">📖</span>`}${l.lecturer ? `<a class="btn" href="${href}lecturer.html" title="ლექტორისთვის" aria-label="ლექტორისთვის">🎓</a>` : `<span class="btn off">🎓</span>`}</span>
     ${mats}
   </div>`;
 };
