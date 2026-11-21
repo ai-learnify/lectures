@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 PostgreSQL pgvector and EF Core — study notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ Correct.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← Lectures</a>
+  <div class="ttl"><small>📖 AI Agents in .NET · 10</small>PostgreSQL pgvector and EF Core</div>
+  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
+  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
+  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.en.html">▶ Presentation</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>Contents</summary>
+    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">A vector in the database: pgvector</span><span class="nm">3′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">EF Core and the vector</span><span class="nm">3′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">The HNSW index and VectorData</span><span class="nm">5′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: search on the database</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">18</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 10</div>
+      <h1>PostgreSQL pgvector and EF Core</h1>
+      <p>The whole lecture in chapters, ~20 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li><strong>pgvector</strong> adds a <code>vector(768)</code> column and distance operators to PostgreSQL; in Docker, <code>pgvector/pgvector</code> of the same version.</li><li><strong><code>&lt;=&gt;</code> — cosine distance</strong> = 1 − similarity: small = close, <code>ORDER BY distance</code> ascending.</li><li><strong>EF Core:</strong> <code>Pgvector.EntityFrameworkCore</code>, <code>UseVector()</code>, <code>HasPostgresExtension("vector")</code>, <code>Vector? Embedding</code> + <code>EmbeddingModel</code>, a migration.</li><li><strong>Indexing</strong> calculates only what needs recalculating; <strong>search:</strong> <code>OrderBy(CosineDistance).Take(3)</code> — the sorting happens in the database.</li><li><strong>HNSW</strong> — an approximate (ANN), fast index; the operator (<code>vector_cosine_ops</code>) must match the search function; it's checked with <code>EXPLAIN</code>. In one PostgreSQL — EF Core, on a separate store — VectorData.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~20 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 10 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://github.com/pgvector/pgvector" target="_blank" rel="noopener">pgvector</a> — the vector type, operators, HNSW and IVFFlat, Docker</li><li><a href="https://github.com/pgvector/pgvector-dotnet" target="_blank" rel="noopener">pgvector-dotnet</a> — Pgvector.EntityFrameworkCore: UseVector, CosineDistance, the index</li><li><a href="https://www.npgsql.org/efcore/" target="_blank" rel="noopener">Npgsql EF Core — PostgreSQL extensions</a> — HasPostgresExtension, Npgsql's EF provider</li><li><a href="https://www.postgresql.org/docs/current/using-explain.html" target="_blank" rel="noopener">PostgreSQL — EXPLAIN</a> — how to read a query plan</li><li><a href="https://learn.microsoft.com/dotnet/ai/conceptual/vector-databases" target="_blank" rel="noopener">Vector databases in .NET (VectorData)</a> — Microsoft.Extensions.VectorData — when we need it</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
+<p>Lecture 9 — <strong>Text Embeddings: Vectorizing Text</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../09-text-embeddings/study.en.html">the previous lecture's notes</a>.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why doesn't LIKE find the lobio for “without meat”, and what does an embedding do differently?</summary><div class="ans">LIKE looks for words, and those words aren't in the description · an embedding turns the text into a vector where a similar meaning is close — regardless of language and words</div></details><details><summary>How is an embedding model different from a chat model? Which one do we use and at what size?</summary><div class="ans">It doesn't write text — it returns one vector, and only the input is charged · <code>IEmbeddingGenerator</code> · <code>gemini-embedding-2</code>, 768 dimensions</div></details><details><summary>Why can't we “just” change the model if vectors are already stored?</summary><div class="ans">Every model (and size) has its own “map” — vectors from different models can't be compared · changing the model = calculating every vector again</div></details><details><summary>What is a task prefix, and why do the question and the document have different ones?</summary><div class="ans">Asymmetric search: a short “wish” ↔ long “facts” · <code>task: search result | query: …</code> and <code>title: … | text: …</code> · always by the same rule</div></details><details><summary>What does cosine similarity measure, and how do we read the number?</summary><div class="ans">The angle between two vectors: 1 — the same direction, 0 — nothing in common · the number depends on the model — we compare and sort, we don't judge it on its own</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
+<p>The previous lecture's homework: <strong>Semantic search in your project</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong><code>IEmbeddingGenerator</code></strong> in your project: <code>gemini-embedding-2</code>, 768 dimensions, the model in <code>appsettings.json</code></li>
+<li><strong><code>EmbeddingText</code></strong> — the <code>Query</code> and <code>Document</code> prefixes; every document in one format, every question in the other</li>
+<li><strong>The index:</strong> <code>POST .../index</code> — your main records (dishes, books, courses…) with <code>GenerateAsync</code> in <strong>one</strong> call, the vectors in a Singleton; if a record has no description — add one</li>
+<li><strong>The search:</strong> <code>GET .../search?q=</code> — top 3 with scores, <strong>with a threshold</strong>: if the best score is below the threshold (the threshold in <code>appsettings.json</code>), return an empty list. Choose the threshold through your own tests</li>
+<li><strong>README — a comparison table:</strong> 5 questions (one in English, one about something that isn't in your data at all). Columns: question · the <code>LIKE</code> result · the embeddings top 3 with scores · correct?</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>Solution</h3>
+<p>A sample — the library API (continuing homework 8).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · SearchBooks</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("books/search")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SearchBooks</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">minScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_config</span><span class="p">.</span><span class="n">GetValue</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"Search:MinScore"</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// 0.55</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Query</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_books</span><span class="p">.</span><span class="n">Items</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="n">Score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TensorPrimitives</span><span class="p">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">query</span><span class="p">.</span><span class="n">Span</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Vector</span><span class="p">.</span><span class="n">Span</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">minScore</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Score</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">top</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · IndexBooks</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("books/index")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">IndexBooks</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="n">books</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Books</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">vectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">books</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Document</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="s">$"{b.Author}. {b.Description}"</span><span class="p">)</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">_books</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Clear</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">books</span><span class="p">.</span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="n">_books</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="p">(</span><span class="n">books</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="n">vectors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Vector</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Indexed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">books</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>LIKE</th>
+<th>embeddings top 3</th>
+<th>Correct?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“something scary”</td>
+<td>0</td>
+<td>“The Hound of the Baskervilles” 0.69 · “Dracula” 0.67 · “The Sign of Four” 0.61</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“detective novel”</td>
+<td>0</td>
+<td>“The Sign of Four” 0.74 · “The Hound of the Baskervilles” 0.72 · “Murder on the Orient Express” 0.70</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“a voyage at sea”</td>
+<td>0</td>
+<td>“Twenty Thousand Leagues Under the Seas” 0.71 · “Robinson Crusoe” 0.66 · “Moby-Dick” 0.64</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“space”</td>
+<td>1</td>
+<td>“The Martian” 0.70 · “Solaris” 0.66 · …</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“a borscht recipe”</td>
+<td>0</td>
+<td>[] — the best is 0.48 &lt; 0.55</td>
+<td>✓ the threshold worked</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>The 0.55 threshold was chosen by testing: the right results were above 0.6, and on “non-existent” questions even the best was below 0.5. Without the threshold “a borscht recipe” would still return three books — the search always finds “the closest”, even if it's far away. Adding the author to the description also improved the result on “Conan Doyle's books”.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~3 min read</div><h2>A vector in the database: pgvector</h2><p class="goal">🎯 <b>After this</b> You'll explain what a vector database is, and use pgvector's type and operators in SQL.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · A vector in the database</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
+<p>First we see what problem vectors kept in memory have. Then the idea of a vector database and pgvector: how a vector is stored in a PostgreSQL column and how we search with SQL.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>The problem: vectors in memory</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
+<p>In lecture 9 the vectors were kept in the <code>MenuIndex</code> Singleton. This has three problems:</p>
+<ol>
+<li><strong>It disappears on restart.</strong> On every deploy the whole menu has to be sent to the embedding model again — money and time.</li>
+<li><strong>We compare everything one by one.</strong> On 200 dishes this is milliseconds. On a million documents every question takes seconds, and every vector has to fit in memory.</li>
+<li><strong>Two places, one piece of data.</strong> The dish is in the database, its vector is in memory. If the description changes, the vector stays old, and nobody notices.</li>
+</ol>
+<p>A <strong>vector database</strong> stores vectors and quickly finds the ones closest to a given vector. There are dedicated vector databases (Qdrant, Pinecone, Weaviate, Milvus), but we already have PostgreSQL. Its extension <strong>pgvector</strong> adds a vector column to an ordinary table: the dish and its vector on one row, in one transaction, with one backup.</p>
+<p><strong>In Docker</strong> the change is one line: instead of the PostgreSQL image we take the image of the same version that already has pgvector installed:</p>
+<div class="codebox"><div class="ch"><span>docker-compose.yml</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="nt">services</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">db</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">pgvector/pgvector:pg17</span><span class="w">   </span><span class="c1"># before: postgres:17 — keep the same version!</span></span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>The version (<code>pg17</code>, <code>pg16</code>…) must match your old image. An image of a different major version can't read the old volume's data.</p></div></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Vector database</dt><dd>a database that stores vectors and quickly finds the ones closest to each other</dd><dt>pgvector</dt><dd>a PostgreSQL extension: the vector type, distance operators and vector indexes</dd></dl></div></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>pgvector: the vector type and the distance operators</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
+<p>pgvector adds two things to PostgreSQL:</p>
+<p><strong>1. The column type <code>vector(n)</code></strong> — an array of n numbers (<code>float4</code>). Our vector is 768 numbers, so <code>vector(768)</code>. The size is written in the column itself: the database won't store a 3072-long vector — it returns an error. That's good: lecture 9's “one model, one map” is checked at the database level.</p>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">vector</span><span class="p">;</span></span><span class="ln"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="ss">"Products"</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="ss">"Embedding"</span><span class="w"> </span><span class="n">vector</span><span class="p">(</span><span class="mi">768</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><strong>2. The distance operators:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>What it measures</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;=&gt;</code></td>
+<td><strong>cosine distance</strong> = 1 − cosine similarity</td>
+<td>text embeddings — ours</td>
+</tr>
+<tr>
+<td><code>&lt;-&gt;</code></td>
+<td>L2 (Euclidean) — the “straight line” distance</td>
+<td>gives the same order on normalized vectors</td>
+</tr>
+<tr>
+<td><code>&lt;#&gt;</code></td>
+<td>negative dot product</td>
+<td>the fastest on normalized vectors</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Careful: distance, not similarity.</strong> In lecture 9 we measured <strong>similarity</strong> (1 — very similar). pgvector measures <strong>distance</strong> (0 — the same thing). The link is simple: <code>distance = 1 − similarity</code>. Score 0.71 → distance 0.29. So in the search <code>ORDER BY distance</code> is <strong>ascending</strong> — the smallest distance comes first.</p>
+<p><strong>A search in SQL</strong> — just sorting by distance and taking the first three:</p>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">SELECT</span><span class="w"> </span><span class="ss">"Name"</span><span class="p">,</span><span class="w"> </span><span class="ss">"Embedding"</span><span class="w"> </span><span class="o">&lt;</span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="o">@</span><span class="n">q</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">distance</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="ss">"Products"</span></span><span class="ln"><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">distance</span></span><span class="ln"><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span></span></code></pre></div>
+<p><code>@q</code> — the question's vector, which we calculate in C# (lecture 9's <code>EmbeddingText.Query</code>) and send as a parameter.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>vector(n)</dt><dd>pgvector's column type: a vector of n numbers</dd><dt>Cosine distance</dt><dd>1 − cosine similarity; 0 — the same direction. In pgvector: &lt;=&gt;</dd><dt>L2 distance</dt><dd>the Euclidean, “straight line” distance. In pgvector: &lt;-&gt;</dd></dl></div></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~3 min read</div><h2>EF Core and the vector</h2><p class="goal">🎯 <b>After this</b> You'll add a vector column with EF Core, write the vectors and search with LINQ.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Part 2 · EF Core and the vector</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
+<p>We don't need to write SQL by hand: EF Core has a pgvector package. We add a vector column to <code>Product</code>, create a migration, indexing writes the vectors to the database, and the search is written in LINQ.</p></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>EF Core: configuration and the migration</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<p><strong>1. NuGet:</strong> <code>Pgvector.EntityFrameworkCore</code> — pgvector's types and functions for EF Core (on Npgsql).</p>
+<p><strong>2. Registration</strong> — we add <code>UseVector()</code> to <code>UseNpgsql</code>, so that Npgsql knows the <code>vector</code> type:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="o">&lt;</span><span class="n">AppDbContext</span><span class="o">&gt;</span><span class="p">(</span><span class="n">o</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">o</span><span class="p">.</span><span class="n">UseNpgsql</span><span class="p">(</span><span class="n">connectionString</span><span class="p">,</span><span class="w"> </span><span class="n">npgsql</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">npgsql</span><span class="p">.</span><span class="n">UseVector</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><strong>3. The extension</strong> — the migration should create <code>CREATE EXTENSION vector</code> by itself:</p>
+<div class="codebox"><div class="ch"><span>Data/AppDbContext.cs · OnModelCreating</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">modelBuilder</span><span class="p">.</span><span class="n">HasPostgresExtension</span><span class="p">(</span><span class="s">"vector"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><strong>4. Two new columns in <code>Product</code>:</strong></p>
+<div class="codebox"><div class="ch"><span>Data/Product.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Pgvector</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// ... Id, Name, Description, Price — as in the API course</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[Column(TypeName = "vector(768)")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Vector</span><span class="o">?</span><span class="w"> </span><span class="n">Embedding</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">        </span><span class="c1">// the vector; null — not calculated yet</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">EmbeddingModel</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// which model: "gemini-embedding-2"</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>Vector</code></strong> — pgvector's C# type (an array of <code>float</code>s). <code>Vector?</code> — nullable, because old dishes don't have a vector yet.</li>
+<li><strong><code>vector(768)</code></strong> — the size is in the column type. The database won't accept a vector of another size.</li>
+<li><strong><code>EmbeddingModel</code></strong> — lecture 9's “one model — one map”: if we change the model, we know exactly which vectors are old and need recalculating.</li>
+</ul>
+<p><strong>5. The migration:</strong></p>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>ef<span class="w"> </span>migrations<span class="w"> </span>add<span class="w"> </span>ProductEmbedding</span><span class="ln">dotnet<span class="w"> </span>ef<span class="w"> </span>database<span class="w"> </span>update</span></code></pre></div>
+<p>In the migration you'll see the <code>vector(768)</code> column and the extension annotation. In the database: <code>\d "Products"</code> — <code>Embedding | vector(768)</code>.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Pgvector.EntityFrameworkCore</dt><dd>a NuGet package: pgvector's types and functions in EF Core</dd><dt>UseVector()</dt><dd>the Npgsql option that turns on the vector type</dd><dt>Vector</dt><dd>pgvector's C# type for a vector</dd></dl></div></article><article class="blk" data-slides="11,12"><span class="anchor" id="s-11"></span><span class="anchor" id="s-12"></span><div class="bh"><h3>Indexing and search on the database</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
+<p><strong>Indexing</strong> — lecture 9's <code>IndexMenu</code>, but now the vector is written into <code>Product</code>:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · menu/index</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("menu/index")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">IndexMenu</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_config</span><span class="p">[</span><span class="s">"Gemini:EmbeddingModel"</span><span class="p">]</span><span class="o">!</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// only the dishes that have no vector, or have one from another model</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Embedding</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">EmbeddingModel</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">model</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">Product</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">batch</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Chunk</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="p">)</span><span class="w">          </span><span class="c1">// Gemini: up to 100 per request</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">vectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateAsync</span><span class="p">(</span></span><span class="ln"><span class="w">            </span><span class="n">batch</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Document</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Description</span><span class="p">)</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">batch</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">batch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Embedding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Vector</span><span class="p">(</span><span class="n">vectors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Vector</span><span class="p">)</span><span class="p">;</span><span class="w">  </span><span class="c1">// ReadOnlyMemory&lt;float&gt; → Vector</span></span><span class="ln"><span class="w">            </span><span class="n">batch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">EmbeddingModel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Indexed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>Where(Embedding == null || EmbeddingModel != model)</code></strong> — only what needs recalculating. The second call returns <code>Indexed: 0</code>: the vectors are already in the database, no more money is spent.</li>
+<li><strong><code>Chunk(100)</code></strong> — Gemini takes up to 100 texts in one batch request (lecture 9's 💡).</li>
+<li><strong><code>new Vector(...)</code></strong> — the result of <code>GenerateAsync</code> (<code>ReadOnlyMemory&lt;float&gt;</code>) as pgvector's type.</li>
+</ul>
+<p><strong>Search</strong> — LINQ that is translated to SQL:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · menu/search</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("menu/search")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SearchMenu</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Vector</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Query</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Embedding</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="p">)</span><span class="w">       </span><span class="c1">// → ORDER BY "Embedding" &lt;=&gt; @query</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">Distance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">                                                  </span><span class="c1">// → LIMIT 3</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">top</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">Score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Distance</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// distance → similarity</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>CosineDistance(query)</code></strong> — a <code>Pgvector.EntityFrameworkCore</code> function; in SQL it becomes <code>&lt;=&gt;</code>. The sorting and the <code>LIMIT</code> run in the database — only 3 rows come to C#.</li>
+<li><strong><code>Score = 1 - Distance</code></strong> — we return lecture 9's score, so that the homework threshold (<code>MinScore</code>) doesn't change.</li>
+</ul>
+<p>In the log (<code>Microsoft.EntityFrameworkCore.Database.Command</code>) you'll see the SQL: <code>ORDER BY p."Embedding" &lt;=&gt; @query LIMIT @p</code>.</p>
+<p><strong>The restart test:</strong> restart the app and go straight to <code>/menu/search</code> without <code>/menu/index</code> — the result is the same. The vectors are in the database.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><strong>When do we calculate the vector in a real system?</strong> When a dish is created or its description changes: <code>Embedding = null</code> — and the next indexing recalculates it. Our <code>/menu/index</code> does exactly that: only the “empty” ones and the ones calculated with an “old model”. In large systems a background worker does this.</p></div></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>CosineDistance</dt><dd>a Pgvector.EntityFrameworkCore function that is translated to the &lt;=&gt; operator in SQL</dd><dt>Chunk(n)</dt><dd>LINQ: a list in parts of n elements</dd></dl></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~5 min read</div><h2>The HNSW index and VectorData</h2><p class="goal">🎯 <b>After this</b> You'll create an HNSW index, check it with EXPLAIN and choose between EF Core and VectorData.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>Part 3 · The vector index</h3><a class="chip" href="index.en.html#/13" data-go="13" target="_blank" title="This part in the presentation">Slide 13</a></div>
+<p>Without an index the database reads every row when it searches. We see how approximate search works (HNSW), how to create the index with EF Core and how to check it with <code>EXPLAIN</code>. At the end we answer lecture 9's question: do we need <code>Microsoft.Extensions.VectorData</code> or not.</p></article><article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>Exact vs approximate search: HNSW</h3><a class="chip" href="index.en.html#/14" data-go="14" target="_blank" title="This part in the presentation">Slide 14</a></div>
+<p><strong>Without an index</strong>, for <code>ORDER BY distance</code> the database reads every row and calculates the distance to every vector (a sequential scan). The result is <strong>exact</strong>, but the time is proportional to the number of rows: O(n). A B-tree index doesn't help here — it looks for “equal” and “greater/less”, not for “the closest one” in a 768-dimensional space.</p>
+<p>That's why a <strong>vector index</strong> is <strong>approximate</strong> — ANN (approximate nearest neighbor): it finds the “almost always” correct neighbours very fast. pgvector has two such indexes: <strong>HNSW</strong> and <strong>IVFFlat</strong>. We use HNSW — it's more accurate and faster, and it can be created on an empty table too.</p>
+<p><strong>HNSW (Hierarchical Navigable Small World) — a “graph with floors”:</strong></p>
+<ul>
+<li>Every vector is on <strong>floor 0</strong>, linked to its closest neighbours (a graph).</li>
+<li>The upper floors hold <strong>few</strong> vectors, with long links — an “express line”.</li>
+<li>The search starts at the top: with big jumps we get to the right “neighbourhood”, then go down a floor and find the closest one with short steps.</li>
+</ul>
+<p>An analogy: finding an address in a city — first the highway (the right district), then the street, then the house. We don't need to walk past every house.</p>
+<p><strong>The price — recall.</strong> ANN can occasionally miss one correct neighbour. <strong>Recall</strong> — what share of the exact search results it found (e.g. 0.98 = 98 out of 100). The search quality is controlled by the <code>hnsw.ef_search</code> parameter (40 by default): more — more accurate, but slower. In text search and RAG this is normal: the “second best” dish is a good answer too. Where an exact result is required (finance, auditing), ANN isn't used.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Sequential scan</dt><dd>reading every row of a table; exact, but O(n)</dd><dt>ANN (approximate nearest neighbor)</dt><dd>an approximate nearest-neighbour search: fast, occasionally misses</dd><dt>HNSW</dt><dd>a multi-floor graph index for vectors; pgvector's main index</dd><dt>Recall</dt><dd>what share of the exact search results the index found</dd></dl></div></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>The HNSW index with EF Core and EXPLAIN</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
+<p>The index is written in <code>OnModelCreating</code> and created by a migration:</p>
+<div class="codebox"><div class="ch"><span>Data/AppDbContext.cs · OnModelCreating</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">modelBuilder</span><span class="p">.</span><span class="n">Entity</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasIndex</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Embedding</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasMethod</span><span class="p">(</span><span class="s">"hnsw"</span><span class="p">)</span><span class="w">                       </span><span class="c1">// the index type</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasOperators</span><span class="p">(</span><span class="s">"vector_cosine_ops"</span><span class="p">)</span><span class="p">;</span><span class="w">      </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">distance</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>ef<span class="w"> </span>migrations<span class="w"> </span>add<span class="w"> </span>ProductEmbeddingIndex</span><span class="ln">dotnet<span class="w"> </span>ef<span class="w"> </span>database<span class="w"> </span>update</span></code></pre></div>
+<p>In SQL this is: <code>CREATE INDEX ... ON "Products" USING hnsw ("Embedding" vector_cosine_ops);</code></p>
+<p><strong>The most common mistake: the operator.</strong> An index is created for one specific distance:</p>
+<table>
+<thead>
+<tr>
+<th>Index operator</th>
+<th>Search function (EF)</th>
+<th>SQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vector_cosine_ops</code></td>
+<td><code>CosineDistance</code></td>
+<td><code>&lt;=&gt;</code></td>
+</tr>
+<tr>
+<td><code>vector_l2_ops</code></td>
+<td><code>L2Distance</code></td>
+<td><code>&lt;-&gt;</code></td>
+</tr>
+<tr>
+<td><code>vector_ip_ops</code></td>
+<td><code>MaxInnerProduct</code></td>
+<td><code>&lt;#&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>If the index uses <code>vector_l2_ops</code> and the search uses <code>CosineDistance</code> — the index is <strong>not</strong> used, and there's no error either: it's just slow.</p>
+<p><strong>How to check — <code>EXPLAIN</code>.</strong> In psql or pgAdmin:</p>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">SET</span><span class="w"> </span><span class="n">enable_seqscan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">off</span><span class="p">;</span><span class="w">   </span><span class="c1">-- only for the test: we forbid the planner a seq scan</span></span><span class="ln"><span class="k">EXPLAIN</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="ss">"Name"</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="ss">"Products"</span></span><span class="ln"><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="ss">"Embedding"</span><span class="w"> </span><span class="o">&lt;</span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="ss">"Embedding"</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="ss">"Products"</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="ss">"Name"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'ლობიო ქოთანში'</span><span class="p">)</span></span><span class="ln"><span class="k">LIMIT</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span></span><span class="ln"><span class="c1">-- Limit -&gt; Index Scan using "IX_Products_Embedding" on "Products"</span></span></code></pre></div>
+<p><strong>Why doesn't it use it on 20 dishes?</strong> PostgreSQL's planner calculates what's cheaper. Reading 20 rows is cheaper than walking through an index — so it picks a <code>Seq Scan</code>. That's the correct behaviour. The index starts to pay off on thousands of rows and more. <code>enable_seqscan = off</code> is only for seeing that the index can be used — it isn't turned on in production.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>EXPLAIN</dt><dd>a PostgreSQL command that shows how the database will run a query (seq scan or index)</dd><dt>vector_cosine_ops</dt><dd>the HNSW index operator class for cosine distance</dd></dl></div></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>A decision: EF Core directly or Microsoft.Extensions.VectorData</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
+<p>In lecture 9 we said: “in lecture 10 we'll see whether we need <code>Microsoft.Extensions.VectorData</code>”. The answer:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>EF Core + pgvector</th>
+<th><code>Microsoft.Extensions.VectorData</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What it is</td>
+<td>a vector column in an ordinary table</td>
+<td>an abstraction over vector stores (like <code>IChatClient</code> for models)</td>
+</tr>
+<tr>
+<td>Where it's stored</td>
+<td>in the same table, next to the dish</td>
+<td>in a separate “collection”: PostgreSQL, Qdrant, Azure AI Search, in-memory…</td>
+</tr>
+<tr>
+<td>Filters, JOINs, transactions</td>
+<td>ordinary SQL / LINQ</td>
+<td>with the store's capabilities</td>
+</tr>
+<tr>
+<td>When</td>
+<td>the database is PostgreSQL and stays that way</td>
+<td>the vectors are in a separate store, or the store may change</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Our choice — EF Core directly.</strong> The reason: the data is already in PostgreSQL. The vector stands next to the dish, and “without meat, up to 20 lari” is one query: <code>WHERE "Price" &lt;= 20 ORDER BY "Embedding" &lt;=&gt; @q</code>. One <code>AppDbContext</code>, one migration, one transaction.</p>
+<p>If the vectors were in a separate database (Qdrant), the same question would need a “join” between two systems: either we copy the price into Qdrant too, or two queries and merging the results in C#. Exactly in a case like that VectorData gives one API for every store.</p>
+<p>The idea of <code>Microsoft.Extensions.VectorData</code> (to try in the ⭐):</p>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MenuRecord</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="na">[VectorStoreKey]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="na">[VectorStoreData]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="na">[VectorStoreVector(768, DistanceFunction = DistanceFunction.CosineDistance)]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Embedding</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">collection</span><span class="p">.</span><span class="n">SearchAsync</span><span class="p">(</span><span class="n">queryVector</span><span class="p">,</span><span class="w"> </span><span class="n">top</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="n">way</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">store</span></span></code></pre></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Microsoft.Extensions.VectorData</dt><dd>an abstraction over vector stores in .NET: one API for PostgreSQL, Qdrant, Azure AI Search and others</dd><dt>Vector store</dt><dd>the place where vectors are stored and searched</dd></dl></div></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: search on the database</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Classwork: Your search — in the database</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
+<p>Your project (lecture 9's homework) · with code · Swagger and psql</p>
+<h3>Steps</h3>
+<ul>
+<li><strong>1 · image</strong> — in <code>docker-compose.yml</code>, <code>postgres:NN</code> → <code>pgvector/pgvector:pgNN</code> (the <strong>same</strong> version), <code>docker compose up -d</code></li>
+<li><strong>2 · EF Core</strong> — NuGet <code>Pgvector.EntityFrameworkCore</code>; <code>UseNpgsql(..., o =&gt; o.UseVector())</code>; <code>HasPostgresExtension("vector")</code>; on your main entity (book, course, dish…) — <code>Vector? Embedding</code> (<code>vector(768)</code>) and <code>string? EmbeddingModel</code>; a migration</li>
+<li><strong>3 · indexing</strong> — <code>/index</code> writes the vectors to the database: only <code>Embedding == null</code> or another model, <code>Chunk(100)</code></li>
+<li><strong>4 · search</strong> — <code>/search</code> with <code>CosineDistance</code>, top 3, <code>Score = 1 - Distance</code>, the threshold — from lecture 9's homework</li>
+<li><strong>5 · test</strong> — restart the app and search without <code>/index</code>. Then in psql: <code>SELECT "Title", "Embedding" IS NOT NULL FROM ...</code> — does everything have a vector?</li>
+</ul>
+<h3>Done when</h3>
+<p>The search works after a restart too; a second call to <code>/index</code> returns <code>Indexed: 0</code>; the log shows <code>ORDER BY ... &lt;=&gt; ... LIMIT</code></p>
+<h3>Bonus</h3>
+<ul>
+<li><strong>Filter + meaning:</strong> <code>/search?q=...&amp;maxPrice=20</code> (or a field from your project: author, category) — <code>Where</code> before <code>OrderBy</code>. Is it one SQL query?</li>
+<li><strong>SQL by hand:</strong> in psql — the 3 records most similar to one specific record (<code>ORDER BY "Embedding" &lt;=&gt; (SELECT "Embedding" FROM ... WHERE ...)</code>)</li>
+<li><strong>Invalidating the vector:</strong> when a record's description changes, <code>Embedding = null</code> — and <code>/index</code> recalculates only that one</li>
+</ul>
+<h3>💡 If you get stuck</h3>
+<ul>
+<li><strong><code>type "vector" does not exist</code></strong> → the image is still the old one (<code>docker compose up -d --force-recreate</code>) or <code>HasPostgresExtension("vector")</code> is missing</li>
+<li><strong>The container doesn't start</strong> → the version doesn't match the old one (<code>pg16</code> vs <code>pg17</code>): go back to the same version</li>
+<li><strong>Can't find <code>Vector</code></strong> → <code>using Pgvector;</code>; <strong>can't find <code>CosineDistance</code></strong> → <code>using Pgvector.EntityFrameworkCore;</code></li>
+<li><strong>The vector:</strong> <code>new Vector(vectors[i].Vector)</code> — from <code>ReadOnlyMemory&lt;float&gt;</code></li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
+<p>These questions will also be asked at the start of the next lecture.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What three problems do vectors kept in memory have?</summary><div class="ans">They disappear on restart — everything is calculated again · the search compares everything one by one (O(n)) · the data is in two places — the description changes, the vector stays old</div></details><details><summary>What does <code>&lt;=&gt;</code> measure, and why do we sort ascending?</summary><div class="ans">cosine distance = 1 − similarity · 0 — the same direction · a small distance = close, so ORDER BY distance ASC · score 0.71 → distance 0.29</div></details><details><summary>Why does <code>Product</code> also store <code>EmbeddingModel</code>?</summary><div class="ans">One model — one map · when the model changes we know which vectors need recalculating · indexing calculates only those (and the nulls)</div></details><details><summary>What does it mean that HNSW is approximate? What is recall?</summary><div class="ans">ANN — it doesn't compare everything, it searches a graph by “floors”; very fast, but it can occasionally miss a correct one · recall — what share of the exact search results it found</div></details><details><summary>You created an HNSW index, but <code>EXPLAIN</code> shows a <code>Seq Scan</code>. Two possible reasons?</summary><div class="ans">The operator doesn't match the search (vector_l2_ops vs CosineDistance) · the table is small — a seq scan is cheaper for the planner, that's normal</div></details></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
+<ul>
+<li><strong>pgvector</strong> — a PostgreSQL extension: the column type <code>vector(768)</code> and distance operators. In Docker, <code>pgvector/pgvector</code> of the same version instead of <code>postgres</code>.</li>
+<li><strong><code>&lt;=&gt;</code> — cosine distance</strong> = 1 − similarity. A small distance = close, so <code>ORDER BY distance</code> is ascending. <code>&lt;-&gt;</code> — L2, <code>&lt;#&gt;</code> — negative dot product.</li>
+<li><strong>EF Core:</strong> <code>Pgvector.EntityFrameworkCore</code>, <code>UseNpgsql(..., o =&gt; o.UseVector())</code>, <code>HasPostgresExtension("vector")</code>, <code>Vector? Embedding</code> (<code>vector(768)</code>) and <code>EmbeddingModel</code>.</li>
+<li><strong>Indexing</strong> calculates only what needs recalculating (<code>Embedding == null</code> or another model), with <code>Chunk(100)</code>. <strong>Search:</strong> <code>OrderBy(p =&gt; p.Embedding!.CosineDistance(query)).Take(3)</code> — in SQL <code>ORDER BY &lt;=&gt; LIMIT 3</code>.</li>
+<li><strong>HNSW</strong> — an approximate (ANN) index: a graph with floors, very fast, recall slightly below 100%. The index operator (<code>vector_cosine_ops</code>) must match the search function. On a small table the planner picks a seq scan — that's normal.</li>
+<li><strong>EF Core vs VectorData:</strong> the data is in PostgreSQL — EF Core directly. The vectors are in a separate store or it may change — <code>Microsoft.Extensions.VectorData</code>.</li>
+</ul>
+<h3>Next lecture</h3>
+<p>The menu search works. But “how do I cancel a booking?” or “I'm allergic to nuts, what can I eat?” — the answer isn't in the menu but in the restaurant's <strong>documents</strong> (PDFs). In lecture 11: <strong>Simple RAG</strong> — we cut a PDF into parts, store the vectors in the database, and the model answers from the document, citing the source.</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Homework: Search with an index and a filter</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
+<p>With code · your project · results in the README</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>Vectors in the database</strong> — the classwork code: a <code>vector(768)</code> column, <code>EmbeddingModel</code>, indexing only what needs recalculating, search with <code>CosineDistance</code> and a threshold</li>
+<li><strong>Automatic recalculation</strong> — when a record is created or its description changes (your existing POST/PUT endpoints), <code>Embedding = null</code>; <code>/index</code> calculates only those</li>
+<li><strong>Filter + meaning</strong> — one filter parameter for <code>/search</code> (price, category, author…): <code>Where</code> and <code>OrderBy(CosineDistance)</code> in <strong>one</strong> SQL query</li>
+<li><strong>HNSW index</strong> — <code>HasMethod("hnsw").HasOperators("vector_cosine_ops")</code>, a migration</li>
+<li><strong>README — <code>EXPLAIN</code>:</strong> the search SQL (from the log) with <code>EXPLAIN</code> twice: normally and with <code>SET enable_seqscan = off</code>. Both results and one sentence: why they differ</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>Done when</h3>
+<p>A new record appears in the search after <code>/index</code>; the filtered search is one SQL query (the log); the README has two <code>EXPLAIN</code>s (<code>Seq Scan</code> and <code>Index Scan</code>) with an explanation, and the quiz score</p>
+<h3>Bonus</h3>
+<ul>
+<li><strong>Lots of data:</strong> 2000+ test records (a seed, vectors with random numbers — only for speed) — the search time with and without the index (<code>EXPLAIN ANALYZE</code>)</li>
+<li><strong><code>Microsoft.Extensions.VectorData</code>:</strong> the same search with VectorData's PostgreSQL connector — what changed in the code?</li>
+<li><strong>Cost:</strong> <code>GeneratedEmbeddings.Usage.InputTokenCount</code> in lecture 8's <code>AiUsage</code> table — what did the full indexing cost?</li>
+</ul>
+<h3>💡 Details</h3>
+<ul>
+<li>The filter before <code>OrderBy</code>: <code>.Where(p =&gt; p.Price &lt;= maxPrice).OrderBy(p =&gt; p.Embedding!.CosineDistance(query))</code></li>
+<li>You'll see the search SQL in the log: <code>appsettings.Development.json</code> → <code>"Microsoft.EntityFrameworkCore.Database.Command": "Information"</code></li>
+<li>In <code>EXPLAIN</code>, a subquery instead of <code>@query</code>: <code>ORDER BY "Embedding" &lt;=&gt; (SELECT "Embedding" FROM ... WHERE "Id" = 1)</code></li>
+<li>The index operator and the search function must be the same: <code>vector_cosine_ops</code> ↔ <code>CosineDistance</code></li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 correct · <span id="qd">0</span> / 10 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>Lecture 9's search vectors are in the <code>MenuIndex</code> Singleton. What happens after a deploy?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Nothing — the Singleton stays</button><button type="button" class="opt" data-i="1">The vectors disappear and the whole menu has to be sent to the embedding model again</button><button type="button" class="opt" data-i="2">The vectors move to the database</button><button type="button" class="opt" data-i="3">Gemini stores them</button></div><div class="qe"><span class="verdict"></span> Memory belongs to the app's process — on restart everything is calculated again. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>Why do we use pgvector instead of a separate vector database (Qdrant)?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Qdrant can't store vectors</button><button type="button" class="opt" data-i="1">We already have PostgreSQL: the vector next to the dish, in the same table — one transaction, one backup, WHERE and JOIN</button><button type="button" class="opt" data-i="2">pgvector is always faster</button><button type="button" class="opt" data-i="3">EF Core can't see Qdrant</button></div><div class="qe"><span class="verdict"></span> A separate vector database makes sense at large scale or when the data isn't in PostgreSQL. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>You try to write a 3072-long vector into the <code>Embedding vector(768)</code> column. What happens?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It's trimmed automatically</button><button type="button" class="opt" data-i="1">The database returns an error — the size is in the column type</button><button type="button" class="opt" data-i="2">It's written, the search works</button><button type="button" class="opt" data-i="3">It's padded with zeros</button></div><div class="qe"><span class="verdict"></span> “One model — one map” is checked at the database level. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>In lecture 9 the score was 0.71. What will pgvector's <code>&lt;=&gt;</code> return?</div></div><div class="opts"><button type="button" class="opt" data-i="0">0.71</button><button type="button" class="opt" data-i="1">0.29 — cosine distance = 1 − similarity</button><button type="button" class="opt" data-i="2">71</button><button type="button" class="opt" data-i="3">−0.71</button></div><div class="qe"><span class="verdict"></span> A small distance = close, so ORDER BY is ascending. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>What do we need <code>UseVector()</code> in <code>UseNpgsql</code> for?</div></div><div class="opts"><button type="button" class="opt" data-i="0">To create the index</button><button type="button" class="opt" data-i="1">So that Npgsql knows pgvector's <code>vector</code> type and maps it to C#'s <code>Vector</code></button><button type="button" class="opt" data-i="2">To connect to Gemini</button><button type="button" class="opt" data-i="3">To run the migration</button></div><div class="qe"><span class="verdict"></span> HasPostgresExtension("vector") creates the CREATE EXTENSION in the migration. <a class="chip" href="#s-10">Review · slide 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>You called <code>/menu/index</code> a second time and got <code>Indexed: 0</code>. Why?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It's an error</button><button type="button" class="opt" data-i="1">Indexing only calculates what has no vector or has one from another model — everything already has one</button><button type="button" class="opt" data-i="2">The database is empty</button><button type="button" class="opt" data-i="3">Gemini refused</button></div><div class="qe"><span class="verdict"></span> The vectors are in the database — no more money is spent. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div><code>OrderBy(p =&gt; p.Embedding!.CosineDistance(query)).Take(3)</code> — where does the sorting happen?</div></div><div class="opts"><button type="button" class="opt" data-i="0">In C#, after loading every dish</button><button type="button" class="opt" data-i="1">In the database: in SQL, ORDER BY "Embedding" &lt;=&gt; @query LIMIT 3 — only 3 rows come to C#</button><button type="button" class="opt" data-i="2">In Gemini</button><button type="button" class="opt" data-i="3">When the index is created</button></div><div class="qe"><span class="verdict"></span> LINQ is translated to SQL. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>Why is the HNSW index “approximate”?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It rounds the vectors</button><button type="button" class="opt" data-i="1">It doesn't compare every vector — it moves through a graph by “floors”; it's very fast, but can occasionally miss a correct one</button><button type="button" class="opt" data-i="2">It uses only 2 dimensions</button><button type="button" class="opt" data-i="3">It picks at random</button></div><div class="qe"><span class="verdict"></span> This is measured by recall; the quality is controlled by hnsw.ef_search. <a class="chip" href="#s-14">Review · slide 14</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>The index uses <code>vector_l2_ops</code>, the search uses <code>CosineDistance</code>. What happens?</div></div><div class="opts"><button type="button" class="opt" data-i="0">An error</button><button type="button" class="opt" data-i="1">The search works, but the index isn't used — it will be slow</button><button type="button" class="opt" data-i="2">The index changes automatically</button><button type="button" class="opt" data-i="3">The results will be wrong</button></div><div class="qe"><span class="verdict"></span> The index operator must match the search function: vector_cosine_ops ↔ CosineDistance. <a class="chip" href="#s-15">Review · slide 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>The dish and the price are in PostgreSQL, and we want a filter “up to 20 lari”. Which way is better?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Microsoft.Extensions.VectorData + Qdrant</button><button type="button" class="opt" data-i="1">EF Core + pgvector: WHERE Price &lt;= 20 and ORDER BY distance — one query</button><button type="button" class="opt" data-i="2">Two databases and merging the results in C#</button><button type="button" class="opt" data-i="3">A filter is impossible</button></div><div class="qe"><span class="verdict"></span> We need VectorData when the vectors are in a separate store or it may change. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Vector database</dt><dd>a database that stores vectors and quickly finds the ones closest to each other</dd><dt>pgvector</dt><dd>a PostgreSQL extension: the vector type, distance operators and vector indexes</dd><dt>vector(n)</dt><dd>pgvector's column type: a vector of n numbers</dd><dt>Cosine distance</dt><dd>1 − cosine similarity; 0 — the same direction. In pgvector: &lt;=&gt;</dd><dt>L2 distance</dt><dd>the Euclidean, “straight line” distance. In pgvector: &lt;-&gt;</dd><dt>Pgvector.EntityFrameworkCore</dt><dd>a NuGet package: pgvector's types and functions in EF Core</dd><dt>UseVector()</dt><dd>the Npgsql option that turns on the vector type</dd><dt>Vector</dt><dd>pgvector's C# type for a vector</dd><dt>CosineDistance</dt><dd>a Pgvector.EntityFrameworkCore function that is translated to the &lt;=&gt; operator in SQL</dd><dt>Chunk(n)</dt><dd>LINQ: a list in parts of n elements</dd><dt>Sequential scan</dt><dd>reading every row of a table; exact, but O(n)</dd><dt>ANN (approximate nearest neighbor)</dt><dd>an approximate nearest-neighbour search: fast, occasionally misses</dd><dt>HNSW</dt><dd>a multi-floor graph index for vectors; pgvector's main index</dd><dt>Recall</dt><dd>what share of the exact search results the index found</dd><dt>EXPLAIN</dt><dd>a PostgreSQL command that shows how the database will run a query (seq scan or index)</dd><dt>vector_cosine_ops</dt><dd>the HNSW index operator class for cosine distance</dd><dt>Microsoft.Extensions.VectorData</dt><dd>an abstraction over vector stores in .NET: one API for PostgreSQL, Qdrant, Azure AI Search and others</dd><dt>Vector store</dt><dd>the place where vectors are stored and searched</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 10 — PostgreSQL pgvector და EF Core";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
+      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>

@@ -1,0 +1,1032 @@
+<style>
+.mono{font-family:var(--mono)}
+.swr{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.swr .rh{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #e5e5e5;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.swr .rh .m{font:800 14px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:5px 0;width:78px;text-align:center}
+.swr .rh .p{font:700 17px var(--mono);color:#3b4151}
+.swr .rb{background:#41444e;color:#fff;font:600 15px/1.5 var(--mono);padding:10px 14px;border-radius:6px;white-space:pre;margin:10px 16px 14px}
+.swr .rb .k{color:#a5d6ff}.swr .rb .s{color:#a2fca2}.swr .rb .n{color:#fcc28c}
+.c-post{--c:#49cc90}.c-get{--c:#61affe}
+.ask{--a:var(--pink);font-size:22px;color:var(--ink)}
+.ask b{color:var(--pink)}
+.route{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:22px}
+.stop{position:relative;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--a);border-radius:16px;padding:22px 24px 18px;box-shadow:var(--shadow)}
+.stop .sn{position:absolute;top:-22px;left:18px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--a);color:#fff;font:800 20px var(--mono)}
+.stop h3{margin:10px 0 0;font-size:26px}
+.stop p{margin:0;font-size:19px;color:var(--ink2);line-height:1.45}
+.stop .from{margin-top:auto;font:700 15px var(--mono);color:var(--a)}
+.prob{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:12px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 8%,var(--card));border-left:6px solid var(--a)}
+.prob .pi{font-size:30px;text-align:center}
+.prob b{display:block;font-size:20px;color:var(--ink)}
+.prob span{font-size:17px;color:var(--ink2);line-height:1.4}
+.prob span b{display:inline;font-size:inherit;color:var(--ink)}
+.sec-l{font:700 15px var(--mono);color:var(--muted);margin:0 0 6px}
+.menu{width:100%;border-collapse:separate;border-spacing:0;font-size:17px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.menu th{background:var(--bg2);font:800 14px var(--mono);color:var(--muted);text-align:left;padding:8px 12px}
+.menu td{padding:8px 12px;border-top:1px solid var(--line);color:var(--ink)}
+.menu td:first-child{font-weight:800;white-space:nowrap}
+.menu td.mono{font:700 15px var(--mono)}
+.menu tr.hit td{background:color-mix(in srgb,var(--mvc) 9%,var(--card))}
+.vec{font:600 15px/1.5 var(--mono);background:#1e2132;color:#d7dae6;border-radius:12px;padding:12px 16px;white-space:pre;overflow:hidden}
+.vec .k{color:#fcd34d}.vec .d{color:#8b93b0}.vec .g{color:#86efac}.vec .r{color:#fca5a5}
+.rows{display:flex;flex-direction:column;gap:6px}
+.rows .r{display:grid;grid-template-columns:200px 1fr 90px;gap:10px;align-items:center;padding:8px 14px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-size:16px}
+.rows .r b{font-size:16px}
+.rows .r .v{font:700 14px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden}
+.rows .r .d{font:800 15px var(--mono);text-align:right;color:var(--a)}
+.layers{position:relative;height:420px}
+.layers svg{width:100%;height:100%}
+</style>
+
+
+<!-- =========================================================
+     AI · ლექცია 10 — pgvector და EF Core
+     დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
+     ფერები: ბაზა/SQL = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი · ვექტორი/ინდექსი = იისფერი
+             სწორი/ნაპოვნი = მწვანე · პრობლემა = წითელი · თამაში/ჩართულობა = ვარდისფერი
+     პროექტი: RestaurantApi — Docker image pgvector/pgvector, Product.Embedding (vector(768)), AiLabController: menu/index, menu/search, HNSW ინდექსი
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:720px">
+    <div class="kicker in" style="color:var(--asp)">AI · ლექცია 10 · pgvector</div>
+    <h1 class="in" style="--d:.15s">ვექტორები<br><span class="grad">ბაზაში</span></h1>
+    <p class="lead in mt" style="--d:.35s">PostgreSQL + pgvector · EF Core · HNSW ინდექსი</p>
+  </div>
+  <div class="abs" style="right:90px;top:240px;width:560px">
+    <div class="vec in" style="--d:.5s"><span class="k">SELECT</span> "Name",
+       "Embedding" <span class="g">&lt;=&gt;</span> @query <span class="k">AS</span> distance
+<span class="k">FROM</span> "Products"
+<span class="k">ORDER BY</span> distance
+<span class="k">LIMIT</span> 3;
+<span class="d">-- ლობიო ქოთანში      0.29</span>
+<span class="d">-- ბადრიჯანი ნიგვზით  0.32</span>
+<span class="d">-- პომიდვრის სალათი   0.37</span></div>
+  </div>
+  <aside class="study">
+## ლექცია 10: pgvector და EF Core
+
+ლექცია 9-ში მენიუს სემანტიკური ძებნა დავწერეთ, მაგრამ ვექტორები მეხსიერებაში ინახებოდა: აპის რესტარტზე ქრებოდა, და ძებნა ყველა კერძს სათითაოდ ადარებდა. დღეს ვექტორებს **PostgreSQL**-ში გადავიტანთ. ამისთვის PostgreSQL-ს აქვს გაფართოება **pgvector**: ახალი სვეტის ტიპი `vector` და მანძილის ოპერატორები. ვექტორებს EF Core-ით ვინახავთ, ძებნას SQL-ში ვაკეთებთ, და **HNSW** ინდექსით ძებნას დიდ მონაცემზეც სწრაფს ვხდით.
+  </aside>
+  <aside class="study-en">
+## Lecture 10: pgvector and EF Core
+
+In lecture 9 we wrote a semantic search for the menu, but the vectors were kept in memory: they disappeared when the app restarted, and the search compared every dish one by one. Today we move the vectors to **PostgreSQL**. For this PostgreSQL has an extension, **pgvector**: a new column type `vector` and distance operators. We store the vectors with EF Core, do the search in SQL, and with an **HNSW** index we make the search fast on large data too.
+  </aside>
+</section>
+
+<lecture-review/>
+
+<lecture-homework-review/>
+
+<lecture-intro/>
+
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">დღის გზა</div>
+  <h2>3 ნაბიჯი: <span class="c-asp">ბაზა</span> → <span class="c-api">EF Core</span> → <span class="c-net">ინდექსი</span></h2>
+  <div class="route">
+    <div class="stop" style="--a:var(--asp)"><span class="sn">1</span><h3>🗄️ ვექტორი ბაზაში</h3><p>PostgreSQL-ს ვექტორი „ესმის“: ახალი ტიპი და მანძილის ოპერატორები</p><span class="from">pgvector · vector(768) · &lt;=&gt;</span></div>
+    <div class="stop" style="--a:var(--api)"><span class="sn">2</span><h3>🧑‍💻 EF Core-ით</h3><p>Product-ს ვექტორის სვეტი ემატება, ძებნა LINQ-ით იწერება</p><span class="from">Pgvector.EntityFrameworkCore · CosineDistance</span></div>
+    <div class="stop" style="--a:var(--net)"><span class="sn">3</span><h3>⚡ ინდექსი</h3><p>როგორ ვეძებოთ მილიონში ყველასთან შედარების გარეშე</p><span class="from">HNSW · EXPLAIN · recall</span></div>
+  </div>
+  <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: ძებნა, რომელიც <b>რესტარტს გადაურჩება</b> და SQL-ით მუშაობს</div>
+  <aside class="study">
+### ლექციის გეგმა: 3 ნაბიჯი
+
+1. 🗄️ **ვექტორი ბაზაში.** რატომ არ გვყოფნის მეხსიერება და რა არის ვექტორული ბაზა. pgvector: სვეტის ტიპი `vector(768)` და მანძილის ოპერატორები (`<=>`, `<->`, `<#>`). ძებნა ჩვეულებრივი SQL-ით.
+2. 🧑‍💻 **EF Core-ით.** `Pgvector.EntityFrameworkCore`: `Product`-ს ემატება `Embedding` სვეტი, migration ქმნის `vector(768)`-ს. ინდექსაცია ვექტორებს ბაზაში წერს, ძებნა `CosineDistance()`-ით LINQ-ში იწერება.
+3. ⚡ **ინდექსი.** ზუსტი ძებნა vs მიახლოებითი (ANN). HNSW ინდექსი, `EXPLAIN`, და გადაწყვეტილება: EF Core პირდაპირ თუ `Microsoft.Extensions.VectorData`.
+
+ბოლოს კლასის დავალებაა: ლექცია 9-ის საშინაოს ძებნა შენს პროექტში ბაზაზე გადადის.
+  </aside>
+  <aside class="study-en">
+### Lecture plan: 3 steps
+
+1. 🗄️ **A vector in the database.** Why memory isn't enough and what a vector database is. pgvector: the column type `vector(768)` and the distance operators (`<=>`, `<->`, `<#>`). Searching with ordinary SQL.
+2. 🧑‍💻 **With EF Core.** `Pgvector.EntityFrameworkCore`: `Product` gets an `Embedding` column, and a migration creates `vector(768)`. Indexing writes the vectors to the database, and the search is written in LINQ with `CosineDistance()`.
+3. ⚡ **The index.** Exact search vs approximate (ANN). The HNSW index, `EXPLAIN`, and a decision: EF Core directly or `Microsoft.Extensions.VectorData`.
+
+At the end there's classwork: lecture 9's homework search in your project moves to the database.
+  </aside>
+</section>
+
+<!-- ================= 1 · ბაზაში ================= -->
+<section class="slide divider" data-section="1 · ბაზაში">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">ვექტორი<br><span class="grad">ბაზაში</span></h1>
+    <p class="lead mt in" style="--d:.3s">ვექტორული ბაზა · pgvector · vector(768) · &lt;=&gt;</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · ვექტორი ბაზაში
+
+ჯერ ვხედავთ, რა პრობლემა აქვს მეხსიერებაში შენახულ ვექტორებს. მერე — ვექტორული ბაზის იდეა და pgvector: როგორ ინახება ვექტორი PostgreSQL-ის სვეტში და როგორ ვეძებთ SQL-ით.
+  </aside>
+  <aside class="study-en">
+## Part 1 · A vector in the database
+
+First we see what problem vectors kept in memory have. Then the idea of a vector database and pgvector: how a vector is stored in a PostgreSQL column and how we search with SQL.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · ბაზაში">
+  <div class="kicker">პრობლემა · ვექტორები მეხსიერებაში</div>
+  <h2>რესტარტი — <span class="c-red">ყველაფერი თავიდან</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <div class="prob" style="--a:var(--red)"><span class="pi">💨</span><div><b>რესტარტზე ქრება</b><span>ყოველ deploy-ზე მთელი მენიუ თავიდან იგზავნება Gemini-სთან — ფული და დრო</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">🐢</span><div><b>ყველას სათითაოდ ვადარებთ</b><span>200 კერძზე — მილიწამები. მილიონ დოკუმენტზე — <b>წამები</b> ყოველ შეკითხვაზე</span></div></div>
+      <div class="prob step" style="--a:var(--red)"><span class="pi">🧩</span><div><b>ორი ადგილი, ერთი მონაცემი</b><span>კერძი ბაზაშია, ვექტორი — მეხსიერებაში. აღწერა შეიცვალა — ვექტორი ძველია</span></div></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask step">🙋 სად <b>შევინახოთ</b> ვექტორები?</div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">🧲</span><div><b>ვექტორული ბაზა</b><span>ინახავს ვექტორს და სწრაფად პოულობს „ყველაზე ახლოს მყოფებს“: Qdrant, Pinecone, Weaviate…</span></div></div>
+      <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🐘</span><div><b>ან PostgreSQL + pgvector</b><span>ბაზა, რომელიც <b>უკვე გვაქვს</b>: ვექტორი კერძის გვერდით, იმავე ცხრილში</span></div></div>
+      <div class="callout step" style="--a:var(--mvc);font-size:18px">Docker-ში: <span class="mono">postgres:17</span> → <span class="mono">pgvector/pgvector:pg17</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: ვექტორები მეხსიერებაში
+
+ლექცია 9-ში ვექტორები `MenuIndex` Singleton-ში ინახებოდა. ამას სამი პრობლემა აქვს:
+
+1. **რესტარტზე ქრება.** ყოველ deploy-ზე მთელი მენიუ თავიდან უნდა გაიგზავნოს embedding მოდელთან — ფული და დრო.
+2. **ყველას სათითაოდ ვადარებთ.** 200 კერძზე ეს მილიწამებია. მილიონ დოკუმენტზე ყოველი შეკითხვა წამებს წაიღებს, და ყველა ვექტორი მეხსიერებაში უნდა ეტეოდეს.
+3. **ორი ადგილი, ერთი მონაცემი.** კერძი ბაზაშია, მისი ვექტორი — მეხსიერებაში. თუ აღწერა შეიცვალა, ვექტორი ძველი რჩება, და ამას არავინ ამჩნევს.
+
+**ვექტორული ბაზა** (vector database) ინახავს ვექტორებს და სწრაფად პოულობს მოცემულ ვექტორთან ყველაზე ახლოს მყოფებს. არსებობს ცალკე ვექტორული ბაზები (Qdrant, Pinecone, Weaviate, Milvus), მაგრამ ჩვენ უკვე გვაქვს PostgreSQL. მისი გაფართოება **pgvector** ჩვეულებრივ ცხრილს ვექტორის სვეტს უმატებს: კერძი და მისი ვექტორი ერთ ხაზზე, ერთ ტრანზაქციაში, ერთი backup-ით.
+
+**Docker-ში** ცვლილება ერთი ხაზია: PostgreSQL-ის image-ის ნაცვლად ვიღებთ იმავე ვერსიის image-ს, რომელშიც pgvector უკვე დაყენებულია:
+
+```yaml docker-compose.yml
+services:
+  db:
+    image: pgvector/pgvector:pg17   # ადრე: postgres:17 — ვერსია იგივე დატოვე!
+```
+
+```warn
+ვერსია (`pg17`, `pg16`…) შენს ძველ image-ს უნდა ემთხვეოდეს. სხვა მთავარი ვერსიის image ძველი volume-ის მონაცემებს ვერ წაიკითხავს.
+```
+
+```terms
+ვექტორული ბაზა (vector database) — ბაზა, რომელიც ვექტორებს ინახავს და მათ შორის ყველაზე ახლოს მყოფებს სწრაფად პოულობს
+pgvector — PostgreSQL-ის გაფართოება: vector ტიპი, მანძილის ოპერატორები და ვექტორული ინდექსები
+```
+  </aside>
+  <aside class="study-en">
+### The problem: vectors in memory
+
+In lecture 9 the vectors were kept in the `MenuIndex` Singleton. This has three problems:
+
+1. **It disappears on restart.** On every deploy the whole menu has to be sent to the embedding model again — money and time.
+2. **We compare everything one by one.** On 200 dishes this is milliseconds. On a million documents every question takes seconds, and every vector has to fit in memory.
+3. **Two places, one piece of data.** The dish is in the database, its vector is in memory. If the description changes, the vector stays old, and nobody notices.
+
+A **vector database** stores vectors and quickly finds the ones closest to a given vector. There are dedicated vector databases (Qdrant, Pinecone, Weaviate, Milvus), but we already have PostgreSQL. Its extension **pgvector** adds a vector column to an ordinary table: the dish and its vector on one row, in one transaction, with one backup.
+
+**In Docker** the change is one line: instead of the PostgreSQL image we take the image of the same version that already has pgvector installed:
+
+```yaml docker-compose.yml
+services:
+  db:
+    image: pgvector/pgvector:pg17   # before: postgres:17 — keep the same version!
+```
+
+```warn
+The version (`pg17`, `pg16`…) must match your old image. An image of a different major version can't read the old volume's data.
+```
+
+```terms
+Vector database — a database that stores vectors and quickly finds the ones closest to each other
+pgvector — a PostgreSQL extension: the vector type, distance operators and vector indexes
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · ბაზაში">
+  <div class="kicker">🐘 pgvector · SQL-ში</div>
+  <h2>ახალი ტიპი <span class="mono c-asp">vector(768)</span> და <span class="c-asp">მანძილი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;gap:26px;align-items:start;margin-top:4px">
+    <div class="col" style="gap:12px">
+      <div class="vec"><span class="k">CREATE EXTENSION</span> vector;
+<span class="k">ALTER TABLE</span> "Products"
+  <span class="k">ADD COLUMN</span> "Embedding" <span class="g">vector(768)</span>;</div>
+      <div class="vec step"><span class="k">SELECT</span> "Name", "Embedding" <span class="g">&lt;=&gt;</span> @q <span class="k">AS</span> distance
+<span class="k">FROM</span> "Products"
+<span class="k">ORDER BY</span> distance <span class="k">LIMIT</span> 3;</div>
+      <div class="callout step" style="--a:var(--asp);font-size:18px">ძებნა = <b>ORDER BY მანძილი + LIMIT</b>. სხვა არაფერი</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <table class="menu">
+        <tr><th>ოპერატორი</th><th>რას ზომავს</th></tr>
+        <tr class="hit"><td class="mono">&lt;=&gt;</td><td>cosine <b>distance</b> — ჩვენი</td></tr>
+        <tr><td class="mono">&lt;-&gt;</td><td>L2 — სწორი ხაზით მანძილი</td></tr>
+        <tr><td class="mono">&lt;#&gt;</td><td>უარყოფითი dot product</td></tr>
+      </table>
+      <div class="callout ask step">🙋 ლექცია 9-ში score <b>0.71</b> იყო. რა იქნება distance?</div>
+      <div class="prob step" data-with style="--a:var(--net)"><span class="pi">🔄</span><div><b>distance = 1 − similarity</b><span>0.71 → 0.29. <b>პატარა</b> = ახლოს, ამიტომ ORDER BY ზრდადობით</span></div></div>
+    </div>
+  </div>
+  <aside class="study">
+### pgvector: vector ტიპი და მანძილის ოპერატორები
+
+pgvector PostgreSQL-ს ორ რამეს უმატებს:
+
+**1. სვეტის ტიპი `vector(n)`** — n რიცხვის (`float4`) მასივი. ჩვენი ვექტორი 768 რიცხვია, ამიტომ `vector(768)`. ზომა სვეტშივე იწერება: 3072-იან ვექტორს ბაზა არ ჩაწერს — შეცდომას დააბრუნებს. ეს კარგია: ლექცია 9-ის „ერთი მოდელი, ერთი რუკა“ ბაზის დონეზე მოწმდება.
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+ALTER TABLE "Products" ADD COLUMN "Embedding" vector(768);
+```
+
+**2. მანძილის ოპერატორები:**
+
+| ოპერატორი | რას ზომავს | როდის |
+|---|---|---|
+| `<=>` | **cosine distance** = 1 − cosine similarity | ტექსტის embedding-ები — ჩვენი |
+| `<->` | L2 (ევკლიდური) — „სწორი ხაზით“ მანძილი | ნორმალიზებულ ვექტორებზე იგივე რიგს იძლევა |
+| `<#>` | უარყოფითი dot product | ნორმალიზებულ ვექტორებზე ყველაზე სწრაფი |
+
+**ყურადღება: distance, არა similarity.** ლექცია 9-ში ვზომავდით **მსგავსებას** (1 — ძალიან მსგავსი). pgvector ზომავს **მანძილს** (0 — ერთი და იგივე). კავშირი მარტივია: `distance = 1 − similarity`. score 0.71 → distance 0.29. ამიტომ ძებნაში `ORDER BY distance` **ზრდადობით** — პატარა მანძილი პირველია.
+
+**ძებნა SQL-ში** — უბრალოდ დალაგება მანძილით და პირველი სამი:
+
+```sql
+SELECT "Name", "Embedding" <=> @q AS distance
+FROM "Products"
+ORDER BY distance
+LIMIT 3;
+```
+
+`@q` — შეკითხვის ვექტორი, რომელსაც C#-ში ვითვლით (ლექცია 9-ის `EmbeddingText.Query`) და პარამეტრად ვაგზავნით.
+
+```terms
+vector(n) — pgvector-ის სვეტის ტიპი: n რიცხვის ვექტორი
+Cosine distance — 1 − cosine similarity; 0 — ერთი მიმართულება. pgvector-ში <=>
+L2 distance — ევკლიდური მანძილი, „სწორი ხაზით“. pgvector-ში <->
+```
+  </aside>
+  <aside class="study-en">
+### pgvector: the vector type and the distance operators
+
+pgvector adds two things to PostgreSQL:
+
+**1. The column type `vector(n)`** — an array of n numbers (`float4`). Our vector is 768 numbers, so `vector(768)`. The size is written in the column itself: the database won't store a 3072-long vector — it returns an error. That's good: lecture 9's “one model, one map” is checked at the database level.
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+ALTER TABLE "Products" ADD COLUMN "Embedding" vector(768);
+```
+
+**2. The distance operators:**
+
+| Operator | What it measures | When |
+|---|---|---|
+| `<=>` | **cosine distance** = 1 − cosine similarity | text embeddings — ours |
+| `<->` | L2 (Euclidean) — the “straight line” distance | gives the same order on normalized vectors |
+| `<#>` | negative dot product | the fastest on normalized vectors |
+
+**Careful: distance, not similarity.** In lecture 9 we measured **similarity** (1 — very similar). pgvector measures **distance** (0 — the same thing). The link is simple: `distance = 1 − similarity`. Score 0.71 → distance 0.29. So in the search `ORDER BY distance` is **ascending** — the smallest distance comes first.
+
+**A search in SQL** — just sorting by distance and taking the first three:
+
+```sql
+SELECT "Name", "Embedding" <=> @q AS distance
+FROM "Products"
+ORDER BY distance
+LIMIT 3;
+```
+
+`@q` — the question's vector, which we calculate in C# (lecture 9's `EmbeddingText.Query`) and send as a parameter.
+
+```terms
+vector(n) — pgvector's column type: a vector of n numbers
+Cosine distance — 1 − cosine similarity; 0 — the same direction. In pgvector: <=>
+L2 distance — the Euclidean, “straight line” distance. In pgvector: <->
+```
+  </aside>
+</section>
+
+<!-- ================= 2 · EF Core ================= -->
+<section class="slide divider" data-section="2 · EF Core">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">EF Core<br><span class="grad">და ვექტორი</span></h1>
+    <p class="lead mt in" style="--d:.3s">Pgvector.EntityFrameworkCore · migration · CosineDistance</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · EF Core და ვექტორი
+
+SQL-ის ხელით წერა არ გვჭირდება: EF Core-ს pgvector-ის package აქვს. `Product`-ს ვუმატებთ ვექტორის სვეტს, ვქმნით migration-ს, ინდექსაცია ვექტორებს ბაზაში წერს, ხოლო ძებნა LINQ-ით იწერება.
+  </aside>
+  <aside class="study-en">
+## Part 2 · EF Core and the vector
+
+We don't need to write SQL by hand: EF Core has a pgvector package. We add a vector column to `Product`, create a migration, indexing writes the vectors to the database, and the search is written in LINQ.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · EF Core">
+  <div class="kicker">🧑‍💻 ვწერთ · კონფიგურაცია და migration</div>
+  <h2><span class="mono c-api">Product.Embedding</span> — ერთი ახალი სვეტი</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:22px">
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm" title="Program.cs">
+builder.Services.AddDbContext<AppDbContext>(o =>
+    o.UseNpgsql(connectionString, npgsql => npgsql.UseVector()));
+      </code-block>
+      <code-block lang="csharp" cls="sm" title="Data/AppDbContext.cs · OnModelCreating">
+modelBuilder.HasPostgresExtension("vector");
+      </code-block>
+      <code-block id="c1" lang="csharp" cls="sm" title="Data/Product.cs">
+public class Product
+{
+    // ... Id, Name, Description, Price
+
+    [Column(TypeName = "vector(768)")]
+    public Vector? Embedding { get; set; }
+
+    public string? EmbeddingModel { get; set; }
+}
+      </code-block>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="vec step"><span class="d">NuGet:</span> <span class="g">Pgvector.EntityFrameworkCore</span>
+
+<span class="k">dotnet ef</span> migrations add ProductEmbedding
+<span class="k">dotnet ef</span> database update</div>
+      <i class="codestep" data-for="c1" data-lines="5-6"></i>
+      <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🔢</span><div><b>Vector? — nullable</b><span>ძველ კერძებს ვექტორი ჯერ არ აქვს. ზომა <b>768</b> — სვეტის ტიპში</span></div></div>
+      <i class="codestep" data-for="c1" data-lines="8"></i>
+      <div class="callout ask step" data-with>🙋 რატომ ვინახავთ <b>მოდელის სახელს</b>?</div>
+      <div class="callout step" style="--a:var(--net);font-size:17px">ერთი მოდელი — ერთი რუკა. მოდელი შეიცვლება → ვიცით, <b>რომელი</b> ვექტორია გადასათვლელი</div>
+    </div>
+  </div>
+  <aside class="study">
+### EF Core: კონფიგურაცია და migration
+
+**1. NuGet:** `Pgvector.EntityFrameworkCore` — pgvector-ის ტიპები და ფუნქციები EF Core-ისთვის (Npgsql-ზე).
+
+**2. რეგისტრაცია** — `UseNpgsql`-ს ვუმატებთ `UseVector()`-ს, რომ Npgsql-მა `vector` ტიპი იცოდეს:
+
+```csharp Program.cs
+builder.Services.AddDbContext<AppDbContext>(o =>
+    o.UseNpgsql(connectionString, npgsql => npgsql.UseVector()));
+```
+
+**3. გაფართოება** — migration-მა `CREATE EXTENSION vector` თვითონ უნდა შექმნას:
+
+```csharp Data/AppDbContext.cs · OnModelCreating
+modelBuilder.HasPostgresExtension("vector");
+```
+
+**4. ორი ახალი სვეტი `Product`-ში:**
+
+```csharp Data/Product.cs
+using Pgvector;
+
+public class Product
+{
+    // ... Id, Name, Description, Price — როგორც API კურსზე
+
+    [Column(TypeName = "vector(768)")]
+    public Vector? Embedding { get; set; }        // ვექტორი; null — ჯერ არ დათვლილა
+
+    public string? EmbeddingModel { get; set; }   // რომელი მოდელით: "gemini-embedding-2"
+}
+```
+
+- **`Vector`** — pgvector-ის C# ტიპი (`float`-ების მასივი). `Vector?` — nullable, რადგან ძველ კერძებს ვექტორი ჯერ არ აქვს.
+- **`vector(768)`** — ზომა სვეტის ტიპშია. სხვა ზომის ვექტორს ბაზა არ მიიღებს.
+- **`EmbeddingModel`** — ლექცია 9-ის „ერთი მოდელი — ერთი რუკა“: თუ მოდელს შევცვლით, ზუსტად ვიცით, რომელი ვექტორებია ძველი და გადასათვლელი.
+
+**5. Migration:**
+
+```bash
+dotnet ef migrations add ProductEmbedding
+dotnet ef database update
+```
+
+migration-ში ნახავ `vector(768)` სვეტს და გაფართოების annotation-ს. ბაზაში: `\d "Products"` — `Embedding | vector(768)`.
+
+```terms
+Pgvector.EntityFrameworkCore — NuGet package: pgvector-ის ტიპები და ფუნქციები EF Core-ში
+UseVector() — Npgsql-ის პარამეტრი, რომლითაც vector ტიპი ჩაირთვება
+Vector — pgvector-ის C# ტიპი ვექტორისთვის
+```
+  </aside>
+  <aside class="study-en">
+### EF Core: configuration and the migration
+
+**1. NuGet:** `Pgvector.EntityFrameworkCore` — pgvector's types and functions for EF Core (on Npgsql).
+
+**2. Registration** — we add `UseVector()` to `UseNpgsql`, so that Npgsql knows the `vector` type:
+
+```csharp Program.cs
+builder.Services.AddDbContext<AppDbContext>(o =>
+    o.UseNpgsql(connectionString, npgsql => npgsql.UseVector()));
+```
+
+**3. The extension** — the migration should create `CREATE EXTENSION vector` by itself:
+
+```csharp Data/AppDbContext.cs · OnModelCreating
+modelBuilder.HasPostgresExtension("vector");
+```
+
+**4. Two new columns in `Product`:**
+
+```csharp Data/Product.cs
+using Pgvector;
+
+public class Product
+{
+    // ... Id, Name, Description, Price — as in the API course
+
+    [Column(TypeName = "vector(768)")]
+    public Vector? Embedding { get; set; }        // the vector; null — not calculated yet
+
+    public string? EmbeddingModel { get; set; }   // which model: "gemini-embedding-2"
+}
+```
+
+- **`Vector`** — pgvector's C# type (an array of `float`s). `Vector?` — nullable, because old dishes don't have a vector yet.
+- **`vector(768)`** — the size is in the column type. The database won't accept a vector of another size.
+- **`EmbeddingModel`** — lecture 9's “one model — one map”: if we change the model, we know exactly which vectors are old and need recalculating.
+
+**5. The migration:**
+
+```bash
+dotnet ef migrations add ProductEmbedding
+dotnet ef database update
+```
+
+In the migration you'll see the `vector(768)` column and the extension annotation. In the database: `\d "Products"` — `Embedding | vector(768)`.
+
+```terms
+Pgvector.EntityFrameworkCore — a NuGet package: pgvector's types and functions in EF Core
+UseVector() — the Npgsql option that turns on the vector type
+Vector — pgvector's C# type for a vector
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · EF Core">
+  <div class="kicker">🧑‍💻 ვწერთ · menu/index და menu/search ბაზაზე</div>
+  <h2>ვექტორი <span class="c-asp">ჩავწეროთ</span> და <span class="c-asp">ვეძებოთ</span> SQL-ში</h2>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · IndexMenu, SearchMenu">
+// IndexMenu: only what needs (re)calculating
+List<Product> products = await _db.Products
+    .Where(p => p.Embedding == null || p.EmbeddingModel != model)
+    .ToListAsync(ct);
+// ... GenerateAsync in batches of 100, as in lecture 9
+batch[i].Embedding = new Vector(vectors[i].Vector);
+batch[i].EmbeddingModel = model;
+
+// SearchMenu
+var query = new Vector(await _embeddings.GenerateVectorAsync(
+    EmbeddingText.Query(q), cancellationToken: ct));
+
+var top = await _db.Products
+    .Where(p => p.Embedding != null)
+    .OrderBy(p => p.Embedding!.CosineDistance(query))
+    .Select(p => new { p.Name, Distance = p.Embedding!.CosineDistance(query) })
+    .Take(3)
+    .ToListAsync(ct);
+
+return Ok(top.Select(x => new { x.Name, Score = 1 - x.Distance }));
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="c2" data-lines="2-4"></i>
+      <div class="prob step" data-with style="--a:var(--mvc)"><span class="pi">♻️</span><div><b>მხოლოდ ახალი ან ძველი</b><span>მეორე გამოძახებაზე — <b>0</b>. ფული არ იხარჯება</span></div></div>
+      <i class="codestep" data-for="c2" data-lines="15-16"></i>
+      <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🐘</span><div><b>CosineDistance → &lt;=&gt;</b><span>LINQ SQL-ად ითარგმნება: დალაგება ბაზაში ხდება, C#-ში მხოლოდ 3 ხაზი მოდის</span></div></div>
+      <div class="swr c-get step">
+        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=ხორცის გარეშე</span></div>
+        <pre class="rb">[ { <span class="k">"name"</span>: <span class="s">"ლობიო ქოთანში"</span>, <span class="k">"score"</span>: <span class="n">0.71</span> }, … ]</pre>
+      </div>
+      <div class="callout ask step">🙋 აპი <b>გადატვირთე</b> და ისევ ეძებე. რა მოხდება?</div>
+    </div>
+  </div>
+  <aside class="study">
+### ინდექსაცია და ძებნა ბაზაზე
+
+**ინდექსაცია** — ლექცია 9-ის `IndexMenu`, ოღონდ ვექტორი ახლა `Product`-ში იწერება:
+
+```csharp Controllers/AiLabController.cs · menu/index
+[HttpPost("menu/index")]
+public async Task<IActionResult> IndexMenu(CancellationToken ct)
+{
+    string model = _config["Gemini:EmbeddingModel"]!;
+
+    // მხოლოდ ის კერძები, რომლებსაც ვექტორი არ აქვთ, ან სხვა მოდელით აქვთ
+    List<Product> products = await _db.Products
+        .Where(p => p.Embedding == null || p.EmbeddingModel != model)
+        .ToListAsync(ct);
+
+    foreach (Product[] batch in products.Chunk(100))          // Gemini: 100-მდე ერთ მოთხოვნაში
+    {
+        var vectors = await _embeddings.GenerateAsync(
+            batch.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+            cancellationToken: ct);
+
+        for (int i = 0; i < batch.Length; i++)
+        {
+            batch[i].Embedding = new Vector(vectors[i].Vector);  // ReadOnlyMemory<float> → Vector
+            batch[i].EmbeddingModel = model;
+        }
+    }
+
+    await _db.SaveChangesAsync(ct);
+    return Ok(new { Indexed = products.Count });
+}
+```
+
+- **`Where(Embedding == null || EmbeddingModel != model)`** — მხოლოდ ის, რაც გადასათვლელია. მეორე გამოძახება `Indexed: 0`-ს აბრუნებს: ვექტორები უკვე ბაზაშია, ფული აღარ იხარჯება.
+- **`Chunk(100)`** — Gemini ერთ batch მოთხოვნაში 100-მდე ტექსტს იღებს (ლექცია 9-ის 💡).
+- **`new Vector(...)`** — `GenerateAsync`-ის შედეგი (`ReadOnlyMemory<float>`) pgvector-ის ტიპად.
+
+**ძებნა** — LINQ, რომელიც SQL-ად ითარგმნება:
+
+```csharp Controllers/AiLabController.cs · menu/search
+[HttpGet("menu/search")]
+public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+{
+    var query = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingText.Query(q), cancellationToken: ct));
+
+    var top = await _db.Products
+        .Where(p => p.Embedding != null)
+        .OrderBy(p => p.Embedding!.CosineDistance(query))       // → ORDER BY "Embedding" <=> @query
+        .Select(p => new { p.Name, Distance = p.Embedding!.CosineDistance(query) })
+        .Take(3)                                                  // → LIMIT 3
+        .ToListAsync(ct);
+
+    return Ok(top.Select(x => new { x.Name, Score = 1 - x.Distance }));   // distance → similarity
+}
+```
+
+- **`CosineDistance(query)`** — `Pgvector.EntityFrameworkCore`-ის ფუნქცია; SQL-ში `<=>` ხდება. დალაგება და `LIMIT` ბაზაში სრულდება — C#-ში მხოლოდ 3 ხაზი მოდის.
+- **`Score = 1 - Distance`** — ლექცია 9-ის score-ს ვაბრუნებთ, რომ საშინაოს ზღვარი (`MinScore`) არ შეიცვალოს.
+
+ლოგში (`Microsoft.EntityFrameworkCore.Database.Command`) ნახავ SQL-ს: `ORDER BY p."Embedding" <=> @query LIMIT @p`.
+
+**რესტარტის ცდა:** აპი გადატვირთე და `/menu/index`-ის გარეშე პირდაპირ `/menu/search` — შედეგი იგივეა. ვექტორები ბაზაშია.
+
+```note
+**როდის ვითვლით ვექტორს რეალურ სისტემაში?** კერძის შექმნისას ან აღწერის შეცვლისას: `Embedding = null` — და შემდეგი ინდექსაცია მას გადათვლის. ჩვენი `/menu/index` ზუსტად ამას აკეთებს: მხოლოდ „ცარიელებს“ და „ძველი მოდელით“ დათვლილებს. დიდ სისტემებში ამას background worker აკეთებს.
+```
+
+```terms
+CosineDistance — Pgvector.EntityFrameworkCore-ის ფუნქცია, რომელიც SQL-ში <=> ოპერატორად ითარგმნება
+Chunk(n) — LINQ: სია n-ელემენტიან ნაწილებად
+```
+  </aside>
+  <aside class="study-en">
+### Indexing and search on the database
+
+**Indexing** — lecture 9's `IndexMenu`, but now the vector is written into `Product`:
+
+```csharp Controllers/AiLabController.cs · menu/index
+[HttpPost("menu/index")]
+public async Task<IActionResult> IndexMenu(CancellationToken ct)
+{
+    string model = _config["Gemini:EmbeddingModel"]!;
+
+    // only the dishes that have no vector, or have one from another model
+    List<Product> products = await _db.Products
+        .Where(p => p.Embedding == null || p.EmbeddingModel != model)
+        .ToListAsync(ct);
+
+    foreach (Product[] batch in products.Chunk(100))          // Gemini: up to 100 per request
+    {
+        var vectors = await _embeddings.GenerateAsync(
+            batch.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+            cancellationToken: ct);
+
+        for (int i = 0; i < batch.Length; i++)
+        {
+            batch[i].Embedding = new Vector(vectors[i].Vector);  // ReadOnlyMemory<float> → Vector
+            batch[i].EmbeddingModel = model;
+        }
+    }
+
+    await _db.SaveChangesAsync(ct);
+    return Ok(new { Indexed = products.Count });
+}
+```
+
+- **`Where(Embedding == null || EmbeddingModel != model)`** — only what needs recalculating. The second call returns `Indexed: 0`: the vectors are already in the database, no more money is spent.
+- **`Chunk(100)`** — Gemini takes up to 100 texts in one batch request (lecture 9's 💡).
+- **`new Vector(...)`** — the result of `GenerateAsync` (`ReadOnlyMemory<float>`) as pgvector's type.
+
+**Search** — LINQ that is translated to SQL:
+
+```csharp Controllers/AiLabController.cs · menu/search
+[HttpGet("menu/search")]
+public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+{
+    var query = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingText.Query(q), cancellationToken: ct));
+
+    var top = await _db.Products
+        .Where(p => p.Embedding != null)
+        .OrderBy(p => p.Embedding!.CosineDistance(query))       // → ORDER BY "Embedding" <=> @query
+        .Select(p => new { p.Name, Distance = p.Embedding!.CosineDistance(query) })
+        .Take(3)                                                  // → LIMIT 3
+        .ToListAsync(ct);
+
+    return Ok(top.Select(x => new { x.Name, Score = 1 - x.Distance }));   // distance → similarity
+}
+```
+
+- **`CosineDistance(query)`** — a `Pgvector.EntityFrameworkCore` function; in SQL it becomes `<=>`. The sorting and the `LIMIT` run in the database — only 3 rows come to C#.
+- **`Score = 1 - Distance`** — we return lecture 9's score, so that the homework threshold (`MinScore`) doesn't change.
+
+In the log (`Microsoft.EntityFrameworkCore.Database.Command`) you'll see the SQL: `ORDER BY p."Embedding" <=> @query LIMIT @p`.
+
+**The restart test:** restart the app and go straight to `/menu/search` without `/menu/index` — the result is the same. The vectors are in the database.
+
+```note
+**When do we calculate the vector in a real system?** When a dish is created or its description changes: `Embedding = null` — and the next indexing recalculates it. Our `/menu/index` does exactly that: only the “empty” ones and the ones calculated with an “old model”. In large systems a background worker does this.
+```
+
+```terms
+CosineDistance — a Pgvector.EntityFrameworkCore function that is translated to the <=> operator in SQL
+Chunk(n) — LINQ: a list in parts of n elements
+```
+  </aside>
+</section>
+
+<section class="slide divider" data-section="შესვენება">
+  <div class="vcenter">
+    <div class="kicker in">შესვენება</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">წუთი</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">შემდეგ: მილიონ ვექტორში ყველას <b>რატომ არ</b> ვადარებთ?</p>
+  </div>
+  <div class="big-num">☕</div>
+</section>
+
+<!-- ================= 3 · ინდექსი ================= -->
+<section class="slide divider" data-section="3 · ინდექსი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">ვექტორული<br><span class="grad">ინდექსი</span></h1>
+    <p class="lead mt in" style="--d:.3s">ზუსტი vs მიახლოებითი · HNSW · EXPLAIN · VectorData</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · ვექტორული ინდექსი
+
+ინდექსის გარეშე ბაზა ძებნისას ყველა ხაზს კითხულობს. ვნახავთ, როგორ მუშაობს მიახლოებითი ძებნა (HNSW), როგორ შევქმნათ ინდექსი EF Core-ით და როგორ შევამოწმოთ `EXPLAIN`-ით. ბოლოს ვპასუხობთ ლექცია 9-ის კითხვას: გვჭირდება თუ არა `Microsoft.Extensions.VectorData`.
+  </aside>
+  <aside class="study-en">
+## Part 3 · The vector index
+
+Without an index the database reads every row when it searches. We see how approximate search works (HNSW), how to create the index with EF Core and how to check it with `EXPLAIN`. At the end we answer lecture 9's question: do we need `Microsoft.Extensions.VectorData` or not.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · ინდექსი">
+  <div class="kicker">⚡ ზუსტი vs მიახლოებითი ძებნა</div>
+  <h2>HNSW: <span class="c-net">სართულიანი</span> გზა უახლოესამდე</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:4px">
+    <div class="layers">
+      <svg viewBox="0 0 640 420">
+        <g font-size="14" font-weight="700" fill="var(--muted)">
+          <text x="8" y="58">სართული 2</text><text x="8" y="196">სართული 1</text><text x="8" y="338">სართული 0</text>
+        </g>
+        <g stroke="var(--line2)" stroke-width="2" fill="none">
+          <path d="M110 50 L560 50"/>
+          <path d="M110 190 L250 160 L400 200 L560 175"/><path d="M250 160 L330 215"/>
+          <path d="M110 330 L170 300 L250 345 L330 310 L400 350 L470 300 L560 330"/><path d="M170 300 L330 310"/><path d="M400 350 L470 300"/>
+        </g>
+        <g fill="var(--net)">
+          <circle cx="110" cy="50" r="9"/><circle cx="560" cy="50" r="9"/>
+          <circle cx="110" cy="190" r="8"/><circle cx="250" cy="160" r="8"/><circle cx="400" cy="200" r="8"/><circle cx="560" cy="175" r="8"/><circle cx="330" cy="215" r="8"/>
+          <circle cx="110" cy="330" r="7"/><circle cx="170" cy="300" r="7"/><circle cx="250" cy="345" r="7"/><circle cx="330" cy="310" r="7"/><circle cx="400" cy="350" r="7"/><circle cx="470" cy="300" r="7"/><circle cx="560" cy="330" r="7"/>
+        </g>
+        <g class="step" stroke="var(--pink)" stroke-width="5" fill="none" stroke-linecap="round">
+          <path d="M110 50 L560 50"/><path d="M560 50 L560 175"/><path d="M560 175 L400 200"/><path d="M400 200 L400 350"/><path d="M400 350 L470 300"/>
+        </g>
+        <g class="step" data-with><circle cx="470" cy="300" r="14" fill="none" stroke="var(--mvc)" stroke-width="5"/>
+          <text x="440" y="275" font-size="17" font-weight="800" fill="var(--mvc)">ლობიო</text></g>
+      </svg>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="prob" style="--a:var(--red)"><span class="pi">📖</span><div><b>ინდექსის გარეშე</b><span>ყველა ხაზი, ყველა ვექტორი — <b>ზუსტი</b>, მაგრამ O(n)</span></div></div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">🛗</span><div><b>HNSW = გრაფი სართულებით</b><span>ზემოთ — ცოტა წერტილი, შორი ნახტომები. ქვემოთ — ყველა, მოკლე ნაბიჯები</span></div></div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">🎯</span><div><b>მიახლოებითი (ANN)</b><span>ძალიან სწრაფი, მაგრამ იშვიათად შეიძლება <b>გამოტოვოს</b> ერთი სწორი</span></div></div>
+      <div class="callout ask step">🙋 რესტორნის მენიუში 1% შეცდომა <b>მისაღებია</b>? ბანკის ტრანზაქციებში?</div>
+    </div>
+  </div>
+  <aside class="study">
+### ზუსტი vs მიახლოებითი ძებნა: HNSW
+
+**ინდექსის გარეშე** ბაზა `ORDER BY distance`-ზე ყველა ხაზს კითხულობს და ყველა ვექტორთან მანძილს ითვლის (sequential scan). შედეგი **ზუსტია**, მაგრამ დრო ხაზების რაოდენობის პროპორციულია: O(n). B-tree ინდექსი აქ ვერ შველის — ის „ტოლობას“ და „მეტ/ნაკლებს“ ეძებს, არა „ყველაზე ახლოს მყოფს“ 768-განზომილებიან სივრცეში.
+
+**ვექტორული ინდექსი** ამიტომ **მიახლოებითია** — ANN (approximate nearest neighbor): ძალიან სწრაფად პოულობს „თითქმის ყოველთვის“ სწორ მეზობლებს. pgvector-ს ორი ასეთი ინდექსი აქვს: **HNSW** და **IVFFlat**. ჩვენ HNSW-ს ვიყენებთ — უფრო ზუსტი და სწრაფია, და ცარიელ ცხრილზეც შეიძლება შეიქმნას.
+
+**HNSW (Hierarchical Navigable Small World) — „სართულიანი გრაფი“:**
+
+- ყველა ვექტორი **სართულ 0-ზეა**, დაკავშირებული უახლოეს მეზობლებთან (გრაფი).
+- ზედა სართულებზე **ცოტა** ვექტორია, შორი კავშირებით — „ექსპრეს ხაზი“.
+- ძებნა იწყება ზემოდან: დიდი ნახტომებით სწორ „უბანში“ მივდივართ, მერე ქვედა სართულზე ვეშვებით და მოკლე ნაბიჯებით უახლოესს ვპოულობთ.
+
+ანალოგია: ქალაქის მისამართის ძებნა — ჯერ მაგისტრალი (სწორი რაიონი), მერე ქუჩა, მერე სახლი. ყველა სახლის შემოვლა არ გვჭირდება.
+
+**ფასი — recall.** ANN-მა იშვიათად შეიძლება ერთი სწორი მეზობელი გამოტოვოს. **recall** — რა წილი იპოვა ზუსტი ძებნის შედეგებიდან (მაგ. 0.98 = 100-დან 98). ძებნის ხარისხს `hnsw.ef_search` პარამეტრი არეგულირებს (ნაგულისხმევად 40): მეტი — ზუსტი, მაგრამ ნელი. ტექსტის ძებნაში და RAG-ში ეს ნორმალურია: „მეორე საუკეთესო“ კერძიც კარგი პასუხია. სადაც ზუსტი შედეგია აუცილებელი (ფინანსები, აუდიტი), ANN არ გამოიყენება.
+
+```terms
+Sequential scan — ცხრილის ყველა ხაზის წაკითხვა; ზუსტია, მაგრამ O(n)
+ANN (approximate nearest neighbor) — მიახლოებითი უახლოესი მეზობლის ძებნა: სწრაფი, იშვიათად გამოტოვებს
+HNSW — მრავალსართულიანი გრაფის ინდექსი ვექტორებისთვის; pgvector-ის ძირითადი ინდექსი
+Recall — რა წილი იპოვა ინდექსმა ზუსტი ძებნის შედეგებიდან
+```
+  </aside>
+  <aside class="study-en">
+### Exact vs approximate search: HNSW
+
+**Without an index**, for `ORDER BY distance` the database reads every row and calculates the distance to every vector (a sequential scan). The result is **exact**, but the time is proportional to the number of rows: O(n). A B-tree index doesn't help here — it looks for “equal” and “greater/less”, not for “the closest one” in a 768-dimensional space.
+
+That's why a **vector index** is **approximate** — ANN (approximate nearest neighbor): it finds the “almost always” correct neighbours very fast. pgvector has two such indexes: **HNSW** and **IVFFlat**. We use HNSW — it's more accurate and faster, and it can be created on an empty table too.
+
+**HNSW (Hierarchical Navigable Small World) — a “graph with floors”:**
+
+- Every vector is on **floor 0**, linked to its closest neighbours (a graph).
+- The upper floors hold **few** vectors, with long links — an “express line”.
+- The search starts at the top: with big jumps we get to the right “neighbourhood”, then go down a floor and find the closest one with short steps.
+
+An analogy: finding an address in a city — first the highway (the right district), then the street, then the house. We don't need to walk past every house.
+
+**The price — recall.** ANN can occasionally miss one correct neighbour. **Recall** — what share of the exact search results it found (e.g. 0.98 = 98 out of 100). The search quality is controlled by the `hnsw.ef_search` parameter (40 by default): more — more accurate, but slower. In text search and RAG this is normal: the “second best” dish is a good answer too. Where an exact result is required (finance, auditing), ANN isn't used.
+
+```terms
+Sequential scan — reading every row of a table; exact, but O(n)
+ANN (approximate nearest neighbor) — an approximate nearest-neighbour search: fast, occasionally misses
+HNSW — a multi-floor graph index for vectors; pgvector's main index
+Recall — what share of the exact search results the index found
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · ინდექსი">
+  <div class="kicker">🧑‍💻 ვწერთ · HNSW ინდექსი და EXPLAIN</div>
+  <h2>ინდექსი <span class="c-net">ერთი migration</span>-ით</h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start;gap:22px">
+    <div class="col" style="gap:12px">
+      <code-block id="c3" lang="csharp" cls="sm" title="Data/AppDbContext.cs · OnModelCreating">
+modelBuilder.Entity<Product>()
+    .HasIndex(p => p.Embedding)
+    .HasMethod("hnsw")
+    .HasOperators("vector_cosine_ops");
+      </code-block>
+      <div class="vec step"><span class="k">SET</span> enable_seqscan = off;   <span class="d">-- მხოლოდ ცდისთვის</span>
+<span class="k">EXPLAIN</span> SELECT "Name" FROM "Products"
+<span class="k">ORDER BY</span> "Embedding" <span class="g">&lt;=&gt;</span> '[0.02, …]' <span class="k">LIMIT</span> 3;
+
+<span class="g">Limit
+  -&gt; Index Scan using "IX_Products_Embedding"</span>
+       Order By: ("Embedding" &lt;=&gt; '…')</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="c3" data-lines="4"></i>
+      <div class="prob step" data-with style="--a:var(--red)"><span class="pi">⚠️</span><div><b>ოპერატორი = ძებნის ფუნქცია</b><span>vector_cosine_ops ↔ <b>CosineDistance</b>. სხვა ფუნქციით ინდექსი <b>არ ჩაირთვება</b></span></div></div>
+      <div class="callout ask step">🙋 20 კერძზე PostgreSQL ინდექსს <b>არ</b> იყენებს. რატომ?</div>
+      <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🧮</span><div><b>პლანერი ითვლის</b><span>20 ხაზის წაკითხვა ინდექსზე იაფია. ინდექსი ათასობით ხაზზე იწყებს მუშაობას</span></div></div>
+    </div>
+  </div>
+  <aside class="study">
+### HNSW ინდექსი EF Core-ით და `EXPLAIN`
+
+ინდექსი `OnModelCreating`-ში იწერება და migration-ით იქმნება:
+
+```csharp Data/AppDbContext.cs · OnModelCreating
+modelBuilder.Entity<Product>()
+    .HasIndex(p => p.Embedding)
+    .HasMethod("hnsw")                       // ინდექსის ტიპი
+    .HasOperators("vector_cosine_ops");      // რომელი მანძილისთვის
+```
+
+```bash
+dotnet ef migrations add ProductEmbeddingIndex
+dotnet ef database update
+```
+
+SQL-ში ეს არის: `CREATE INDEX ... ON "Products" USING hnsw ("Embedding" vector_cosine_ops);`
+
+**ყველაზე ხშირი შეცდომა: ოპერატორი.** ინდექსი ერთი კონკრეტული მანძილისთვის იქმნება:
+
+| ინდექსის ოპერატორი | ძებნის ფუნქცია (EF) | SQL |
+|---|---|---|
+| `vector_cosine_ops` | `CosineDistance` | `<=>` |
+| `vector_l2_ops` | `L2Distance` | `<->` |
+| `vector_ip_ops` | `MaxInnerProduct` | `<#>` |
+
+თუ ინდექსი `vector_l2_ops`-ითაა, ძებნა კი `CosineDistance`-ით — ინდექსი **არ** გამოიყენება, და შეცდომაც არ ჩანს: უბრალოდ ნელია.
+
+**როგორ შევამოწმოთ — `EXPLAIN`.** psql-ში ან pgAdmin-ში:
+
+```sql
+SET enable_seqscan = off;   -- მხოლოდ ცდისთვის: პლანერს seq scan-ს ვუკრძალავთ
+EXPLAIN SELECT "Name" FROM "Products"
+ORDER BY "Embedding" <=> (SELECT "Embedding" FROM "Products" WHERE "Name" = 'ლობიო ქოთანში')
+LIMIT 3;
+-- Limit -> Index Scan using "IX_Products_Embedding" on "Products"
+```
+
+**რატომ არ იყენებს 20 კერძზე?** PostgreSQL-ის პლანერი ითვლის, რა უფრო იაფია. 20 ხაზის წაკითხვა ინდექსში სიარულზე იაფია — ამიტომ `Seq Scan`-ს ირჩევს. ეს სწორი ქცევაა. ინდექსი ათასობით და მეტ ხაზზე იწყებს მუშაობას. `enable_seqscan = off` მხოლოდ იმის სანახავადაა, რომ ინდექსი შეიძლება გამოიყენოს — production-ში არ ირთვება.
+
+```terms
+EXPLAIN — PostgreSQL-ის ბრძანება, რომელიც აჩვენებს, როგორ შეასრულებს ბაზა მოთხოვნას (seq scan თუ ინდექსი)
+vector_cosine_ops — HNSW ინდექსის ოპერატორის კლასი cosine distance-ისთვის
+```
+  </aside>
+  <aside class="study-en">
+### The HNSW index with EF Core and `EXPLAIN`
+
+The index is written in `OnModelCreating` and created by a migration:
+
+```csharp Data/AppDbContext.cs · OnModelCreating
+modelBuilder.Entity<Product>()
+    .HasIndex(p => p.Embedding)
+    .HasMethod("hnsw")                       // the index type
+    .HasOperators("vector_cosine_ops");      // for which distance
+```
+
+```bash
+dotnet ef migrations add ProductEmbeddingIndex
+dotnet ef database update
+```
+
+In SQL this is: `CREATE INDEX ... ON "Products" USING hnsw ("Embedding" vector_cosine_ops);`
+
+**The most common mistake: the operator.** An index is created for one specific distance:
+
+| Index operator | Search function (EF) | SQL |
+|---|---|---|
+| `vector_cosine_ops` | `CosineDistance` | `<=>` |
+| `vector_l2_ops` | `L2Distance` | `<->` |
+| `vector_ip_ops` | `MaxInnerProduct` | `<#>` |
+
+If the index uses `vector_l2_ops` and the search uses `CosineDistance` — the index is **not** used, and there's no error either: it's just slow.
+
+**How to check — `EXPLAIN`.** In psql or pgAdmin:
+
+```sql
+SET enable_seqscan = off;   -- only for the test: we forbid the planner a seq scan
+EXPLAIN SELECT "Name" FROM "Products"
+ORDER BY "Embedding" <=> (SELECT "Embedding" FROM "Products" WHERE "Name" = 'ლობიო ქოთანში')
+LIMIT 3;
+-- Limit -> Index Scan using "IX_Products_Embedding" on "Products"
+```
+
+**Why doesn't it use it on 20 dishes?** PostgreSQL's planner calculates what's cheaper. Reading 20 rows is cheaper than walking through an index — so it picks a `Seq Scan`. That's the correct behaviour. The index starts to pay off on thousands of rows and more. `enable_seqscan = off` is only for seeing that the index can be used — it isn't turned on in production.
+
+```terms
+EXPLAIN — a PostgreSQL command that shows how the database will run a query (seq scan or index)
+vector_cosine_ops — the HNSW index operator class for cosine distance
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · ინდექსი">
+  <div class="kicker">🧭 გადაწყვეტილება · ლექცია 9-ის კითხვა</div>
+  <h2>EF Core პირდაპირ თუ <span class="mono c-net">VectorData</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:8px">
+    <div class="card accent" style="--a:var(--api)"><h3><span class="ico">🐘</span>EF Core + pgvector</h3><ul class="clean small">
+      <li>ვექტორი <b>კერძის გვერდით</b>, იმავე ცხრილში</li>
+      <li>JOIN, WHERE, ტრანზაქცია — როგორც ყოველთვის</li>
+      <li>ერთი <b>AppDbContext</b>, ერთი migration</li>
+      <li>✓ როცა ბაზა PostgreSQL-ია და ასე დარჩება — <b>ჩვენი არჩევანი</b></li></ul></div>
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🔌</span>Microsoft.Extensions.VectorData</h3><ul class="clean small">
+      <li>ერთი interface ბევრ vector store-ზე: PostgreSQL, Qdrant, Azure AI Search, in-memory…</li>
+      <li>store-ის შეცვლა — კოდის შეცვლის გარეშე (როგორც IChatClient)</li>
+      <li>✓ როცა ვექტორები <b>ცალკე</b> ბაზაშია ან ის შეიძლება შეიცვალოს</li></ul></div>
+  </div>
+  <div class="callout ask step mt">🙋 კერძის ფასი ბაზაშია, ვექტორი — Qdrant-ში. „ხორცის გარეშე, <b>20 ლარამდე</b>“ — როგორ ვეძებთ?</div>
+  <aside class="study">
+### გადაწყვეტილება: EF Core პირდაპირ თუ `Microsoft.Extensions.VectorData`
+
+ლექცია 9-ში ვთქვით: „ლექცია 10-ში ვნახავთ, საჭიროა თუ არა `Microsoft.Extensions.VectorData`“. პასუხი:
+
+| | EF Core + pgvector | `Microsoft.Extensions.VectorData` |
+|---|---|---|
+| რა არის | ვექტორის სვეტი ჩვეულებრივ ცხრილში | vector store-ების აბსტრაქცია (როგორც `IChatClient` მოდელებისთვის) |
+| სად ინახება | იმავე ცხრილში, კერძის გვერდით | ცალკე „კოლექციაში“: PostgreSQL, Qdrant, Azure AI Search, in-memory… |
+| ფილტრი, JOIN, ტრანზაქცია | ჩვეულებრივი SQL / LINQ | store-ის შესაძლებლობებით |
+| როდის | ბაზა PostgreSQL-ია და ასე რჩება | ვექტორები ცალკე store-შია, ან store შეიძლება შეიცვალოს |
+
+**ჩვენი არჩევანი — EF Core პირდაპირ.** მიზეზი: მონაცემი უკვე PostgreSQL-შია. ვექტორი კერძის გვერდით დგას, და „ხორცის გარეშე, 20 ლარამდე“ ერთი მოთხოვნაა: `WHERE "Price" <= 20 ORDER BY "Embedding" <=> @q`. ერთი `AppDbContext`, ერთი migration, ერთი ტრანზაქცია.
+
+თუ ვექტორები ცალკე ბაზაში იქნებოდა (Qdrant), იგივე შეკითხვა ორ სისტემას შორის „შეერთებას“ მოითხოვდა: ან ფასიც Qdrant-ში უნდა დავაკოპიროთ, ან ორი მოთხოვნა და შედეგების გაერთიანება C#-ში. სწორედ ასეთ შემთხვევაში იძლევა VectorData ერთ API-ს ყველა store-ისთვის.
+
+`Microsoft.Extensions.VectorData`-ის იდეა (⭐-ში ცდით):
+
+```csharp
+public class MenuRecord
+{
+    [VectorStoreKey] public int Id { get; set; }
+    [VectorStoreData] public string Name { get; set; } = "";
+    [VectorStoreVector(768, DistanceFunction = DistanceFunction.CosineDistance)]
+    public ReadOnlyMemory<float> Embedding { get; set; }
+}
+// collection.SearchAsync(queryVector, top: 3) — ერთნაირად ნებისმიერ store-ზე
+```
+
+```terms
+Microsoft.Extensions.VectorData — vector store-ების აბსტრაქცია .NET-ში: ერთი API PostgreSQL-ის, Qdrant-ის, Azure AI Search-ის და სხვებისთვის
+Vector store — ადგილი, სადაც ვექტორები ინახება და იძებნება
+```
+  </aside>
+  <aside class="study-en">
+### A decision: EF Core directly or `Microsoft.Extensions.VectorData`
+
+In lecture 9 we said: “in lecture 10 we'll see whether we need `Microsoft.Extensions.VectorData`”. The answer:
+
+| | EF Core + pgvector | `Microsoft.Extensions.VectorData` |
+|---|---|---|
+| What it is | a vector column in an ordinary table | an abstraction over vector stores (like `IChatClient` for models) |
+| Where it's stored | in the same table, next to the dish | in a separate “collection”: PostgreSQL, Qdrant, Azure AI Search, in-memory… |
+| Filters, JOINs, transactions | ordinary SQL / LINQ | with the store's capabilities |
+| When | the database is PostgreSQL and stays that way | the vectors are in a separate store, or the store may change |
+
+**Our choice — EF Core directly.** The reason: the data is already in PostgreSQL. The vector stands next to the dish, and “without meat, up to 20 lari” is one query: `WHERE "Price" <= 20 ORDER BY "Embedding" <=> @q`. One `AppDbContext`, one migration, one transaction.
+
+If the vectors were in a separate database (Qdrant), the same question would need a “join” between two systems: either we copy the price into Qdrant too, or two queries and merging the results in C#. Exactly in a case like that VectorData gives one API for every store.
+
+The idea of `Microsoft.Extensions.VectorData` (to try in the ⭐):
+
+```csharp
+public class MenuRecord
+{
+    [VectorStoreKey] public int Id { get; set; }
+    [VectorStoreData] public string Name { get; set; } = "";
+    [VectorStoreVector(768, DistanceFunction = DistanceFunction.CosineDistance)]
+    public ReadOnlyMemory<float> Embedding { get; set; }
+}
+// collection.SearchAsync(queryVector, top: 3) — the same way on any store
+```
+
+```terms
+Microsoft.Extensions.VectorData — an abstraction over vector stores in .NET: one API for PostgreSQL, Qdrant, Azure AI Search and others
+Vector store — the place where vectors are stored and searched
+```
+  </aside>
+</section>
+
+<lecture-classwork/>
+
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--asp)">დღეს</div>
+  <h2 class="in" style="--d:.1s">ვექტორი ბაზაში → SQL-ით ძებნა → <span class="grad">ინდექსი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
+      <li><b>pgvector</b>: სვეტი <b>vector(768)</b> და მანძილის ოპერატორები · Docker-ში pgvector/pgvector</li>
+      <li><b>&lt;=&gt;</b> — cosine <b>distance</b> = 1 − similarity · პატარა = ახლოს</li>
+      <li>EF Core: <b>UseVector</b>, Vector? Embedding + EmbeddingModel, migration</li>
+      <li>ძებნა: <b>OrderBy(CosineDistance).Take(3)</b> — დალაგება ბაზაში</li>
+      <li><b>HNSW</b> — მიახლოებითი, სწრაფი; ოპერატორი = ძებნის ფუნქცია</li>
+      <li>ერთ PostgreSQL-ში — EF Core; ცალკე store-ზე — VectorData</li></ul></div>
+    <div class="col" style="gap:14px">
+      <div class="callout ask">🙋 „როგორ გავაუქმო ჯავშანი?“ — ამის პასუხი <b>მენიუში</b> წერია?</div>
+      <div class="prob" style="--a:var(--red)"><span class="pi">📄</span><div><b>პასუხი დოკუმენტშია</b><span>რესტორნის წესები, ალერგენები, FAQ — PDF-ებში, ათობით გვერდი</span></div></div>
+      <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⏭️</span>ლექცია 11</h3>
+        <p class="small"><b>Simple RAG</b>: PDF → ნაწილები → ვექტორები ბაზაში → მოდელი პასუხობს დოკუმენტიდან, წყაროს მითითებით</p></div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება
+
+- **pgvector** — PostgreSQL-ის გაფართოება: სვეტის ტიპი `vector(768)` და მანძილის ოპერატორები. Docker-ში `postgres`-ის ნაცვლად `pgvector/pgvector` იმავე ვერსიით.
+- **`<=>` — cosine distance** = 1 − similarity. პატარა მანძილი = ახლოს, ამიტომ `ORDER BY distance` ზრდადობით. `<->` — L2, `<#>` — უარყოფითი dot product.
+- **EF Core:** `Pgvector.EntityFrameworkCore`, `UseNpgsql(..., o => o.UseVector())`, `HasPostgresExtension("vector")`, `Vector? Embedding` (`vector(768)`) და `EmbeddingModel`.
+- **ინდექსაცია** მხოლოდ გადასათვლელს ითვლის (`Embedding == null` ან სხვა მოდელი), `Chunk(100)`-ით. **ძებნა:** `OrderBy(p => p.Embedding!.CosineDistance(query)).Take(3)` — SQL-ში `ORDER BY <=> LIMIT 3`.
+- **HNSW** — მიახლოებითი (ANN) ინდექსი: სართულიანი გრაფი, ძალიან სწრაფი, recall ~100%-ზე ოდნავ ნაკლები. ინდექსის ოპერატორი (`vector_cosine_ops`) ძებნის ფუნქციას უნდა ემთხვეოდეს. მცირე ცხრილზე პლანერი seq scan-ს ირჩევს — ეს ნორმალურია.
+- **EF Core vs VectorData:** მონაცემი PostgreSQL-შია — EF Core პირდაპირ. ვექტორები ცალკე store-შია ან შეიძლება შეიცვალოს — `Microsoft.Extensions.VectorData`.
+
+### შემდეგ ლექციაზე
+
+მენიუს ძებნა მუშაობს. მაგრამ „როგორ გავაუქმო ჯავშანი?“ ან „თხილზე ალერგია მაქვს, რა მივირთვა?“ — ამის პასუხი მენიუში კი არა, რესტორნის **დოკუმენტებშია** (PDF-ები). ლექცია 11-ზე: **Simple RAG** — PDF-ს ნაწილებად ვჭრით, ვექტორებს ბაზაში ვინახავთ და მოდელი პასუხობს დოკუმენტიდან, წყაროს მითითებით.
+  </aside>
+  <aside class="study-en">
+## Summary
+
+- **pgvector** — a PostgreSQL extension: the column type `vector(768)` and distance operators. In Docker, `pgvector/pgvector` of the same version instead of `postgres`.
+- **`<=>` — cosine distance** = 1 − similarity. A small distance = close, so `ORDER BY distance` is ascending. `<->` — L2, `<#>` — negative dot product.
+- **EF Core:** `Pgvector.EntityFrameworkCore`, `UseNpgsql(..., o => o.UseVector())`, `HasPostgresExtension("vector")`, `Vector? Embedding` (`vector(768)`) and `EmbeddingModel`.
+- **Indexing** calculates only what needs recalculating (`Embedding == null` or another model), with `Chunk(100)`. **Search:** `OrderBy(p => p.Embedding!.CosineDistance(query)).Take(3)` — in SQL `ORDER BY <=> LIMIT 3`.
+- **HNSW** — an approximate (ANN) index: a graph with floors, very fast, recall slightly below 100%. The index operator (`vector_cosine_ops`) must match the search function. On a small table the planner picks a seq scan — that's normal.
+- **EF Core vs VectorData:** the data is in PostgreSQL — EF Core directly. The vectors are in a separate store or it may change — `Microsoft.Extensions.VectorData`.
+
+### Next lecture
+
+The menu search works. But “how do I cancel a booking?” or “I'm allergic to nuts, what can I eat?” — the answer isn't in the menu but in the restaurant's **documents** (PDFs). In lecture 11: **Simple RAG** — we cut a PDF into parts, store the vectors in the database, and the model answers from the document, citing the source.
+  </aside>
+</section>
+
+<lecture-homework/>

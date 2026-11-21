@@ -45,6 +45,9 @@ build.py                     აწყობს საიტს
 | 07 | Context Engineering: კონტექსტისა და მეხსიერების მართვა | `courses/ai/07-context-engineering/` |
 | 08 | Error Handling, Resilience და ხარჯის კონტროლი | `courses/ai/08-resilience-cost/` |
 | 09 | Text Embeddings: ტექსტის ვექტორიზაცია | `courses/ai/09-text-embeddings/` |
+| 10 | PostgreSQL pgvector და EF Core | `courses/ai/10-pgvector-efcore/` |
+| 11 | Simple RAG: პასუხი დოკუმენტებიდან | `courses/ai/11-simple-rag/` |
+| 12 | RAG ოპტიმიზაცია და შეფასება | `courses/ai/12-rag-optimization/` |
 
 ## ლექციის სტრუქტურა
 

@@ -1,0 +1,53 @@
+{
+  "title": "RAG Optimization and Evaluation",
+  "why": "Lecture 11's RAG sometimes finds the wrong part — especially on exact words (“B-2”, “12%”). But “sometimes” isn't a number, and “I think it's better” doesn't count. In real teams every RAG change — chunking, the search method, the prompt — is proven by measurement. Today we measure (golden set, hit@k, MRR), improve (hybrid search, filtering, chunking) and check the answer's groundedness.",
+  "outcomes": [
+    "You'll explain where RAG fails (retrieval vs generation), put together a golden set and calculate hit@3 and MRR with `/rag/eval`",
+    "You'll build hybrid search: the vector + PostgreSQL full-text (`tsvector`, `'simple'`), merged with RRF, and prove the improvement with a number",
+    "You'll add metadata filtering in SQL and explain why it's also a security matter",
+    "You'll compare chunking strategies and reranking, and evaluate the answer's groundedness with `GroundednessEvaluator`"
+  ],
+  "review": [
+    {"q": "In which two places does RAG fail, and which one is more common?", "a": "retrieval — the right part didn't get into the top k (the most common; then even the best model can't answer) · generation — the part is right, but the model added something that isn't in the source"},
+    {"q": "What are hit@3 and MRR? Why do we write a phrase in the golden set and not the chunk's Id?", "a": "hit@3 — on what share of the questions the right part was in the top three · MRR — the average 1/rank, how high it is · when the chunking changes the Ids change, the phrase doesn't"},
+    {"q": "Why do we need hybrid search, and why do we merge the lists by rank (RRF) and not by scores?", "a": "the vector finds exact words (a code, a number, a name) badly, full-text finds them exactly · the scores are in different “units”, the rank is the same everywhere: Σ 1/(60 + rank)"},
+    {"q": "Why must metadata filtering be in SQL and not in the prompt?", "a": "the model doesn't always obey the prompt; if someone else's part got into the context, it has already leaked · a tenant/permissions filter is security, before the model"},
+    {"q": "What is groundedness and how do we measure it? Why don't we trust the judge completely?", "a": "does the answer rely only on the sources? · LLM-as-judge: GroundednessEvaluator, 1–5 and an explanation · the judge is a model too — it makes mistakes and rates its own answers softly; on many examples and manually from time to time"}
+  ],
+  "resources": [
+    {"title": "Microsoft.Extensions.AI.Evaluation", "url": "https://learn.microsoft.com/dotnet/ai/evaluation/libraries", "note": "Quality evaluators: Groundedness, Relevance, Retrieval, Completeness"},
+    {"title": "PostgreSQL — Full Text Search", "url": "https://www.postgresql.org/docs/current/textsearch.html", "note": "tsvector, tsquery, ts_rank, GIN"},
+    {"title": "Npgsql EF Core — Full Text Search", "url": "https://www.npgsql.org/efcore/mapping/full-text-search.html", "note": "HasGeneratedTsVectorColumn, Matches, Rank"},
+    {"title": "Reciprocal Rank Fusion (Cormack et al., 2009)", "url": "https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf", "note": "the original RRF paper: k = 60"},
+    {"title": "pgvector — Hybrid Search", "url": "https://github.com/pgvector/pgvector#hybrid-search", "note": "pgvector + full-text together"}
+  ],
+  "quiz": [
+    {"q": "We changed the chunk size from 800 to 400. It got better on two questions. The right conclusion:", "options": ["400 is better", "We can't say anything yet — we have to measure on the golden set: a change improves some and breaks others", "Both are the same", "800 is better"], "explain": "First we measure, then we change, then we measure again."},
+    {"q": "RAG's most common mistake:", "options": ["The model can't write Georgian", "retrieval — the right part didn't get into the top k, and the model has nothing to answer with", "Streaming stops", "The history is lost"], "explain": "That's why we measure the search first."},
+    {"q": "Out of 6 questions, the right part is in the top three for 4. hit@3 =", "options": ["4", "0.67", "0.4", "1"], "explain": "4 / 6 ≈ 0.67."},
+    {"q": "Why do we write a “must appear in the part” phrase in the golden set and not the chunk's Id?", "options": ["The Id is secret", "When the chunking changes, the parts are cut again and the Ids change — a phrase works with any strategy", "A phrase is shorter", "EF Core can't read the Id"], "explain": "A golden set must survive changes."},
+    {"q": "The `/rag/eval` misses show “Hall B-2” and “12%”. What do they have in common?", "options": ["They're long questions", "Exact words — a code and a number that the vector “sees” badly", "They're in English", "The threshold is low"], "explain": "Hybrid search solves this."},
+    {"q": "Why do we use `'simple'` for Georgian in PostgreSQL's full-text?", "options": ["It's faster", "There's no dictionary or stemmer for Georgian — 'simple' stores the word as it is; the vector covers the grammatical forms", "'english' is better for Georgian", "'simple' calculates vectors"], "explain": "Full-text is for exact words: a code, a number, a name."},
+    {"q": "Why does RRF merge two lists by rank?", "options": ["It's faster", "The vector score and ts_rank are in different “units” — adding them makes no sense; the rank is the same everywhere", "The scores are negative", "PostgreSQL doesn't return a score"], "explain": "Σ 1/(60 + rank): the one high in both lists comes first."},
+    {"q": "Why do we join the words with “or” (`|`) instead of `plainto_tsquery`?", "options": ["So there are fewer results", "plainto_tsquery uses “and” — in a natural question all the words are rarely in one part, so the result is 0; “or” + ts_rank puts more matches higher", "“and” is a syntax error", "Gemini requires it"], "explain": "OrQuery also throws away punctuation — to avoid to_tsquery's error."},
+    {"q": "In a multi-client system, where should another client's document be hidden?", "options": ["In the system prompt: “don't show others' documents”", "In SQL, before the search — a filter by TenantId; nothing should reach the model", "After the answer", "In the UI"], "explain": "Getting into the context is already a leak."},
+    {"q": "Why do we run a reranker only on 20 candidates and not on every part?", "options": ["It can't take more than 20", "A cross-encoder reads the question and the part together — it's precise, but nothing can be calculated in advance; on every part it's very slow and expensive. The fast search picks, the reranker sorts", "Gemini requires it", "Otherwise hit@3 drops"], "explain": "Two layers: fast (bi-encoder) → precise (cross-encoder)."}
+  ],
+  "study": {
+    "summary": [
+      "RAG fails in **two places**: **retrieval** (the most common) and **generation** — we don't check “by eye”, we **measure**.",
+      "**Golden set** — a question + a phrase (not an Id); **hit@3**, **MRR**, **misses**; `/rag/eval` doesn't call the LLM.",
+      "**Hybrid search:** the vector + `tsvector` (`'simple'` — Georgian has no dictionary), **RRF**: Σ 1/(60 + rank); a query with “or”.",
+      "**Metadata filtering** in SQL, before the model — quality and security (tenant, permissions).",
+      "**Chunking:** the heading in the prefix; smaller ≠ better — measure. **Reranker:** 20 → 5. **Groundedness:** `GroundednessEvaluator`, 1–5, LLM-as-judge."
+    ],
+    "chapters": {
+      "1 · გაზომვა": {"title": "Measuring RAG: golden set, hit@k, MRR", "goal": "You'll put together a golden set and measure the quality of the search with a number."},
+      "2 · ძებნა": {"title": "Hybrid search and metadata filtering", "goal": "You'll add full-text to the vector, merge them with RRF and filter the search by metadata."},
+      "3 · დაჭრა და პასუხი": {"title": "Chunking, reranking and groundedness", "goal": "You'll compare chunking strategies, explain reranking and evaluate the answer's groundedness."},
+      "პრაქტიკა": {"title": "Classwork: your golden set"},
+      "შეჯამება": {"title": "Summary and the end of part 1"},
+      "საშინაო": {"title": "Homework"}
+    }
+  }
+}

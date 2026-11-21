@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 RAG Optimization and Evaluation — study notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>/* კონსპექტის / ლექტორის / მთავარი გვერდის საერთო ფერები — light და dark */
+:root{
+  --surf:#fdfcf9; --soft:#f6f1e8; --soft2:#ebe5d8;
+  --acc-line:#ddd2fb; --ok-soft:#f3fbf5; --ok-line:#cfe9d6; --ok-ink:#166534;
+  --bad-soft:#fef2f2; --bad-line:#fca5a5; --bad-ink:#991b1b;
+  --warn-soft:#fff8eb; --warn-line:#f6dfb5; --warn-ink:#7c3d06;
+  --info-soft:#eef5ff; --info-line:#cfe0fb; --teal-soft:#e6f6f4; --teal-line:#bfe7e2;
+  --code-ink:#5b21b6; --yellow:#a16207; --deep:#1e2132; --deep2:#2a2e45; --on:#fff;
+}
+html[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#16181d; --card:#1e2128; --ink:#e6e2da; --ink2:#bebab1; --muted:#8a8e98; --line:#2d313b; --line2:#3c414d;
+  --accent:#ab9ff2; --accent-soft:#272439; --teal:#72bfb3; --green:#8fc8a1; --amber:#dfa96e; --red:#e68b8b; --blue:#8aa9e6;
+  --g-prep:#8aa9e6; --g-flow:#ab9ff2; --g-after:#72bfb3; --g-mat:#8a93a6; --g-ready:#8fc8a1;
+  --surf:#1b1e24; --soft:#252932; --soft2:#2b2f39;
+  --acc-line:#433b66; --ok-soft:#1d2a23; --ok-line:#33503d; --ok-ink:#b2dcbf;
+  --bad-soft:#2c2025; --bad-line:#5a3540; --bad-ink:#f0b4b4;
+  --warn-soft:#2b2720; --warn-line:#574a2e; --warn-ink:#ecc78f;
+  --info-soft:#1f2635; --info-line:#35466a; --teal-soft:#1b2b2a; --teal-line:#2f4f4a;
+  --code-ink:#cfc6ff; --yellow:#d8c27e; --deep:#252a36; --deep2:#2c3240; --on:#16181d;
+}
+html[data-theme=dark] .code .k,html[data-theme=dark] .code .kd,html[data-theme=dark] .code .kn,html[data-theme=dark] .code .kr,html[data-theme=dark] .code .kc,html[data-theme=dark] .code .na{color:#c4a7f0}
+html[data-theme=dark] .code .kt,html[data-theme=dark] .code .nf,html[data-theme=dark] .code .fm{color:#8fb3ec}
+html[data-theme=dark] .code .s,html[data-theme=dark] .code .s1,html[data-theme=dark] .code .s2,html[data-theme=dark] .code .sa,html[data-theme=dark] .code .se,html[data-theme=dark] .code .si,html[data-theme=dark] .code .sd{color:#a9d39a}
+html[data-theme=dark] .code .c,html[data-theme=dark] .code .c1,html[data-theme=dark] .code .cm,html[data-theme=dark] .code .cp,html[data-theme=dark] .code .ch{color:#727784}
+html[data-theme=dark] .code .m,html[data-theme=dark] .code .mi,html[data-theme=dark] .code .mf,html[data-theme=dark] .code .mh{color:#e3a77c}
+html[data-theme=dark] .code .nc,html[data-theme=dark] .code .nn,html[data-theme=dark] .code .nt,html[data-theme=dark] .code .nd{color:#dfbf7e}
+html[data-theme=dark] .code .nb{color:#7cc4c9}
+html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=dark] .code .go,html[data-theme=dark] .code .nv,html[data-theme=dark] .code .nx{color:#a7abb6}
+.themebtn{font:700 15px var(--sans,system-ui);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer;line-height:1}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.langbtn{font-family:var(--mono)}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
+nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
+.prog .pl b{color:var(--green)}
+.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
+nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
+nav.side a:hover{background:var(--soft2)}
+nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+nav.side a.x{margin-top:2px}
+nav.side a.x:first-of-type{margin-top:14px}
+nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
+nav.side .nn.e{background:transparent;font-size:16px}
+nav.side a.ok .nn{background:var(--green);color:transparent}
+nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
+nav.side .nt{flex:1;min-width:0}
+nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
+nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+/* ---------- hero + quick start ---------- */
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
+header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+.livehint{display:none}body.is-live .livehint{display:inline}
+.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
+.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
+.quick .qk{padding:20px 24px}
+.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
+.take{margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
+.take li:first-child{border-top:0}
+.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
+.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
+.quick .qp{background:var(--deep2);padding:20px 22px}
+.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
+.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
+.path a{color:#c4b5fd;font-weight:700}
+.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
+.res h3{margin:0 0 4px;font-size:16px}
+.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
+.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
+/* ---------- chapters ---------- */
+.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
+.chap[data-num="0"]{border-top-color:var(--teal)}
+.chap.fin{border-top-color:var(--green)}
+.chap.ok{border-top-color:var(--green)}
+.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
+.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
+.cn.e{background:var(--teal-soft);font-size:24px}
+.chap.fin .cn.e{background:var(--ok-soft)}
+.cht{flex:1;min-width:0}
+.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
+.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
+.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
+.read:hover{border-color:var(--green);color:var(--green)}
+.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
+.cbody{padding:4px 22px 18px}
+.anchor{position:absolute;top:-70px}
+/* blocks inside a chapter */
+.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
+.blk:first-child{border-top:0}
+.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
+.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
+.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
+.blk.check .selfcheck .sh{display:none}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
+.blk.check .bh h3{color:var(--green);font-size:18px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+/* ---------- markdown ---------- */
+.cbody p{margin:10px 0}
+.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
+.cbody li{margin:4px 0}
+.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.cbody h4{font-size:17px;margin:18px 0 4px}
+.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.cbody th{background:var(--soft)}
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+.prompt{margin:16px 0;border:1px solid var(--acc-line);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--accent-soft);border-color:var(--acc-line);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+.selfcheck{margin:16px 0;border:1px solid var(--ok-line);border-radius:12px;background:var(--ok-soft);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--ok-line);padding:8px 0}
+.selfcheck details:first-of-type{border-top:0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:28px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:3px;width:19px;height:19px;border-radius:50%;background:var(--green);color:var(--on);font:700 12px/19px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 28px;color:var(--ink2)}
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surf);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--card)8eb;border-color:var(--warn-line)}
+.callout.note{background:var(--info-soft);border-color:var(--info-line)}
+.callout.tip{background:var(--accent-soft);border-color:var(--acc-line)}
+/* ---------- quiz ---------- */
+.qscore{position:sticky;top:66px;z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--acc-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
+.qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
+.qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
+.qt{font-weight:700;display:flex;gap:10px}
+.qn{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 13px/26px var(--mono);text-align:center}
+.opts{display:grid;gap:8px;margin:10px 0 4px 36px}
+.opt{text-align:left;font:15.5px/1.5 var(--sans);color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok-ink);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad-ink)}
+.qe{display:none;margin:8px 0 0 36px;padding:8px 12px;border-radius:10px;background:var(--soft);font-size:15.5px;color:var(--ink2)}
+.qq.done .qe{display:block}
+.qq.ok .verdict::before{content:"✓ Correct.";color:var(--green);font-weight:700}
+.qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
+.qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
+.qsum.on{display:block}
+/* ---------- small screens / print ---------- */
+@media (max-width:1000px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
+  nav.side{position:static;max-height:none;margin-bottom:10px}
+  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+  nav.side details>summary{cursor:pointer;font-weight:700}
+  header.hero h1{font-size:28px}
+  .top{padding:8px 12px}.top .ttl small{display:none}
+  .quick{grid-template-columns:1fr}
+  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
+  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
+  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:1001px){nav.side details>summary{display:none}}
+@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← Lectures</a>
+  <div class="ttl"><small>📖 AI Agents in .NET · 12</small>RAG Optimization and Evaluation</div>
+  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
+  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
+  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.en.html">▶ Presentation</a>
+</div>
+<div class="wrap">
+  <nav class="side"><details id="navd"><summary>Contents</summary>
+    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
+    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">Measuring RAG: golden set, hit@k, MRR</span><span class="nm">5′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Hybrid search and metadata filtering</span><span class="nm">6′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Chunking, reranking and groundedness</span><span class="nm">7′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: your golden set</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary and the end of part 1</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">3′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">24</span></a>
+    <div class="mats"></div>
+  </details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 12</div>
+      <h1>RAG Optimization and Evaluation</h1>
+      <p>The whole lecture in chapters, ~28 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
+    </header>
+    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li>RAG fails in <strong>two places</strong>: <strong>retrieval</strong> (the most common) and <strong>generation</strong> — we don't check “by eye”, we <strong>measure</strong>.</li><li><strong>Golden set</strong> — a question + a phrase (not an Id); <strong>hit@3</strong>, <strong>MRR</strong>, <strong>misses</strong>; <code>/rag/eval</code> doesn't call the LLM.</li><li><strong>Hybrid search:</strong> the vector + <code>tsvector</code> (<code>'simple'</code> — Georgian has no dictionary), <strong>RRF</strong>: Σ 1/(60 + rank); a query with “or”.</li><li><strong>Metadata filtering</strong> in SQL, before the model — quality and security (tenant, permissions).</li><li><strong>Chunking:</strong> the heading in the prefix; smaller ≠ better — measure. <strong>Reranker:</strong> 20 → 5. <strong>Groundedness:</strong> <code>GroundednessEvaluator</code>, 1–5, LLM-as-judge.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~28 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 10 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
+    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/evaluation/libraries" target="_blank" rel="noopener">Microsoft.Extensions.AI.Evaluation</a> — Quality evaluators: Groundedness, Relevance, Retrieval, Completeness</li><li><a href="https://www.postgresql.org/docs/current/textsearch.html" target="_blank" rel="noopener">PostgreSQL — Full Text Search</a> — tsvector, tsquery, ts_rank, GIN</li><li><a href="https://www.npgsql.org/efcore/mapping/full-text-search.html" target="_blank" rel="noopener">Npgsql EF Core — Full Text Search</a> — HasGeneratedTsVectorColumn, Matches, Rank</li><li><a href="https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf" target="_blank" rel="noopener">Reciprocal Rank Fusion (Cormack et al., 2009)</a> — the original RRF paper: k = 60</li><li><a href="https://github.com/pgvector/pgvector#hybrid-search" target="_blank" rel="noopener">pgvector — Hybrid Search</a> — pgvector + full-text together</li></ul></section>
+    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
+<p>Lecture 11 — <strong>Simple RAG: Answers from Documents</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../11-simple-rag/study.en.html">the previous lecture's notes</a>.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why don't we put the whole PDF into the context, and why don't we train the model (fine-tuning)?</summary><div class="ans">The whole PDF — thousands of tokens on every question, slow, a large document doesn't fit, “lost in the middle” · fine-tuning — expensive, again on every change, it memorizes facts badly and can't name the source</div></details><details><summary>What are RAG's two pipelines, and when does each one run?</summary><div class="ans">ingestion — once, on upload: PDF → text → parts → vectors → database · query — on every question: vector → top 5 → prompt → an answer with a source</div></details><details><summary>Why do we cut a document into parts, and what do we need the overlap for?</summary><div class="ans">The vector of a whole document is the “average” of everything — blurry; a part = one idea, a precise vector and a cheap context · the overlap — the last sentence in the next part too, so an idea isn't cut at the boundary</div></details><details><summary>Why do we need a threshold in RAG's search?</summary><div class="ans">A search always finds something · without a threshold, for “a borscht recipe” the model would get 5 meaningless parts and might make something up · with a threshold — 0 parts and “I don't have information”</div></details><details><summary>Why do we store the original question in the chat history and not the message with the sources (augmented)?</summary><div class="ans">The sources are only for this request — others will be found next time · storing them in the history would inflate every message with 5 parts (the budget, lecture 7)</div></details></div></article></div></section>
+<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
+<p>The previous lecture's homework: <strong>RAG in your project</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>Ingestion:</strong> <code>Document</code> + <code>DocumentChunk</code> (<code>vector(768)</code>, <code>Page</code>, an HNSW index), <code>POST .../documents</code> — PdfPig, <code>TextChunker</code> (800 / overlap 1), <code>Chunk(100)</code></li>
+<li><strong>Query:</strong> <code>SearchChunksAsync</code> (top 5, the threshold in <code>appsettings.json</code>), <code>BuildContext</code> — <code>[N] (file, p. P)</code></li>
+<li><strong>In the chat:</strong> your lecture 7 <code>/chat</code> — an augmented message, the original question in the history, <code>sources</code> in the response; rules in the system prompt: only from the sources, with the number, the exact phrase “I don't have information on this”</li>
+<li><strong>README — a test table:</strong> 8 questions on your PDF (2 — something that isn't in the PDF, 1 — with the answer on two different pages, 1 — with an exact number/name). Columns: question · correct page · sources found · is the answer correct? · is the source correct?</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>Solution</h3>
+<p>A sample — the library API (rules: borrowing books, fines, reading rooms).</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat (RAG)</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">FoundChunk</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">SearchChunksAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">ChatMessage</span><span class="w"> </span><span class="n">augmented</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="s">$"""</span></span><span class="ln"><span class="s">    წყაროები:</span></span><span class="ln"><span class="s">    {BuildContext(sources)}</span></span><span class="ln"> </span><span class="ln"><span class="s">    შეკითხვა: {request.Prompt}</span></span><span class="ln"><span class="s">    """</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">SystemPrompt</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">recent</span><span class="p">,</span><span class="w"> </span><span class="n">augmented</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">AppendAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">cited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sources</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">File</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Page</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="s">$"[{s.N}]"</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span><span class="w"> </span><span class="n">Sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cited</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>System prompt · rules</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">Answer about the library's rules only from the given sources and give the number for every fact: [1], [2].</span><span class="ln">If the answer isn't in the sources, say: “I don't have information on this” — and make nothing up.</span><span class="ln">Searching for books and their availability — only from the tools.</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Correct page</th>
+<th>Found</th>
+<th>Answer</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“How many days can I borrow a book for?”</td>
+<td>2</td>
+<td>[1] p. 2 · [2] p. 3</td>
+<td>✓ 14 days</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“What's the fine for being late?”</td>
+<td>3</td>
+<td>[1] p. 3</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“Is the reading room open on Saturday?”</td>
+<td>4</td>
+<td>[1] p. 5 · [2] p. 4</td>
+<td>✓</td>
+<td>~ the first is wrong</td>
+</tr>
+<tr>
+<td>“Where is room B-12?”</td>
+<td>5</td>
+<td>[1] p. 1 · [2] p. 4</td>
+<td>✗</td>
+<td>✗ didn't find the code</td>
+</tr>
+<tr>
+<td>“Are children allowed?” (synonym: “minors”)</td>
+<td>4</td>
+<td>[1] p. 4</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“Returning a book and borrowing a new one at the same time?”</td>
+<td>2, 3</td>
+<td>[1] p. 2 · [2] p. 3</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“The Wi-Fi password?” (not there)</td>
+<td>—</td>
+<td>[]</td>
+<td>✓ “I don't have information”</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>“A borscht recipe” (not there)</td>
+<td>—</td>
+<td>[]</td>
+<td>✓ “I don't have information”</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>6 out of 8 are fully correct. The two problems are typical: <strong>“B-12”</strong> — an exact code that the embedding doesn't “see” well (lecture 12 — hybrid search), and <strong>“on Saturday”</strong> — the first part is from another page, because both pages have opening hours (lecture 12 — chunking and metadata). <code>Sources</code> holds only the cited sources — the UI doesn't show extra links.</p></div></div></article></div></section>
+<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~5 min read</div><h2>Measuring RAG: golden set, hit@k, MRR</h2><p class="goal">🎯 <b>After this</b> You'll put together a golden set and measure the quality of the search with a number.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · A number instead of “I think”</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
+<p>First we see where RAG can make a mistake. Then — the golden set and two numbers that measure the quality of the search. Finally we calculate these numbers in code.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>The problem: “sometimes” isn&#x27;t a number</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
+<p>In lecture 11's homework we made a table: “6 out of 8 are correct”. That's already a number — and that's exactly what we need, systematically. RAG fails in <strong>two places</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Where</th>
+<th>What happens</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Retrieval</strong> (search)</td>
+<td>the right part didn't make it into the top 5</td>
+<td>“Hall B-2?” — the vector found parts about “halls” in general, but not B-2's page</td>
+</tr>
+<tr>
+<td><strong>Generation</strong> (answer)</td>
+<td>the part is right, but the model added something</td>
+<td>in the source: “cake — 15 lari”; in the answer: “cake — 15 lari, candles are free”</td>
+</tr>
+</tbody>
+</table>
+<p>In practice <strong>retrieval errors are the most common</strong>: if the right part wasn't found, even the best model can't answer. That's why we measure the search first.</p>
+<p><strong>Why don't we check “by eye”?</strong> We change the chunk size from 800 to 400. It got better on two questions, worse on one. On eight questions? On forty? A change — a prompt, the chunk size, the search method — always improves something and breaks something. Only a number tells us what happened overall. Real teams work this way too: <strong>first we measure, then we change, then we measure again</strong>.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Retrieval</dt><dd>the search part: finding the parts relevant to a question</dd><dt>Generation</dt><dd>the answer part: the model writes the answer with the found parts</dd><dt>Evaluation (evals)</dt><dd>measuring a system's quality on examples prepared in advance</dd></dl></div></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>The golden set and two numbers: hit@k and MRR</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
+<p>A <strong>golden set</strong> — a set of questions for which <strong>we know</strong> what should be found. We put it together by hand, once, and run it after every change. A good golden set resembles real questions: ordinary ones, with a synonym, with an exact number/name, with the answer in two places, and also something that isn't in the document. Lecture 11's homework table is its first version.</p>
+<p>For each question we write a <strong>phrase that must appear in the right part</strong> (“24 hours before”, “B-2”). Why a phrase and not the chunk's Id? When we change the chunking, the parts are cut again and the Ids change — but the golden set must stay. A phrase works with any chunking strategy.</p>
+<p><strong>hit@k</strong> — on what share of the questions the right part was in the first k. In the table: on 4 out of 6 it's in the top three → <strong>hit@3 = 0.67</strong>. For RAG this is the main number: if the right part didn't get into the context, the model can't answer.</p>
+<p><strong>MRR (Mean Reciprocal Rank)</strong> — the average of <code>1 / rank</code> (0 if not found). In first place — 1, second — ½, third — ⅓. It measures how <strong>high</strong> the right part is:</p>
+<p>(1 + 1 + ½ + 0 + ⅓ + ⅕) / 6 = 3.03 / 6 ≈ <strong>0.51</strong></p>
+<p>Your number depends on your data. Two systems can have the same hit@3 but a different MRR: in one the right part is always first, in the other — third.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Golden set</dt><dd>a set of questions with a known right answer; for measuring quality</dd><dt>hit@k</dt><dd>on what share of the questions the right result landed in the first k</dd><dt>MRR (Mean Reciprocal Rank)</dt><dd>the average of 1/rank of the right result; how high the right one is</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Evaluation in code: /rag/eval</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
+<p>The golden set — a JSON file in the project (<code>golden.json</code>, “Copy to Output Directory” or in the project folder):</p>
+<div class="codebox"><div class="ch"><span>golden.json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">[</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ჯავშანი როგორ გავაუქმო?"</span><span class="p">,</span><span class="w">   </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"24 საათით ადრე"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"თხილზე ალერგია მაქვს"</span><span class="p">,</span><span class="w">       </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ნიგოზი"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ძაღლით შეიძლება?"</span><span class="p">,</span><span class="w">           </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ტერასაზე"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B-2 დარბაზი სადაა?"</span><span class="p">,</span><span class="w">         </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B-2"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"საკუთარი ტორტი შეიძლება?"</span><span class="p">,</span><span class="w">   </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15 ლარი"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"მომსახურება 6 კაცზე?"</span><span class="p">,</span><span class="w">       </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12%"</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">]</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · EvalRag</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">GoldenItem</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Question</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">MustContain</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("rag/eval")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">EvalRag</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">IO</span><span class="p">.</span><span class="n">File</span><span class="p">.</span><span class="n">ReadAllTextAsync</span><span class="p">(</span><span class="s">"golden.json"</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// ControllerBase.File is something else</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">golden</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonSerializer</span><span class="p">.</span><span class="n">Deserialize</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">GoldenItem</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">json</span><span class="p">,</span><span class="w"> </span><span class="n">JsonSerializerOptions</span><span class="p">.</span><span class="n">Web</span><span class="p">)</span><span class="o">!</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">rr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">misses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">GoldenItem</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">golden</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">FoundChunk</span><span class="o">&gt;</span><span class="w"> </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">SearchChunksAsync</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">Question</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span><span class="w">         </span><span class="c1">// lecture 11's search</span></span><span class="ln"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">found</span><span class="p">.</span><span class="n">FindIndex</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Content</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">MustContain</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">   </span><span class="c1">// 1, 2, 3… or 0</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">hits</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">Question</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">rr</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rank</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">HitAt3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">hits</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">golden</span><span class="p">.</span><span class="n">Count</span><span class="p">,</span></span><span class="ln"><span class="w">                    </span><span class="n">Mrr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rr</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">golden</span><span class="p">.</span><span class="n">Count</span><span class="p">,</span><span class="w"> </span><span class="n">Misses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">misses</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>System.IO.File</code></strong> — in a controller <code>File(...)</code> is the method for returning a file, so the full namespace.</li>
+<li><strong><code>JsonSerializerOptions.Web</code></strong> — camelCase and case-insensitive (<code>question</code> ↔ <code>Question</code>).</li>
+<li><strong><code>FindIndex(...) + 1</code></strong> — the rank from 1; if not found, <code>-1 + 1 = 0</code>.</li>
+<li><strong><code>misses</code></strong> — on which questions it didn't find it. This matters more than the number: the misses show <strong>what</strong> needs fixing.</li>
+</ul>
+<p>In our example both misses are <strong>exact words</strong>: “B-2” and “12%”. The vector looks for meaning — “hall”, “service” — and “doesn't see” a code or a number. That's part 2's topic.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>/rag/eval</code> doesn't call the LLM — only the embedding (the question's vector). It's cheap and fast: you can run it on every change. In lecture 22 the same evaluation becomes a <strong>test</strong>: if hit@3 drops below a threshold, the build fails.</p></div></div></article></div></section>
+<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~6 min read</div><h2>Hybrid search and metadata filtering</h2><p class="goal">🎯 <b>After this</b> You'll add full-text to the vector, merge them with RRF and filter the search by metadata.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Part 2 · Meaning + the exact word</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<p>Exact words are hard for a vector. PostgreSQL has full-text search, which looks exactly for words. We merge the two lists with <strong>RRF</strong> — this is <strong>hybrid search</strong>. Then — metadata filtering: searching only in the documents that this question is about.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>Hybrid search: vector + full-text</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
+<p>The <strong>vector</strong> finds meaning: “without meat” → lobio. But exact words — codes, numbers, names (“B-2”, “12%”, “SKU-1234”) — “dissolve” in a vector: an embedding stores the idea, not the exact letters. <strong>Search by words</strong> works the other way round: it finds “B-2” exactly, but not “without meat”. In lecture 9 we said: “we don't throw LIKE away — we complement it”. <strong>Hybrid search</strong> runs both searches together and merges the results.</p>
+<p><strong>PostgreSQL's full-text search</strong> — much stronger than LIKE:</p>
+<ul>
+<li><strong><code>tsvector</code></strong> — the text, split into words (lexemes): <code>to_tsvector('simple', 'B-2 დარბაზში 20+ სტუმარი')</code> → <code>'b-2' 'b' '2' 'დარბაზში' '20' 'სტუმარი'</code>.</li>
+<li><strong><code>tsquery</code></strong> — the query: <code>'b-2' | 'დარბაზი'</code> (<code>|</code> — or, <code>&amp;</code> — and).</li>
+<li><strong><code>@@</code></strong> — whether it matches; <strong><code>ts_rank</code></strong> — how well (how many words, how many times).</li>
+<li><strong>The GIN index</strong> — a fast search by words.</li>
+</ul>
+<p><strong>Georgian and <code>'simple'</code>.</strong> PostgreSQL has a dictionary and a stemmer for English (and many languages): <code>'english'</code> turns “rooms” into “room”. <strong>There's no such dictionary for Georgian</strong> — so <code>'simple'</code>: a word is stored as it is (in lower case). “დარბაზი” and “დარბაზში” (hall / in the hall) are different words. That's fine: we use full-text for <strong>exact</strong> words (a code, a number, a name), and the vector covers the grammatical forms.</p>
+<p><strong>RRF (Reciprocal Rank Fusion)</strong> — merging two lists <strong>by rank</strong>:</p>
+<p><code>score(chunk) = Σ 1 / (60 + rank)</code> — in each list where the part was found.</p>
+<p>A part that's high in <strong>both</strong> lists comes first. Why the rank and not the scores? The vector's score (0.3–0.8) and <code>ts_rank</code> (0.01–0.1) are in different “units” — adding them up makes no sense. The rank is the same everywhere: 1, 2, 3. 60 is the standard constant (from the original RRF study): it softens the difference between the top places.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Hybrid search</dt><dd>searching by meaning (vector) and by words (full-text) together, merging the results</dd><dt>tsvector / tsquery</dt><dd>PostgreSQL's full-text: the text as words / a query with words</dd><dt>'simple'</dt><dd>a full-text configuration without a dictionary: a word is stored as it is</dd><dt>RRF (Reciprocal Rank Fusion)</dt><dd>merging several lists by rank: Σ 1/(60 + rank)</dd></dl></div></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Hybrid search in code</h3><a class="chip" href="index.en.html#/12" data-go="12" target="_blank" title="This part in the presentation">Slide 12</a></div>
+<p><strong>1. The full-text column.</strong> <code>DocumentChunk</code> gets a <code>tsvector</code> column that PostgreSQL calculates <strong>by itself</strong> from <code>Content</code> (a generated column), and a GIN index:</p>
+<div class="codebox"><div class="ch"><span>Data/DocumentChunk.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">NpgsqlTypes</span><span class="p">;</span></span><span class="ln"><span class="c1">// ...</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">NpgsqlTsVector</span><span class="w"> </span><span class="n">SearchVector</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Data/AppDbContext.cs · OnModelCreating</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">modelBuilder</span><span class="p">.</span><span class="n">Entity</span><span class="o">&lt;</span><span class="n">DocumentChunk</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasGeneratedTsVectorColumn</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">,</span><span class="w"> </span><span class="s">"simple"</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Content</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasIndex</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasMethod</span><span class="p">(</span><span class="s">"GIN"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>After the migration the old parts get a <code>SearchVector</code> too — a generated column is calculated on every row. We don't need to upload again.</p>
+<p><strong>2. The query with words.</strong> <code>plainto_tsquery</code> joins the words with <strong>“and”</strong>: “B-2 დარბაზი სადაა” would only find the part that has all three words — on a natural question often 0 results. We join them with “or”, and <code>ts_rank</code> puts the one with more matches higher:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · OrQuery</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">OrQuery</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">words</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Regex</span><span class="p">.</span><span class="n">Matches</span><span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="s">@"[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*"</span><span class="p">)</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Value</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Join</span><span class="p">(</span><span class="s">" | "</span><span class="p">,</span><span class="w"> </span><span class="n">words</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// "B-2 დარბაზი სადაა?" → "B-2 | დარბაზი | სადაა"</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>The regex takes words and numbers, keeps hyphenated ones together (“B-2”), and throws away punctuation (otherwise <code>to_tsquery</code> would return a syntax error).</p>
+<p><strong>3. Two lists and RRF:</strong></p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · HybridSearchAsync</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">FoundChunk</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">HybridSearchAsync</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">minScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_config</span><span class="p">.</span><span class="n">GetValue</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"Rag:MinScore"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Vector</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Query</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">words</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EF</span><span class="p">.</span><span class="n">Functions</span><span class="p">.</span><span class="n">ToTsQuery</span><span class="p">(</span><span class="s">"simple"</span><span class="p">,</span><span class="w"> </span><span class="n">OrQuery</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">byMeaning</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span><span class="w">                    </span><span class="c1">// by vector, with a threshold</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">minScore</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">byWords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span><span class="w">                      </span><span class="c1">// by words</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">.</span><span class="n">Matches</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">.</span><span class="n">Rank</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rrf</span><span class="p">(</span><span class="n">byMeaning</span><span class="p">,</span><span class="w"> </span><span class="n">byWords</span><span class="p">)</span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">chunks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Document</span><span class="p">.</span><span class="n">FileName</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Page</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Content</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToDictionaryAsync</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FoundChunk</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="p">.</span><span class="n">FileName</span><span class="p">,</span><span class="w"> </span><span class="n">chunks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="p">.</span><span class="n">Page</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">chunks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="p">.</span><span class="n">Content</span><span class="p">,</span><span class="w"> </span><span class="n">Score</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">        </span><span class="c1">// Score — here simply by rank</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Rrf</span><span class="p">(</span><span class="k">params</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">lists</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">lists</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">SelectMany</span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">60</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">GroupBy</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">s</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Key</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong>The threshold</strong> is only on the vector list: a full-text match is “evidence” in itself (the word really is written there). Both empty → 0 parts → “I don't have information”, as in lecture 11.</li>
+<li><strong>20 + 20 → 5.</strong> We take more candidates from each list, and after RRF — 5 for the context.</li>
+<li><strong>The last query</strong> loads the parts by Id; we keep <code>top</code>'s order (<code>WHERE IN</code> doesn't preserve order).</li>
+<li>In <code>/chat</code> and <code>/rag/eval</code>, <code>HybridSearchAsync</code> instead of <code>SearchChunksAsync</code>. <strong>Measure again.</strong></li>
+</ul>
+<p><strong>The result (sample):</strong> hit@3 0.67 → <strong>0.83</strong>, MRR 0.51 → <strong>0.72</strong>. “B-2” got fixed. “Service charge for 6 people?” — still a miss: the document says “for 5+ people — 12%”. Neither the word (“6”) nor the meaning matches exactly — this is the limit of search. For a question like this, reranking or a tool that calculates the rule in code is better.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Generated column</dt><dd>a column that PostgreSQL calculates by itself from other columns</dd><dt>GIN index</dt><dd>PostgreSQL's index for words (and for arrays, jsonb)</dd></dl></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>Metadata filtering: searching only in the documents we need</h3><a class="chip" href="index.en.html#/13" data-go="13" target="_blank" title="This part in the presentation">Slide 13</a></div>
+<p><strong>Metadata</strong> — information about a document, not in its text: the category, the branch, the language, the date it's valid from, who can see it. <code>Document</code> gets a column (e.g. <code>Category</code>), filled in on upload, and the search <strong>filters first</strong>, then searches:</p>
+<div class="codebox"><div class="ch"><span>Data/Document.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"rules"</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="s">"rules"</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">"menu"</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">"events"</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · HybridSearchAsync(q, category)</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">IQueryable</span><span class="o">&lt;</span><span class="n">DocumentChunk</span><span class="o">&gt;</span><span class="w"> </span><span class="n">chunks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">category</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">chunks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chunks</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Document</span><span class="p">.</span><span class="n">Category</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">category</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="c1">// byMeaning and byWords — from chunks:</span></span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">byMeaning</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">chunks</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">minScore</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">before</span></span></code></pre></div>
+<p>Lecture 10's homework “filter + meaning in one SQL query” — this is exactly it.</p>
+<p><strong>Two reasons:</strong></p>
+<ol>
+<li><strong>Quality.</strong> “Prices” — are written both in the old menu PDF and in the event prices. If the question is about an event, the other category is just noise.</li>
+<li><strong>Security.</strong> In a system that holds the documents of many clients (tenants), a filter by <code>TenantId</code> is <strong>mandatory</strong>. “Don't show someone else's document” in the prompt isn't enough — the model doesn't always obey the prompt, and if someone else's part got into the context, it has already “leaked”. <strong>The filter is always in SQL</strong>, before the model.</li>
+</ol>
+<p><strong>Where does the category come from?</strong> Simply — from the user interface (the chat's “topic”) or an endpoint parameter. Cleverly — the model classifies the question (structured output, lecture 2) or an agent chooses (lecture 15).</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>Lecture 10's 🔬: HNSW + <code>WHERE</code> on a large table can return fewer results through “overfiltering”. In pgvector 0.8+: <code>SET hnsw.iterative_scan = relaxed_order;</code>. At our scale the planner picks a seq scan and you don't see it.</p></div></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Metadata</dt><dd>data about a document (category, tenant, language, date, permissions), not its text</dd><dt>Metadata filtering</dt><dd>filtering the parts by metadata before the search</dd><dt>Tenant</dt><dd>one client (company) in a system used by many clients</dd></dl></div></article></div></section>
+<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~7 min read</div><h2>Chunking, reranking and groundedness</h2><p class="goal">🎯 <b>After this</b> You'll compare chunking strategies, explain reranking and evaluate the answer's groundedness.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>Part 3 · Cutting and the answer</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
+<p>Four chunking strategies and how to choose (by measuring). Reranking — a second, precise layer of the search. And evaluating the answer: groundedness — whether the model relied only on the sources.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>Chunking strategies</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>How</th>
+<th>Plus</th>
+<th>Minus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>By size</strong> (fixed)</td>
+<td>every N characters/tokens, with an overlap</td>
+<td>the simplest</td>
+<td>cuts a sentence and an idea in the middle</td>
+</tr>
+<tr>
+<td><strong>By sentences / recursive</strong></td>
+<td>first by paragraph, then by sentence, then by word — until it fits the size</td>
+<td>natural boundaries; our lecture 11 version</td>
+<td>doesn't see the boundary of a topic</td>
+</tr>
+<tr>
+<td><strong>By headings</strong> (heading-aware / structure-aware)</td>
+<td>a part = a section; the heading is attached to the part</td>
+<td>topics don't get mixed; the heading is strong context</td>
+<td>needs structure (Word styles, Markdown); recognizing a heading in a PDF is hard</td>
+</tr>
+<tr>
+<td><strong>By meaning</strong> (semantic)</td>
+<td>compares the vectors of consecutive sentences and cuts where the similarity drops</td>
+<td>finds the topic boundary by itself</td>
+<td>an embedding for every sentence — expensive; studies show it isn't always better than the simple one</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The heading in the prefix.</strong> Lecture 9's document format: <code>title: … | text: …</code>. In lecture 11 we wrote the file name as the title. When cutting by headings — the <strong>section's heading</strong>: <code>title: Cancelling a booking | text: …</code>. The part's vector now “knows” the topic too, even if the word “booking” isn't written in the text. This is one of the cheapest and most effective improvements.</p>
+<p><strong>How to choose — only by measuring.</strong> A change → upload the documents again (vectors on the new parts) → <code>/rag/eval</code>. On the sample: by headings 0.92; 300-character parts — <strong>worse</strong> (0.75): the parts are too small and lose context. “Smaller = more precise” doesn't always work — that's why we measure.</p>
+<p><strong>The golden set survives a change in chunking</strong>, because it checks by a phrase (“24 hours before”), not by Id — part 1's decision pays off here.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Recursive chunking</dt><dd>first by a big boundary (paragraph), then a smaller one (sentence, word), until the part fits the size</dd><dt>Heading-aware chunking</dt><dd>cutting by the document's sections; the heading is attached to the part</dd><dt>Semantic chunking</dt><dd>cutting where the meaning of consecutive sentences changes</dd></dl></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Reranking: a second, precise layer of the search</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
+<p>Our search (vector and full-text) is <strong>fast</strong> but “rough”: the embedding model sees the question and the part <strong>separately</strong>. The part's vector was calculated at ingestion — it knew nothing about the question. A model like this is called a <strong>bi-encoder</strong>.</p>
+<p>A <strong>reranker</strong> (usually a <strong>cross-encoder</strong>) reads the question and the part <strong>together</strong> and returns one number: how well this part answers this question. This is much more precise — “service charge for 6 people?” ↔ “for 5+ people — 12%” is an obvious pair for a reranker. But you can't calculate anything in advance: on every question every pair needs a separate computation.</p>
+<p><strong>So, two layers:</strong> the fast search picks 20–50 candidates → the reranker sorts them precisely and 5 go into the context. You can't run a reranker on a million parts — but you can on 20.</p>
+<p><strong>What options there are:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>How</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A rerank API</strong> — Cohere Rerank, Voyage, Jina</td>
+<td>HTTP: a question + 20 texts → 20 scores</td>
+<td>a separate key and account; a price per request; +100–300 ms</td>
+</tr>
+<tr>
+<td><strong>An LLM as the reranker</strong></td>
+<td>we ask Gemini: “sort these 20 parts by relevance” — structured output (lecture 2)</td>
+<td>the chat model's price — expensive; slow (seconds)</td>
+</tr>
+<tr>
+<td><strong>A local cross-encoder</strong></td>
+<td>an open model (e.g. bge-reranker) on your own server</td>
+<td>GPU/CPU, infrastructure</td>
+</tr>
+</tbody>
+</table>
+<p>The Gemini API has no separate rerank model. We're on Gemini, so in the lecture we explain reranking, and the code is in the ⭐ (LLM-rerank). In real systems reranking often gives the biggest jump in hit@3 — at the price of cost and latency. And again: <strong>measure</strong> whether it's worth it.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Bi-encoder</dt><dd>a model that turns the question and the document into vectors separately (embedding)</dd><dt>Cross-encoder (reranker)</dt><dd>a model that reads the question and the document together and returns a relevance number</dd><dt>Reranking</dt><dd>re-sorting the search candidates precisely</dd></dl></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Groundedness: does the answer rely on the sources?</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
+<p>In part 1 we measured the search. The second place where RAG fails is the <strong>answer</strong>: the part is right, but the model added something. <strong>Groundedness</strong> — how much the answer relies <strong>only</strong> on the given sources.</p>
+<p>You can't measure this with <code>Contains</code>: “15 lari” could also be “fifteen lari”. So — <strong>LLM-as-judge</strong>: we give another (or the same) model the question, the sources and the answer, and ask: “is everything written in the answer from the sources?”</p>
+<p><strong><code>Microsoft.Extensions.AI.Evaluation.Quality</code></strong> — ready-made evaluators on Microsoft.Extensions.AI: <code>GroundednessEvaluator</code>, <code>RelevanceEvaluator</code>, <code>CompletenessEvaluator</code>, <code>RetrievalEvaluator</code> and others. The judge is any <code>IChatClient</code> (Gemini for us):</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · CheckGroundedness</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI.Evaluation</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI.Evaluation.Quality</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">IEvaluator</span><span class="w"> </span><span class="n">evaluator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">GroundednessEvaluator</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">EvaluationResult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">evaluator</span><span class="p">.</span><span class="n">EvaluateAsync</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[new ChatMessage(ChatRole.User, question)]</span><span class="p">,</span><span class="w">                       </span><span class="c1">// what was asked</span></span><span class="ln"><span class="w">    </span><span class="n">response</span><span class="p">,</span><span class="w">                                                          </span><span class="c1">// what our RAG answered (ChatResponse)</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">ChatConfiguration</span><span class="p">(</span><span class="n">_judge</span><span class="p">)</span><span class="p">,</span><span class="w">                                     </span><span class="c1">// the judge — an IChatClient</span></span><span class="ln"><span class="w">    </span><span class="na">[new GroundednessEvaluatorContext(BuildContext(sources))]</span><span class="p">,</span><span class="w">         </span><span class="c1">// the sources the model received</span></span><span class="ln"><span class="w">    </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">NumericMetric</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">Get</span><span class="o">&lt;</span><span class="n">NumericMetric</span><span class="o">&gt;</span><span class="p">(</span><span class="n">GroundednessEvaluator</span><span class="p">.</span><span class="n">GroundednessMetricName</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Value</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Reason</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">judge</span><span class="err">'</span><span class="n">s</span><span class="w"> </span><span class="n">explanation</span></span></code></pre></div>
+<ul>
+<li><strong><code>_judge</code></strong> — an <code>IChatClient</code> for the judge. The judge doesn't need the chat pipeline's client with tools and middleware (lectures 4–5, 8) — a separate, simple client (a keyed service, lecture 8's ⭐) or a stronger model is better.</li>
+<li><strong>The number 1–5:</strong> 5 — everything is in the source; 1 — the answer doesn't rely on the sources. In <code>Reason</code> the judge writes <strong>what</strong> the model added.</li>
+</ul>
+<p><strong>We check the judge too.</strong> An LLM-as-judge is a model itself: it can be wrong, and it sometimes rates its “own” answers (the same model) more softly. So: (1) as the judge — the same or a stronger model; (2) we look at the number over many examples, not one; (3) from time to time we compare the judge's rating with a manual one.</p>
+<p><strong>The cost.</strong> Every evaluation is one LLM call. hit@k (part 1) is free and runs on every change; groundedness — on the golden set's answers, from time to time.</p>
+<p><strong>Lectures 12 and 20.</strong> Today — evaluating RAG: retrieval (hit@k, MRR) and groundedness. In lecture 20 — evaluating agents, reports and history (<code>Microsoft.Extensions.AI.Evaluation.Reporting</code>); in lecture 22 — evals as tests.</p>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>Groundedness</dt><dd>how much the answer relies only on the given sources</dd><dt>LLM-as-judge</dt><dd>a model that evaluates another model's answer</dd><dt>Microsoft.Extensions.AI.Evaluation</dt><dd>.NET libraries for evaluating the quality of AI answers</dd></dl></div></article></div></section>
+<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: your golden set</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Classwork: Your golden set — and the first number</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
+<p>Your project (lecture 11's homework) · with code · golden.json and Swagger</p>
+<h3>Steps</h3>
+<ul>
+<li><strong>1 · golden set</strong> — <code>golden.json</code>: 6 questions on your PDF (from lecture 11's homework table) and for each one a <strong>phrase</strong> that's written in the right part. One — with an exact code/number/name, one — with a synonym</li>
+<li><strong>2 · guess first</strong> — in your notebook: which 1–2 questions will <strong>fail</strong> and why (the word or the meaning)?</li>
+<li><strong>3 · endpoint</strong> — <code>POST /api/ai-lab/rag/eval</code>: for each question your search → the rank of the first part that contains the phrase → <code>HitAt3</code>, <code>Mrr</code>, <code>Misses</code></li>
+<li><strong>4 · measure</strong> — Swagger. Did your prediction come true? The number in your notebook — this is your <strong>starting point</strong></li>
+</ul>
+<h3>Done when</h3>
+<p><code>/rag/eval</code> returns three fields; the golden set has 6 questions, including one with an exact word and one with a synonym; the notebook has the prediction and the real misses</p>
+<h3>Bonus</h3>
+<ul>
+<li><strong>Every rank:</strong> in the response, each question's <code>rank</code> (1, 2, 3… or 0) — where is the right one when it isn't in the top 3?</li>
+<li><strong>The threshold's effect:</strong> <code>Rag:MinScore</code> at 0 and at your value — did hit@3 change? Which question “got through”?</li>
+<li><strong>Hybrid:</strong> a <code>tsvector</code> column + <code>HybridSearchAsync</code> — and <code>/rag/eval</code> again. How much did it go up?</li>
+</ul>
+<h3>💡 If you get stuck</h3>
+<ul>
+<li><strong>Everything is 0?</strong> The phrase must match the part's text exactly — copy it from the database: <code>SELECT "Content" FROM "DocumentChunks" WHERE "Content" LIKE '%...%'</code></li>
+<li><strong><code>File.ReadAllTextAsync</code> throws an error in a controller?</strong> <code>System.IO.File.ReadAllTextAsync</code> — <code>ControllerBase.File</code> is another method</li>
+<li><strong>Can't find golden.json?</strong> The file in the project folder (the run folder), or <code>CopyToOutputDirectory</code> in <code>.csproj</code></li>
+<li><strong>The rank:</strong> <code>found.FindIndex(c =&gt; c.Content.Contains(item.MustContain)) + 1</code> — 0 if not found</li>
+</ul></article></div></section>
+<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary and the end of part 1</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
+<p>These questions will also be asked at the start of the next lecture.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>In which two places does RAG fail, and which one is more common?</summary><div class="ans">retrieval — the right part didn't get into the top k (the most common; then even the best model can't answer) · generation — the part is right, but the model added something that isn't in the source</div></details><details><summary>What are hit@3 and MRR? Why do we write a phrase in the golden set and not the chunk's Id?</summary><div class="ans">hit@3 — on what share of the questions the right part was in the top three · MRR — the average 1/rank, how high it is · when the chunking changes the Ids change, the phrase doesn't</div></details><details><summary>Why do we need hybrid search, and why do we merge the lists by rank (RRF) and not by scores?</summary><div class="ans">the vector finds exact words (a code, a number, a name) badly, full-text finds them exactly · the scores are in different “units”, the rank is the same everywhere: Σ 1/(60 + rank)</div></details><details><summary>Why must metadata filtering be in SQL and not in the prompt?</summary><div class="ans">the model doesn't always obey the prompt; if someone else's part got into the context, it has already leaked · a tenant/permissions filter is security, before the model</div></details><details><summary>What is groundedness and how do we measure it? Why don't we trust the judge completely?</summary><div class="ans">does the answer rely only on the sources? · LLM-as-judge: GroundednessEvaluator, 1–5 and an explanation · the judge is a model too — it makes mistakes and rates its own answers softly; on many examples and manually from time to time</div></details></div></article><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/21" data-go="21" target="_blank" title="This part in the presentation">Slide 21</a></div>
+<ul>
+<li>RAG fails in <strong>two places</strong>: in the <strong>search</strong> (the right part wasn't found — the most common) and in the <strong>answer</strong> (the model added something). We can't tell “by eye” whether it improved — we measure.</li>
+<li><strong>Golden set</strong> — questions with a phrase that must appear in the right part (not by Id — it survives the chunking). <strong>hit@3</strong> — on what share the right one was in the top three; <strong>MRR</strong> — the average 1/rank; <strong>misses</strong> — what to fix. <code>/rag/eval</code> doesn't call the LLM — it's cheap.</li>
+<li><strong>Hybrid search:</strong> the vector (meaning) + PostgreSQL full-text (<code>tsvector</code>, <code>'simple'</code> — Georgian has no dictionary; exact words, codes, numbers), merged with <strong>RRF</strong>: Σ 1/(60 + rank).</li>
+<li><strong>Metadata filtering:</strong> the category, tenant, language, date, permissions — <strong>in SQL, before the model</strong>. Both quality and security.</li>
+<li><strong>Chunking:</strong> by size / by sentences / by headings / by meaning. The heading in the prefix — cheap and effective. A smaller part isn't always better — <strong>measure</strong>.</li>
+<li><strong>Reranking:</strong> a fast search picks 20 candidates, a cross-encoder sorts them precisely and 5 go into the context. The cost and the latency — measure whether it's worth it.</li>
+<li><strong>Groundedness:</strong> <code>GroundednessEvaluator</code> (<code>Microsoft.Extensions.AI.Evaluation.Quality</code>) — LLM-as-judge, 1–5 and an explanation. We check the judge too.</li>
+</ul>
+<h3>Part 1 is finished</h3>
+<p>In 12 lectures: LLMs and prompt engineering, <code>IChatClient</code> and DI, structured output, tools, the pipeline and middleware, streaming, context engineering, resilience and cost, embeddings, pgvector and <strong>RAG</strong> — with measurement. All of this works in one RestaurantApi.</p>
+<h3>Next lecture</h3>
+<p>Our chat searches on <strong>every</strong> question and the model calls the tools — but we control the loop. What happens if the model decides by itself what to search for, which tool to call and how many times? In lecture 13: <strong>Agentic Systems</strong> — chatbot vs RAG vs workflow vs agent, ReAct, and when we <strong>don't</strong> need an agent.</p></article></div></section>
+<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~3 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>Homework: RAG — measured and improved</h3><a class="chip" href="index.en.html#/22" data-go="22" target="_blank" title="This part in the presentation">Slide 22</a></div>
+<p>With code · your project · a results table and a conclusion in the README</p>
+<h3>Requirements</h3>
+<ul>
+<li><strong>golden set</strong> — 10 questions (2 with an exact word/code/number, 2 with a synonym, 1 with the answer in two places); <code>/rag/eval</code> — <code>HitAt3</code>, <code>Mrr</code>, <code>Misses</code></li>
+<li><strong>hybrid search</strong> — a <code>tsvector</code> generated column (<code>'simple'</code>) + a GIN index, <code>OrQuery</code>, vector + full-text → RRF → top 5; <code>/chat</code> and <code>/rag/eval</code> use hybrid</li>
+<li><strong>metadata filtering</strong> — one metadata field on <code>Document</code> (category, language, branch…), filled in on upload; a filter parameter for the search, the filter — in SQL</li>
+<li><strong>one chunking experiment</strong> — the size (e.g. 400 or 1500) <strong>or</strong> the heading in the prefix; upload again and measure</li>
+<li><strong>groundedness</strong> — <code>GroundednessEvaluator</code> on 3 answers: the number and the <code>Reason</code></li>
+<li><strong>README — a table and a conclusion:</strong> version · hitAt3 · MRR · misses (vector-only, hybrid, hybrid + the chunking experiment), the 3 groundedness results, and 3–4 sentences: what improved, what didn't, what you'd choose in production</li>
+<li>The <strong>quiz</strong> at the end of the notes (10 questions) — write down your score</li>
+</ul>
+<h3>Done when</h3>
+<p>The table has three versions with numbers and hybrid shows on the exact words; the filtered search is one SQL query; 3 groundedness evaluations with an explanation; the conclusion relies on the numbers</p>
+<h3>Bonus</h3>
+<ul>
+<li><strong>LLM-rerank:</strong> hybrid's 20 candidates → Gemini (<code>GetResponseAsync&lt;RankResult&gt;</code>) → 5. hit@3 and the time — is it worth it?</li>
+<li><strong>pg_trgm:</strong> <code>CREATE EXTENSION pg_trgm</code> and <code>similarity()</code> — did it help with Georgian grammatical forms (“დარბაზი” / “დარბაზში”)?</li>
+<li><strong>eval as a test:</strong> an xUnit test that runs <code>/rag/eval</code> and fails if <code>HitAt3 &lt; 0.8</code> (an early version of lecture 22)</li>
+</ul>
+<h3>💡 Details</h3>
+<ul>
+<li>Before the chunking experiment <strong>delete the old parts</strong> (or a new database), otherwise both versions are searched together</li>
+<li>The heading in the prefix: <code>EmbeddingText.Document(sectionTitle, chunk)</code> — in Word/Markdown the headings are ready; in a PDF — a line that's short and doesn't end with a full stop (a simple heuristic)</li>
+<li><code>GroundednessEvaluator</code> — NuGet <code>Microsoft.Extensions.AI.Evaluation.Quality</code>; a separate <code>IChatClient</code> as the judge (without tools)</li>
+<li>An empty <code>OrQuery</code> (a question with only symbols) — skip the full-text</li>
+</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 correct · <span id="qd">0</span> / 10 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>We changed the chunk size from 800 to 400. It got better on two questions. The right conclusion:</div></div><div class="opts"><button type="button" class="opt" data-i="0">400 is better</button><button type="button" class="opt" data-i="1">We can't say anything yet — we have to measure on the golden set: a change improves some and breaks others</button><button type="button" class="opt" data-i="2">Both are the same</button><button type="button" class="opt" data-i="3">800 is better</button></div><div class="qe"><span class="verdict"></span> First we measure, then we change, then we measure again. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>RAG's most common mistake:</div></div><div class="opts"><button type="button" class="opt" data-i="0">The model can't write Georgian</button><button type="button" class="opt" data-i="1">retrieval — the right part didn't get into the top k, and the model has nothing to answer with</button><button type="button" class="opt" data-i="2">Streaming stops</button><button type="button" class="opt" data-i="3">The history is lost</button></div><div class="qe"><span class="verdict"></span> That's why we measure the search first. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>Out of 6 questions, the right part is in the top three for 4. hit@3 =</div></div><div class="opts"><button type="button" class="opt" data-i="0">4</button><button type="button" class="opt" data-i="1">0.67</button><button type="button" class="opt" data-i="2">0.4</button><button type="button" class="opt" data-i="3">1</button></div><div class="qe"><span class="verdict"></span> 4 / 6 ≈ 0.67. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>Why do we write a “must appear in the part” phrase in the golden set and not the chunk's Id?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The Id is secret</button><button type="button" class="opt" data-i="1">When the chunking changes, the parts are cut again and the Ids change — a phrase works with any strategy</button><button type="button" class="opt" data-i="2">A phrase is shorter</button><button type="button" class="opt" data-i="3">EF Core can't read the Id</button></div><div class="qe"><span class="verdict"></span> A golden set must survive changes. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>The <code>/rag/eval</code> misses show “Hall B-2” and “12%”. What do they have in common?</div></div><div class="opts"><button type="button" class="opt" data-i="0">They're long questions</button><button type="button" class="opt" data-i="1">Exact words — a code and a number that the vector “sees” badly</button><button type="button" class="opt" data-i="2">They're in English</button><button type="button" class="opt" data-i="3">The threshold is low</button></div><div class="qe"><span class="verdict"></span> Hybrid search solves this. <a class="chip" href="#s-9">Review · slide 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>Why do we use <code>'simple'</code> for Georgian in PostgreSQL's full-text?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It's faster</button><button type="button" class="opt" data-i="1">There's no dictionary or stemmer for Georgian — 'simple' stores the word as it is; the vector covers the grammatical forms</button><button type="button" class="opt" data-i="2">'english' is better for Georgian</button><button type="button" class="opt" data-i="3">'simple' calculates vectors</button></div><div class="qe"><span class="verdict"></span> Full-text is for exact words: a code, a number, a name. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>Why does RRF merge two lists by rank?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It's faster</button><button type="button" class="opt" data-i="1">The vector score and ts_rank are in different “units” — adding them makes no sense; the rank is the same everywhere</button><button type="button" class="opt" data-i="2">The scores are negative</button><button type="button" class="opt" data-i="3">PostgreSQL doesn't return a score</button></div><div class="qe"><span class="verdict"></span> Σ 1/(60 + rank): the one high in both lists comes first. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>Why do we join the words with “or” (<code>|</code>) instead of <code>plainto_tsquery</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">So there are fewer results</button><button type="button" class="opt" data-i="1">plainto_tsquery uses “and” — in a natural question all the words are rarely in one part, so the result is 0; “or” + ts_rank puts more matches higher</button><button type="button" class="opt" data-i="2">“and” is a syntax error</button><button type="button" class="opt" data-i="3">Gemini requires it</button></div><div class="qe"><span class="verdict"></span> OrQuery also throws away punctuation — to avoid to_tsquery's error. <a class="chip" href="#s-12">Review · slide 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>In a multi-client system, where should another client's document be hidden?</div></div><div class="opts"><button type="button" class="opt" data-i="0">In the system prompt: “don't show others' documents”</button><button type="button" class="opt" data-i="1">In SQL, before the search — a filter by TenantId; nothing should reach the model</button><button type="button" class="opt" data-i="2">After the answer</button><button type="button" class="opt" data-i="3">In the UI</button></div><div class="qe"><span class="verdict"></span> Getting into the context is already a leak. <a class="chip" href="#s-13">Review · slide 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>Why do we run a reranker only on 20 candidates and not on every part?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It can't take more than 20</button><button type="button" class="opt" data-i="1">A cross-encoder reads the question and the part together — it's precise, but nothing can be calculated in advance; on every part it's very slow and expensive. The fast search picks, the reranker sorts</button><button type="button" class="opt" data-i="2">Gemini requires it</button><button type="button" class="opt" data-i="3">Otherwise hit@3 drops</button></div><div class="qe"><span class="verdict"></span> Two layers: fast (bi-encoder) → precise (cross-encoder). <a class="chip" href="#s-17">Review · slide 17</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Retrieval</dt><dd>the search part: finding the parts relevant to a question</dd><dt>Generation</dt><dd>the answer part: the model writes the answer with the found parts</dd><dt>Evaluation (evals)</dt><dd>measuring a system's quality on examples prepared in advance</dd><dt>Golden set</dt><dd>a set of questions with a known right answer; for measuring quality</dd><dt>hit@k</dt><dd>on what share of the questions the right result landed in the first k</dd><dt>MRR (Mean Reciprocal Rank)</dt><dd>the average of 1/rank of the right result; how high the right one is</dd><dt>Hybrid search</dt><dd>searching by meaning (vector) and by words (full-text) together, merging the results</dd><dt>tsvector / tsquery</dt><dd>PostgreSQL's full-text: the text as words / a query with words</dd><dt>'simple'</dt><dd>a full-text configuration without a dictionary: a word is stored as it is</dd><dt>RRF (Reciprocal Rank Fusion)</dt><dd>merging several lists by rank: Σ 1/(60 + rank)</dd><dt>Generated column</dt><dd>a column that PostgreSQL calculates by itself from other columns</dd><dt>GIN index</dt><dd>PostgreSQL's index for words (and for arrays, jsonb)</dd><dt>Metadata</dt><dd>data about a document (category, tenant, language, date, permissions), not its text</dd><dt>Metadata filtering</dt><dd>filtering the parts by metadata before the search</dd><dt>Tenant</dt><dd>one client (company) in a system used by many clients</dd><dt>Recursive chunking</dt><dd>first by a big boundary (paragraph), then a smaller one (sentence, word), until the part fits the size</dd><dt>Heading-aware chunking</dt><dd>cutting by the document's sections; the heading is attached to the part</dd><dt>Semantic chunking</dt><dd>cutting where the meaning of consecutive sentences changes</dd><dt>Bi-encoder</dt><dd>a model that turns the question and the document into vectors separately (embedding)</dd><dt>Cross-encoder (reranker)</dt><dd>a model that reads the question and the document together and returns a relevance number</dd><dt>Reranking</dt><dd>re-sorting the search candidates precisely</dd><dt>Groundedness</dt><dd>how much the answer relies only on the given sources</dd><dt>LLM-as-judge</dt><dd>a model that evaluates another model's answer</dd><dt>Microsoft.Extensions.AI.Evaluation</dt><dd>.NET libraries for evaluating the quality of AI answers</dd></dl></div></div></section>
+  </main>
+</div>
+<script>
+const DECK = "AI აგენტები .NET-ში · 12 — RAG ოპტიმიზაცია და შეფასება";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
+if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
+const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
+const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// ✓ წავიკითხე
+const readable = chaps.filter(c => c.querySelector('.read'));
+let ok = store('read') || [];
+function paint() {
+  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
+    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
+  const n = readable.filter(c => ok.includes(c.id)).length;
+  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('.read'); if (!r) return;
+  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+});
+paint();
+
+// copy buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// sidebar: current chapter while reading
+const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
+chaps.forEach(c => io.observe(c));
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+if (live) {
+  document.body.classList.add('is-live');
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  const lb = $('#live'); lb.classList.add('on');
+  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+
+// quiz
+const quiz = $$('.qq');
+function qUpdate() {
+  const done = quiz.filter(q => q.classList.contains('done')), good = done.filter(q => q.classList.contains('ok'));
+  if (!$('#qs')) return;
+  $('#qs').textContent = good.length; $('#qd').textContent = done.length;
+  const sum = $('#qsum');
+  if (done.length === quiz.length) {
+    const bad = quiz.filter(q => q.classList.contains('no'));
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
+      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
+      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.classList.add('on');
+  } else sum.classList.remove('on');
+}
+document.addEventListener('click', e => {
+  const o = e.target.closest('.opt'); if (o) {
+    const q = o.closest('.qq'); if (q.classList.contains('done')) return;
+    const right = +q.dataset.answer;
+    q.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (i === right) b.classList.add('right'); });
+    if (+o.dataset.i !== right) o.classList.add('wrong');
+    q.classList.add('done', +o.dataset.i === right ? 'ok' : 'no'); qUpdate(); return;
+  }
+  if (e.target.closest('.qreset')) {
+    quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
+    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+// KA ⇄ EN keeps the live mode and the current place
+document.querySelector('.langbtn')?.addEventListener('click', e => {
+  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
+  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
+});
+// deep link #s-12 → that part of the text
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+</script>
+</body></html>

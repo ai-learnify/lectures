@@ -1,0 +1,67 @@
+{
+  "title": "PostgreSQL pgvector და EF Core",
+  "why": "ლექცია 9-ის ვექტორები მეხსიერებაშია: რესტარტზე ქრება, და ძებნა ყველა კერძს სათითაოდ ადარებს. რეალურ სისტემაში ვექტორები ბაზაში ინახება, ძებნა კი ინდექსით სრულდება. დღეს PostgreSQL-ს pgvector-ით ვექტორის „გაგებას“ ვასწავლით, EF Core-ით ვინახავთ და ვეძებთ, და HNSW ინდექსს ვქმნით. ესაა RAG-ის (ლექცია 11) საცავი.",
+  "outcomes": [
+    "ახსნი, რა არის ვექტორული ბაზა და რატომ ვიყენებთ PostgreSQL-ს pgvector-ით ცალკე ვექტორული ბაზის ნაცვლად",
+    "`vector(768)` სვეტს EF Core-ით დაამატებ (`Pgvector.EntityFrameworkCore`, `UseVector`, migration) და ვექტორებს ბაზაში ჩაწერ",
+    "სემანტიკურ ძებნას LINQ-ით დაწერ (`CosineDistance`) და ახსნი, რატომ არის distance = 1 − similarity",
+    "HNSW ინდექსს შექმნი, `EXPLAIN`-ით შეამოწმებ და ახსნი, რას ნიშნავს მიახლოებითი ძებნა და recall"
+  ],
+  "review": [
+    {"q": "რა სამი პრობლემა აქვს მეხსიერებაში შენახულ ვექტორებს?", "a": "რესტარტზე ქრება — ყველაფერი თავიდან ითვლება · ძებნა ყველას სათითაოდ ადარებს (O(n)) · მონაცემი ორ ადგილასაა — აღწერა შეიცვალა, ვექტორი ძველი რჩება"},
+    {"q": "რას ზომავს `<=>` და რატომ ვალაგებთ ზრდადობით?", "a": "cosine distance = 1 − similarity · 0 — ერთი მიმართულება · პატარა მანძილი = ახლოს, ამიტომ ORDER BY distance ASC · score 0.71 → distance 0.29"},
+    {"q": "რატომ ინახავს `Product` `EmbeddingModel`-საც?", "a": "ერთი მოდელი — ერთი რუკა · მოდელის შეცვლისას ვიცით, რომელი ვექტორებია გადასათვლელი · ინდექსაცია მხოლოდ მათ (და null-ებს) ითვლის"},
+    {"q": "რას ნიშნავს, რომ HNSW მიახლოებითია? რა არის recall?", "a": "ANN — ყველას არ ადარებს, გრაფით „სართულებზე“ ეძებს; ძალიან სწრაფია, მაგრამ იშვიათად შეიძლება ერთი სწორი გამოტოვოს · recall — ზუსტი ძებნის შედეგების რა წილი იპოვა"},
+    {"q": "HNSW ინდექსი შექმენი, `EXPLAIN` კი `Seq Scan`-ს აჩვენებს. ორი შესაძლო მიზეზი?", "a": "ოპერატორი ძებნას არ ემთხვევა (vector_l2_ops vs CosineDistance) · ცხრილი პატარაა — პლანერისთვის seq scan იაფია, ეს ნორმალურია"}
+  ],
+  "resources": [
+    {"title": "pgvector", "url": "https://github.com/pgvector/pgvector", "note": "vector ტიპი, ოპერატორები, HNSW და IVFFlat, Docker"},
+    {"title": "pgvector-dotnet", "url": "https://github.com/pgvector/pgvector-dotnet", "note": "Pgvector.EntityFrameworkCore: UseVector, CosineDistance, ინდექსი"},
+    {"title": "Npgsql EF Core — PostgreSQL extensions", "url": "https://www.npgsql.org/efcore/", "note": "HasPostgresExtension, Npgsql-ის EF provider"},
+    {"title": "PostgreSQL — EXPLAIN", "url": "https://www.postgresql.org/docs/current/using-explain.html", "note": "როგორ წავიკითხოთ მოთხოვნის გეგმა"},
+    {"title": "Vector databases in .NET (VectorData)", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/vector-databases", "note": "Microsoft.Extensions.VectorData — როდის გვჭირდება"}
+  ],
+  "quiz": [
+    {"q": "ლექცია 9-ის ძებნის ვექტორები `MenuIndex` Singleton-შია. რა ხდება deploy-ის შემდეგ?", "options": ["არაფერი — Singleton რჩება", "ვექტორები ქრება და მთელი მენიუ თავიდან უნდა გაიგზავნოს embedding მოდელთან", "ვექტორები ბაზაში გადადის", "Gemini მათ ინახავს"], "answer": 1, "explain": "მეხსიერება აპის პროცესს ეკუთვნის — რესტარტზე ყველაფერი თავიდან ითვლება.", "slide": 7},
+    {"q": "რატომ ვიყენებთ pgvector-ს ცალკე ვექტორული ბაზის (Qdrant) ნაცვლად?", "options": ["Qdrant ვექტორებს ვერ ინახავს", "PostgreSQL უკვე გვაქვს: ვექტორი კერძის გვერდით, იმავე ცხრილში — ერთი ტრანზაქცია, ერთი backup, WHERE და JOIN", "pgvector ყოველთვის უფრო სწრაფია", "EF Core Qdrant-ს ვერ ხედავს"], "answer": 1, "explain": "ცალკე ვექტორული ბაზა აზრიანია დიდ მასშტაბზე ან როცა მონაცემი PostgreSQL-ში არ არის.", "slide": 7},
+    {"q": "`Embedding vector(768)` სვეტში 3072-იანი ვექტორის ჩაწერა ცდილობ. რა მოხდება?", "options": ["ავტომატურად მოიჭრება", "ბაზა შეცდომას დააბრუნებს — ზომა სვეტის ტიპშია", "ჩაიწერება, ძებნა იმუშავებს", "ნულებით შეივსება"], "answer": 1, "explain": "„ერთი მოდელი — ერთი რუკა“ ბაზის დონეზე მოწმდება.", "slide": 8},
+    {"q": "ლექცია 9-ში score 0.71 იყო. pgvector-ის `<=>` რას დააბრუნებს?", "options": ["0.71", "0.29 — cosine distance = 1 − similarity", "71", "−0.71"], "answer": 1, "explain": "პატარა distance = ახლოს, ამიტომ ORDER BY ზრდადობით.", "slide": 8},
+    {"q": "რისთვის გვჭირდება `UseVector()` `UseNpgsql`-ში?", "options": ["ინდექსის შესაქმნელად", "Npgsql-მა pgvector-ის `vector` ტიპი რომ იცოდეს და C#-ის `Vector`-ს შეუსაბამოს", "Gemini-სთან დასაკავშირებლად", "migration-ის გასაშვებად"], "answer": 1, "explain": "HasPostgresExtension(\"vector\") კი migration-ში CREATE EXTENSION-ს ქმნის.", "slide": 10},
+    {"q": "`/menu/index` მეორედ გამოიძახე და `Indexed: 0` დაბრუნდა. რატომ?", "options": ["შეცდომაა", "ინდექსაცია მხოლოდ იმას ითვლის, რასაც ვექტორი არ აქვს ან სხვა მოდელით აქვს — ყველას უკვე აქვს", "ბაზა ცარიელია", "Gemini-მ უარი თქვა"], "answer": 1, "explain": "ვექტორები ბაზაშია — ფული აღარ იხარჯება.", "slide": 11},
+    {"q": "`OrderBy(p => p.Embedding!.CosineDistance(query)).Take(3)` — სად ხდება დალაგება?", "options": ["C#-ში, ყველა კერძის ჩატვირთვის შემდეგ", "ბაზაში: SQL-ში ORDER BY \"Embedding\" <=> @query LIMIT 3 — C#-ში მხოლოდ 3 ხაზი მოდის", "Gemini-ში", "ინდექსის შექმნისას"], "answer": 1, "explain": "LINQ SQL-ად ითარგმნება.", "slide": 11},
+    {"q": "HNSW ინდექსი რატომაა „მიახლოებითი“?", "options": ["ვექტორებს ამრგვალებს", "ყველა ვექტორს არ ადარებს — გრაფში „სართულებით“ მოძრაობს; ძალიან სწრაფია, მაგრამ იშვიათად შეიძლება ერთი სწორი გამოტოვოს", "მხოლოდ 2 განზომილებას იყენებს", "შემთხვევით ირჩევს"], "answer": 1, "explain": "ამის საზომია recall; ხარისხს hnsw.ef_search არეგულირებს.", "slide": 14},
+    {"q": "ინდექსი `vector_l2_ops`-ითაა, ძებნა — `CosineDistance`-ით. რა მოხდება?", "options": ["შეცდომა", "ძებნა იმუშავებს, მაგრამ ინდექსი არ გამოიყენება — ნელი იქნება", "ინდექსი ავტომატურად შეიცვლება", "შედეგები არასწორი იქნება"], "answer": 1, "explain": "ინდექსის ოპერატორი ძებნის ფუნქციას უნდა ემთხვეოდეს: vector_cosine_ops ↔ CosineDistance.", "slide": 15},
+    {"q": "კერძი და ფასი PostgreSQL-შია, ფილტრი „20 ლარამდე“ გვინდა. რომელი გზა სჯობს?", "options": ["Microsoft.Extensions.VectorData + Qdrant", "EF Core + pgvector: WHERE Price <= 20 და ORDER BY მანძილი — ერთი მოთხოვნა", "ორი ბაზა და შედეგების გაერთიანება C#-ში", "ფილტრი შეუძლებელია"], "answer": 1, "explain": "VectorData მაშინ გვჭირდება, როცა ვექტორები ცალკე store-შია ან ის შეიძლება შეიცვალოს.", "slide": 16}
+  ],
+  "lecturer_quiz": [
+    {"q": "სტუდენტმა `postgres:17` შეცვალა `pgvector/pgvector:pg16`-ით და კონტეინერი არ ირთვება. რა მოხდა?", "options": ["pgvector Docker-ზე არ მუშაობს", "ძველი volume PostgreSQL 17-ის მონაცემებია — 16-ს მათი წაკითხვა არ შეუძლია. ვერსია იგივე უნდა იყოს (pg17)", "პორტი დაკავებულია", "საჭიროა CREATE EXTENSION"], "answer": 1, "explain": "მთავარი ვერსიის შეცვლა volume-ს ვერ კითხულობს — ან იგივე ვერსია, ან ახალი volume (მონაცემის დაკარგვით)."},
+    {"q": "migration გაეშვა, მაგრამ `type \"vector\" does not exist` შეცდომა მოვიდა. მიზეზი?", "options": ["Npgsql ძველია", "`HasPostgresExtension(\"vector\")` აკლია (ან image-ში pgvector არ არის) — CREATE EXTENSION არ შესრულდა", "ზომა 768 არასწორია", "UseVector Program.cs-შია"], "answer": 1, "explain": "ჯერ image (pgvector/pgvector), მერე HasPostgresExtension → migration."},
+    {"q": "სტუდენტი ეკითხება: „HNSW-ის შემდეგ ძებნის შედეგი შეიცვალა — ერთი კერძი გაქრა. ბაგია?“", "options": ["კი, ინდექსი წაშალე", "შეიძლება ANN-ის მიახლოებამ ერთი მეზობელი გამოტოვოს; პატარა მონაცემზე ეს იშვიათია. hnsw.ef_search-ის გაზრდა recall-ს ზრდის", "ვექტორები გაფუჭდა", "Gemini-მ სხვა ვექტორი დააბრუნა"], "answer": 1, "explain": "ეს ზუსტად recall-ის თემაა — ფასი სიჩქარისთვის."},
+    {"q": "რატომ ვაბრუნებთ `Score = 1 - Distance`-ს და არა უბრალოდ distance-ს?", "options": ["SQL სხვაგვარად ვერ ითვლის", "ლექცია 9-ის საშინაოს ზღვარი (MinScore) similarity-ზე შეირჩა — API-ის „ხელშეკრულება“ რომ არ შეიცვალოს. ზღვარი SQL-ში distance-ით: distance ≤ 1 − MinScore", "Gemini ასე მოითხოვს", "distance უარყოფითია"], "answer": 1, "explain": "ერთ API-ში ერთი საზომი — სტუდენტები ორივეს ერთად ხშირად ურევენ."},
+    {"q": "„WHERE Price <= 20 ORDER BY <=> LIMIT 3“ HNSW ინდექსით 1 შედეგს აბრუნებს, თუმცა 5 შესაფერისია. რატომ?", "options": ["ბაგი EF Core-ში", "HNSW ჯერ ef_search (40) კანდიდატს პოულობს, ფილტრი მერე ედება — „overfiltering“. pgvector 0.8+: SET hnsw.iterative_scan = relaxed_order", "ფასი არასწორად ინახება", "LIMIT 3 ზედმეტია"], "answer": 1, "explain": "მცირე მონაცემზე პლანერი seq scan-ს ირჩევს და ეს არ ჩანს — დიდ ცხრილზე ჩანს. 🔬-შია."},
+    {"q": "რატომ არ გვჭირდება აქ `Microsoft.Extensions.VectorData`?", "options": ["ის მოძველებულია", "მონაცემი და ვექტორი ერთ PostgreSQL-შია — EF Core-ით ფილტრი, JOIN და ტრანზაქცია ჩვეულებრივია. VectorData მაშინ, როცა store ცალკეა ან შეიძლება შეიცვალოს", "pgvector-ს არ უჭერს მხარს", "ფასიანია"], "answer": 1, "explain": "ლექცია 9-ის „🚫 დღეს არ ვხსნით“-ის პასუხი."}
+  ],
+  "lecturer_explain": [
+    {"task": "ახსენი 1 წუთში, რატომ არის HNSW სწრაფი — სიტყვა „გრაფის“ გარეშე.", "points": ["ქალაქში მისამართს ეძებ", "ჯერ მაგისტრალით სწორ რაიონში", "მერე ქუჩით, მერე სახლამდე", "ყველა სახლს არ ამოწმებ — ამიტომ სწრაფია, მაგრამ შეიძლება მეზობელი უკეთესი სახლი გამოგრჩეს"]},
+    {"task": "ახსენი distance vs similarity ისე, რომ სტუდენტმა ORDER BY-ს მიმართულება არ აურიოს.", "points": ["similarity — „რამდენად ჰგავს“, 1 — ძალიან", "distance — „რამდენად შორსაა“, 0 — იგივეა", "distance = 1 − similarity", "ვეძებთ უახლოესს → ყველაზე პატარა distance → ORDER BY ASC"]},
+    {"task": "ახსენი, რატომ ვინახავთ ვექტორს კერძის გვერდით და არა ცალკე ბაზაში.", "points": ["ფილტრი და ძებნა ერთ მოთხოვნაში (ფასი + მნიშვნელობა)", "ერთი ტრანზაქცია: კერძი შეიცვალა — ვექტორიც იქვეა", "ერთი backup, ერთი სერვისი", "ცალკე ბაზა — დიდი მასშტაბისთვის ან როცა მონაცემი PostgreSQL-ში არ არის"]}
+  ],
+  "study": {
+    "summary": [
+      "**pgvector** PostgreSQL-ს `vector(768)` სვეტს და მანძილის ოპერატორებს უმატებს; Docker-ში `pgvector/pgvector` იმავე ვერსიით.",
+      "**`<=>` — cosine distance** = 1 − similarity: პატარა = ახლოს, `ORDER BY distance` ზრდადობით.",
+      "**EF Core:** `Pgvector.EntityFrameworkCore`, `UseVector()`, `HasPostgresExtension(\"vector\")`, `Vector? Embedding` + `EmbeddingModel`, migration.",
+      "**ინდექსაცია** მხოლოდ გადასათვლელს ითვლის; **ძებნა:** `OrderBy(CosineDistance).Take(3)` — დალაგება ბაზაში ხდება.",
+      "**HNSW** — მიახლოებითი (ANN), სწრაფი ინდექსი; ოპერატორი (`vector_cosine_ops`) ძებნის ფუნქციას უნდა ემთხვეოდეს; `EXPLAIN`-ით მოწმდება. ერთ PostgreSQL-ში — EF Core, ცალკე store-ზე — VectorData."
+    ],
+    "skip": ["დღის თემა", "შესავალი"],
+    "chapters": {
+      "1 · ბაზაში": {"title": "ვექტორი ბაზაში: pgvector", "goal": "ახსნი, რა არის ვექტორული ბაზა, და pgvector-ის ტიპსა და ოპერატორებს SQL-ში გამოიყენებ."},
+      "2 · EF Core": {"title": "EF Core და ვექტორი", "goal": "ვექტორის სვეტს EF Core-ით დაამატებ, ვექტორებს ჩაწერ და LINQ-ით ეძებ."},
+      "3 · ინდექსი": {"title": "HNSW ინდექსი და VectorData", "goal": "HNSW ინდექსს შექმნი, EXPLAIN-ით შეამოწმებ და აირჩევ EF Core-სა და VectorData-ს შორის."},
+      "პრაქტიკა": {"title": "კლასის დავალება: ძებნა ბაზაზე"},
+      "შეჯამება": {"title": "შეჯამება"},
+      "საშინაო": {"title": "საშინაო დავალება"}
+    }
+  }
+}
