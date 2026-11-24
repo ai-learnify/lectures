@@ -866,6 +866,50 @@ def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_sl
 import difflib
 FILE_FENCE = re.compile(r'^```(\w+) +(\+?)(\S+\.\w+)[ \t]*\n(.*?)^```[ \t]*$', re.M | re.S)
 
+EXPLAIN_FENCE = re.compile(r'^```explain +(\S+)[ \t]*\n(.*?)^```[ \t]*$', re.M | re.S)
+
+def parse_explain(body):
+    """```explain Path: "@ start" (auto end) · "@ start .. end" · "@! line" (one line), then 🧠 what it does / 🔧 why"""
+    items, cur, key = [], None, None
+    for line in body.split('\n'):
+        if line.startswith('@'):
+            one = line.startswith('@!')
+            spec = line[2:].strip()
+            start, _, end = spec.partition(' .. ')
+            cur = {'start': start.strip(), 'end': end.strip() or None, 'one': one, 'what': [], 'why': []}
+            items.append(cur); key = None
+        elif cur is not None and line.startswith('🧠'):
+            key = 'what'; cur[key].append(line[1:].strip())
+        elif cur is not None and line.startswith('🔧'):
+            key = 'why'; cur[key].append(line[1:].strip())
+        elif cur is not None and key:
+            cur[key].append(line)
+    return items
+
+def _code_only(line):
+    return re.sub(r'\s+//.*$', '', line).rstrip()
+
+def find_region(lines, it, path, after=0):
+    """ახსნები ფაილის რიგით იწერება: ხაზი იძებნება წინა ახსნის დასაწყისის შემდეგ (ასე „messages =“ ყოველ მეთოდში თავისას პოულობს)"""
+    hits = [i for i, l in enumerate(lines) if i >= after and l.strip().startswith(it['start'])]
+    if not hits:
+        sys.exit(f'⚠ explain {path}: ხაზი ვერ მოიძებნა (ან წინა ახსნაზე ზემოთაა): "{it["start"]}"')
+    i = hits[0]
+    if it['one']:
+        return i, i
+    if it['end']:
+        for j in range(i, len(lines)):
+            if it['end'] in lines[j] and (j > i or it['end'] not in it['start']):
+                return i, j
+        sys.exit(f'⚠ explain {path}: ბოლო ხაზი ვერ მოიძებნა: "{it["end"]}"')
+    depth = 0
+    for j in range(i, len(lines)):
+        c = _code_only(lines[j])
+        depth += sum(c.count(x) for x in '({[') - sum(c.count(x) for x in ')}]')
+        if depth <= 0 and c.endswith((';', '}', '},')):
+            return i, j
+    return i, len(lines) - 1
+
 def write_project_pages(cdir, course, briefs, titles, built):
     out_dir = OUT / cdir.name / 'project'
     src_dir = cdir / 'project'
@@ -893,7 +937,14 @@ def write_project_pages(cdir, course, briefs, titles, built):
             parts.append('<div class="box"><h3>🎯 რას ისწავლის სტუდენტი</h3><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['learn']) + '</ul></div>')
         if b.get('build'):
             parts.append(f'<div class="box"><h3>🛠 რას ვწერთ {esc(proj)}-ში</h3><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['build']) + '</ul></div>')
+        explains = {}
+        for m in EXPLAIN_FENCE.finditer(text):
+            explains.setdefault(m.group(1).lstrip('+'), []).extend(parse_explain(m.group(2)))
+        text = EXPLAIN_FENCE.sub('', text)
         files = [(m.group(1), m.group(3), bool(m.group(2)), m.group(4).rstrip('\n')) for m in FILE_FENCE.finditer(text)]
+        unknown = set(explains) - {f[1] for f in files}
+        if unknown:
+            sys.exit(f'⚠ project/{num:02d}.md: explain ფაილისთვის, რომელიც ამ ლექციაში არ არის: {", ".join(sorted(unknown))}')
         deleted = re.findall(r'^🗑\s+(\S+)', text, re.M)
         prose = FILE_FENCE.sub('', re.sub(r'^🗑.*$', '', text, flags=re.M))
         extra = ''
@@ -906,7 +957,7 @@ def write_project_pages(cdir, course, briefs, titles, built):
             parts.append(f'<div class="empty">ამ ლექციაზე {esc(proj)}-ში კოდი არ იწერება</div>')
         else:
             parts.append('<h2>ფაილები</h2><p class="legend"><span class="tag new">ახალი</span><span class="tag mod">შეცვლილი</span>'
-                         '<span class="tag own">შენი ფაილი · AI-ის ნაწილი</span><span class="tag del">წაშლილი</span> · <i></i>ახალი / შეცვლილი ხაზი</p>')
+                         '<span class="tag own">შენი ფაილი · AI-ის ნაწილი</span><span class="tag del">წაშლილი</span> · <i></i>ახალი / შეცვლილი ხაზი{" · <span class=xhint>ⓘ მიიტანე მაუსი კოდზე — ახსნა; დააჭირე — დამაგრება</span>" if explains else ""}</p>')
             toc, boxes = [], []
             for k, (lang, path, is_own, body) in enumerate(files):
                 prev = state.get(path)
@@ -922,17 +973,44 @@ def write_project_pages(cdir, course, briefs, titles, built):
                 if is_own:
                     tag += '<span class="tag own">შენი ფაილი</span>'
                 html_code = highlight(body, lang)
+                # ახსნები: ყოველ ხაზს — ყველაზე შიდა რეგიონი, რომელშიც ის შედის
+                owner, starts, xps = {}, set(), []
+                regions = []
+                after = 0
+                for x, it in enumerate(explains.get(path, [])):
+                    a, z = find_region(lines, it, f'{num:02d}/{path}', after)
+                    regions.append((a, z, x, it)); after = a
+                for a, z, x, it in sorted(regions, key=lambda r: -(r[1] - r[0])):   # wide first → narrow overrides
+                    for idx in range(a, z + 1):
+                        owner[idx] = x
+                for a, z, x, it in regions:
+                    starts.add(a)
+                    changed = [idx for idx in range(a, z + 1) if idx in add]
+                    if prev is not None and not changed:
+                        print(f'  ⚠ {num:02d}/{path}: ახსნა უცვლელ კოდზე — "{it["start"]}"')
+                    if prev is None or len(changed) == z - a + 1:
+                        why_h = 'რატომ ვამატებთ'
+                    else:
+                        why_h = 'რა შეიცვალა და რატომ'
+                    badge = ('<span class="tag new">ახალი</span>' if (prev is None and not is_own) or len(changed) == z - a + 1
+                             else '<span class="tag mod">შეცვლილი</span>' if changed else '')
+                    what = markdown.markdown('\n'.join(it['what']).strip(), extensions=['sane_lists'])
+                    why = markdown.markdown('\n'.join(it['why']).strip(), extensions=['sane_lists']) if it['why'] else ''
+                    xps.append(f'<template data-x="{x}"><div class="xh">{badge}<span>{f"ხაზი {a + 1}" if a == z else f"ხაზები {a + 1}–{z + 1}"}</span></div>'
+                               f'<div class="xs"><b>🧠 რას აკეთებს</b>{what}</div>'
+                               + (f'<div class="xs why"><b>🔧 {why_h}</b>{why}</div>' if why else '') + '</template>')
                 n = [0]
                 def mark(mm):
                     idx = n[0]; n[0] += 1
-                    return '<span class="ln add">' if idx in add else '<span class="ln">'
+                    cls = 'ln' + (' add' if idx in add else '') + (' xs0' if idx in starts else '')
+                    return f'<span class="{cls}"' + (f' data-x="{owner[idx]}"' if idx in owner else '') + '>'
                 html_code = re.sub(r'<span class="ln">', mark, html_code)
                 note = ('<div class="note">ეს ფაილი შენს პროექტში უკვე არსებობს (API კურსიდან). აქ მხოლოდ ის ნაწილია, რაც AI-ის მოდულში დაემატა — '
                         'დანარჩენი შენი კოდი უცვლელია.</div>') if is_own else ''
                 fid = f'f{k}'
                 toc.append(f'<a href="#{fid}">{tag}{esc(path)}</a>')
                 boxes.append(f'<div class="codebox" id="{fid}"><div class="ch"><span>{tag}{esc(path)}</span><button class="copy" type="button">კოპირება</button></div>'
-                             f'{note}<pre class="code"><code>{html_code}</code></pre></div>')
+                             f'{note}<pre class="code"><code>{html_code}</code></pre>{"".join(xps)}</div>')
                 state[path] = body
                 if is_own: own.add(path)
             for path in deleted:
