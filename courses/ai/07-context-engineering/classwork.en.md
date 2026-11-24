@@ -4,7 +4,7 @@ Your project or RestaurantApi · with code · Swagger and the database
 
 ## Steps
 
-- **1 · The table** — `ChatMessageRecord` (`Id`, `ConversationId`, `Position`, `Role`, `Json` — `[Column(TypeName = "jsonb")]`, `CreatedAt`), a `DbSet` in `AppDbContext`, a migration
+- **1 · The table** — `ChatMessageRecord` (`Id`, `ConversationId`, `Position`, `Role`, `Json` — `[Column(TypeName = "jsonb")]`, `CreatedAt`), a `DbSet` in `DataContext`, a migration
 - **2 · The store** — `ChatHistoryStore`: `LoadAsync` and `AppendAsync`, with the JSON settings `new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true }`; `AddScoped` in `Program.cs`
 - **3 · The endpoint** — `ChatRequest(Guid? ConversationId, string Prompt)`; `/chat`: load → `[SystemPrompt(), .. history, question]` → `GetResponseAsync` → `AppendAsync([question, .. response.Messages])` → `conversationId` in the response
 - **4 · Check** — two questions in Swagger with one `conversationId`, where the second makes no sense without the first (e.g. “And at 21:00?”); then in the database `SELECT "Position", "Role", "Json" FROM "ChatMessages"`

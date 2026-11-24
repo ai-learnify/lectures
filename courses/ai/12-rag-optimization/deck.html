@@ -544,7 +544,7 @@ static IEnumerable<int> Rrf(params List<int>[] lists) => lists
     .Select(g => g.Key);
     </code-block>
     <div class="col" style="gap:12px">
-      <code-block lang="csharp" cls="sm" title="Data/AppDbContext.cs · OnModelCreating">
+      <code-block lang="csharp" cls="sm" title="Data/DataContext.cs · OnModelCreating">
 modelBuilder.Entity<DocumentChunk>()
     .HasGeneratedTsVectorColumn(
         c => c.SearchVector, "english", c => new { c.Content })
@@ -573,7 +573,7 @@ using NpgsqlTypes;
 public NpgsqlTsVector SearchVector { get; set; } = null!;
 ```
 
-```csharp Data/AppDbContext.cs · OnModelCreating
+```csharp Data/DataContext.cs · OnModelCreating
 modelBuilder.Entity<DocumentChunk>()
     .HasGeneratedTsVectorColumn(c => c.SearchVector, "english", c => new { c.Content })
     .HasIndex(c => c.SearchVector)
@@ -654,7 +654,7 @@ using NpgsqlTypes;
 public NpgsqlTsVector SearchVector { get; set; } = null!;
 ```
 
-```csharp Data/AppDbContext.cs · OnModelCreating
+```csharp Data/DataContext.cs · OnModelCreating
 modelBuilder.Entity<DocumentChunk>()
     .HasGeneratedTsVectorColumn(c => c.SearchVector, "english", c => new { c.Content })
     .HasIndex(c => c.SearchVector)

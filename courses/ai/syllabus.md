@@ -20,49 +20,155 @@
 
 Generative AI-ისა და LLM-ების მიმოხილვა; როგორ მუშაობს LLM: ტოკენები, context window, next-token prediction; Temperature, Top-P, Max Tokens; reasoning მოდელები; პროვაიდერები (OpenAI, Anthropic, Gemini, Groq, ლოკალური Ollama) და ფასები; პირველი გამოძახება C#-იდან `IChatClient`-ით.
 
+📚 რას ააწყობენ მოდულში, რას შეძლებენ მის ბოლოს და ვინ გახდებიან
+📚 როგორ ქმნის LLM ტექსტს: ტოკენები, next-token prediction, context window
+📚 Temperature, Top-P და Max Tokens — რომელი როდის
+📚 პროვაიდერის არჩევა და თვის ხარჯის დათვლა ტოკენებით
+🛠 RestaurantApi | კოდი არ იწერება — თეორიული ლექციაა. ლექციის ბოლოს ჩანს, რა AI-ფუნქციები დაემატება RestaurantApi-ს მოდულის განმავლობაში
+
 ### 02. Prompt Engineering C# დეველოპერებისთვის
 
 პრომპტ ინჟინერიის სტანდარტები და ტექნიკები (Zero-Shot, Few-Shot, System/User/Assistant შეტყობინებები); პრომპტის შაბლონები კოდში; Structured Output: LLM-ის პასუხი პირდაპირ C# ობიექტად (`GetResponseAsync<T>`, JSON Schema).
+
+📚 Gemini-ს გამოძახება საკუთარი API-დან `IChatClient`-ით, key — User Secrets-ში
+📚 `ChatOptions` (Temperature, MaxOutputTokens) და პასუხის `Usage` / `FinishReason`
+📚 System prompt, რომელიც ასისტენტის როლს, თემებს და პასუხის ფორმას ზღუდავს
+📚 Zero-shot vs few-shot: few-shot-ით ზუსტი პასუხი
+🛠 RestaurantApi | NuGet: `Google.GenAI`, `Microsoft.Extensions.AI`; `Gemini:ApiKey` — User Secrets-ში
+🛠 ახალი `AiLabController`: `POST /api/ai-lab/ask` — პირველი გამოძახება, `ChatOptions`-ით
+🛠 `POST /api/ai-lab/assistant` — რესტორნის ასისტენტი system prompt-ით
+🛠 `POST /api/ai-lab/review-sentiment` — შეფასების კლასიფიკაცია few-shot-ით
+🛠 `AskRequest` / `AskResponse` DTO (ტოკენები და FinishReason პასუხში)
 
 ### 03. Microsoft.Extensions.AI
 
 რა არის Microsoft.Extensions.AI და რატომ არის ის .NET-ში AI-ის სტანდარტული ფენა; `IChatClient` და `IEmbeddingGenerator` აბსტრაქციები; რეგისტრაცია DI-ში (`AddChatClient`); კონფიგურაცია; პროვაიდერის შეცვლა კოდის შეცვლის გარეშე.
 
+📚 `IChatClient`-ის რეგისტრაცია DI-ში `AddChatClient`-ით: key — User Secrets-ში, მოდელი — `appsettings.json`-ში
+📚 `GetResponseAsync<T>` enum-ით და რატომ არის ეს few-shot-ზე საიმედო
+📚 ტექსტიდან ობიექტის ამოღება `record`-ით: nullable ველები, `Description`, დღევანდელი თარიღი prompt-ში
+📚 ფორმა გარანტირებულია, შინაარსი — არა: მიღებული ობიექტის შემოწმება C#-ში
+🛠 RestaurantApi | `Program.cs`: `AddChatClient`, მოდელის სახელი `Gemini:Model`-ში
+🛠 `AiLabController` იღებს `IChatClient`-ს constructor-ით (client-ის შექმნა controller-იდან ქრება)
+🛠 `/review-sentiment` → `GetResponseAsync<Sentiment>` (enum)
+🛠 `POST /api/ai-lab/parse-booking` — ტექსტიდან `BookingRequest` (თარიღი, სტუმრები)
+
 ### 04. Tools და Function Calling
 
 C#-ის მეთოდების გატანა AI Tool-ებად (`AIFunctionFactory.Create`, `[Description]`); როგორ მუშაობს tool call-ის ციკლი; ფუნქციების ავტომატური გამოძახება (`UseFunctionInvocation`); კარგი tool-ის დიზაინი: სახელი, აღწერა, პარამეტრები.
+
+📚 Function calling-ის ციკლი: tool-ების სია → გამოძახების თხოვნა → ჩვენი კოდი → შედეგი → პასუხი
+📚 C# მეთოდი tool-ად: `AIFunctionFactory.Create`, `[Description]`, `ChatOptions.Tools`
+📚 `UseFunctionInvocation` და `response.Messages`: რომელი tool გამოიძახა მოდელმა
+📚 კარგი tool: სახელი, აღწერა, ტიპიზებული პარამეტრები; რატომ არის tool-ები ჯერ მხოლოდ კითხვისთვის
+🛠 RestaurantApi | `Ai/RestaurantTools`: `GetMenu` და `CheckAvailability` (ბაზიდან, read-only)
+🛠 `Program.cs`: `.UseFunctionInvocation()`, `RestaurantTools` — Scoped
+🛠 `POST /api/ai-lab/chat` — ასისტენტი tool-ებით; პასუხში — გამოძახებული tool-ების სია
 
 ### 05. Chat Client Pipeline და Middleware
 
 `ChatClientBuilder`: logging, caching, OpenTelemetry; საკუთარი middleware-ის დაწერა (მაგ. ტოკენების დათვლა, შეყვანის ფილტრი); რატომ ცვლის middleware ძველ „filter“-ებსა და „plugin“-ებს.
 
+📚 Chat client pipeline: ფენა = `IChatClient` სხვა `IChatClient`-ის გარშემო; `.Use…()`-ების რიგი
+📚 `UseLogging`: რამდენი მოთხოვნა მიდის Gemini-სთან ერთ tool-იან შეკითხვაზე
+📚 `UseDistributedCache`: როდის შველის და როდის აბრუნებს ძველ, არასწორ პასუხს
+📚 საკუთარი ფენა `DelegatingChatClient`-ით: ერთი პასუხს უყურებს, მეორე მოთხოვნას აჩერებს
+🛠 RestaurantApi | `Program.cs`: `.UseLogging()` + ლოგის დონე `appsettings.Development.json`-ში
+🛠 `UseDistributedCache`-ის ცდა (საბოლოო pipeline-ში არ რჩება)
+🛠 `Ai/TokenCounterChatClient` — ყოველი მოთხოვნის ტოკენები ლოგში
+🛠 `Ai/InputGuardChatClient` — 1000 სიმბოლოზე გრძელი შეკითხვა Gemini-მდე არ მიდის
+🛠 საბოლოო pipeline: InputGuard → FunctionInvocation → TokenCounter → Logging
+
 ### 06. Streaming და Real-time AI პასუხები
 
 AI პასუხების სტრიმინგი (`GetStreamingResponseAsync`, `IAsyncEnumerable<T>`); Server-Sent Events endpoint ASP.NET Core-ში; გაუქმება (`CancellationToken`); SignalR, როგორც ალტერნატივა.
+
+📚 რას ცვლის სტრიმინგი (TTFT) და რას არა (მთლიანი დრო)
+📚 `GetStreamingResponseAsync` და `await foreach`: როდის მოდის თითო ნაწილი
+📚 SSE endpoint `TypedResults.ServerSentEvents`-ით და async iterator-ით (`yield return`), შემოწმება `curl -N`-ით
+📚 `CancellationToken` — კლიენტი წავიდა, Gemini-ს მოთხოვნაც წყდება
+🛠 RestaurantApi | `POST /api/ai-lab/chat/chunks` — ნაწილები და მათი დრო (ms)
+🛠 `GET /api/ai-lab/chat/stream` — SSE სტრიმი tool-ებით (`StreamAnswer`)
+🛠 `ChatToolOptions()` — tool-ების სია ერთ ადგილას (`/chat`-იც მას იყენებს)
 
 ### 07. Context Engineering: კონტექსტისა და მეხსიერების მართვა
 
 რა არის context engineering და რატომ არის ის prompt engineering-ზე ფართო; რა შედის მოდელის კონტექსტში: instructions, საუბრის ისტორია, tool-ების აღწერები და პასუხები, მეხსიერება, მოგვიანებით RAG-ით ნაპოვნი დოკუმენტები; ტოკენების ბიუჯეტი; კონტექსტის მართვის სტრატეგიები: შერჩევა, შეკუმშვა (truncation, summarization), თანმიმდევრობა; ჩატის ისტორიის შენახვა PostgreSQL-ში.
 
+📚 რა შედის მოდელის კონტექსტში და რით განსხვავდება context engineering prompt engineering-ისგან
+📚 საუბრის ისტორია PostgreSQL-ში: `conversationId`, მთელი `ChatMessage` jsonb-ში, tool-ების შეტყობინებებით
+📚 `/chat` ისტორიით: ჩატვირთე → System + ისტორია + შეკითხვა → შეინახე `response.Messages`
+📚 რატომ იზრდება ტოკენები ყოველ შეკითხვაზე და `MessageCountingChatReducer` — მხოლოდ ბოლო N შეტყობინება
+🛠 RestaurantApi | `Data/ChatMessageRecord` (jsonb) + migration `ChatHistory`
+🛠 `Ai/ChatHistoryStore`: `LoadAsync` / `AppendAsync`
+🛠 `/chat` ისტორიით: `ChatRequest(ConversationId, Prompt)`, `SystemPrompt()` ცალკე მეთოდად
+🛠 reducer: მოდელთან ისტორიის ბოლო 10 შეტყობინება
+
 ### 08. Error Handling, Resilience და ხარჯის კონტროლი
 
 შეცდომების მართვა AI გამოძახებებში; Rate Limit (429), Timeout, Retry და Circuit Breaker `Microsoft.Extensions.Http.Resilience`-ით; Fallback მოდელი; ტოკენების მოხმარებისა და ხარჯის აღრიცხვა.
+
+📚 შეცდომა: დროებითი, მუდმივი თუ შინაარსის — რომელზე შველის retry
+📚 `AddStandardResilienceHandler`: retry, timeout, circuit breaker; Google.GenAI-ს საკუთარი retry-ს გამორთვა
+📚 `FallbackChatClient`: დროებით შეცდომაზე სარეზერვო მოდელი
+📚 ყოველი გამოძახების ტოკენები ბაზაში (`IServiceScopeFactory`) და დღის ხარჯი
+🛠 RestaurantApi | NuGet `Microsoft.Extensions.Http.Resilience`; HttpClient `"gemini"` resilience-ით, Gemini client მასზე
+🛠 `Ai/ChaosHandler` — ხელოვნური 503 ცდისთვის
+🛠 `Ai/FallbackChatClient` + `Gemini:FallbackModel`
+🛠 `Data/AiUsageRecord` + migration; `TokenCounterChatClient` ტოკენებს ბაზაში წერს
 
 ### 09. Text Embeddings
 
 ტექსტის ვექტორიზაციის პრინციპი; `IEmbeddingGenerator`; Embedding მოდელების შერჩევა და განზომილებები; Cosine Similarity და ვექტორული მანძილების გამოთვლა C#-ში.
 
+📚 რა არის embedding და ვექტორი, რატომ არის მსგავსი მნიშვნელობა „ახლოს“
+📚 `IEmbeddingGenerator` (`gemini-embedding-2`, 768 განზომილება): `GenerateVectorAsync` / `GenerateAsync`
+📚 task prefix: შეკითხვა და დოკუმენტი სხვადასხვა ფორმით (ასიმეტრიული ძებნა)
+📚 cosine similarity (ხელით და `TensorPrimitives`-ით) და მენიუს სემანტიკური ძებნა top 3-ით
+🛠 RestaurantApi | `AddEmbeddingGenerator`, `Gemini:EmbeddingModel`; NuGet `System.Numerics.Tensors`
+🛠 `Ai/EmbeddingText` (prefix-ები) და `Ai/MenuIndex` (Singleton, მეხსიერებაში)
+🛠 `POST /api/ai-lab/embed`, `POST /api/ai-lab/menu/index`, `GET /api/ai-lab/menu/search`
+
 ### 10. PostgreSQL pgvector გაფართოების ინტეგრაცია EF Core-თან
 
 ვექტორული მონაცემთა ბაზების კონცეფცია; pgvector-ის ჩართვა PostgreSQL-ში; ინტეგრაცია EF Core-თან (`Pgvector.EntityFrameworkCore`); მანძილის ოპერატორები; HNSW ინდექსი.
+
+📚 რა არის ვექტორული ბაზა და რატომ PostgreSQL + pgvector
+📚 `vector(768)` სვეტი EF Core-ით: `Pgvector.EntityFrameworkCore`, `UseVector`, migration
+📚 სემანტიკური ძებნა LINQ-ით (`CosineDistance`); distance = 1 − similarity
+📚 HNSW ინდექსი, `EXPLAIN` და მიახლოებითი ძებნა (recall)
+🛠 RestaurantApi | `docker-compose.yml`: `pgvector/pgvector` image; NuGet `Pgvector.EntityFrameworkCore`
+🛠 `UseVector()`, `HasPostgresExtension("vector")`; `Product.Embedding` + `EmbeddingModel` → migration `ProductEmbedding`
+🛠 `/menu/index` და `/menu/search` ბაზაზე; `MenuIndex` იშლება
+🛠 HNSW ინდექსი → migration `ProductEmbeddingIndex`
 
 ### 11. Simple RAG (Retrieval-Augmented Generation) C#-ში
 
 RAG არქიტექტურის აგება: ingestion (ჩატვირთვა → chunking → ვექტორიზაცია → შენახვა) და query (ძებნა → კონტექსტის დამატება → გენერაცია); დოკუმენტების დამუშავება: ტექსტის ამოღება PDF-დან და Word-დან, გაწმენდა, metadata-ს შენახვა (ფაილი, გვერდი); წყაროების მითითება პასუხში; RAG endpoint C# Web API-ში.
 
+📚 RAG-ის ორი pipeline (ingestion და query) და რატომ სჯობს ის მთელ დოკუმენტს კონტექსტში და fine-tuning-ს
+📚 PDF → ტექსტი გვერდებით (PdfPig) → chunk-ები overlap-ით → ვექტორები `DocumentChunk`-ში
+📚 რელევანტური chunk-ები ზღვრით და prompt-ში გადანომრილი წყაროები
+📚 RAG ჩატში: პასუხი წყაროს ნომრით, „ინფორმაცია არ მაქვს“, ისტორიაში — ორიგინალი შეკითხვა
+🛠 RestaurantApi | NuGet `PdfPig`; `Ai/PdfText`, `Ai/TextChunker`
+🛠 `Data/Document`, `Data/DocumentChunk` + HNSW ინდექსი → migration
+🛠 `POST /api/ai-lab/documents` — PDF-ის ატვირთვა (ingestion)
+🛠 `SearchChunksAsync` + `BuildContext`; `Rag:MinScore`
+🛠 `/chat` RAG-ით: წყაროები prompt-ში და პასუხში
+
 ### 12. RAG ოპტიმიზაცია და შეფასება
 
 Chunking სტრატეგიები; Metadata Filtering; Hybrid Search (PostgreSQL full-text + vector); Reranking; RAG-ის ხარისხის შეფასება (`Microsoft.Extensions.AI.Evaluation`: relevance, groundedness).
+
+📚 სად ცდება RAG (retrieval vs generation); golden set, hit@3 და MRR
+📚 Hybrid search: ვექტორი + PostgreSQL full-text (`tsvector`), შერწყმა RRF-ით, გაუმჯობესება ციფრით
+📚 Metadata filtering SQL-ში — და რატომ არის ის უსაფრთხოების საკითხიც
+📚 Chunking-ის სტრატეგიები, reranking და პასუხის groundedness (`GroundednessEvaluator`)
+🛠 RestaurantApi | `golden.json` + `POST /api/ai-lab/rag/eval` (hit@3, MRR)
+🛠 `DocumentChunk.SearchVector` (tsvector, GIN) → migration; `HybridSearchAsync` + `Rrf`
+🛠 `/chat` და `/rag/eval` — `HybridSearchAsync`-ზე
+🛠 `Document.Category` → migration; ძებნა კატეგორიით
+🛠 მსაჯის client (`"judge"`) + `POST /api/ai-lab/rag/groundedness`
 
 ---
 

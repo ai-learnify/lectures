@@ -21,7 +21,7 @@
 
 ## 💡 თუ გაიჭედე
 
-- **`Cannot consume scoped service 'AppDbContext' from singleton`?** ფენაში `AppDbContext` პირდაპირ ნუ ჩასვამ — `IServiceScopeFactory` → `CreateScope()` → `GetRequiredService<AppDbContext>()`
+- **`Cannot consume scoped service 'DataContext' from singleton`?** ფენაში `DataContext` პირდაპირ ნუ ჩასვამ — `IServiceScopeFactory` → `CreateScope()` → `GetRequiredService<DataContext>()`
 - **ჯამი:** `await db.AiUsage.Where(u => u.At >= today).SumAsync(u => u.InputTokens + u.OutputTokens, cancellationToken)`
 - **უარის პასუხი:** `return new ChatResponse(new ChatMessage(ChatRole.Assistant, "..."));` — როგორც ლექცია 5-ის InputGuard
 - **ლიმიტი კონფიგურაციიდან:** `.Use((inner, sp) => new BudgetGuardChatClient(inner, sp.GetRequiredService<IServiceScopeFactory>(), builder.Configuration.GetValue<long>("Ai:DailyTokenLimit")))`

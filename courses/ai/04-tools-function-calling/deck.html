@@ -362,9 +362,9 @@ public record MenuItemInfo(string Name, decimal Price);
 
 public class RestaurantTools
 {
-    private readonly AppDbContext _db;
+    private readonly DataContext _db;
 
-    public RestaurantTools(AppDbContext db)
+    public RestaurantTools(DataContext db)
     {
         _db = db;
     }
@@ -403,9 +403,9 @@ public record MenuItemInfo(string Name, decimal Price);
 
 public class RestaurantTools
 {
-    private readonly AppDbContext _db;
+    private readonly DataContext _db;
 
-    public RestaurantTools(AppDbContext db)
+    public RestaurantTools(DataContext db)
     {
         _db = db;
     }
@@ -426,13 +426,13 @@ public class RestaurantTools
 builder.Services.AddScoped<RestaurantTools>();
 ```
 
-- **`AppDbContext` constructor-ით.** ზუსტად ისე, როგორც API კურსის სერვისებში. `RestaurantTools` **Scoped**-ია, რადგან `DbContext`-იც Scoped-ია: ერთი მოთხოვნა, ერთი `DbContext`.
+- **`DataContext` constructor-ით.** ზუსტად ისე, როგორც API კურსის სერვისებში. `RestaurantTools` **Scoped**-ია, რადგან `DbContext`-იც Scoped-ია: ერთი მოთხოვნა, ერთი `DbContext`.
 - **`[Description(...)]` მეთოდზე.** ეს აღწერა მოდელთან tool-ის `description`-ად მიდის. მოდელი კოდს ვერ ხედავს, ამიტომ რას აკეთებს tool, მხოლოდ აქედან იგებს.
 - **`MenuItemInfo`.** მოდელს entity-ს კი არა, მხოლოდ საჭირო ველებს ვუბრუნებთ. ნაკლები ველი ნიშნავს ნაკლებ ტოკენს და ნაკლებ ზედმეტ ინფორმაციას (მაგ. შიდა id-ებს).
 - **შიგნით ჩვეულებრივი LINQ.** tool-ში AI-სთან დაკავშირებული არაფერია. ეს ჩვენი ჩვეულებრივი კოდია.
 
 ```note
-`_db.Products`, `p.Name`, `p.Price` — RestaurantApi-ის სახელებია. შენს პროექტში შენი entity-ები და ველები გამოიყენე. თუ მენიუს უკვე სერვისით კითხულობ (API კურსიდან), `AppDbContext`-ის ნაცვლად ის სერვისი მიიღე constructor-ით.
+`_db.Products`, `p.Name`, `p.Price` — RestaurantApi-ის სახელებია. შენს პროექტში შენი entity-ები და ველები გამოიყენე. თუ მენიუს უკვე სერვისით კითხულობ (API კურსიდან), `DataContext`-ის ნაცვლად ის სერვისი მიიღე constructor-ით.
 ```
   </aside>
   <aside class="study-en">
@@ -448,9 +448,9 @@ public record MenuItemInfo(string Name, decimal Price);
 
 public class RestaurantTools
 {
-    private readonly AppDbContext _db;
+    private readonly DataContext _db;
 
-    public RestaurantTools(AppDbContext db)
+    public RestaurantTools(DataContext db)
     {
         _db = db;
     }
@@ -471,13 +471,13 @@ And the registration in `Program.cs`:
 builder.Services.AddScoped<RestaurantTools>();
 ```
 
-- **`AppDbContext` through the constructor.** Exactly as in the API course services. `RestaurantTools` is **Scoped** because `DbContext` is Scoped too: one request, one `DbContext`.
+- **`DataContext` through the constructor.** Exactly as in the API course services. `RestaurantTools` is **Scoped** because `DbContext` is Scoped too: one request, one `DbContext`.
 - **`[Description(...)]` on the method.** This description goes to the model as the tool's `description`. The model can't see the code, so this is the only place it learns what the tool does.
 - **`MenuItemInfo`.** We don't return the entity to the model, only the fields it needs. Fewer fields mean fewer tokens and less unneeded information (e.g. internal ids).
 - **Ordinary LINQ inside.** There's nothing AI-related in the tool. It's our ordinary code.
 
 ```note
-`_db.Products`, `p.Name`, `p.Price` are RestaurantApi names. In your project use your own entities and fields. If you already read the menu through a service (from the API course), take that service through the constructor instead of `AppDbContext`.
+`_db.Products`, `p.Name`, `p.Price` are RestaurantApi names. In your project use your own entities and fields. If you already read the menu through a service (from the API course), take that service through the constructor instead of `DataContext`.
 ```
   </aside>
 </section>

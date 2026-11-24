@@ -150,7 +150,7 @@
 
 ### 🆘 თუ ვერ გაიგეს
 
-- **თუ DI ჯგუფთან ჭედავს →** ნუ ახსნი თეორიას თავიდან. დაფაზე ორი სვეტი: **„API კურსი“** — `builder.Services.AddDbContext<AppDbContext>(...)` / `public ProductsController(AppDbContext db)`; **„დღეს“** — `builder.Services.AddChatClient(...)` / `public AiLabController(IChatClient chat)`. თქვი: „ერთი და იგივე ორი ხაზია, მხოლოდ ტიპი შეიცვალა“. ვისაც კიდევ უჭირს — API კურსის DI ლექციის კონსპექტი სახლში.
+- **თუ DI ჯგუფთან ჭედავს →** ნუ ახსნი თეორიას თავიდან. დაფაზე ორი სვეტი: **„API კურსი“** — `builder.Services.AddDbContext<DataContext>(...)` / `public ProductsController(DataContext db)`; **„დღეს“** — `builder.Services.AddChatClient(...)` / `public AiLabController(IChatClient chat)`. თქვი: „ერთი და იგივე ორი ხაზია, მხოლოდ ტიპი შეიცვალა“. ვისაც კიდევ უჭირს — API კურსის DI ლექციის კონსპექტი სახლში.
 - **„constructor-ი რატომ?“ →** „ASP.NET Core Controller-ს თვითონ ქმნის. ქმნისას ხედავს, რომ constructor-ს `IChatClient` სჭირდება, DI-ში ეძებს და გადასცემს. ჩვენ `new`-ს არასდროს ვწერთ“.
 - **`dotnet user-secrets` ვერ პოულობს პროექტს →** ტერმინალი **პროექტის** საქაღალდეში უნდა იყოს (სადაც `.csproj` არის), არა solution-ის.
 - **`Gemini:ApiKey is missing` გაშვებისას →** User Secrets-ში სახელი შეცდომით ჩაწერა (`Gemini_ApiKey`, `Gemini::ApiKey`, `gemini:apikey` ზედმეტი ჰარით). სწორი: `Gemini:ApiKey`. VS-ში: მარჯვენა ღილაკი → Manage User Secrets → `secrets.json`-ში ნახე.

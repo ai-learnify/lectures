@@ -632,7 +632,7 @@ public class DocumentChunk
 }
 ```
 
-`AppDbContext`-ში: `DbSet<Document> Documents` და `DbSet<DocumentChunk> DocumentChunks`, HNSW ინდექსი `DocumentChunk.Embedding`-ზე (ლექცია 10-ის გზით) → migration.
+`DataContext`-ში: `DbSet<Document> Documents` და `DbSet<DocumentChunk> DocumentChunks`, HNSW ინდექსი `DocumentChunk.Embedding`-ზე (ლექცია 10-ის გზით) → migration.
 
 **ატვირთვის endpoint:**
 
@@ -710,7 +710,7 @@ public class DocumentChunk
 }
 ```
 
-In `AppDbContext`: `DbSet<Document> Documents` and `DbSet<DocumentChunk> DocumentChunks`, an HNSW index on `DocumentChunk.Embedding` (the lecture 10 way) → a migration.
+In `DataContext`: `DbSet<Document> Documents` and `DbSet<DocumentChunk> DocumentChunks`, an HNSW index on `DocumentChunk.Embedding` (the lecture 10 way) → a migration.
 
 **The upload endpoint:**
 

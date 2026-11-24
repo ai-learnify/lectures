@@ -84,7 +84,7 @@
 - **ლექცია 2:** System/User/Assistant როლები, `List<ChatMessage>`; ⭐-ში ისტორია ხელით.
 - **ლექცია 4:** tool-ის ციკლი შეტყობინებებით (`FunctionCallContent`, `FunctionResultContent`), `response.Messages`, Gemini-ს thought signature (`TextReasoningContent`).
 - **ლექცია 6:** `ChatToolOptions()`, System prompt `StreamAnswer`-ში, `ToChatResponse()`.
-- **API კურსი:** EF Core, migration, `AppDbContext`, Scoped სერვისები, PostgreSQL.
+- **API კურსი:** EF Core, migration, `DataContext`, Scoped სერვისები, PostgreSQL.
 
 ### ➡️ რას ამზადებს
 
@@ -352,7 +352,7 @@ jsonb key-ებს თავისებურად ალაგებს: `{"
 #### 11 · ცხრილი და store · 6 წთ
 
 - **რას აკეთებ:** **ერთად წერთ** `ChatMessageRecord` — სვეტ-სვეტ: „რომელ საუბარს ეკუთვნის, რიგი, როლი — ბაზაში სანახავად, და მთელი შეტყობინება“. 🙋 „Json სვეტში რატომ მთელი შეტყობინება და არა Text?“ → `Contents`. `DbSet`, migration — **გაუშვი ცოცხლად**. `ChatHistoryStore` — **ჩასვი** (არ წერ): `LoadAsync` (LINQ — ნაცნობია), `AppendAsync` (Position, Serialize). ბოლოს `AllowOutOfOrderMetadataProperties`: „ეს ხაზი რომ არ იყოს — ვნახოთ.“ (თუ დრო გაქვს — დააკომენტარე და აჩვენე exception, 1 წუთი.)
-- **ჰკითხე:** „`AddScoped` თუ `AddSingleton`? რატომ?“ → `AppDbContext` Scoped-ია.
+- **ჰკითხე:** „`AddScoped` თუ `AddSingleton`? რატომ?“ → `DataContext` Scoped-ია.
 - **გადასვლა:** „ახლა `/chat`.“
 
 #### 12 · /chat ისტორიით · 5 წთ
@@ -598,7 +598,7 @@ public class InMemoryChatHistory
 - System prompt ბაზაში შეინახეს (`AppendAsync(..., messages)` — მთელი სია) → შემდეგ ჯერზე ორი System.
 - `JsonSerializer.Serialize(message)` `AIJsonUtilities`-ის გარეშე → წაკითხვისას `Contents` ცარიელია ან exception.
 - `AllowOutOfOrderMetadataProperties` დაავიწყდა → metadata exception.
-- `ChatHistoryStore` Singleton-ად → „Cannot consume scoped service AppDbContext“.
+- `ChatHistoryStore` Singleton-ად → „Cannot consume scoped service DataContext“.
 
 ### 🏁 როგორ შეაჯამო
 
@@ -608,7 +608,7 @@ public class InMemoryChatHistory
 
 ```check
 ? „ჩემს პროექტში DbContext სხვა სახელისაა“
-= არაფერი — `AppDbContext`-ის ნაცვლად შენი. სახელი მნიშვნელობას არ აქვს.
+= არაფერი — `DataContext`-ის ნაცვლად შენი. სახელი მნიშვნელობას არ აქვს.
 ? „Swagger-ში Guid? როგორ გავატანო?“
 = body-ში: `{"conversationId": null, "prompt": "..."}` — პირველზე null ან ველის გარეშე, მეორეზე პასუხიდან აღებული id.
 ? „SQL-ში ცხრილის სახელი ბრჭყალებში რატომ?“

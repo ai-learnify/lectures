@@ -21,7 +21,7 @@ Your project or RestaurantApi · with code · a layer + Swagger
 
 ## 💡 If you're stuck
 
-- **`Cannot consume scoped service 'AppDbContext' from singleton`?** Don't put `AppDbContext` straight into the layer — `IServiceScopeFactory` → `CreateScope()` → `GetRequiredService<AppDbContext>()`
+- **`Cannot consume scoped service 'DataContext' from singleton`?** Don't put `DataContext` straight into the layer — `IServiceScopeFactory` → `CreateScope()` → `GetRequiredService<DataContext>()`
 - **The sum:** `await db.AiUsage.Where(u => u.At >= today).SumAsync(u => u.InputTokens + u.OutputTokens, cancellationToken)`
 - **The refusal answer:** `return new ChatResponse(new ChatMessage(ChatRole.Assistant, "..."));` — like lecture 5's InputGuard
 - **The limit from configuration:** `.Use((inner, sp) => new BudgetGuardChatClient(inner, sp.GetRequiredService<IServiceScopeFactory>(), builder.Configuration.GetValue<long>("Ai:DailyTokenLimit")))`

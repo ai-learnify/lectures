@@ -856,8 +856,107 @@ def write_study(out, course, meta, num, deck_title, study, materials, ldir, n_sl
         page = page.replace(k, v)
     write_page(out / ('study.en.html' if en else 'study.html'), page)
 
+# ---------- პროექტის გვერდები: courses/<კურსი>/project/NN.md → /<კურსი>/project/NN.html (ლექტორის კოდით) ----------
+# NN.md: markdown (მიმოხილვა: რას ვწერთ ერთად, რა მზადაა წინასწარ, NuGet, ბრძანებები) + ფაილების ბლოკები:
+#   ```csharp Ai/RestaurantTools.cs    — ფაილის სრული შიგთავსი ამ ლექციის შემდეგ (ფაილი მთლიანად ამ მოდულისაა)
+#   ```csharp +Program.cs              — ლექტორის საკუთარი ფაილი: მხოლოდ AI-ის ნაწილი, როგორიც ამ ლექციის შემდეგაა
+#   🗑 Path/File.cs                    — ფაილი წაიშალა
+#   "## ⭐ …" და მის ქვემოთ ყველაფერი — ფაილების შემდეგ (თუ დრო დარჩა; პროექტის მდგომარეობაში არ შედის)
+# ფაილების მდგომარეობა იკრიბება 01..NN-ით: ახალი / შეცვლილი; ახალი და შეცვლილი ხაზები მონიშნულია.
+import difflib
+FILE_FENCE = re.compile(r'^```(\w+) +(\+?)(\S+\.\w+)[ \t]*\n(.*?)^```[ \t]*$', re.M | re.S)
+
+def write_project_pages(cdir, course, briefs, titles, built):
+    out_dir = OUT / cdir.name / 'project'
+    src_dir = cdir / 'project'
+    code = lecturer_code()
+    if not briefs:
+        return
+    if not code:
+        print('  ⚠ პროექტის გვერდები არ აიწყო: .lecturer-code ფაილი ან LECTURER_CODE ცვლადი არ არის')
+        return
+    out_dir.mkdir(parents=True, exist_ok=True)
+    nums = sorted(briefs)
+    state, own = {}, set()
+    for i, num in enumerate(nums):
+        f = src_dir / f'{num:02d}.md'
+        text = f.read_text() if f.exists() else ''
+        b = briefs[num]
+        proj = b.get('project', 'პროექტი')
+        parts = [f'<div class="k">{esc(course["title"])} · ლექცია {num:02d}</div><h1>{md_inline(titles.get(num, ""))}</h1>']
+        slug = built.get(num)
+        if slug:
+            parts.append(f'<div class="links"><a href="../{slug}/" target="_blank">▶ პრეზენტაცია</a>'
+                         + (f'<a href="../{slug}/lecturer.html" target="_blank">🎓 ლექტორის გვერდი</a>' if (OUT / cdir.name / slug / 'lecturer.html').exists() else '')
+                         + (f'<a href="../{slug}/study.html" target="_blank">📖 კონსპექტი</a>' if (OUT / cdir.name / slug / 'study.html').exists() else '') + '</div>')
+        if b.get('learn'):
+            parts.append('<div class="box"><h3>🎯 რას ისწავლის სტუდენტი</h3><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['learn']) + '</ul></div>')
+        if b.get('build'):
+            parts.append(f'<div class="box"><h3>🛠 რას ვწერთ {esc(proj)}-ში</h3><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['build']) + '</ul></div>')
+        files = [(m.group(1), m.group(3), bool(m.group(2)), m.group(4).rstrip('\n')) for m in FILE_FENCE.finditer(text)]
+        deleted = re.findall(r'^🗑\s+(\S+)', text, re.M)
+        prose = FILE_FENCE.sub('', re.sub(r'^🗑.*$', '', text, flags=re.M))
+        extra = ''
+        m = re.search(r'^## ⭐', prose, re.M)
+        if m:
+            prose, extra = prose[:m.start()], prose[m.start():]
+        if prose.strip():
+            parts.append('<h2>მიმოხილვა</h2>' + md(prose))
+        if not files and not deleted:
+            parts.append(f'<div class="empty">ამ ლექციაზე {esc(proj)}-ში კოდი არ იწერება</div>')
+        else:
+            parts.append('<h2>ფაილები</h2><p class="legend"><span class="tag new">ახალი</span><span class="tag mod">შეცვლილი</span>'
+                         '<span class="tag own">შენი ფაილი · AI-ის ნაწილი</span><span class="tag del">წაშლილი</span> · <i></i>ახალი / შეცვლილი ხაზი</p>')
+            toc, boxes = [], []
+            for k, (lang, path, is_own, body) in enumerate(files):
+                prev = state.get(path)
+                lines = body.split('\n')
+                add = set()
+                if prev is None:
+                    tag = '' if is_own else '<span class="tag new">ახალი</span>'
+                else:
+                    tag = '<span class="tag mod">შეცვლილი</span>'
+                    for op, a1, a2, b1, b2 in difflib.SequenceMatcher(None, prev.split('\n'), lines, autojunk=False).get_opcodes():
+                        if op in ('replace', 'insert'):
+                            add.update(range(b1, b2))
+                if is_own:
+                    tag += '<span class="tag own">შენი ფაილი</span>'
+                html_code = highlight(body, lang)
+                n = [0]
+                def mark(mm):
+                    idx = n[0]; n[0] += 1
+                    return '<span class="ln add">' if idx in add else '<span class="ln">'
+                html_code = re.sub(r'<span class="ln">', mark, html_code)
+                note = ('<div class="note">ეს ფაილი შენს პროექტში უკვე არსებობს (API კურსიდან). აქ მხოლოდ ის ნაწილია, რაც AI-ის მოდულში დაემატა — '
+                        'დანარჩენი შენი კოდი უცვლელია.</div>') if is_own else ''
+                fid = f'f{k}'
+                toc.append(f'<a href="#{fid}">{tag}{esc(path)}</a>')
+                boxes.append(f'<div class="codebox" id="{fid}"><div class="ch"><span>{tag}{esc(path)}</span><button class="copy" type="button">კოპირება</button></div>'
+                             f'{note}<pre class="code"><code>{html_code}</code></pre></div>')
+                state[path] = body
+                if is_own: own.add(path)
+            for path in deleted:
+                state.pop(path, None); own.discard(path)
+                toc.append(f'<a><span class="tag del">წაშლილი</span>{esc(path)}</a>')
+            parts.append('<div class="toc">' + '<br>'.join(toc) + '</div>' + ''.join(boxes))
+        if extra.strip():
+            parts.append(md(extra.replace('## ⭐', '## ⭐', 1)))
+        if state:
+            tree = '\n'.join(p + ('   ← შენი ფაილი, AI-ის ნაწილი' if p in own else '') for p in sorted(state))
+            parts.append(f'<h2>{esc(proj)}: AI-ის ფაილები ამ ლექციის შემდეგ</h2><div class="tree">{esc(tree)}</div>')
+        prev_n = nums[i - 1] if i else None
+        next_n = nums[i + 1] if i + 1 < len(nums) else None
+        nav = (f'<a href="{prev_n:02d}.html">← {prev_n:02d}</a>' if prev_n else '') + (f'<a href="{next_n:02d}.html">{next_n:02d} →</a>' if next_n else '')
+        page = (ENGINE / 'project.html').read_text()
+        for key, v in {'{{TITLE}}': f'{num:02d} · ' + esc(titles.get(num, '')), '{{NUM}}': str(num), '{{NAV}}': nav,
+                       '{{BODY}}': '\n'.join(parts), '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME, '{{TOKEN_CSS}}': TOKEN_CSS}.items():
+            page = page.replace(key, v)
+        write_locked(out_dir / f'{num:02d}.html', page, code, 'lectures:lecturer', 'ლექტორის გვერდი')
+    print(f'  {cdir.name}/project: {len(nums)} pages')
+
 # კურსის სილაბუსი: courses/<კურსი>/syllabus.md → /<კურსი>/syllabus.html
 #   "### 01. სათაური" = ლექცია; თუ ეს ლექცია აწყობილია, გვერდით ჩნდება ბმულები პრეზენტაციასა და კონსპექტზე
+#   "📚 …" = რას ისწავლის სტუდენტი, "🛠 [პროექტი |] …" = რას ვწერთ პროექტში (ერთი ხაზი = ერთი პუნქტი) → 💻 პროექტის გვერდი (სილაბუსზე არ ჩანს)
 def write_syllabus(cdir, course):
     src = cdir / 'syllabus.md'
     out = OUT / cdir.name / 'syllabus.html'
@@ -865,14 +964,32 @@ def write_syllabus(cdir, course):
         out.unlink(missing_ok=True)
         return False
     built = {int(d.name.split('-', 1)[0]): d.name for d in cdir.iterdir() if (d / 'deck.html').exists() and d.name[:2].isdigit()}
-    h = markdown.markdown(src.read_text(), extensions=['tables', 'sane_lists'])
+    briefs, cur, lines = {}, None, []
+    for line in src.read_text().splitlines():
+        m = re.match(r'### (\d+)\.', line)
+        if m:
+            cur = int(m.group(1))
+        if cur is not None and line.startswith(('📚', '🛠')):
+            kind, body = ('learn' if line.startswith('📚') else 'build'), line[1:].strip()
+            if kind == 'build' and '|' in body:
+                briefs.setdefault(cur, {})['project'], body = [x.strip() for x in body.split('|', 1)]
+            briefs.setdefault(cur, {}).setdefault(kind, []).append(body)
+            continue
+        lines.append(line)
+    h = markdown.markdown('\n'.join(lines), extensions=['tables', 'sane_lists'])
+    has_proj = bool(briefs) and bool(lecturer_code())
     def lec(m):
         num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
         slug = built.get(num)
-        go = (f'<span class="go"><a href="{slug}/">▶ პრეზენტაცია</a>'
-              + (f'<a href="{slug}/study.html">📖 კონსპექტი</a>' if (OUT / cdir.name / slug / 'study.html').exists() else '') + '</span>') if slug else ''
+        proj = (f'<a class="proj" href="project/{num:02d}.html" title="რას ისწავლის სტუდენტი და რას ვწერთ პროექტში — სრული კოდით (ლექტორის კოდით)">💻 კოდი</a>'
+                if has_proj and num in briefs else '')
+        links = ((f'<a href="{slug}/">▶ პრეზენტაცია</a>'
+                  + (f'<a href="{slug}/study.html">📖 კონსპექტი</a>' if (OUT / cdir.name / slug / 'study.html').exists() else '')) if slug else '') + proj
+        go = f'<span class="go">{links}</span>' if links else ''
         return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{go}</h3>{desc}</div>'
     h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
+    titles = {int(a): b_ for a, b_ in re.findall(r'^### (\d+)\.\s*(.+)$', src.read_text(), re.M)}
+    write_project_pages(cdir, course, briefs, titles, built)
     page = (ENGINE / 'syllabus.html').read_text()
     for k, v in {'{{TITLE}}': esc(course['title']), '{{COUNT}}': str(len(re.findall(r'class="lec', h))), '{{BODY}}': h,
                  '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():

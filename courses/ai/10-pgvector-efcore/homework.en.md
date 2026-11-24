@@ -59,7 +59,7 @@ book.Embedding = null;        // the description changed — the vector is old
 await _db.SaveChangesAsync(ct);
 ```
 
-```csharp Data/AppDbContext.cs · OnModelCreating
+```csharp Data/DataContext.cs · OnModelCreating
 modelBuilder.HasPostgresExtension("vector");
 modelBuilder.Entity<Book>()
     .HasIndex(b => b.Embedding)

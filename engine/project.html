@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>💻 {{TITLE}} — პროექტი</title>
+{{FONTS}}
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif;
+  --add-bg:#ecfdf3;--add-bar:#16a34a;
+  --t-new-bg:#dcfce7;--t-new:#166534;--t-mod-bg:#fef3c7;--t-mod:#92400e;--t-del-bg:#fee2e2;--t-del:#991b1b;--t-own-bg:#e0e7ff;--t-own:#3730a3}
+</style>
+<style>{{PAGE_THEME}}</style>
+<style>
+html[data-theme=dark]{--add-bg:#1d2e24;--add-bar:#5fb67c;
+  --t-new-bg:#1d3a28;--t-new:#a7dcb7;--t-mod-bg:#3a3020;--t-mod:#ecc78f;--t-del-bg:#3a2226;--t-del:#f0b4b4;--t-own-bg:#272c4a;--t-own:#b9c3f5}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top a{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top a:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{max-width:980px;margin:0 auto;padding:28px 20px 120px}
+.k{font:600 14px var(--mono);color:var(--accent)}
+h1{font-size:32px;line-height:1.25;margin:6px 0 22px}
+h2{font-size:23px;margin:40px 0 10px;padding-top:12px;border-top:4px solid var(--accent)}
+h3{font-size:18px;margin:26px 0 6px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin:-8px 0 18px}
+.links a{font:600 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:3px 12px;background:var(--card)}
+.links a:hover{border-color:var(--accent)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 20px;margin:12px 0}
+.box h3{margin:0 0 6px}
+.box ul{margin:0;padding-left:20px}
+code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:12px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.toc{columns:2;column-gap:24px;font:600 14px/1.9 var(--mono);margin:8px 0}
+.toc a{text-decoration:none;color:var(--ink2)}.toc a:hover{color:var(--accent)}
+@media(max-width:700px){.toc{columns:1}}
+.tag{display:inline-block;font:700 11px var(--mono);border-radius:999px;padding:1px 8px;margin-right:6px;vertical-align:1px;white-space:nowrap}
+.tag.new{background:var(--t-new-bg);color:var(--t-new)}.tag.mod{background:var(--t-mod-bg);color:var(--t-mod)}
+.tag.del{background:var(--t-del-bg);color:var(--t-del)}.tag.own{background:var(--t-own-bg);color:var(--t-own)}
+.codebox{margin:12px 0 22px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surf);scroll-margin-top:72px}
+.codebox .ch{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 13px var(--mono);color:var(--ink2);background:var(--soft);border-bottom:1px solid var(--line)}
+.codebox .note{padding:6px 14px;font:13px/1.5 var(--sans);color:var(--muted);border-bottom:1px solid var(--line);background:var(--surf)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;font:14px/1.65 var(--mono);background:var(--surf);color:var(--ink)}
+pre.code::-webkit-scrollbar{display:none}
+pre.code code{display:block;background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+pre.code .ln.add{background:var(--add-bg);box-shadow:inset 3px 0 0 var(--add-bar)}
+.tree{font:14px/1.7 var(--mono);white-space:pre;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;overflow-x:auto;scrollbar-width:none}
+.tree::-webkit-scrollbar{display:none}
+.legend{font:13px var(--mono);color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;background:var(--add-bg);box-shadow:inset 3px 0 0 var(--add-bar);vertical-align:-1px;margin-right:4px}
+.empty{color:var(--muted);background:var(--card);border:1px dashed var(--line2);border-radius:14px;padding:20px;text-align:center}
+.callout{display:flex;gap:12px;margin:14px 0;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:19px;line-height:1.6}.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--warn-soft);border-color:var(--warn-line)}.callout.note{background:var(--info-soft);border-color:var(--info-line)}.callout.tip{background:var(--teal-soft);border-color:var(--teal-line)}
+.prompt{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 13px var(--mono);color:var(--muted);background:var(--soft)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font:14px/1.6 var(--mono)}
+{{TOKEN_CSS}}
+@media print{.top,.copy{display:none}body{background:#fff}}
+</style></head>
+<body>
+<div class="top"><a href="../syllabus.html#l-{{NUM}}">← სილაბუსი</a><div class="ttl">💻 {{TITLE}}</div>{{NAV}}
+  <button class="themebtn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button></div>
+<main>
+{{BODY}}
+</main>
+<script>
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.classList.add('ok'); btn.textContent = '✓'; setTimeout(() => { btn.classList.remove('ok'); btn.textContent = 'კოპირება'; }, 1200); });
+});
+</script>
+</body></html>

@@ -365,8 +365,8 @@ public class ChatHistoryStore
     private static readonly JsonSerializerOptions Json =
         new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true };
 
-    private readonly AppDbContext _db;
-    public ChatHistoryStore(AppDbContext db) { _db = db; }
+    private readonly DataContext _db;
+    public ChatHistoryStore(DataContext db) { _db = db; }
 
     public async Task<List<ChatMessage>> LoadAsync(Guid conversationId, CancellationToken ct)
     {
@@ -419,7 +419,7 @@ public class ChatMessageRecord
 }
 ```
 
-`AppDbContext`-ში: `public DbSet<ChatMessageRecord> ChatMessages => Set<ChatMessageRecord>();`, მერე migration (`Add-Migration ChatHistory`, `Update-Database`).
+`DataContext`-ში: `public DbSet<ChatMessageRecord> ChatMessages => Set<ChatMessageRecord>();`, მერე migration (`Add-Migration ChatHistory`, `Update-Database`).
 
 **რატომ jsonb და არა სვეტები?** `ChatMessage`-ს `Text` კი არა, **`Contents`** აქვს: სხვადასხვა ტიპის ნაწილების სია. ტექსტი (`TextContent`), tool-ის გამოძახება (`FunctionCallContent`), tool-ის შედეგი (`FunctionResultContent`), Gemini-ს ფიქრის ხელმოწერა (`TextReasoningContent`, ლექცია 4). ყოველი ტიპისთვის სვეტები რომ გავაკეთოთ, ცხრილი ჩიხი გახდება. ამიტომ მთელ შეტყობინებას JSON-ად ვინახავთ ერთ **jsonb** სვეტში: PostgreSQL მას JSON-ად ინახავს და შიგნით ძებნაც შეუძლია.
 
@@ -432,8 +432,8 @@ public class ChatHistoryStore
     private static readonly JsonSerializerOptions Json =
         new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true };
 
-    private readonly AppDbContext _db;
-    public ChatHistoryStore(AppDbContext db) { _db = db; }
+    private readonly DataContext _db;
+    public ChatHistoryStore(DataContext db) { _db = db; }
 
     public async Task<List<ChatMessage>> LoadAsync(Guid conversationId, CancellationToken ct)
     {
@@ -466,7 +466,7 @@ public class ChatHistoryStore
 }
 ```
 
-`Program.cs`-ში: `builder.Services.AddScoped<ChatHistoryStore>();` (Scoped, რადგან `AppDbContext`-ს იყენებს).
+`Program.cs`-ში: `builder.Services.AddScoped<ChatHistoryStore>();` (Scoped, რადგან `DataContext`-ს იყენებს).
 
 ```warn
 **`AllowOutOfOrderMetadataProperties = true` აუცილებელია.** System.Text.Json ელოდება, რომ `"$type"` ობიექტში **პირველი** იყოს. jsonb კი key-ებს თავისებურად ალაგებს (ჯერ მოკლეს), და `"text"` `"$type"`-ზე წინ ექცევა. ამ პარამეტრის გარეშე წაკითხვისას exception მოვა.
@@ -498,7 +498,7 @@ public class ChatMessageRecord
 }
 ```
 
-In `AppDbContext`: `public DbSet<ChatMessageRecord> ChatMessages => Set<ChatMessageRecord>();`, then a migration (`Add-Migration ChatHistory`, `Update-Database`).
+In `DataContext`: `public DbSet<ChatMessageRecord> ChatMessages => Set<ChatMessageRecord>();`, then a migration (`Add-Migration ChatHistory`, `Update-Database`).
 
 **Why jsonb and not columns?** A `ChatMessage` doesn't have a `Text`, it has **`Contents`**: a list of parts of different types. Text (`TextContent`), a tool call (`FunctionCallContent`), a tool result (`FunctionResultContent`), Gemini's thought signature (`TextReasoningContent`, lecture 4). If we made columns for every type, the table would become a dead end. So we store the whole message as JSON in one **jsonb** column: PostgreSQL stores it as JSON and can search inside it.
 
@@ -511,8 +511,8 @@ public class ChatHistoryStore
     private static readonly JsonSerializerOptions Json =
         new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true };
 
-    private readonly AppDbContext _db;
-    public ChatHistoryStore(AppDbContext db) { _db = db; }
+    private readonly DataContext _db;
+    public ChatHistoryStore(DataContext db) { _db = db; }
 
     public async Task<List<ChatMessage>> LoadAsync(Guid conversationId, CancellationToken ct)
     {
@@ -545,7 +545,7 @@ public class ChatHistoryStore
 }
 ```
 
-In `Program.cs`: `builder.Services.AddScoped<ChatHistoryStore>();` (Scoped, because it uses `AppDbContext`).
+In `Program.cs`: `builder.Services.AddScoped<ChatHistoryStore>();` (Scoped, because it uses `DataContext`).
 
 ```warn
 **`AllowOutOfOrderMetadataProperties = true` is required.** System.Text.Json expects `"$type"` to be **first** in the object. But jsonb orders keys its own way (shorter ones first), and `"text"` ends up before `"$type"`. Without this setting reading it back throws an exception.

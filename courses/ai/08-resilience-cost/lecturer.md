@@ -410,9 +410,9 @@ retry პირველი დაცვაა, fallback — მეორე. �
 
 #### `IServiceScopeFactory`
 
-`AddChatClient` ნაგულისხმევად **Singleton**-ია. pipeline-ის `.Use((inner, sp) => …)` lambda-ში `sp` — root provider: Scoped სერვისი იქიდან არ უნდა აიღო (Development-ში `ValidateScopes` შეცდომას აგდებს). `IServiceScopeFactory` Singleton-ია — უსაფრთხოდ ჯდება. ყოველ გამოძახებაზე: `using var scope = _scopes.CreateScope();` → `scope.ServiceProvider.GetRequiredService<AppDbContext>()` → `SaveChangesAsync` → scope იხურება და DbContext-ს ასუფთავებს.
+`AddChatClient` ნაგულისხმევად **Singleton**-ია. pipeline-ის `.Use((inner, sp) => …)` lambda-ში `sp` — root provider: Scoped სერვისი იქიდან არ უნდა აიღო (Development-ში `ValidateScopes` შეცდომას აგდებს). `IServiceScopeFactory` Singleton-ია — უსაფრთხოდ ჯდება. ყოველ გამოძახებაზე: `using var scope = _scopes.CreateScope();` → `scope.ServiceProvider.GetRequiredService<DataContext>()` → `SaveChangesAsync` → scope იხურება და DbContext-ს ასუფთავებს.
 
-**ალტერნატივა:** `AddDbContextFactory<AppDbContext>` + `IDbContextFactory<AppDbContext>` — Singleton-ში უსაფრთხოა, მაგრამ `AddDbContext`-თან ერთად options-ის lifetime-ის კონფლიქტს იწვევს. სტუდენტებისთვის scope უფრო გასაგები და უნივერსალურია.
+**ალტერნატივა:** `AddDbContextFactory<DataContext>` + `IDbContextFactory<DataContext>` — Singleton-ში უსაფრთხოა, მაგრამ `AddDbContext`-თან ერთად options-ის lifetime-ის კონფლიქტს იწვევს. სტუდენტებისთვის scope უფრო გასაგები და უნივერსალურია.
 
 #### ხარჯის ფორმულა
 
@@ -447,7 +447,7 @@ retry პირველი დაცვაა, fallback — მეორე. �
 
 #### 16 · ტოკენები ბაზაში · 7 წთ
 
-- **რას აკეთებ:** `AiUsageRecord` — მოკლედ. `TokenCounter` — **ჩასვი**. **გაჩერდი** `IServiceScopeFactory`-ზე: 🙋 „რატომ არა `AppDbContext db` constructor-ში?“ → Singleton/Scoped (🆘). `ReasoningTokenCount` — „ლექცია 2: ფიქრი output-ის ფასით“. `ModelId`. SQL ცოცხლად: დღის ჯამი, ორი მოდელი (თუ fallback-ის ცდა გააკეთე). „ფასი — ლექცია 1-ის ფორმულა.“
+- **რას აკეთებ:** `AiUsageRecord` — მოკლედ. `TokenCounter` — **ჩასვი**. **გაჩერდი** `IServiceScopeFactory`-ზე: 🙋 „რატომ არა `DataContext db` constructor-ში?“ → Singleton/Scoped (🆘). `ReasoningTokenCount` — „ლექცია 2: ფიქრი output-ის ფასით“. `ModelId`. SQL ცოცხლად: დღის ჯამი, ორი მოდელი (თუ fallback-ის ცდა გააკეთე). „ფასი — ლექცია 1-ის ფორმულა.“
 - **გადასვლა:** „ახლა თქვენ: ფენა, რომელიც ამ ჯამს ლიმიტად იყენებს.“
 
 ### 🎙️ ნიმუშის მონოლოგი — ორიენტირი, არა ტექსტი
@@ -456,7 +456,7 @@ retry პირველი დაცვაა, fallback — მეორე. �
 
 ### 🙋 კითხვა კლასს
 
-**„რატომ არა უბრალოდ `AppDbContext db` TokenCounter-ის constructor-ში?“**
+**„რატომ არა უბრალოდ `DataContext db` TokenCounter-ის constructor-ში?“**
 მოსალოდნელი: „შეიძლება“. სწორი: pipeline Singleton-ია, DbContext Scoped — ერთი DbContext ყველა მოთხოვნას სამუდამოდ გაეზიარებოდა (და DbContext thread-safe არ არის). ASP.NET Core Development-ში ამას გაშვებისას აჩერებს.
 
 ### ⚠️ ტიპური არასწორი წარმოდგენები
@@ -517,7 +517,7 @@ retry პირველი დაცვაა, fallback — მეორე. �
 
 ### ⚠️ ტიპური შეცდომები
 
-- `AppDbContext` constructor-ში → „Cannot consume scoped service“.
+- `DataContext` constructor-ში → „Cannot consume scoped service“.
 - ფენა pipeline-ის ბოლოს (შიგნით) → tool-ის ციკლის შუაში ჩერდება: პირველი გამოძახება გავიდა, მეორე — უარი; პასუხი უცნაურია.
 - `DateTime.Now` → Npgsql `timestamptz`-ზე `Kind=Local`-ს უარყოფს; `DateTime.UtcNow`.
 - ლიმიტი კოდში `3000` → „კონფიგურაციაში რატომ?“ — შეცვლა გადაწყობის გარეშე.

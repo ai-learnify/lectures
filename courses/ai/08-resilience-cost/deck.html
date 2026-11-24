@@ -820,7 +820,7 @@ ChatResponse response =
 
 // a Scoped DbContext in a Singleton layer → its own scope
 using IServiceScope scope = _scopes.CreateScope();
-AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
 db.AiUsage.Add(new AiUsageRecord
 {
@@ -884,7 +884,7 @@ public class TokenCounterChatClient : DelegatingChatClient
 
         // a Scoped DbContext in a Singleton layer → its own scope
         using IServiceScope scope = _scopes.CreateScope();
-        AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
         db.AiUsage.Add(new AiUsageRecord
         {
@@ -904,7 +904,7 @@ public class TokenCounterChatClient : DelegatingChatClient
 //                 sp.GetRequiredService<IServiceScopeFactory>()))
 ```
 
-**რატომ `IServiceScopeFactory`?** `AddChatClient` client-ს **Singleton**-ად არეგისტრირებს: pipeline ერთხელ იქმნება და ყველა მოთხოვნას ემსახურება. `AppDbContext` კი **Scoped**-ია: ყოველ HTTP მოთხოვნაზე ახალი. Singleton-ში Scoped-ის პირდაპირ ჩასმა შეცდომაა („captive dependency“ — ერთი DbContext ყველა მომხმარებელს). ამიტომ ფენა ყოველ ჯერზე **საკუთარ scope**-ს ქმნის და მისგან იღებს `AppDbContext`-ს.
+**რატომ `IServiceScopeFactory`?** `AddChatClient` client-ს **Singleton**-ად არეგისტრირებს: pipeline ერთხელ იქმნება და ყველა მოთხოვნას ემსახურება. `DataContext` კი **Scoped**-ია: ყოველ HTTP მოთხოვნაზე ახალი. Singleton-ში Scoped-ის პირდაპირ ჩასმა შეცდომაა („captive dependency“ — ერთი DbContext ყველა მომხმარებელს). ამიტომ ფენა ყოველ ჯერზე **საკუთარ scope**-ს ქმნის და მისგან იღებს `DataContext`-ს.
 
 **`ReasoningTokenCount` output-ს ვუმატებთ:** Gemini-ს ფიქრის ტოკენები ცალკე ითვლება, მაგრამ output-ის ფასით ფასდება (ლექცია 2).
 
@@ -961,7 +961,7 @@ public class TokenCounterChatClient : DelegatingChatClient
 
         // a Scoped DbContext in a Singleton layer → its own scope
         using IServiceScope scope = _scopes.CreateScope();
-        AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
         db.AiUsage.Add(new AiUsageRecord
         {
@@ -981,7 +981,7 @@ public class TokenCounterChatClient : DelegatingChatClient
 //                 sp.GetRequiredService<IServiceScopeFactory>()))
 ```
 
-**Why `IServiceScopeFactory`?** `AddChatClient` registers the client as a **Singleton**: the pipeline is created once and serves every request. But `AppDbContext` is **Scoped**: a new one for every HTTP request. Putting a Scoped service directly into a Singleton is a mistake (a “captive dependency” — one DbContext for every user). So the layer creates **its own scope** every time and takes the `AppDbContext` from it.
+**Why `IServiceScopeFactory`?** `AddChatClient` registers the client as a **Singleton**: the pipeline is created once and serves every request. But `DataContext` is **Scoped**: a new one for every HTTP request. Putting a Scoped service directly into a Singleton is a mistake (a “captive dependency” — one DbContext for every user). So the layer creates **its own scope** every time and takes the `DataContext` from it.
 
 **We add `ReasoningTokenCount` to the output:** Gemini's thinking tokens are counted separately but charged at the output price (lecture 2).
 

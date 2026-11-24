@@ -35,8 +35,8 @@ A sample — the library API (continuing homework 3).
 public record BookInfo(string Title, string Author, bool Available);
 public class LibraryTools
 {
-    private readonly AppDbContext _db;
-    public LibraryTools(AppDbContext db) => _db = db;
+    private readonly DataContext _db;
+    public LibraryTools(DataContext db) => _db = db;
 
     [Description("Returns the list of the library's genres")]
     public async Task<List<string>> GetGenres() =>

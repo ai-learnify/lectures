@@ -334,10 +334,10 @@ We don't need to write SQL by hand: EF Core has a pgvector package. We add a vec
   <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:22px">
     <div class="col" style="gap:12px">
       <code-block lang="csharp" cls="sm" title="Program.cs">
-builder.Services.AddDbContext<AppDbContext>(o =>
+builder.Services.AddDbContext<DataContext>(o =>
     o.UseNpgsql(connectionString, npgsql => npgsql.UseVector()));
       </code-block>
-      <code-block lang="csharp" cls="sm" title="Data/AppDbContext.cs · OnModelCreating">
+      <code-block lang="csharp" cls="sm" title="Data/DataContext.cs · OnModelCreating">
 modelBuilder.HasPostgresExtension("vector");
       </code-block>
       <code-block id="c1" lang="csharp" cls="sm" title="Data/Product.cs">
@@ -372,13 +372,13 @@ public class Product
 **2. რეგისტრაცია** — `UseNpgsql`-ს ვუმატებთ `UseVector()`-ს, რომ Npgsql-მა `vector` ტიპი იცოდეს:
 
 ```csharp Program.cs
-builder.Services.AddDbContext<AppDbContext>(o =>
+builder.Services.AddDbContext<DataContext>(o =>
     o.UseNpgsql(connectionString, npgsql => npgsql.UseVector()));
 ```
 
 **3. გაფართოება** — migration-მა `CREATE EXTENSION vector` თვითონ უნდა შექმნას:
 
-```csharp Data/AppDbContext.cs · OnModelCreating
+```csharp Data/DataContext.cs · OnModelCreating
 modelBuilder.HasPostgresExtension("vector");
 ```
 
@@ -425,13 +425,13 @@ Vector — pgvector-ის C# ტიპი ვექტორისთვის
 **2. Registration** — we add `UseVector()` to `UseNpgsql`, so that Npgsql knows the `vector` type:
 
 ```csharp Program.cs
-builder.Services.AddDbContext<AppDbContext>(o =>
+builder.Services.AddDbContext<DataContext>(o =>
     o.UseNpgsql(connectionString, npgsql => npgsql.UseVector()));
 ```
 
 **3. The extension** — the migration should create `CREATE EXTENSION vector` by itself:
 
-```csharp Data/AppDbContext.cs · OnModelCreating
+```csharp Data/DataContext.cs · OnModelCreating
 modelBuilder.HasPostgresExtension("vector");
 ```
 
@@ -779,7 +779,7 @@ Recall — what share of the exact search results the index found
   <h2>ინდექსი <span class="c-net">ერთი migration</span>-ით</h2>
   <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start;gap:22px">
     <div class="col" style="gap:12px">
-      <code-block id="c3" lang="csharp" cls="sm" title="Data/AppDbContext.cs · OnModelCreating">
+      <code-block id="c3" lang="csharp" cls="sm" title="Data/DataContext.cs · OnModelCreating">
 modelBuilder.Entity<Product>()
     .HasIndex(p => p.Embedding)
     .HasMethod("hnsw")
@@ -805,7 +805,7 @@ modelBuilder.Entity<Product>()
 
 ინდექსი `OnModelCreating`-ში იწერება და migration-ით იქმნება:
 
-```csharp Data/AppDbContext.cs · OnModelCreating
+```csharp Data/DataContext.cs · OnModelCreating
 modelBuilder.Entity<Product>()
     .HasIndex(p => p.Embedding)
     .HasMethod("hnsw")                       // the index type
@@ -851,7 +851,7 @@ vector_cosine_ops — HNSW ინდექსის ოპერატორი�
 
 The index is written in `OnModelCreating` and created by a migration:
 
-```csharp Data/AppDbContext.cs · OnModelCreating
+```csharp Data/DataContext.cs · OnModelCreating
 modelBuilder.Entity<Product>()
     .HasIndex(p => p.Embedding)
     .HasMethod("hnsw")                       // the index type
@@ -901,7 +901,7 @@ vector_cosine_ops — the HNSW index operator class for cosine distance
     <div class="card accent" style="--a:var(--api)"><h3><span class="ico">🐘</span>EF Core + pgvector</h3><ul class="clean small">
       <li>ვექტორი <b>კერძის გვერდით</b>, იმავე ცხრილში</li>
       <li>JOIN, WHERE, ტრანზაქცია — როგორც ყოველთვის</li>
-      <li>ერთი <b>AppDbContext</b>, ერთი migration</li>
+      <li>ერთი <b>DataContext</b>, ერთი migration</li>
       <li>✓ როცა ბაზა PostgreSQL-ია და ასე დარჩება — <b>ჩვენი არჩევანი</b></li></ul></div>
     <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🔌</span>Microsoft.Extensions.VectorData</h3><ul class="clean small">
       <li>ერთი interface ბევრ vector store-ზე: PostgreSQL, Qdrant, Azure AI Search, in-memory…</li>
@@ -922,7 +922,7 @@ vector_cosine_ops — the HNSW index operator class for cosine distance
 | ფილტრი, JOIN, ტრანზაქცია | ჩვეულებრივი SQL / LINQ | store-ის შესაძლებლობებით |
 | როდის | ბაზა PostgreSQL-ია და ასე რჩება | ვექტორები ცალკე store-შია, ან store შეიძლება შეიცვალოს |
 
-**ჩვენი არჩევანი — EF Core პირდაპირ.** მიზეზი: მონაცემი უკვე PostgreSQL-შია. ვექტორი კერძის გვერდით დგას, და "without meat, under 20 GEL" ერთი მოთხოვნაა: `WHERE "Price" <= 20 ORDER BY "Embedding" <=> @q`. ერთი `AppDbContext`, ერთი migration, ერთი ტრანზაქცია.
+**ჩვენი არჩევანი — EF Core პირდაპირ.** მიზეზი: მონაცემი უკვე PostgreSQL-შია. ვექტორი კერძის გვერდით დგას, და "without meat, under 20 GEL" ერთი მოთხოვნაა: `WHERE "Price" <= 20 ORDER BY "Embedding" <=> @q`. ერთი `DataContext`, ერთი migration, ერთი ტრანზაქცია.
 
 თუ ვექტორები ცალკე ბაზაში იქნებოდა (Qdrant), იგივე შეკითხვა ორ სისტემას შორის „შეერთებას“ მოითხოვდა: ან ფასიც Qdrant-ში უნდა დავაკოპიროთ, ან ორი მოთხოვნა და შედეგების გაერთიანება C#-ში. სწორედ ასეთ შემთხვევაში იძლევა VectorData ერთ API-ს ყველა store-ისთვის.
 
@@ -956,7 +956,7 @@ In lecture 9 we said: “in lecture 10 we'll see whether we need `Microsoft.Exte
 | Filters, JOINs, transactions | ordinary SQL / LINQ | with the store's capabilities |
 | When | the database is PostgreSQL and stays that way | the vectors are in a separate store, or the store may change |
 
-**Our choice — EF Core directly.** The reason: the data is already in PostgreSQL. The vector stands next to the dish, and “without meat, up to 20 lari” is one query: `WHERE "Price" <= 20 ORDER BY "Embedding" <=> @q`. One `AppDbContext`, one migration, one transaction.
+**Our choice — EF Core directly.** The reason: the data is already in PostgreSQL. The vector stands next to the dish, and “without meat, up to 20 lari” is one query: `WHERE "Price" <= 20 ORDER BY "Embedding" <=> @q`. One `DataContext`, one migration, one transaction.
 
 If the vectors were in a separate database (Qdrant), the same question would need a “join” between two systems: either we copy the price into Qdrant too, or two queries and merging the results in C#. Exactly in a case like that VectorData gives one API for every store.
 

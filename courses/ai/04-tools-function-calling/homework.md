@@ -35,8 +35,8 @@
 public record BookInfo(string Title, string Author, bool Available);
 public class LibraryTools
 {
-    private readonly AppDbContext _db;
-    public LibraryTools(AppDbContext db) => _db = db;
+    private readonly DataContext _db;
+    public LibraryTools(DataContext db) => _db = db;
 
     [Description("Returns the list of library genres")]
     public async Task<List<string>> GetGenres() =>

@@ -83,7 +83,7 @@
 - **ლექცია 9:** embedding, `IEmbeddingGenerator`, `EmbeddingText` (prefix-ები), cosine similarity, `MenuIndex` Singleton-ში — დღეს Singleton ქრება.
 - **ლექცია 9-ის საშინაო:** ზღვარი (`Search:MinScore`) — დღეს უცვლელი რჩება (`Score = 1 - Distance`).
 - **ლექცია 7–8:** jsonb-ის migration (`ChatMessages`), `AiUsage` — სტუდენტებმა უკვე იციან ბაზაში ახალი ცხრილი/სვეტი.
-- **API კურსი:** EF Core, migration, `AppDbContext`, Docker-ში PostgreSQL.
+- **API კურსი:** EF Core, migration, `DataContext`, Docker-ში PostgreSQL.
 
 ### ➡️ რას ამზადებს
 
