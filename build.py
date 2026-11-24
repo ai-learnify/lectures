@@ -601,6 +601,8 @@ def write_lecturer(out, course, meta, num, deck_title, ldir):
         print('  ⚠ ლექტორის გვერდი არ აიწყო: .lecturer-code ფაილი ან LECTURER_CODE ცვლადი არ არის')
         return False
     t = re.sub(r'^# .+\n', '', src.read_text(), count=1, flags=re.M)
+    if '### 📖' not in t:   # ახალი მოკლე ფორმატი (გეგმა + თემების ბარათები)
+        return write_lecturer_plan(out, course, meta, num, deck_title, ldir, t, code)
     chunks = re.split(r'^## (.+)$', t, flags=re.M)
     intro = chunks[0].strip()
     parts = []   # {id, num, title, mins, slides, group, html}
@@ -697,6 +699,82 @@ def write_lecturer(out, course, meta, num, deck_title, ldir):
                  '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{NAV}}': ''.join(nav), '{{BODY}}': '\n'.join(body),
                  '{{INTRO}}': md_inline(intro) if intro else '', '{{TIMELINE}}': timeline, '{{TOTAL}}': str(total),
                  '{{LEARN_TOTAL}}': str(sum(p.get('lmin') or 0 for p in parts)),
+                 '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
+        page = page.replace(k, v)
+    write_locked(out / 'lecturer.html', page, code, 'lectures:lecturer', 'ლექტორის გვერდი')
+    return True
+
+# ლექტორის გვერდი — მოკლე ფორმატი. lecturer.md:
+#   ## 🎯 მთავარი                          ზოგადი ბარათი (### 📌 / ### ✅ მომზადება — ჩეკლისტი)
+#   ## 3 · ტოკენები · 11 წთ · 12–16        თემა: ნომერი · სათაური · დრო · სლაიდები → ლექციის გეგმაში ჩადის
+#   - სათქმელი (სია ბარათის თავში)
+#   ### 🙋 ჰკითხე / ### 💡 მაგალითი / ### 🗣️ … / ### 📋 …   ხილული ბლოკები
+#   ### 🆘 თუ ვერ გაიგეს                    დაკეცილი
+# ბოლოს ავტომატურად: კლასის დავალების და საშინაოს სრული ტექსტი (ამოხსნით), შემოწმების კითხვები — დაკეცილი.
+PLAN_KINDS = {'🙋': 'ask', '💡': 'ex', '🗣': 'how', '📌': 'must', '✅': 'prep', '📋': 'plain'}
+
+def write_lecturer_plan(out, course, meta, num, deck_title, ldir, t, code):
+    chunks = re.split(r'^## (.+)$', t, flags=re.M)
+    parts = []
+    for i in range(1, len(chunks), 2):
+        n, title, mins, slides = lect_heading(chunks[i].strip())
+        html_ = []
+        for h, b in lect_split(chunks[i + 1]):
+            if not b.strip(): continue
+            if h is None:
+                html_.append(md(b))
+            elif h.startswith('🆘'):
+                html_.append(f'<details class="blk"><summary>{esc(h)}</summary><div>{md(b)}</div></details>')
+            else:
+                k = next((v for e, v in PLAN_KINDS.items() if h.startswith(e)), 'plain')
+                html_.append(f'<div class="blk k-{k}"><div class="bl">{esc(h)}</div><div>{md(b)}</div></div>')
+        parts.append({'num': n, 'title': title, 'mins': mins, 'slides': slides, 'html': ''.join(html_)})
+    clock = 0
+    for p in parts:
+        if p['mins']: p['start'] = clock; clock += p['mins']
+    total = clock
+    fmt = lambda m: f'{m // 60}:{m % 60:02d}'
+    rows, cards = [], []
+    for i, p in enumerate(parts, 1):
+        pid, badge, title = f'p-{i}', str(p['num']) if p['num'] else '', p['title']
+        em = re.match(r'^([^\w\s]+)\s+(.+)$', title)
+        if not badge and em: badge, title = em.group(1), em.group(2)
+        meta_bits, attrs = [], ''
+        if p['mins']:
+            meta_bits.append(f'<span class="tm">⏱ {p["mins"]} წთ · {fmt(p["start"])}–{fmt(p["start"] + p["mins"])}</span>')
+            attrs += f' data-start="{p["start"]}" data-min="{p["mins"]}"'
+        sl = ''
+        if p['slides']:
+            a, b = p['slides']
+            sl = f'სლაიდ{"ები " + str(a) + "–" + str(b) if b != a else "ი " + str(a)}'
+            meta_bits.append(f'<a class="sl" href="index.html#/{a}" target="_blank" data-go="{a}">▶ {sl}</a>')
+            attrs += f' data-from="{a}" data-to="{b}"'
+        if p['mins']:
+            rows.append(f'<a class="row{" brk" if not p["num"] and badge == "☕" else ""}" href="#{pid}"><span class="t">{fmt(p["start"])}–{fmt(p["start"] + p["mins"])}</span>'
+                        f'<span class="n">{badge}</span><span>{esc(title)}</span><span class="s">{sl}</span></a>')
+        body = f'<div class="cb">{p["html"]}</div>' if p['html'].strip() else ''
+        cards.append(f'<section class="card" id="{pid}"{attrs}><header><span class="num">{badge or "•"}</span><h2>{esc(title)}</h2>'
+                     f'<div class="meta">{"".join(meta_bits)}</div></header>{body}</section>')
+    plan = ''
+    if rows:
+        plan = (f'<div class="plan-t"><div class="ph"><b>🗓️ ლექციის გეგმა</b><span>{total} წთ</span></div>{"".join(rows)}'
+                f'<div class="foot">ლექცია 120 წთ: დაწყება ~5–10 წთ აგვიანებს, 5 წთ ადრე ამთავრებ. დარჩენილი ~{max(0, 120 - 10 - 5 - total)} წთ რეზერვია: '
+                'სუსტ ჯგუფთან კითხვებსა და 🆘-ზე იხარჯება, ძლიერთან ბოლოს „⭐ თუ დრო დარჩა“.</div></div>')
+    # გეგმა პირველი ზოგადი ბარათის (🎯) შემდეგ
+    first_timed = next((k for k, p in enumerate(parts) if p['mins']), len(parts))
+    cards.insert(first_timed, plan)
+    def doc_md(path):
+        return re.sub(r'^# (.+)$', r'### \1', path.read_text(), count=1, flags=re.M).replace('\n## ', '\n#### ')
+    mat = []
+    if (ldir / 'classwork.md').exists(): mat.append(('📝 კლასის დავალება — სტუდენტის ტექსტი', doc_md(ldir / 'classwork.md')))
+    if (ldir / 'homework.md').exists(): mat.append(('🏠 საშინაო — ტექსტი და ამოხსნა', doc_md(ldir / 'homework.md')))
+    if meta.get('review'): mat.append(('❓ შემოწმების კითხვები — პასუხებით', check_md(meta['review'])))
+    if mat:
+        cards.append('<section class="card"><header><span class="num">📎</span><h2>სრული ტექსტები</h2></header><div class="cb">'
+                     + ''.join(f'<details class="mat"><summary>{esc(h)}</summary>{md(b)}</details>' for h, b in mat) + '</div></section>')
+    page = (ENGINE / 'lecturer-plan.html').read_text()
+    for k, v in {'{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course['title']), '{{NUM}}': str(num),
+                 '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{BODY}}': '\n'.join(cards), '{{TOTAL}}': str(total),
                  '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
         page = page.replace(k, v)
     write_locked(out / 'lecturer.html', page, code, 'lectures:lecturer', 'ლექტორის გვერდი')
