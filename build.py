@@ -483,6 +483,7 @@ def deck_page(src, title, has_study, has_lect, lang, has_en):
 </body></html>'''
 
 def build_lecture(course, cdir, ldir, meta, prev):
+    global LANG
     src, problems = expand((ldir / 'deck.html').read_text(), meta, ldir, prev)
     num = int(ldir.name.split('-', 1)[0])
     title = f'{course["title"]} · {num} — {meta["title"]}'   # also the BroadcastChannel key: must be unique
@@ -523,13 +524,23 @@ def build_lecture(course, cdir, ldir, meta, prev):
         shutil.copytree(ldir / 'materials', out / 'materials', dirs_exist_ok=True)
         materials = sorted(p.name for p in (ldir / 'materials').iterdir() if p.is_file())
     has_study_en = False
-    if has_study:
+    if (ldir / 'study.md').exists():   # ახალი მოკლე კონსპექტი (study.md / study.en.md)
+        has_study = True
+        write_notes(out, course, meta, num, ldir, 'ka')
+        if (ldir / 'study.en.md').exists():
+            global LANG
+            LANG = 'en'
+            try:
+                write_notes(out, course, meta, num, ldir, 'en')
+                has_study_en = True
+            finally:
+                LANG = 'ka'
+    elif has_study:
         write_study(out, course, meta, num, title, study, materials, ldir, len(slides))
         if meta.get('_en'):
             miss = [s['n'] for s in study if s['html'] and not s['raw_en']]
             if miss:
                 print(f'  ⚠ study.en: English text is missing on slides {miss}')
-            global LANG
             LANG = 'en'
             try:
                 for s in study:
@@ -645,6 +656,77 @@ def write_lecturer(out, course, meta, num, deck_title, ldir):
         page = page.replace(k, v)
     write_locked(out / 'lecturer.html', page, code, 'lectures:lecturer', 'ლექტორის გვერდი')
     return True
+
+# კონსპექტი (study.md, study.en.md):
+#   ## ⚡ მთავარი                      5 მთავარი აზრი (სია)
+#   ## 3 · ტოკენები · 12–16            თემა: ნომერი · სათაური · სლაიდები; ტექსტი, ```check, ```terms, კოდი
+# ჩანართები: მთავარი · თემები · დავალებები (homework.md, classwork.md — ამოხსნის გარეშე) · ტესტი (lecture.json → quiz)
+def write_notes(out, course, meta, num, ldir, lang):
+    en = lang == 'en'
+    if en:
+        meta = {**meta, **meta['_en'], 'quiz': [{**k, **e} for k, e in zip(meta.get('quiz', []), meta['_en'].get('quiz', []))]}
+    sfx = '.en' if en else ''
+    deck = f'index{sfx}.html' if (out / f'index{sfx}.html').exists() else 'index.html'
+    text = re.sub(r'^# .+\n', '', (ldir / f'study{sfx}.md').read_text(), count=1, flags=re.M)
+    ch = re.split(r'^## (.+)$', text, flags=re.M)
+    summary, topics, raw = [], [], ''
+    for i in range(1, len(ch), 2):
+        h, body = ch[i].strip(), ch[i + 1]
+        if h.startswith('⚡'):
+            summary = [l[2:].strip() for l in body.strip().split('\n') if l.startswith('- ')]
+            continue
+        n, title, _, slides = lect_heading(h)
+        raw += body
+        sl = ''
+        if slides:
+            a, b = slides
+            sl = f'<a class="sl" href="{deck}#/{a}" target="_blank">▶ {L("სლაიდ", "Slide")}{(L("ები ", "s ") + f"{a}–{b}") if b != a else " " + str(a)}</a>'
+        topics.append(f'<section class="topic"><header><span class="num">{n or "•"}</span><h2>{esc(title)}</h2>{sl}</header><div class="tb">{md(body)}</div></section>')
+    mins = read_minutes(raw)
+    def task(name):
+        p = ldir / f'{name}{sfx}.md'
+        if not p.exists(): return ''
+        s = re.split(r'^## (?:ამოხსნა|Solution)\b', p.read_text(), flags=re.M)[0]
+        s = re.sub(r'^# (.+)$', r'### \1', s, count=1, flags=re.M).replace('\n## ', '\n#### ')
+        return f'<div class="box task">{md(s)}</div>'
+    hw, cw = task('homework'), task('classwork')
+    quiz = meta.get('quiz', [])
+    qhtml = re.sub(r'href="#s-(\d+)"', lambda m: f'href="{deck}#/{m.group(1)}" target="_blank"', render_quiz_items(quiz)) if quiz else ''
+    links = ''.join(f'<li><a href="{esc(r["url"])}" target="_blank" rel="noopener">{esc(r["title"])}</a>'
+                    f'{" — " + md_inline(r["note"]) if r.get("note") else ""}</li>' for r in meta.get('resources', []))
+    path = [L(f'<li><a href="{deck}" target="_blank">ნახე პრეზენტაცია</a>: სლაიდები ლექციის მთელ გზას აჩვენებს</li>',
+              f'<li><a href="{deck}" target="_blank">Go through the presentation</a>: the slides show the whole lecture</li>'),
+            L(f'<li><a href="#topics">წაიკითხე თემები</a>: ~{mins} წთ, თითოს ბოლოს „შეამოწმე თავი“</li>',
+              f'<li><a href="#topics">Read the topics</a>: ~{mins} min, each ends with “Check yourself”</li>')]
+    if quiz: path.append(L(f'<li><a href="#quiz">გაიარე ტესტი</a>: {len(quiz)} კითხვა</li>', f'<li><a href="#quiz">Take the quiz</a>: {len(quiz)} questions</li>'))
+    if hw or cw: path.append(L('<li><a href="#tasks">გააკეთე დავალებები</a></li>', '<li><a href="#tasks">Do the assignments</a></li>'))
+    main = (f'<div class="box"><h2>🎯 {L("ამ ლექციის შემდეგ შეძლებ", "After this lecture you can")}</h2><ul>{"".join(f"<li>{md_inline(x)}</li>" for x in meta.get("outcomes", []))}</ul></div>'
+            + (f'<div class="box key"><h2>⚡ {L("მთავარი", "Key points")}</h2><ol>{"".join(f"<li>{md_inline(x)}</li>" for x in summary)}</ol></div>' if summary else '')
+            + f'<div class="box"><h2>📍 {L("ლექცია გააცდინე?", "Missed the lecture?")}</h2><ol class="path">{"".join(path)}</ol></div>'
+            + (f'<div class="box"><h2>🔗 {L("ბმულები", "Links")}</h2><ul>{links}</ul></div>' if links else ''))
+    tabs = [('main', L('მთავარი', 'Overview'), '', main),
+            ('topics', L('თემები', 'Topics'), str(len(topics)), ''.join(topics))]
+    if hw or cw:
+        tabs.append(('tasks', L('დავალებები', 'Assignments'), '',
+                     (f'<h2>🏠 {L("საშინაო", "Homework")}</h2>{hw}' if hw else '') + (f'<h2>📝 {L("კლასის დავალება", "Classwork")}</h2>{cw}' if cw else '')))
+    if quiz:
+        tabs.append(('quiz', L('ტესტი', 'Quiz'), str(len(quiz)), f'<p class="hint">{L("აირჩიე პასუხი და მაშინვე ნახავ, სწორია თუ არა და რატომ.", "Pick an answer and you will see right away whether it is correct and why.")}</p>{qhtml}'))
+    tabs_html = ''.join(f'<button type="button" data-t="{k}">{esc(name)}{f"<small>{c}</small>" if c else ""}</button>' for k, name, c, _ in tabs)
+    panels = ''.join(f'<section class="panel" id="tab-{k}">{body}</section>' for k, _, _, body in tabs)
+    has_en = (ldir / 'study.en.md').exists()
+    langbtn = (f'<a class="btn lang" href="{"study.html" if en else "study.en.html"}" title="{"ქართულად" if en else "English"}">{"KA" if en else "EN"}</a>' if has_en else '')
+    i18n = {'copy': L('კოპირება', 'Copy'), 'copied': L('✓ დაკოპირდა', '✓ Copied'),
+            'review': L('გაიმეორე ეს კითხვები: ', 'Review these questions: '), 'allright': L('ყველაფერი სწორია! 🎉', 'All correct! 🎉')}
+    page = (ENGINE / 'notes.html').read_text()
+    if en:
+        page = page.replace('content:"✓ სწორია."', 'content:"✓ Correct."').replace('content:"✗ არა."', 'content:"✗ No."')
+    for k, v in {'{{LANG}}': lang, '{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course.get('title_en', course['title']) if en else course['title']),
+                 '{{NUM}}': str(num), '{{DECK}}': deck, '{{TABS}}': tabs_html, '{{PANELS}}': panels, '{{LANGBTN}}': langbtn,
+                 '{{I18N}}': json.dumps(i18n, ensure_ascii=False), '{{T_NOTES}}': L('კონსპექტი', 'study notes'), '{{T_BACK}}': L('← ლექციები', '← Lectures'),
+                 '{{T_LECTURE}}': L('ლექცია', 'Lecture'), '{{T_THEME}}': L('ღია / მუქი თემა', 'Light / dark theme'), '{{T_DECK}}': L('პრეზენტაცია', 'Presentation'),
+                 '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
+        page = page.replace(k, v)
+    write_page(out / f'study{sfx}.html', page)
 
 def render_resources(meta, ldir, materials, n_slides, n_quiz):
     """კონსპექტის თავში: გარე ბმულები და მასალები (დავალებებს და ტესტს „5 წუთში“ აჩვენებს)"""

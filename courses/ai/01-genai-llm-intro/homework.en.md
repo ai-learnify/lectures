@@ -7,7 +7,7 @@ No code · result — a document in your project's README
 - **3 AI features** in your project — as a table (in / out / from the database / Temperature · Max Tokens / tokens)
 - Tokens — **with [Tiktokenizer](https://tiktokenizer.vercel.app/)** (model gpt-4o), using Georgian text
 - For one feature, the **monthly cost**: with Gemini's **real** price, using the formula
-- The **quiz** at the end of the study notes (12 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 - Get a **Gemini API key** and keep it — next lecture we put it in User Secrets (`Gemini:ApiKey`) and write code
 
 ## ✓ Done when

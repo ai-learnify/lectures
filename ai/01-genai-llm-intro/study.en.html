@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,155 +145,59 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← Lectures</a>
-  <div class="ttl"><small>📖 AI Agents in .NET · 1</small>Introduction to Generative AI and LLM APIs</div>
-  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
-  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
-  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.en.html">▶ Presentation</a>
+  <div class="bar">
+    <a class="back" href="../../">← Lectures</a>
+    <div class="ttl"><small>📖 Lecture 1</small>Introduction to Generative AI and LLM APIs</div>
+    <div class="acts">
+      <a class="btn lang" href="study.html" title="ქართულად">KA</a>
+      <button class="themebtn btn" type="button" title="Light / dark theme" aria-label="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.en.html" target="_blank" title="Presentation" aria-label="Presentation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">Overview</button><button type="button" data-t="topics">Topics<small>6</small></button><button type="button" data-t="tasks">Assignments</button><button type="button" data-t="quiz">Quiz<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>Contents</summary>
-    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">🧭</span><span class="nt">The module: what we&#x27;ll build and who you&#x27;ll become</span><span class="nm">7′</span></a><a href="#c-2"><span class="nn">1</span><span class="nt">Why AI: where if/else ends</span><span class="nm">5′</span></a><a href="#c-3"><span class="nn">2</span><span class="nt">How an LLM works</span><span class="nm">11′</span></a><a href="#c-4"><span class="nn">3</span><span class="nt">Parameters: Temperature, Top-P, Max Tokens</span><span class="nm">5′</span></a><a href="#c-5"><span class="nn">4</span><span class="nt">Providers and price</span><span class="nm">5′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: planning an AI feature</span><span class="nm">3′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">12</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">20</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 1</div>
-      <h1>Introduction to Generative AI and LLM APIs</h1>
-      <p>The whole lecture in chapters, ~40 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li>In this module an <strong>AI agent</strong> appears in your API: the model decides what to do, and <strong>your C# code</strong> does it.</li><li>The model reads text as <strong>tokens</strong> and sees only numbers. Price, limits and speed are counted in tokens; Georgian takes more tokens.</li><li>The model writes the <strong>likely</strong> next token, not the true one. Prices, stock and reservations must always come <strong>from the database</strong>.</li><li>The model <strong>doesn't remember</strong> the previous request: we send the history every time, and we pay for it.</li><li><strong>Temperature</strong>, <strong>Top-P</strong> and <strong>Max Tokens</strong> are set per request, depending on the task. Cost = tokens × price, and output is more expensive than input.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~40 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 12 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://aistudio.google.com" target="_blank" rel="noopener">Google AI Studio</a> — get a Gemini API key</li><li><a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Gemini — list of models</a> — current model names</li><li><a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Gemini — pricing</a> — for the homework cost calculation</li><li><a href="https://tiktokenizer.vercel.app" target="_blank" rel="noopener">Tiktokenizer — text to tokens (choose gpt-4o)</a> — see how text splits into tokens</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">🧭</span><div class="cht"><div class="ck">~7 min read</div><h2>The module: what we&#x27;ll build and who you&#x27;ll become</h2><p class="goal">🎯 <b>After this</b> you'll know what you'll build in 24 lectures, what you're missing now and where this runs in real projects.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="1"><span class="anchor" id="s-1"></span><div class="bh"><h3>The module: building and managing AI agents in .NET</h3><a class="chip" href="index.en.html#/1" data-go="1" target="_blank" title="This part in the presentation">Slide 1</a></div>
-<p>24 lectures. By the end of the module your API will “understand” human language and act on the user's behalf: search the menu, add to the cart, book a table. In the first lecture we look at the whole picture — what we'll learn, what you'll be able to build and who you'll become — and then we find out how a language model works inside.</p></article><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Until now — a user, from now on — a builder</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
-<p>Almost everyone has used AI: asking a chat, writing code, translating. That is the role of an AI <strong>user</strong>. In this module the role changes: you will <strong>build AI into your own system</strong> — call it from your API, give it your data, let it call your C# methods and make sure it doesn't make mistakes.</p></article><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>By the end of the module — this is RestaurantApi</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
-<p>The customer writes in plain language: “Something light, no meat, for two. And a table tomorrow at 8”. The AI agent:</p>
-<ol>
-<li><strong>Searches the menu</strong> — in our database (PostgreSQL), not “from memory”, so the price is real.</li>
-<li><strong>Books a table</strong> — with our C# method (<code>BookTable</code>), which it calls itself.</li>
-<li><strong>Offers to add to the cart</strong> — and asks for consent before acting.</li>
-<li><strong>Protects itself</strong> — when someone tries to trick it (“forget your instructions…”), it refuses.</li>
-<li><strong>Is measured</strong> — how many tokens were spent, what it cost, how long it took.</li>
-</ol>
-<p>The right-hand part — “inside the agent” — is the key idea: <strong>the model decides what to do; our code does it.</strong> All of this is built step by step over 24 lectures.</p></article><article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>What you have — and what you&#x27;re missing</h3><a class="chip" href="index.en.html#/4" data-go="4" target="_blank" title="This part in the presentation">Slide 4</a></div>
-<p><strong>You already know:</strong> ASP.NET Core Web API, EF Core and PostgreSQL, DI, DTOs, validation. RestaurantApi has a menu, cart, orders and reservations. In other words, <strong>everything the agent will use as its “hands” already exists.</strong></p>
-<p><strong>You're missing four things</strong> — and that's exactly what the module is about:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI Agents in .NET · Lecture 1</div><h1>Introduction to Generative AI and LLM APIs</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 After this lecture you can</h2><ul><li>explain what you'll build in the module, what you'll be able to do and who you'll become</li><li>explain how an LLM produces text: tokens, next-token prediction, context window</li><li>choose Temperature, Top-P and Max Tokens for the task</li><li>choose a provider and calculate the monthly cost in tokens</li></ul></div><div class="box key"><h2>⚡ Key points</h2><ol><li>By the end of the module your API will have an <strong>agent</strong>: the model decides what to do, and <strong>your C# code</strong> does it.</li><li>The model reads text as <strong>tokens</strong>. Price, limits and speed are all counted in tokens. Georgian text takes more tokens.</li><li>The model writes <strong>the most likely</strong> text, not the true one. Prices, stock and bookings always come <strong>from the database</strong>.</li><li>The model <strong>does not remember</strong> previous requests: we send the history every time, and we pay for it.</li><li>We pick Temperature, Max Tokens and the model <strong>for the task</strong>, and we estimate the cost up front.</li></ol></div><div class="box"><h2>📍 Missed the lecture?</h2><ol class="path"><li><a href="index.en.html" target="_blank">Go through the presentation</a>: the slides show the whole lecture</li><li><a href="#topics">Read the topics</a>: ~5 min, each ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a>: 8 questions</li><li><a href="#tasks">Do the assignments</a></li></ol></div><div class="box"><h2>🔗 Links</h2><ul><li><a href="https://aistudio.google.com" target="_blank" rel="noopener">Google AI Studio</a> — get a Gemini API key</li><li><a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Gemini — list of models</a> — current model names</li><li><a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Gemini — pricing</a> — for the homework cost calculation</li><li><a href="https://tiktokenizer.vercel.app" target="_blank" rel="noopener">Tiktokenizer — text to tokens (choose gpt-4o)</a> — see how text splits into tokens</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>What you will build in this module</h2><a class="sl" href="index.en.html#/1" target="_blank">▶ Slides 1–7</a></header><div class="tb"><p>Until now you have <strong>used</strong> AI. In this module you <strong>build it into your own system</strong>: call it from your API, give it your data and let it call your C# methods.</p>
+<p>By the end, a customer of RestaurantApi writes: "Something light, no meat, for two. And a table tomorrow at 8". The agent searches the menu <strong>in the database</strong>, books the table <strong>with your method</strong>, asks for confirmation before acting and protects itself from manipulation.</p>
 <table>
 <thead>
 <tr>
-<th>What you're missing</th>
-<th>Lectures</th>
+<th>Stage</th>
+<th>What you will be able to do</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>How to talk to a model from C#, get the answer as an object, what it costs and how to handle errors</td>
-<td>1–8</td>
+<td>Lectures 1–3</td>
+<td>Talk to the model from C#, get the answer as a C# object</td>
 </tr>
 <tr>
-<td>How to answer with <strong>our</strong> data (embeddings, pgvector, RAG) so the model doesn't make things up</td>
-<td>9–12</td>
+<td>Lectures 4–8</td>
+<td>The model calls your C# code; streaming, history, cost</td>
 </tr>
 <tr>
-<td>How to turn it into “action”: tools, agents, MCP, several agents together</td>
-<td>4, 13–18</td>
+<td>Lectures 9–12</td>
+<td>Answer with <strong>your</strong> data (embeddings, pgvector, RAG)</td>
 </tr>
 <tr>
-<td>How to secure it (prompt injection, guardrails) and measure quality (evals, observability)</td>
-<td>19–22</td>
-</tr>
-</tbody>
-</table></article><article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>Where this runs today — real examples</h3><a class="chip" href="index.en.html#/5" data-go="5" target="_blank" title="This part in the presentation">Slide 5</a></div>
-<table>
-<thead>
-<tr>
-<th>Project</th>
-<th>What it does</th>
-<th>Technique (lecture)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>🏦 Bank / telecom assistant</td>
-<td>Answers customers about rates, rules and procedures <strong>from internal documents</strong> and cites the source</td>
-<td>RAG (9–12)</td>
+<td>Lectures 13–18</td>
+<td>Agents, MCP, several agents together</td>
 </tr>
 <tr>
-<td>🛒 Shop / delivery agent</td>
-<td>Finds products, adds them to the cart, checks order status — through the system's API</td>
-<td>Tools, Agents (4, 13–15)</td>
-</tr>
-<tr>
-<td>📄 Document automation</td>
-<td>Extracts fields from an invoice, CV or contract and writes them to the database</td>
-<td>Structured Output (3)</td>
-</tr>
-<tr>
-<td>🏢 Internal company assistant</td>
-<td>Answers employees about HR rules and IT instructions; connects to Jira, Slack</td>
-<td>MCP, Multi-Agent (16–18)</td>
+<td>Lectures 19–24</td>
+<td>Security, evaluation and the final project</td>
 </tr>
 </tbody>
 </table>
-<p>All four are built from the same “bricks” — and you'll learn those bricks in this module.</p>
-<h4>Who you'll become</h4>
-<p>After the module you'll be <strong>a .NET developer who builds AI systems</strong>. In job ads this role goes by different names:</p>
-<ul>
-<li><strong>AI Engineer</strong> — connects an LLM to an existing system and is responsible for data, security, cost and quality.</li>
-<li><strong>Agent Developer</strong> — builds agents that act inside a system: tools, MCP, workflows.</li>
-<li><strong>Backend developer with AI</strong> — a regular backend role where part of the features run on AI. The most common case.</li>
-</ul>
-<p>Important: we <strong>don't train</strong> models (that's the job of an ML engineer or researcher). We take a ready model and <strong>turn it into a system</strong> — that is most of an AI engineer's work.</p></article><article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Module map — what you can do after each stage</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
-<ol>
-<li><strong>Lectures 1–3 · We talk to the model.</strong> How an LLM works, how to write a good instruction (prompt) and get the answer as a C# object, Microsoft.Extensions.AI and <code>IChatClient</code>.</li>
-<li><strong>Lectures 4–8 · The model calls our C# code.</strong> Tools and function calling, middleware, streaming, chat history and context, errors and cost control.</li>
-<li><strong>Lectures 9–12 · It answers with our data.</strong> Embeddings, PostgreSQL + pgvector, RAG — answers based on the menu and documents, citing the source.</li>
-<li><strong>Lectures 13–18 · The agent acts.</strong> Microsoft Agent Framework, custom tools, MCP, workflows, several agents working together.</li>
-<li><strong>Lectures 19–20 · Secured and measured.</strong> Prompt injection, guardrails, OpenTelemetry, evals — measuring quality.</li>
-<li><strong>Lectures 21–24 · Final project.</strong> Your Web API + agent, tests, defense.</li>
-</ol>
-<p>We don't start a new project: the lecturer adds all of this to RestaurantApi, and you add it to your own API project.</p>
-<h3>What would you add to your API?</h3>
-<p>Every API project has a place where a person asks for something “in plain language”. Examples:</p>
-<ul>
-<li>📚 <strong>Library</strong> — “Something mystical, short, by a Georgian author” → book recommendations from the database.</li>
-<li>🏋️ <strong>Gym</strong> — “Any trainer free tomorrow morning?” → search the schedule and book.</li>
-<li>🏨 <strong>Hotel</strong> — “3 nights, sea view, under 300 GEL” → find a room and book it.</li>
-<li>🛠️ <strong>Repair shop</strong> — “My laptop overheats” → category, price estimate, appointment.</li>
-</ul>
-<p>Think of such features for your project — in the homework you'll plan 3 of them, and over the module you'll build them.</p></article></div></section>
-<section class="chap" id="c-2" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~5 min read</div><h2>Why AI: where if/else ends</h2><p class="goal">🎯 <b>After this</b> you can explain what regular code can't do and why an LLM is, for us, just another HTTP API.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Part 1 · What can&#x27;t if / else do?</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
-<p>Before reading on, try to answer yourself: what kind of problem can't you write in regular C# code, no matter how many conditions you add?</p></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>The problem: customers write in plain language</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
-<p>Three realistic messages from the restaurant chat:</p>
-<ul>
-<li><strong>Nino:</strong> “Something light, no meat, for two, under 40 GEL”</li>
-<li><strong>Giorgi:</strong> “Four of us tomorrow at 8, with a kid, by the window if possible”</li>
-<li><strong>Luka:</strong> “I want that thing with the red sauce I got last week, but less spicy”</li>
-</ul>
-<p>Try it: how would you turn each one into a call to our API? For Nino the filters <code>isVegetarian=true</code>, <code>maxPrice=40</code> would still work, but what is “light” — calories? portion size? For Giorgi, “tomorrow at 8” has to become a date and time, and “with a kid” — an extra chair? For Luka we'd have to search past orders and match the “red sauce” to a dish description.</p>
-<p>You can't write this with keyword search (<code>Contains("no meat")</code>): the same idea is said in a thousand ways, with typos, slang, in two languages. <strong>Regular code expects exact input — human language isn't exact.</strong></p>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why can't we handle natural language with <code>if/else</code>?</summary><div class="ans">The same idea can be phrased in countless ways; the number of rules is endless and they break on every new phrasing.</div></details></div></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Regular code vs a language model</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Who performs the action (booking, adding to the cart): the model or our code?</summary><div class="ans">Our C# code. The model only decides and asks which method to call.</div></details></div></div></section><section class="topic"><header><span class="num">2</span><h2>Where if / else ends</h2><a class="sl" href="index.en.html#/8" target="_blank">▶ Slides 8–11</a></header><div class="tb"><p>Customers write in plain language: "Four of us tomorrow at 8, with a child, by the window if possible". You cannot handle this with <code>if</code>s: people say the same thing in a thousand ways.</p>
 <table>
 <thead>
 <tr>
@@ -365,106 +209,29 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <tbody>
 <tr>
 <td>Input</td>
-<td>exact, structured (<code>dishId</code>, <code>date</code>)</td>
+<td>exact (<code>dishId</code>, <code>date</code>)</td>
 <td>any text</td>
 </tr>
 <tr>
-<td>Rules</td>
-<td>we write them</td>
-<td>the model “learned” them from text</td>
-</tr>
-<tr>
 <td>Result</td>
-<td><strong>deterministic</strong>: one input → always the same result</td>
-<td><strong>probabilistic</strong>: one question can get different answers</td>
+<td>one input → always one result</td>
+<td>one question can get different answers</td>
 </tr>
 <tr>
 <td>Error</td>
-<td>a bug — we find and fix it</td>
-<td>a convincingly stated falsehood (we'll name it in part 2)</td>
+<td>a bug we fix</td>
+<td>a confidently stated falsehood</td>
 </tr>
 </tbody>
 </table>
-<p>The key idea: <strong>an LLM doesn't replace regular code.</strong> Adding to the cart, calculating the price, saving a reservation stay in C# — that's where we need precision. We use an LLM where human language has to be “understood” or produced. This whole module is about connecting these two worlds.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>deterministic</dt><dd>the same input always produces the same result</dd><dt>probabilistic</dt><dd>the result contains randomness; one input can produce different results</dd></dl></div>
-<h3>AI → ML → Deep Learning → GenAI → LLM</h3>
-<p>These terms are often used as synonyms, but they are actually <strong>circles nested inside each other</strong>: each one is part of the previous.</p>
-<table>
-<thead>
-<tr>
-<th>Term</th>
-<th>What it is</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>AI</strong> — artificial intelligence</td>
-<td>The broadest concept: any program that performs a “smart” task. It can be written with ordinary rules (if/else)</td>
-<td>a chess program, a navigation route</td>
-</tr>
-<tr>
-<td><strong>Machine Learning</strong></td>
-<td>The programmer doesn't write the rules: the program finds them itself <strong>from examples</strong></td>
-<td>a spam filter that has “seen” thousands of labelled emails</td>
-</tr>
-<tr>
-<td><strong>Deep Learning</strong></td>
-<td>ML that uses a <strong>multi-layer neural network</strong>. That's how it learns complex things: images, sound, language</td>
-<td>face unlock, speech recognition</td>
-</tr>
-<tr>
-<td><strong>GenAI</strong> — generative AI</td>
-<td>Models that don't just recognise things but <strong>create new ones</strong></td>
-<td>images from a description, music, text, code</td>
-</tr>
-<tr>
-<td><strong>LLM</strong> — large language model</td>
-<td>GenAI for text: <strong>text in → text out</strong>. “Large” — billions of parameters and an enormous training text</td>
-<td>ChatGPT, Gemini, Claude</td>
-</tr>
-</tbody>
-</table>
-<p><strong>ChatGPT is all three</strong> — AI, Machine Learning and an LLM at once, because the LLM sits inside all the other circles. But not every AI is an LLM: an old chess program is AI but not ML.</p>
-<p>In this course we are <strong>users of LLMs</strong>, not their creators: we don't train models, we call a ready model through an API and connect it to our system. That is how most of the AI engineering profession works.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>AI (artificial intelligence)</dt><dd>any program that performs a “smart” task</dd><dt>Machine Learning</dt><dd>the program finds the rules itself from examples</dd><dt>Deep Learning</dt><dd>Machine Learning with a multi-layer neural network</dd><dt>GenAI</dt><dd>AI that creates new content</dd><dt>LLM</dt><dd>large language model: text in, text out</dd></dl></div></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>For us an LLM = just another HTTP API</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
-<p>For a backend developer an LLM is nothing magical: it's an <strong>external service</strong> we send an HTTP request to — just like a weather or payment API. Almost all providers use the same format (the so-called <strong>OpenAI-compatible</strong> API). Above is Gemini's OpenAI-compatible address; a request to OpenAI, Groq or a local Ollama looks almost identical.</p>
-<p><strong>Request:</strong></p>
-<ul>
-<li><code>model</code> — which model we're asking</li>
-<li><code>messages</code> — a list of messages, each with its own <code>role</code> (<code>user</code>, <code>assistant</code>, <code>system</code> — in detail in lecture 2)</li>
-<li><code>temperature</code>, <code>max_tokens</code> — parameters, in part 3</li>
-</ul>
-<p><strong>Response:</strong></p>
-<ul>
-<li><code>choices[0].message.content</code> — the text of the answer</li>
-<li><code>finish_reason</code> — why it stopped writing (<code>stop</code> — it finished by itself, <code>length</code> — it hit the limit)</li>
-<li><code>usage</code> — how many <strong>tokens</strong> were spent. This is what we pay for.</li>
-</ul>
-<p>We won't write this JSON by hand — in C# a .NET library will do it — we write code in the next lectures. But it's good to know what goes on “under the hood”.</p></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~11 min read</div><h2>How an LLM works</h2><p class="goal">🎯 <b>After this</b> you can explain what a token is, how the model writes an answer, why it makes things up and why it doesn't remember the previous conversation.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Part 2 · How does an LLM “think”?</h3><a class="chip" href="index.en.html#/12" data-go="12" target="_blank" title="This part in the presentation">Slide 12</a></div>
-<p>First we'll see the <strong>big picture</strong> — what happens from pressing “Send” to the answer — and then break down, piece by piece, three ideas we'll need throughout the course: the <strong>token</strong> (what the model “reads”), <strong>next-token prediction</strong> (how it writes the answer) and the <strong>context window</strong> (how much it “sees” at once).</p></article><article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>The big picture: what happens after “Send”?</h3><a class="chip" href="index.en.html#/13" data-go="13" target="_blank" title="This part in the presentation">Slide 13</a></div>
-<p>Before we go into the details, here's how a language model works in simple terms.</p>
-<p><strong>Once, in advance — training.</strong> The model “read” trillions of words (books, web pages, code) and learned which word follows which. Companies do this (Google, OpenAI…). We use a ready model.</p>
-<p><strong>On every request — 4 steps:</strong></p>
-<ol>
-<li><strong>The text is cut into pieces</strong> — “Book a table for” → <code>Book</code> · <code>a</code> · <code>table</code> · <code>for</code>. These pieces are called <strong>tokens</strong>.</li>
-<li><strong>The model calculates which piece comes next</strong> — it gives every possible piece a probability: <code>two</code> 62%, <code>four</code> 21%, <code>pizza</code> 0.1%…</li>
-<li><strong>It picks one and appends it to the text</strong> — “Book a table for <strong>two</strong>”. How “boldly” it picks is decided by <strong>Temperature</strong> (part 3).</li>
-<li><strong>It repeats</strong> — what comes after “Book a table for two”? And so on, piece by piece, until it finishes the answer. That's why you see the answer in a chat appear gradually, word by word.</li>
-</ol>
-<p><strong>Analogy:</strong> a phone keyboard that suggests the next word — only one that has read almost the entire internet.</p>
-<p>On the next slides we break down each step: what a <strong>token</strong> is, how the <strong>next token</strong> is chosen, <strong>why the model makes mistakes</strong> and <strong>what it sees</strong> in one request.</p></article><article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>What is a token?</h3><a class="chip" href="index.en.html#/14" data-go="14" target="_blank" title="This part in the presentation">Slide 14</a></div>
-<p>First try to answer yourself: does the model read text by letters, by words, or some other way?</p>
-<p><strong>Answer:</strong> neither — <strong>by tokens</strong>. A token is a piece of text: a common word is one token, a rare one splits into several parts, sometimes even into single letters. Each token has its own <strong>number (ID)</strong>, and the model actually sees these numbers.</p>
-<p>For the backend a token is <strong>the unit of measurement</strong>: price, limit (context window) and speed are all counted in tokens.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>token</dt><dd>a piece of text the model reads and writes in</dd><dt>tokenizer</dt><dd>a program that splits text into tokens (and IDs) and back</dd></dl></div></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>One idea in two languages — real tokens</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
-<p>Below is the <strong>real</strong> split by the GPT-4o tokenizer (<code>o200k_base</code>), with real IDs:</p>
+<p>An LLM does <strong>not replace</strong> normal code. Calculating prices and saving bookings stays in C#. The LLM "understands" human language, and we connect the two.</p>
+<p>For us an LLM is just another <strong>HTTP API</strong>: we POST <code>messages</code> and get back the answer text, <code>finish_reason</code> and <code>usage</code> (how many tokens were spent).</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Which belongs in C# and which goes to the LLM: calculating a discount or understanding a customer's message?</summary><div class="ans">The discount in C#, because we need precision. Understanding the message goes to the LLM, because it is human language.</div></details></div></div></section><section class="topic"><header><span class="num">3</span><h2>Tokens</h2><a class="sl" href="index.en.html#/12" target="_blank">▶ Slides 12–16</a></header><div class="tb"><p>The model reads text neither letter by letter nor word by word, but as <strong>tokens</strong>: numbered pieces of text. A common word is one token; a rare one is split into several pieces.</p>
 <table>
 <thead>
 <tr>
 <th>Text</th>
-<th>Tokens</th>
+<th>Tokens (GPT-4o)</th>
 <th>Count</th>
 </tr>
 </thead>
@@ -475,449 +242,148 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <td><strong>5</strong></td>
 </tr>
 <tr>
-<td>დაჯავშნე მაგიდა ორისთვის (Georgian)</td>
+<td>დაჯავშნე მაგიდა ორისთვის</td>
 <td><code>დ</code> · <code>აჯ</code> · <code>ავშ</code> · <code>ნ</code> · <code>ე</code> · <code>მაგ</code> · <code>იდა</code> · <code>ო</code> · <code>რის</code> · <code>თვის</code></td>
 <td><strong>10</strong></td>
 </tr>
 </tbody>
 </table>
-<p>Notice: a token often includes the <strong>leading space</strong> (<code>table</code>). The English word is a single token, while Georgian splits into parts — the tokenizer “learned” on the text that is most common on the internet, and there is little Georgian there.</p>
-<p><strong>What it means for us:</strong> Georgian text is more tokens → more expensive, slower, and less of it fits into the context.</p>
-<div class="callout note"><span class="ci">💡</span><div><p>Different models have different tokenizers (Gemini has its own), so the numbers vary from model to model — but the trend is the same. You'll see this yourself in Tiktokenizer.</p></div></div>
-<h3>The model sees only numbers</h3>
-<p>This is how text reaches the model:</p>
+<p>Georgian splits into more pieces because the tokenizer "saw" little Georgian text. As a result Georgian is <strong>more expensive</strong>, slower, and less of it fits in the context.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>Try it yourself: <a href="https://tiktokenizer.vercel.app/">tiktokenizer.vercel.app</a>, pick <strong>gpt-4o</strong>, type a Georgian sentence, then switch to <strong>gpt-4</strong> and compare.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why does the same text cost more in Georgian?</summary><div class="ans">Georgian text splits into more tokens, and the price is counted in tokens.</div></details></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>token</dt><dd>a piece of text the model reads and writes</dd><dt>tokenizer</dt><dd>a program that splits text into tokens</dd></dl></div></div></section><section class="topic"><header><span class="num">4</span><h2>How it writes an answer</h2><a class="sl" href="index.en.html#/17" target="_blank">▶ Slides 17–20</a></header><div class="tb"><p>The model does one thing: <strong>it guesses the next token</strong>. It computes probabilities (<code>two</code> 62%, <code>four</code> 21%, <code>pizza</code> 0.1%…), picks one, appends it to the text and repeats until it finishes.</p>
+<p>Two key consequences:</p>
 <ol>
-<li><strong>Text</strong> — e.g. <code>Book a table for two</code>.</li>
-<li><strong>Pieces</strong> — the tokenizer cuts the text into tokens: <code>Book</code> · <code>a</code> · <code>table</code> · <code>for</code> · <code>two</code>. A token often includes the leading space.</li>
-<li><strong>Vocabulary</strong> — the tokenizer has a table where each piece has its own number (ID). GPT-4o's vocabulary has ~200 000 pieces; <code>table</code> = <strong>3293</strong>.</li>
-<li><strong>Only numbers go into the model</strong> — <code>[6904, 261, 3293, 395, 1920]</code>. The model also returns its answer as numbers, and the tokenizer turns them back into text.</li>
+<li><strong>Hallucination.</strong> The model writes what is likely, not what is true. It has never seen our menu and prices, so it may confidently make them up. <strong>We provide</strong> the facts from the database.</li>
+<li><strong>Stateless.</strong> The model does not remember the previous request. In ChatGPT it seems to remember, but the app actually resends the whole history every time.</li>
 </ol>
-<p><strong>How does the model “know” what 3293 means?</strong> Inside the model each number maps to a <strong>vector</strong> — hundreds of numbers that, during training, “arranged themselves” so that tokens with similar meanings are close together. We'll come back to this idea in lecture 9 (embeddings) — RAG is built on it.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>tokenizer</dt><dd>a program that cuts text into tokens and turns them into numbers (and back)</dd><dt>vocabulary</dt><dd>the tokenizer's table: piece → number (ID)</dd></dl></div></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>🎮 Try it yourself: Tiktokenizer</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
-<p>Open <strong><a href="https://tiktokenizer.vercel.app/">tiktokenizer.vercel.app</a></strong> — a free site that splits any text into tokens: coloured pieces, each one's number (ID) and the total count.</p>
-<ol>
-<li>On the left, choose the model <strong>gpt-4o</strong> (the new tokenizer, <code>o200k_base</code>).</li>
-<li>Type a Georgian sentence and count the tokens.</li>
-<li>Switch to <strong>gpt-4</strong> (the older one, <code>cl100k_base</code>) and compare: on the old tokenizer Georgian text is several times more tokens — i.e. it used to be several times more expensive.</li>
-</ol>
-<p>Also try: the same sentence in English, C# code, emoji, your name, a long word („ვეგეტარიანელი“).</p>
-<div class="callout tip"><span class="ci">👉</span><div><p>Gemini has its own tokenizer, so its numbers differ a little — the trend is the same. Gemini's API returns the exact count itself (<code>usage</code>); we'll see this in lecture 2. You'll need the same site for the homework too.</p></div></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Next-token prediction — the whole secret of an LLM</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
-<p>An LLM does one thing: <strong>it knows which token comes next.</strong> More precisely, based on the text it calculates a <strong>probability</strong> for every possible token.</p>
-<p>The loop looks like this:</p>
-<ol>
-<li><strong>Input</strong> — the model receives a sequence of tokens: <code>Book a table for</code></li>
-<li><strong>Probabilities</strong> — it calculates which token comes next: <code>two</code> — 62%, <code>four</code> — 21%, <code>tonight</code> — 9%, <code>pizza</code> — 0.1%… (illustrative numbers)</li>
-<li><strong>Choice</strong> — it picks one (how — that's decided by <strong>Temperature</strong>, part 3)</li>
-<li><strong>Repeat</strong> — it appends the chosen token to the text and runs the whole loop again: <code>Book a table for two</code> → next token → …</li>
-<li><strong>End</strong> — when the model picks a special “end” token, or hits the limit (<code>max_tokens</code>)</li>
-</ol>
-<p>That's all. Chat, writing code, translation — everything happens through this one loop. The model's “thinking” and “knowledge” are “written” into these probabilities: while training on an enormous text it learned what follows what.</p>
-<p><strong>Backend takeaway:</strong> every token is one full run of the model. That's why a 500-token answer is noticeably slower and more expensive than a 50-token one. It's also why the answer in ChatGPT “appears gradually” — that's <strong>streaming</strong> (lecture 6).</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>next-token prediction</dt><dd>predicting the next token: the core mechanism of an LLM</dd><dt>probability distribution</dt><dd>the list of all possible tokens with their probabilities; they add up to 100%</dd></dl></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>🎮 Try it yourself · Be the LLM</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
-<p>The sentence: <strong>“Tomorrow evening I'd like a table ___”</strong></p>
-<p>First write one word yourself, then ask 3–4 friends the same. The result is almost always like this: most write “for two”, some “for four” or “by the window”, and <strong>nobody</strong> writes “banana”.</p>
-<p>That is exactly a probability distribution. While training on text, the model saw that a sentence like this is most often followed by “for two”, so its probability is high. “Banana” is grammatically possible but almost never occurs — its probability is close to zero.</p>
-<p><strong>An important detail:</strong> not everyone writes the same thing, yet every answer is “normal”. The model is the same: one question has several valid continuations, and which one it picks is decided by Temperature.</p></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Where the model “knows” things from — and when it lies</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
-<p>A model is created in two stages:</p>
-<ol>
-<li><strong>Pre-training</strong> — on an enormous text (internet, books, code) it learns to guess the next token. The result: a model that “convincingly continues” any text, but isn't an assistant yet — it might “continue” a question with ten more questions.</li>
-<li><strong>Fine-tuning</strong> (and RLHF) — extra training on dialogues and human ratings: it learns to follow instructions and behave like an assistant. That's how it becomes a “chat” model.</li>
-</ol>
-<p><strong>Knowledge cutoff</strong> — the training data goes up to a certain date. The model doesn't know what happened after it. And most importantly: <strong>our restaurant's menu, prices and free tables</strong> it has never seen.</p>
-<p><strong>Hallucination</strong> — when the model doesn't know the answer, it still writes the most “likely” text. “Khinkali 1.20 ₾” sounds convincing because there are many such sentences on the internet — but it's not our price. The model isn't lying on purpose: its goal is <strong>likely</strong> text, not <strong>true</strong> text.</p>
-<p><strong>The fix</strong> (the main theme of the course): we don't make the model answer from memory, we <strong>give it our data</strong> — with a tool (lecture 4: the model calls our <code>GetMenu()</code> method) or with RAG (lecture 11: we find the relevant document and put it in the prompt).</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>A rule that applies throughout the course: <strong>prices, stock, reservations, money — never from the model's memory.</strong> Such data always comes from our database.</p></div></div>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>pre-training</dt><dd>the main training on a large text: guessing the next token</dd><dt>fine-tuning</dt><dd>additional training for a specific behaviour (e.g. assistant dialogue)</dd><dt>knowledge cutoff</dt><dd>the date up to which the model's training data reaches</dd><dt>hallucination</dt><dd>convincingly stated but wrong or made-up information</dd></dl></div></article><article class="blk" data-slides="20,21"><span class="anchor" id="s-20"></span><span class="anchor" id="s-21"></span><div class="bh"><h3>Context window — what the model “sees” in one request</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
-<p>The <strong>context window</strong> is the maximum number of tokens the model processes in one request — <strong>input and output</strong> together. With modern models this ranges from tens of thousands of tokens to a million (the exact number is in the model's documentation).</p>
-<p>What goes into it (the bar on the slide):</p>
-<ul>
-<li><strong>System</strong> — instructions for the model (“You are a restaurant assistant…”)</li>
-<li><strong>Chat history</strong> — previous questions and answers</li>
-<li><strong>Data</strong> — the menu, documents, tool results</li>
-<li><strong>Question</strong> — the user's latest message</li>
-<li><strong>Answer</strong> — what the model will write</li>
+<p>The <strong>context window</strong> is the maximum number of tokens in one request: instructions + history + data + question + answer. Whatever we did not put there, the model cannot "see".</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>The first request says "My name is Nino", a second, separate request asks "What is my name?". What will it answer?</summary><div class="ans">It does not know, because the model is stateless. We have to send the previous messages too.</div></details><details><summary>The model said: "Khinkali costs 1.20 GEL here". Why don't we trust it?</summary><div class="ans">It has never seen our menu and wrote a likely number (hallucination). Prices always come from the database.</div></details></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>hallucination</dt><dd>confidently written but false information</dd><dt>context window</dt><dd>the maximum number of tokens in one request (input + output)</dd><dt>stateless</dt><dd>does not remember previous requests; each request is independent</dd></dl></div></div></section><section class="topic"><header><span class="num">5</span><h2>Temperature and Max Tokens</h2><a class="sl" href="index.en.html#/22" target="_blank">▶ Slides 22–25</a></header><div class="tb"><ul>
+<li><strong>Temperature</strong> decides how "boldly" the model picks a token. At 0 it almost always picks the most likely one; at 2 weak options ("banana") get a chance too.</li>
+<li><strong>Top-P</strong> cuts off the weak options entirely.</li>
+<li><strong>Max Tokens</strong> limits the length of the answer. At the limit the answer is <strong>cut off</strong> and <code>finish_reason</code> is <code>length</code>.</li>
 </ul>
-<p><strong>The model has no memory (stateless).</strong> This is the most common misunderstanding. In ChatGPT it looks as if the model “remembers” the conversation — in reality, on every new message the app <strong>sends the whole history again</strong>. We'll have to do the same: if we don't send the history, the model doesn't know what we were talking about. We'll see this in code in lecture 2, and learn to store the history in PostgreSQL in lecture 7.</p>
-<p><strong>Backend takeaways:</strong></p>
-<ul>
-<li>a long history = more tokens on every request = more money</li>
-<li>the history will eventually hit the <strong>limit</strong> — managing it (compressing, selecting) is our job</li>
-<li>the model sees <strong>only</strong> what we put into this request</li>
-</ul>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>context window</dt><dd>the maximum number of tokens in one request (input + output)</dd><dt>stateless</dt><dd>a system that doesn't remember previous requests; every request is independent</dd></dl></div>
-<h3>❓ Check yourself · part 2</h3>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why is the same text more expensive in Georgian than in English?</summary><div class="ans">Georgian text splits into more tokens (the tokenizer saw little Georgian), and price is counted in tokens.</div></details><details><summary>The model named the price of our dish. Why don't we trust it?</summary><div class="ans">It never saw our menu during training. The model writes the most likely text, not the true one — that's hallucination. Prices always come from the database.</div></details><details><summary>In the first request we said “there are four of us”, in the second we asked “how many are we?”. What will it answer?</summary><div class="ans">It won't know. The model is stateless: every request is separate. For it to “remember”, the second request has to include the previous messages too.</div></details><details><summary>What does “next-token prediction” mean?</summary><div class="ans">At every step the model calculates probabilities for the next token, picks one, appends it to the text and repeats the loop — until it reaches the end token or the limit.</div></details></div></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~5 min read</div><h2>Parameters: Temperature, Top-P, Max Tokens</h2><p class="goal">🎯 <b>After this</b> you'll choose parameters for the task and know when a reasoning model is needed.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>Part 3 · Which token will it pick?</h3><a class="chip" href="index.en.html#/22" data-go="22" target="_blank" title="This part in the presentation">Slide 22</a></div>
-<p>We know that at every step the model gets a list of probabilities. Now we'll see which parameters control the <strong>choice</strong> and the <strong>length of the answer</strong> — they appear in every API request.</p></article><article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>🎛️ Temperature and Top-P — live</h3><a class="chip" href="index.en.html#/23" data-go="23" target="_blank" title="This part in the presentation">Slide 23</a></div>
-<p>This slide uses the real formula: the model gives each token a “score” (logit), and the probabilities are calculated like this — each score is divided by <strong>Temperature</strong> and then turned into a probability with softmax.</p>
-<ul>
-<li><strong>Temperature ↓</strong> (towards 0) → the distribution gets <strong>sharper</strong>: the most likely option wins (“for two”). At 0 — almost always the same.</li>
-<li><strong>Temperature ↑</strong> (towards 2) → the distribution gets <strong>flatter</strong>: weak options (“banana”) also get a chance.</li>
-<li><strong>Top-P</strong> — in the list sorted by probability, it keeps the most likely options until their sum reaches P; it cuts the rest (shown in grey).</li>
-</ul>
-<p><strong>🎲 Pick 10 times</strong> — picks exactly like the model does: randomly, with these probabilities. Try Temperature 0, 0.7 and 2.</p>
-<p><strong>When to use what:</strong> one correct answer (extracting a date, classification) → 0; chat → ~0.7; creative text → 1+. We usually don't change Top-P and Temperature together.</p>
-<div class="callout note"><span class="ci">💡</span><div><p>The starting probabilities are illustrative; the formula is real.</p></div></div>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>logit</dt><dd>the model's “score” for each token before it becomes a probability</dd><dt>softmax</dt><dd>the formula that turns scores into probabilities (adding up to 100%)</dd></dl></div></article><article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>Max Tokens — where to stop</h3><a class="chip" href="index.en.html#/24" data-go="24" target="_blank" title="This part in the presentation">Slide 24</a></div>
-<p><strong>Max Tokens</strong> (<code>max_tokens</code>, <code>max_output_tokens</code>, in C# <code>MaxOutputTokens</code>) limits how many tokens the model may write <strong>in the answer</strong>. When it reaches the limit, writing simply stops — even mid-word or mid-sentence.</p>
-<p><strong>Why we need it:</strong></p>
-<ul>
-<li>💸 <strong>Cost limit</strong> — output tokens are the most expensive; the limit guarantees one request won't “grow out of control”.</li>
-<li>⏱️ <strong>Time limit</strong> — a short answer arrives quickly.</li>
-<li>🐛 <strong>Protection from odd behaviour</strong> — sometimes a model repeats the same thing endlessly; the limit stops it.</li>
-</ul>
-<p><strong>How do we know whether it was cut off?</strong> The response has <code>finish_reason</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Value</th>
-<th>Means</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>stop</code></td>
-<td>the model finished by itself — the normal case</td>
-</tr>
-<tr>
-<td><code>length</code></td>
-<td>it hit Max Tokens — <strong>the answer is cut off</strong></td>
-</tr>
-</tbody>
-</table>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>If the limit is too low, the user gets a cut-off sentence. That's why the backend should always check <code>finish_reason == length</code> (log it, or raise the limit). We'll see this in code in lecture 2.</p></div></div></article><article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>One project — different parameters</h3><a class="chip" href="index.en.html#/25" data-go="25" target="_blank" title="This part in the presentation">Slide 25</a></div>
-<p>In RestaurantApi the LLM will do several different jobs, and each needs its own parameters:</p>
 <table>
 <thead>
 <tr>
 <th>Task</th>
 <th>Temperature</th>
-<th>Max Tokens</th>
-<th>Why</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Detecting the message type (order / reservation / question)</td>
-<td>0</td>
-<td>~10</td>
-<td>one correct answer; one word</td>
+<td>Extracting data from text (date, guests)</td>
+<td>~0</td>
 </tr>
 <tr>
-<td>“Four of us tomorrow at 8” → date, time, party size</td>
-<td>0</td>
-<td>~100</td>
-<td>exact data extraction (lecture 3: structured output)</td>
+<td>Chatting with a customer</td>
+<td>~0.7</td>
 </tr>
 <tr>
-<td>Chat with a customer, recommendations</td>
-<td>0.5–0.8</td>
-<td>~300</td>
-<td>natural tone, but no fantasy</td>
-</tr>
-<tr>
-<td>Description of a new dish for the menu</td>
-<td>0.9–1.2</td>
-<td>~200</td>
-<td>creative text</td>
+<td>A dish description for an ad</td>
+<td>~1+</td>
 </tr>
 </tbody>
 </table>
-<p>The numbers are a guide, not a law — the right values are found by experiment (lectures 12 and 20: evaluation/evals).</p>
-<p><strong>The key point:</strong> a parameter belongs to <strong>an individual request</strong>. The same model is called with 0 in one endpoint and with 0.8 in another.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><strong>An exception — reasoning models.</strong> The table is about regular models. Gemini 3 “thinks” before answering, and Google recommends leaving Temperature at the default (1.0) — at low values quality may drop. We use Gemini, so in code (lecture 2) we mostly don't change Temperature. An exact shape (e.g. JSON) is protected not by Temperature but by <strong>structured output</strong> (lecture 3).</p></div></div>
-<h3>Reasoning models — they think first, then answer</h3>
-<p>A regular model starts writing the answer right away. A <strong>reasoning model</strong> first writes an internal “thought” — step-by-step reasoning (so-called reasoning or thinking tokens) — and only then the final answer. It's still next-token prediction; the model is simply trained to “think out loud” before answering.</p>
-<p><strong>When it's worth it:</strong> multi-step tasks — “8 guests, 2 children, the terrace is taken, which tables should we combine?”, calculations, combining complex rules, planning an agent's actions.</p>
-<p><strong>What it costs:</strong></p>
-<ul>
-<li>💸 <strong>Money</strong> — reasoning tokens are billed (usually as output tokens), even if you don't show them to the user; some providers don't show them at all, only the count in <code>usage</code>.</li>
-<li>🐢 <strong>Time</strong> — several seconds or more may pass before the answer.</li>
-<li>🎛️ <strong>Parameters</strong> — some reasoning models don't accept Temperature, but have a “how much to think” parameter instead (e.g. reasoning effort).</li>
-</ul>
-<p><strong>Rule:</strong> for a simple question (“How much is khinkali?”, “Open on Sunday?”) a reasoning model is wasted money. Real systems often use two models: a fast, cheap one for most requests, and a reasoning one only for the hard ones.</p>
-<h3>❓ Check yourself · part 3</h3>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>We extract the date and party size from a customer's message. Which Temperature would you set?</summary><div class="ans">On a regular model — 0 (or very low): there is one correct answer and we want the same result every time. On Gemini 3 (reasoning) — the default 1.0; the shape is protected by structured output (lecture 3).</div></details><details><summary>The answer stops mid-word. What happened and where do you see it?</summary><div class="ans">The model hit the Max Tokens limit. The response has <code>finish_reason</code> = <code>length</code> (in C# <code>ChatFinishReason.Length</code>).</div></details><details><summary>Would you use a reasoning model for the menu FAQ bot (“Open on Sunday?”)?</summary><div class="ans">No. The question is simple; a reasoning model is slow and we pay for thinking tokens too. A fast, cheap model is entirely enough.</div></details><details><summary>How is Top-P different from Temperature?</summary><div class="ans">Temperature changes the shape of the distribution (sharp ↔ flat), while Top-P cuts weak tokens: it keeps the most likely ones until their sum reaches P.</div></details></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">4</span><div class="cht"><div class="ck">Chapter 4 · ~5 min read</div><h2>Providers and price</h2><p class="goal">🎯 <b>After this</b> you'll choose cloud or local and calculate the monthly cost of an AI feature.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>Part 4 · Who, where and how much?</h3><a class="chip" href="index.en.html#/26" data-go="26" target="_blank" title="This part in the presentation">Slide 26</a></div>
-<p>The model has to run on someone's server — in the provider's cloud or on our own computer. The choice affects price, speed, quality and data security.</p></article><article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>Providers — whose model, whose server</h3><a class="chip" href="index.en.html#/27" data-go="27" target="_blank" title="This part in the presentation">Slide 27</a></div>
+<p>A parameter belongs to <strong>a single request</strong>: 0 in one endpoint, 0.7 in another.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>Gemini 3 "thinks" before answering (it is a reasoning model), and Google recommends leaving Temperature at the default (1.0). That is why from lecture 2 on we mostly leave it alone.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary><code>finish_reason: "length"</code>. What does it mean?</summary><div class="ans">The answer was cut off at the Max Tokens limit and is unfinished.</div></details></div></div></section><section class="topic"><header><span class="num">6</span><h2>Providers and price</h2><a class="sl" href="index.en.html#/26" target="_blank">▶ Slides 26–29</a></header><div class="tb"><p>We pay <strong>per token</strong>, and the price is given per 1 million tokens. <strong>Output</strong> (what the model writes) costs several times more than input.</p>
 <table>
 <thead>
 <tr>
-<th>Provider</th>
-<th>Models</th>
-<th>What stands out</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>OpenAI</strong></td>
-<td>GPT, reasoning models</td>
-<td>The most widely used API. Others adopted its request/response format (“OpenAI-compatible”)</td>
-</tr>
-<tr>
-<td><strong>Anthropic</strong></td>
-<td>Claude</td>
-<td>Strong at code, long documents, agentic tasks</td>
-</tr>
-<tr>
-<td><strong>Google</strong></td>
-<td>Gemini</td>
-<td>Large context window, text + images + audio; has a free tier</td>
-</tr>
-<tr>
-<td><strong>Groq</strong></td>
-<td>Open models (Llama, Qwen, etc.)</td>
-<td>Custom chips, very fast answers; free tier for learning</td>
-</tr>
-<tr>
-<td><strong>Ollama</strong></td>
-<td>Open models, on your computer</td>
-<td>Free, offline, data never leaves the computer</td>
-</tr>
-<tr>
-<td>Others</td>
-<td>Azure OpenAI, Mistral, DeepSeek…</td>
-<td>Most offer an OpenAI-compatible endpoint</td>
-</tr>
-</tbody>
-</table>
-<p>An <strong>open (open-weight) model</strong> means the model's “weights” (learned parameters) are public: anyone can download it and run it on their own server or computer. A closed model (GPT, Claude, Gemini) can only be called through the provider's API.</p>
-<div class="callout note"><span class="ci">💡</span><div><p>Specific model versions and names change month by month, so we don't memorise them in this lecture. We always check the current list in the provider's documentation.</p></div></div>
-<h3>Cloud API or a local model?</h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>☁️ Cloud</th>
-<th>💻 Local (Ollama)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Price</td>
-<td>we pay per token</td>
-<td>free — we pay with computer resources</td>
-</tr>
-<tr>
-<td>Quality</td>
-<td>the strongest models</td>
-<td>small models are weaker, especially in Georgian</td>
-</tr>
-<tr>
-<td>Speed</td>
-<td>fast; depends on the network</td>
-<td>depends on your GPU/CPU</td>
-</tr>
-<tr>
-<td>Data</td>
-<td>goes to the provider</td>
-<td>never leaves the computer</td>
-</tr>
-<tr>
-<td>For learning</td>
-<td>API key, limits, sometimes a card</td>
-<td>no key needed, but you need a powerful computer</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Our choice for the course:</strong> we use <strong>Google Gemini</strong> — a cloud model that writes Georgian well and has a free tier for learning (if you need more — a paid plan). A local model (Ollama) is worth it when data must not leave the company. The C# code will be almost the same for both — we'll see this in the coding lectures.</p>
-<div class="callout tip"><span class="ci">👉</span><div><p>In a real company the choice is often decided by <strong>data</strong>: a bank or a clinic may not be allowed to send customer data to an external provider. Then an open model runs on their own server.</p></div></div></article><article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>Price — we pay per token, and not equally</h3><a class="chip" href="index.en.html#/28" data-go="28" target="_blank" title="This part in the presentation">Slide 28</a></div>
-<p>Providers list prices <strong>per 1 million tokens</strong> (sometimes per 1000), and count three things separately:</p>
-<ul>
-<li>📥 <strong>Input</strong> — everything we send: system instructions, chat history, data, the question. Relatively cheap.</li>
-<li>📤 <strong>Output</strong> — what the model writes. Usually <strong>several times more expensive</strong> than input, because each output token is a separate run of the model. A reasoning model's “thinking” tokens are billed as output too.</li>
-<li>♻️ <strong>Cached input</strong> — if many requests share the same beginning (e.g. a long system prompt), some providers bill its repetition cheaply.</li>
-</ul>
-<p><strong>Google Gemini prices</strong> (November 2026, per 1M tokens):</p>
-<table>
-<thead>
-<tr>
-<th>Model</th>
+<th>Model (Google, November 2026)</th>
 <th>Input / 1M</th>
 <th>Output / 1M</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>⚡ <strong>Gemini 3.8 Flash</strong> — our model, fast and cheap</td>
+<td>⚡ Gemini 3.8 Flash (our model)</td>
 <td>$0.75</td>
 <td>$3.75</td>
 </tr>
 <tr>
-<td>🧠 <strong>Gemini 3.1 Pro</strong> — strong, for complex tasks</td>
+<td>🧠 Gemini 3.1 Pro</td>
 <td>$2.00</td>
 <td>$12.00</td>
 </tr>
 </tbody>
 </table>
-<p>The Flash price is an introductory one until December 31, 2026; from January 1, 2027 — $1.50 / $7.50. Even within one provider prices differ several times, and between providers — tenfold or more. That's why “the smartest model for everything” is often a bad decision.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>Prices change often. For a real cost estimate always open the provider's <strong>pricing</strong> page — you'll do this in the homework.</p></div></div></article><article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>🎮 What will an AI assistant cost the restaurant?</h3><a class="chip" href="index.en.html#/29" data-go="29" target="_blank" title="This part in the presentation">Slide 29</a></div>
-<p><strong>Given:</strong> 300 conversations a day; 2 000 input and 300 output tokens each; 30 days. Prices per 1M tokens (Google, November 2026): ⚡ <strong>Gemini 3.8 Flash</strong> — $0.75 / $3.75, 🧠 <strong>Gemini 3.1 Pro</strong> — $2 / $12.</p>
-<p>First calculate it yourself, then check with the calculator on the slide (it's public — use it at home too).</p>
-<p><strong>Solution:</strong></p>
-<ol>
-<li>input: 300 × 2 000 × 30 = <strong>18M</strong> tokens; output: 300 × 300 × 30 = <strong>2.7M</strong></li>
-<li>⚡ Gemini 3.8 Flash: 18 × 0.75 + 2.7 × 3.75 = <strong>≈ $23.6 per month</strong> (from 2027, at $1.50 / $7.50 — ≈ $47.3)</li>
-<li>🧠 Gemini 3.1 Pro: 18 × 2 + 2.7 × 12 = <strong>≈ $68.4 per month</strong> — almost 3 times more</li>
-</ol>
-<p><strong>Something to think about:</strong> because of Georgian, tokens ×1.5 → cost ×1.5 too. The chat history is sent again with every new message (stateless!) — input grows fast (lecture 7). A reasoning model increases output with thinking tokens.</p>
-<h3>❓ Check yourself · part 4</h3>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why is an output token more expensive than an input token?</summary><div class="ans">The model processes input tokens all at once, while each output token is a separate full run of the model (next-token prediction).</div></details><details><summary>The owner says: “customer data must not leave the company”. What would you suggest?</summary><div class="ans">An open model running on our own server (e.g. with Ollama or another inference server). The data never leaves the system; on the other hand, quality may be lower than in the cloud and we may need a more powerful server.</div></details><details><summary>What increases the cost of a chat the most?</summary><div class="ans">Choosing an expensive model and a growing chat history that is sent again with every request. Georgian text also increases the number of tokens.</div></details></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~3 min read</div><h2>Classwork: planning an AI feature</h2><p class="goal">🎯 <b>After this</b> following the example, you'll plan an AI feature for your project.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>Example: how we plan an AI feature</h3><a class="chip" href="index.en.html#/30" data-go="30" target="_blank" title="This part in the presentation">Slide 30</a></div>
-<p>Before writing code, an AI engineer plans a feature in two steps: <strong>1 — what the feature is</strong> and <strong>2 — how it will work</strong>. Here is the planned “menu recommendation” — we filled it in together in class:</p>
-<table>
-<thead>
-<tr>
-<th>Question</th>
-<th>Answer</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>What goes in</td>
-<td>the customer's text: “Something light, no meat, for two”</td>
-</tr>
-<tr>
-<td>What comes out</td>
-<td>a recommendation of 2–3 dishes with a short explanation</td>
-</tr>
-<tr>
-<td>From the database</td>
-<td>dishes, prices, vegetarian or not, availability — <strong>never</strong> from the model</td>
-</tr>
-<tr>
-<td>Temperature · Max Tokens</td>
-<td>~0.6 (natural, but no fantasy) · ~200</td>
-</tr>
-<tr>
-<td>Tokens</td>
-<td>the customer's text ~15–25; part of the menu + instructions — a few hundred</td>
-</tr>
-</tbody>
-</table>
-<p>The most important row is <strong>“from the database”</strong>: everything that is a fact (price, stock, reservation) our code takes from the database and gives to the model. The model only shapes the text.</p></article><article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>Classwork: Planning an AI feature — in pairs</h3><a class="chip" href="index.en.html#/31" data-go="31" target="_blank" title="This part in the presentation">Slide 31</a></div>
+<p><strong>Example:</strong> 300 conversations a day, 2,000 input and 300 output tokens each, 30 days.</p>
+<div class="codebox"><div class="ch"><span>Cost</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">input:  300 × 2,000 × 30 = 18M</span><span class="ln">output: 300 ×   300 × 30 = 2.7M</span><span class="ln">Flash:  18 × 0.75 + 2.7 × 3.75 ≈ $23.6 a month</span><span class="ln">Pro:    18 × 2    + 2.7 × 12   ≈ $68.4 a month</span></code></pre></div>
+<p>In the course we use <strong>Gemini</strong>: it writes Georgian well and has a free tier for learning. A local model (on your own server) is needed when the data must not leave.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>Prices change often. For a real estimate always open <a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini's pricing page</a>.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What increases a chat's cost the most?</summary><div class="ans">An expensive model and a growing history that is resent with every request. Georgian text also increases the token count.</div></details></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 Homework</h2><div class="box task"><h3>An AI plan for your project — and getting ready for code</h3>
+<p>No code · result — a document in your project's README</p>
+<h4>Requirements</h4>
+<ul>
+<li><strong>3 AI features</strong> in your project — as a table (in / out / from the database / Temperature · Max Tokens / tokens)</li>
+<li>Tokens — <strong>with <a href="https://tiktokenizer.vercel.app/">Tiktokenizer</a></strong> (model gpt-4o), using Georgian text</li>
+<li>For one feature, the <strong>monthly cost</strong>: with Gemini's <strong>real</strong> price, using the formula</li>
+<li>The study notes <strong>quiz</strong> (8 questions) — write down your score</li>
+<li>Get a <strong>Gemini API key</strong> and keep it — next lecture we put it in User Secrets (<code>Gemini:ApiKey</code>) and write code</li>
+</ul>
+<h4>✓ Done when</h4>
+<p>The README has the table of 3 features and the cost calculation with the formula; the quiz score is written down; you have the key</p>
+<h4>⭐ Bonus</h4>
+<ul>
+<li>Which feature has the biggest hallucination risk, and how will you avoid it?</li>
+<li>Compare the tokens of the same text on GPT-4o and GPT-4 — how many times do they differ?</li>
+</ul>
+<h4>💡 Details</h4>
+<ul>
+<li>Gemini prices: <a href="https://ai.google.dev/gemini-api/docs/pricing">ai.google.dev/gemini-api/docs/pricing</a> — assume the free tier has run out</li>
+<li>Cost formula: <code>requests per day × tokens × days / 1 000 000 × price</code> — input and output separately</li>
+<li>Key: <a href="https://aistudio.google.com">aistudio.google.com</a> → Get API key; next lecture we add it to the project: VS → right-click the project → <strong>Manage User Secrets</strong> (or <code>dotnet user-secrets set "Gemini:ApiKey" "…"</code>). Never share the key or put it in code, <code>appsettings.json</code> or on GitHub</li>
+</ul></div><h2>📝 Classwork</h2><div class="box task"><h3>Planning an AI feature — in pairs</h3>
 <p>Task · RestaurantApi or your project · no code: fill in a table in your notebook</p>
-<h3>Steps</h3>
+<h4>Steps</h4>
 <ul>
 <li><strong>1 · Come up with 2 AI features</strong> — for your project or for RestaurantApi (not menu recommendation — we did that together)</li>
 <li><strong>2 · Fill in the table for each</strong>, as in the example: what goes in · what comes out · what comes <strong>from the database</strong> · Temperature and Max Tokens · how many tokens (with Tiktokenizer)</li>
 </ul>
-<h3>✓ Done when</h3>
+<h4>✓ Done when</h4>
 <p>Both tables are filled in; one pair presents to the class and the others ask questions</p>
-<h3>⭐ Bonus</h3>
+<h4>⭐ Bonus</h4>
 <ul>
 <li>Which feature needs a reasoning model, and which doesn't?</li>
 <li>What can go wrong: what will the model say if we don't give it the database data?</li>
 </ul>
-<h3>💡 Ideas, if you're stuck</h3>
+<h4>💡 Ideas, if you're stuck</h4>
 <ul>
 <li><strong>Booking from the chat:</strong> “Four of us tomorrow at 8” → date, time, guests</li>
 <li><strong>Review summary:</strong> 50 comments → “what they like, what they complain about”</li>
 <li><strong>Order status:</strong> “Where is my order?”</li>
 <li><strong>Dish description for the menu:</strong> ingredients → an appealing text</li>
 </ul>
-<h3>💡 Tip</h3>
-<p>We don't write code today — we think like an AI engineer: what the model does, what our code does, what it costs. This plan continues in the homework, and you'll build it over the module.</p></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/32" data-go="32" target="_blank" title="This part in the presentation">Slide 32</a></div>
-<p>These questions will also be asked at the start of the next lecture.</p>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What is a token and why do we care about it in the backend?</summary><div class="ans">a piece of text the model reads and writes in · price, the context window limit and speed are counted in tokens; Georgian — more tokens</div></details><details><summary>How does an LLM write an answer?</summary><div class="ans">next-token prediction: computes probabilities for the next token → picks one → appends it → repeats until it finishes or hits the limit</div></details><details><summary>The model named the price of our dish. Why don't we trust it?</summary><div class="ans">it has never seen our menu; it writes what's likely, not what's true — hallucination · prices always come from the database</div></details><details><summary>Why doesn't the model “remember” the previous request?</summary><div class="ans">stateless: every request is independent · we have to send the history every time</div></details><details><summary>Which Temperature do we set to detect the order type, and what does <code>finish_reason = length</code> mean?</summary><div class="ans">0 — one correct answer, the same every time (on Gemini 3 — the default, lecture 2) · length — it hit Max Tokens, the answer was cut off</div></details><details><summary>The restaurant chat has 300 conversations a day. What increases the cost the most?</summary><div class="ans">an expensive model (prices differ tenfold) · a growing history that is sent again every time · Georgian text — more tokens</div></details></div></article><article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/33" data-go="33" target="_blank" title="This part in the presentation">Slide 33</a></div>
-<p><strong>The module:</strong> over 24 lectures an AI agent appears in RestaurantApi (and in your project) that understands human language and acts through our C# code: searches the menu, books a table, adds to the cart — securely and measurably. You become a .NET developer who builds AI systems.</p>
-<p><strong>Remember:</strong></p>
-<ol>
-<li><strong>Token</strong> — a piece of text and a number (ID); price, limits and speed are counted in tokens. Georgian takes more tokens.</li>
-<li><strong>Next-token prediction</strong> — the model writes what is likely, not necessarily what is true (hallucination). Prices, stock, reservations — always from our database.</li>
-<li><strong>Stateless</strong> — the model doesn't remember the previous request; we send the history and we pay for it.</li>
-<li><strong>Temperature, Top-P, Max Tokens</strong> — request parameters; <code>finish_reason = length</code> → the answer was cut off. A reasoning model — only for hard tasks.</li>
-<li><strong>Provider and price</strong> — input is cheap, output is expensive; a tenfold difference between models. We use Gemini.</li>
-</ol>
-<h3>⏭️ Next lecture — code</h3>
-<p>The first call from RestaurantApi to Gemini, and Prompt Engineering: how to give the model clear instructions and get the answer directly as a C# object. <strong>At home, get a Gemini API key</strong> (see the homework).</p>
-<div class="prompt"><div class="ph"><span>🤖 Test yourself on the whole lecture</span><button class="copy" type="button">Copy</button></div><div class="pb">I&#x27;m learning AI in .NET. In the first lecture we covered: what an LLM is, tokens and the tokenizer (pieces, vocabulary, IDs), next-token prediction, hallucination, the context window and stateless models, Temperature / Top-P / Max Tokens, finish_reason, reasoning models, providers (cloud vs local, Gemini) and calculating cost with input/output tokens.
-Ask me 8 questions one at a time, from easy to hard, including 2 practical situations about a restaurant API. After each of my answers tell me whether it&#x27;s right and why, then ask the next one. At the end tell me what I should review. Communicate in English.</div></div></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>Homework: An AI plan for your project — and getting ready for code</h3><a class="chip" href="index.en.html#/34" data-go="34" target="_blank" title="This part in the presentation">Slide 34</a></div>
-<p>No code · result — a document in your project's README</p>
-<h3>Requirements</h3>
-<ul>
-<li><strong>3 AI features</strong> in your project — as a table (in / out / from the database / Temperature · Max Tokens / tokens)</li>
-<li>Tokens — <strong>with <a href="https://tiktokenizer.vercel.app/">Tiktokenizer</a></strong> (model gpt-4o), using Georgian text</li>
-<li>For one feature, the <strong>monthly cost</strong>: with Gemini's <strong>real</strong> price, using the formula</li>
-<li>The <strong>quiz</strong> at the end of the study notes (12 questions) — write down your score</li>
-<li>Get a <strong>Gemini API key</strong> and keep it — next lecture we put it in User Secrets (<code>Gemini:ApiKey</code>) and write code</li>
-</ul>
-<h3>✓ Done when</h3>
-<p>The README has the table of 3 features and the cost calculation with the formula; the quiz score is written down; you have the key</p>
-<h3>⭐ Bonus</h3>
-<ul>
-<li>Which feature has the biggest hallucination risk, and how will you avoid it?</li>
-<li>Compare the tokens of the same text on GPT-4o and GPT-4 — how many times do they differ?</li>
-</ul>
-<h3>💡 Details</h3>
-<ul>
-<li>Gemini prices: <a href="https://ai.google.dev/gemini-api/docs/pricing">ai.google.dev/gemini-api/docs/pricing</a> — assume the free tier has run out</li>
-<li>Cost formula: <code>requests per day × tokens × days / 1 000 000 × price</code> — input and output separately</li>
-<li>Key: <a href="https://aistudio.google.com">aistudio.google.com</a> → Get API key; next lecture we add it to the project: VS → right-click the project → <strong>Manage User Secrets</strong> (or <code>dotnet user-secrets set "Gemini:ApiKey" "…"</code>). Never share the key or put it in code, <code>appsettings.json</code> or on GitHub</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 12 correct · <span id="qd">0</span> / 12 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>What is a token?</div></div><div class="opts"><button type="button" class="opt" data-i="0">One word</button><button type="button" class="opt" data-i="1">A piece of text the model reads and writes in</button><button type="button" class="opt" data-i="2">One letter</button><button type="button" class="opt" data-i="3">One sentence</button></div><div class="qe"><span class="verdict"></span> A token can be a word, a syllable or a letter — the tokenizer decides. Price, limits and speed are counted in tokens. <a class="chip" href="#s-14">Review · slide 14</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>The same idea in English and in Georgian. What happens with Georgian?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The tokens are the same</button><button type="button" class="opt" data-i="1">Many more tokens → more expensive and slower</button><button type="button" class="opt" data-i="2">Fewer tokens</button><button type="button" class="opt" data-i="3">The model can't read Georgian</button></div><div class="qe"><span class="verdict"></span> The tokenizer “saw” little Georgian, so a Georgian word splits into several parts. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>How does an LLM write an answer?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It looks up a ready answer in a database</button><button type="button" class="opt" data-i="1">At every step it calculates probabilities for the next token, picks one and repeats</button><button type="button" class="opt" data-i="2">It writes the whole answer at once</button><button type="button" class="opt" data-i="3">It searches the internet for the answer</button></div><div class="qe"><span class="verdict"></span> This is next-token prediction — the core mechanism of an LLM. <a class="chip" href="#s-17">Review · slide 17</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">4</span><div>The model said: “Khinkali costs 1.20 ₾ here”. What do we do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Trust it — the model is smart</button><button type="button" class="opt" data-i="1">Set Temperature to 0 and then trust it</button><button type="button" class="opt" data-i="2">The price always comes from our database (tool or RAG)</button><button type="button" class="opt" data-i="3">Use a bigger model</button></div><div class="qe"><span class="verdict"></span> This is hallucination: the model writes what is likely, not what is true. Temperature 0 makes the answer consistent, not correct. <a class="chip" href="#s-19">Review · slide 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>First request: “My name is Nino”. Second, separate request: “What's my name?”. What will it answer?</div></div><div class="opts"><button type="button" class="opt" data-i="0">“Nino”</button><button type="button" class="opt" data-i="1">It won't know — the model is stateless</button><button type="button" class="opt" data-i="2">It remembers for 24 hours</button><button type="button" class="opt" data-i="3">Only if we write in Georgian</button></div><div class="qe"><span class="verdict"></span> Every request is independent. For “memory” we have to send the history every time. <a class="chip" href="#s-20">Review · slide 20</a></div></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">6</span><div>We extract the date and party size from a customer's text. Which Temperature?</div></div><div class="opts"><button type="button" class="opt" data-i="0">0</button><button type="button" class="opt" data-i="1">0.7</button><button type="button" class="opt" data-i="2">1.5</button><button type="button" class="opt" data-i="3">2</button></div><div class="qe"><span class="verdict"></span> On a regular model — 0: there is one correct answer and we want the same result every time. Exception: Gemini 3 (reasoning) — we leave Temperature at the default (1.0), and the shape is protected by structured output (lectures 2–3). <a class="chip" href="#s-25">Review · slide 25</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>The response says <code>finish_reason: "length"</code>. What does it mean?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The model finished successfully</button><button type="button" class="opt" data-i="1">It hit Max Tokens — the answer was cut off</button><button type="button" class="opt" data-i="2">We sent a text that was too long</button><button type="button" class="opt" data-i="3">The model restarted</button></div><div class="qe"><span class="verdict"></span> A normal finish is <code>stop</code>. On <code>length</code>, raise the limit or log it. <a class="chip" href="#s-24">Review · slide 24</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>What does Top-P = 0.9 do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Returns 90% of the text</button><button type="button" class="opt" data-i="1">Keeps the most likely tokens until their sum reaches 90%</button><button type="button" class="opt" data-i="2">Sets Temperature to 0.9</button><button type="button" class="opt" data-i="3">Limits the answer to 90 tokens</button></div><div class="qe"><span class="verdict"></span> It cuts the weak “tail”, and the choice happens only among the remaining tokens. <a class="chip" href="#s-23">Review · slide 23</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>FAQ bot: “Open on Sunday?”. Should we use a reasoning model?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Yes — it's always better</button><button type="button" class="opt" data-i="1">No — it's a simple question; reasoning is slow and we pay for thinking tokens</button><button type="button" class="opt" data-i="2">Yes, if it's in Georgian</button><button type="button" class="opt" data-i="3">Only in the evening, when the load is low</button></div><div class="qe"><span class="verdict"></span> Reasoning is worth it for multi-step tasks, not simple questions. <a class="chip" href="#s-25">Review · slide 25</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>10M input and 1M output tokens a month. The model is Gemini 3.8 Flash ($0.75 / $3.75 per 1M). Cost?</div></div><div class="opts"><button type="button" class="opt" data-i="0">$4.50</button><button type="button" class="opt" data-i="1">$11.25</button><button type="button" class="opt" data-i="2">$75.00</button><button type="button" class="opt" data-i="3">$7.50</button></div><div class="qe"><span class="verdict"></span> 10 × 0.75 + 1 × 3.75 = 7.50 + 3.75 = $11.25. <a class="chip" href="#s-29">Review · slide 29</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>When is a local model (running on our own server) the better choice?</div></div><div class="opts"><button type="button" class="opt" data-i="0">When we want the strongest model</button><button type="button" class="opt" data-i="1">When customer data must not leave the company</button><button type="button" class="opt" data-i="2">When we want good quality in Georgian</button><button type="button" class="opt" data-i="3">When we don't have a server</button></div><div class="qe"><span class="verdict"></span> A local model keeps the data inside the system; on the other hand, it needs a powerful server and small models are weak in Georgian. <a class="chip" href="#s-27">Review · slide 27</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">12</span><div>Where do we store the Gemini API key?</div></div><div class="opts"><button type="button" class="opt" data-i="0">In <code>appsettings.json</code></button><button type="button" class="opt" data-i="1">In code, as a const</button><button type="button" class="opt" data-i="2">In User Secrets, as <code>Gemini:ApiKey</code></button><button type="button" class="opt" data-i="3">In <code>launchSettings.json</code></button></div><div class="qe"><span class="verdict"></span> The other files go to Git — bots find a leaked key within minutes.</div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>deterministic</dt><dd>the same input always produces the same result</dd><dt>probabilistic</dt><dd>the result contains randomness; one input can produce different results</dd><dt>AI (artificial intelligence)</dt><dd>any program that performs a “smart” task</dd><dt>Machine Learning</dt><dd>the program finds the rules itself from examples</dd><dt>Deep Learning</dt><dd>Machine Learning with a multi-layer neural network</dd><dt>GenAI</dt><dd>AI that creates new content</dd><dt>LLM</dt><dd>large language model: text in, text out</dd><dt>token</dt><dd>a piece of text the model reads and writes in</dd><dt>tokenizer</dt><dd>a program that splits text into tokens (and IDs) and back</dd><dt>vocabulary</dt><dd>the tokenizer's table: piece → number (ID)</dd><dt>next-token prediction</dt><dd>predicting the next token: the core mechanism of an LLM</dd><dt>probability distribution</dt><dd>the list of all possible tokens with their probabilities; they add up to 100%</dd><dt>pre-training</dt><dd>the main training on a large text: guessing the next token</dd><dt>fine-tuning</dt><dd>additional training for a specific behaviour (e.g. assistant dialogue)</dd><dt>knowledge cutoff</dt><dd>the date up to which the model's training data reaches</dd><dt>hallucination</dt><dd>convincingly stated but wrong or made-up information</dd><dt>context window</dt><dd>the maximum number of tokens in one request (input + output)</dd><dt>stateless</dt><dd>a system that doesn't remember previous requests; every request is independent</dd><dt>logit</dt><dd>the model's “score” for each token before it becomes a probability</dd><dt>softmax</dt><dd>the formula that turns scores into probabilities (adding up to 100%)</dd></dl></div></div></section>
-  </main>
-</div>
+<h4>💡 Tip</h4>
+<p>We don't write code today — we think like an AI engineer: what the model does, what our code does, what it costs. This plan continues in the homework, and you'll build it over the module.</p></div></section><section class="panel" id="tab-quiz"><p class="hint">Pick an answer and you will see right away whether it is correct and why.</p><div class="qscore"><span id="qs">0</span> / 8 correct · <span id="qd">0</span> / 8 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>What is a token?</div></div><div class="opts"><button type="button" class="opt" data-i="0">One word</button><button type="button" class="opt" data-i="1">A piece of text the model reads and writes in</button><button type="button" class="opt" data-i="2">One letter</button><button type="button" class="opt" data-i="3">One sentence</button></div><div class="qe"><span class="verdict"></span> A token can be a word, a syllable or a letter — the tokenizer decides. Price, limits and speed are counted in tokens. <a class="chip" href="index.en.html#/14" target="_blank">Review · slide 14</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>The same idea in English and in Georgian. What happens with Georgian?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The tokens are the same</button><button type="button" class="opt" data-i="1">Many more tokens → more expensive and slower</button><button type="button" class="opt" data-i="2">Fewer tokens</button><button type="button" class="opt" data-i="3">The model can't read Georgian</button></div><div class="qe"><span class="verdict"></span> The tokenizer “saw” little Georgian, so a Georgian word splits into several parts. <a class="chip" href="index.en.html#/16" target="_blank">Review · slide 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>How does an LLM write an answer?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It looks up a ready answer in a database</button><button type="button" class="opt" data-i="1">At every step it calculates probabilities for the next token, picks one and repeats</button><button type="button" class="opt" data-i="2">It writes the whole answer at once</button><button type="button" class="opt" data-i="3">It searches the internet for the answer</button></div><div class="qe"><span class="verdict"></span> This is next-token prediction — the core mechanism of an LLM. <a class="chip" href="index.en.html#/17" target="_blank">Review · slide 17</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">4</span><div>The model said: “Khinkali costs 1.20 ₾ here”. What do we do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Trust it — the model is smart</button><button type="button" class="opt" data-i="1">Set Temperature to 0 and then trust it</button><button type="button" class="opt" data-i="2">The price always comes from our database (tool or RAG)</button><button type="button" class="opt" data-i="3">Use a bigger model</button></div><div class="qe"><span class="verdict"></span> This is hallucination: the model writes what is likely, not what is true. Temperature 0 makes the answer consistent, not correct. <a class="chip" href="index.en.html#/19" target="_blank">Review · slide 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>First request: “My name is Nino”. Second, separate request: “What's my name?”. What will it answer?</div></div><div class="opts"><button type="button" class="opt" data-i="0">“Nino”</button><button type="button" class="opt" data-i="1">It won't know — the model is stateless</button><button type="button" class="opt" data-i="2">It remembers for 24 hours</button><button type="button" class="opt" data-i="3">Only if we write in Georgian</button></div><div class="qe"><span class="verdict"></span> Every request is independent. For “memory” we have to send the history every time. <a class="chip" href="index.en.html#/20" target="_blank">Review · slide 20</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>The response says <code>finish_reason: "length"</code>. What does it mean?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The model finished successfully</button><button type="button" class="opt" data-i="1">It hit Max Tokens — the answer was cut off</button><button type="button" class="opt" data-i="2">We sent a text that was too long</button><button type="button" class="opt" data-i="3">The model restarted</button></div><div class="qe"><span class="verdict"></span> A normal finish is <code>stop</code>. On <code>length</code>, raise the limit or log it. <a class="chip" href="index.en.html#/24" target="_blank">Review · slide 24</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>10M input and 1M output tokens a month. The model is Gemini 3.8 Flash ($0.75 / $3.75 per 1M). Cost?</div></div><div class="opts"><button type="button" class="opt" data-i="0">$4.50</button><button type="button" class="opt" data-i="1">$11.25</button><button type="button" class="opt" data-i="2">$75.00</button><button type="button" class="opt" data-i="3">$7.50</button></div><div class="qe"><span class="verdict"></span> 10 × 0.75 + 1 × 3.75 = 7.50 + 3.75 = $11.25. <a class="chip" href="index.en.html#/29" target="_blank">Review · slide 29</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">8</span><div>Where do we store the Gemini API key?</div></div><div class="opts"><button type="button" class="opt" data-i="0">In <code>appsettings.json</code></button><button type="button" class="opt" data-i="1">In code, as a const</button><button type="button" class="opt" data-i="2">In User Secrets, as <code>Gemini:ApiKey</code></button><button type="button" class="opt" data-i="3">In <code>launchSettings.json</code></button></div><div class="qe"><span class="verdict"></span> The other files go to Git — bots find a leaked key within minutes.</div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 1 — შესავალი Generative AI-სა და LLM API-ებში";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "Copy", "copied": "✓ Copied", "review": "Review these questions: ", "allright": "All correct! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -927,9 +393,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
-      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -943,16 +407,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>
