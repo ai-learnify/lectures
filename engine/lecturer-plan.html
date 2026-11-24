@@ -17,12 +17,10 @@ a{color:var(--accent)}
 .top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
 .btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
 .btn:hover{border-color:var(--ink2)}
+.btn.ico{min-width:38px;text-align:center;padding:7px 10px}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
 .follow{display:none;align-items:center;gap:6px;font:600 13px var(--mono);color:var(--green)}.follow.on{display:flex}
 .follow .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
-.timer{display:flex;align-items:center;gap:8px;font:700 14px var(--mono)}
-.timer .plan{font-weight:500;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.timer button{font:700 13px var(--mono);border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px;cursor:pointer}
 main{max-width:880px;margin:0 auto;padding:24px 20px 80px}
 .hero .k{font:600 13px var(--mono);color:var(--muted)}
 .hero h1{font-size:30px;line-height:1.25;margin:4px 0 6px}
@@ -107,19 +105,16 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qscore{position:sticky;top:calc(var(--barsH,131px) + 8px);z-index:5;display:flex;align-items:center;gap:12px;font:700 14px var(--mono);color:var(--green);background:var(--ok-soft);border:1px solid var(--ok-line);border-radius:12px;padding:8px 14px;margin:14px 0 6px}
 .qscore .btn{margin-left:auto;padding:4px 12px;font-size:13px}
 .qq{border:1px solid var(--line);border-radius:14px;background:var(--surf);padding:14px 16px;margin:12px 0}
-@media (max-width:720px){.top{flex-wrap:wrap}.timer .plan{display:none}.plan-t a.row{grid-template-columns:80px 28px 1fr}.plan-t .s{display:none}.card>header{flex-wrap:wrap}}
-@media print{.top{display:none}main{max-width:none;padding:0}.card{break-inside:avoid}details.blk,details.mat{display:block}body{font-size:13px}}
+@media (max-width:720px){.top{flex-wrap:wrap}@media print{.top{display:none}main{max-width:none;padding:0}.card{break-inside:avoid}details.blk,details.mat{display:block}body{font-size:13px}}
 </style></head>
 <body>
 <div class="top">
   <a class="back" href="../../">← ლექციები</a>
   <div class="ttl"><small>🎓 ლექცია {{NUM}}</small>{{TITLE}}</div>
   <span class="follow" id="follow" title="პრეზენტაცია ღიაა — მიმდინარე თემა ინიშნება"><span class="dot"></span>სლაიდი <b id="fslide">–</b></span>
-  <div class="timer"><span id="tclock">0:00</span><span class="plan" id="tplan"></span><button type="button" id="tbtn">▶ დაწყება</button></div>
   <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <button class="btn" type="button" onclick="print()" title="დაბეჭდე">🖨</button>
-  <a class="btn" href="study.html" target="_blank">📖 კონსპექტი</a>
-  <a class="btn play" href="index.html" target="_blank">▶ პრეზენტაცია</a>
+  <a class="btn ico" href="study.html" target="_blank" title="კონსპექტი" aria-label="კონსპექტი">📖</a>
+  <a class="btn play ico" href="index.html" target="_blank" title="პრეზენტაცია" aria-label="პრეზენტაცია">▶</a>
 </div>
 <main>
   <header class="hero">
@@ -163,18 +158,5 @@ document.addEventListener('click', e => {   // ▶ სლაიდი: ღია
   const c = e.target.closest('[data-go]'); if (!c || !bc || !$('#follow').classList.contains('on')) return;
   e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
 });
-// ტაიმერი: სად უნდა იყო გეგმით
-const timed = $$('.card[data-min]'), total = {{TOTAL}};
-let t0 = store('t0');
-const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-function tick() {
-  if (!t0) { $('#tclock').textContent = '0:00'; $('#tplan').textContent = ''; $('#tbtn').textContent = '▶ დაწყება'; return; }
-  const s = (Date.now() - t0) / 1000, m = s / 60;
-  $('#tclock').textContent = fmt(s); $('#tbtn').textContent = '■';
-  const c = timed.find(x => m >= +x.dataset.start && m < +x.dataset.start + +x.dataset.min);
-  $('#tplan').textContent = c ? 'გეგმით: ' + c.querySelector('h2').textContent : (m >= total ? 'რეზერვის დრო' : '');
-}
-$('#tbtn').onclick = () => { t0 = t0 ? null : Date.now(); store('t0', t0); tick(); };
-setInterval(tick, 1000); tick();
 </script>
 </body></html>
