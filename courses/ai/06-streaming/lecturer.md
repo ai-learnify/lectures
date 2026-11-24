@@ -110,7 +110,7 @@
 
 მხოლოდ ლექციის ბოლოს. აირჩიე 1–3.
 
-- **🌐 ბრაუზერის გვერდი · 6 წთ:** კონსპექტის `wwwroot/chat.html` + `app.UseStaticFiles()`. ტექსტი ნაწილ-ნაწილ ჩანს. „`onerror`-ში `close()` რატომ?“ → EventSource თავიდან უკავშირდება და იგივე კითხვას ხელახლა აგზავნის
+- **🌐 ფრონტის გვერდი · 6 წთ:** 💻 code გვერდის ⭐-დან: ცალკე `chat.html` Live Server-ით + CORS-ში მისი origin (ან გვერდი AI-ს დააწერინე ცოცხლად). ტექსტი ნაწილ-ნაწილ ჩანს, DevTools-ში EventStream. „`onerror`-ში `close()` რატომ?“ → EventSource თავიდან უკავშირდება და იგივე კითხვას ხელახლა აგზავნის
 - **🔢 UsageTracking სტრიმინგზე · 8 წთ:** `GetStreamingResponseAsync`-ის override. update-ებს უშვებს და `UsageContent`-ს ითვლის. სიაში არ აგროვებს
 - **🚦 სტატუსის მოვლენები · 8 წთ:** `SseItem<string>` ტიპით: "Checking the tables…" tool-ის დროს, მერე ტექსტი
 - **🧪 InputGuard-ის ხვრელი · 4 წთ:** 1500 სიმბოლო `/chat`-ზე შეჩერდება, `/chat/stream`-ზე Gemini პასუხობს. ფილტრი ორივე მეთოდში უნდა იდგეს (საშინაო)

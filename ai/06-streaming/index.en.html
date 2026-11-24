@@ -785,19 +785,23 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="Homework">
   <div class="kicker">🏠 Homework</div>
   <h2>A streaming chat and layers with streaming</h2>
-  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
     <div class="card accent" style="--a:var(--net)">
       <h3><span class="ico">🏠</span>With code · your project · a table in the README</h3>
       <ul class="clean small">
-<li><strong><code class="i">GET /api/assistant/chat/stream</code></strong> in your project: with tools (<code class="i">CreateChatOptions()</code>), <code class="i">TypedResults.ServerSentEvents</code>, an async iterator, a <code class="i">CancellationToken</code> in all three places</li>
-<li><strong>InputGuard with streaming:</strong> add a <code class="i">GetStreamingResponseAsync</code> override to lecture 5's guard layer — when it stops, <strong>one</strong> <code class="i">ChatResponseUpdate</code> with the message and <code class="i">yield break</code>, without Gemini</li>
-<li><strong>README — a TTFT table:</strong> 3 questions through <code class="i">/stream-timing</code>: short · long · with a tool. Columns: question · ms of the first piece · ms of the last piece · number of pieces</li>
+<li><strong><code class="i">GET /api/assistant/chat/stream</code></strong> in your project: with tools (<code class="i">CreateChatOptions()</code>), <code class="i">TypedResults.ServerSentEvents</code>, async iterator, <code class="i">CancellationToken</code> in all three places</li>
+<li><strong>InputGuard with streaming:</strong> add to lecture 5's guard layer a <code class="i">GetStreamingResponseAsync</code> override — when it stops, <strong>one</strong> <code class="i">ChatResponseUpdate</code> with the message and <code class="i">yield break</code>, without Gemini</li>
+<li><strong>README — a TTFT table:</strong> <code class="i">/stream-timing</code>: 3 questions — short · long · with a tool. Columns: question · ms of the first piece · ms of the last piece · number of pieces</li>
 <li><strong>README — cancellation:</strong> Ctrl+C on a long answer → 3–5 lines of the server log showing the request was cancelled</li>
 <li>The study notes <strong>quiz</strong> (8 questions) — write down your score</li>
 </ul>
-      
+      <p class="tiny" style="margin-top:14px">✓ Done when: <code>curl -N</code>— the text appears piece by piece, on the tool question too; on a too-long question <code>/chat/stream</code> returns the guard's answer and the Gemini log is empty; the README has the TTFT table, the cancellation log and the quiz score</p>
     </div>
-    
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
+<li><strong>A front-end page:</strong> a separate <code class="i">chat.html</code> outside the project (Live Server), with <code class="i">EventSource</code>; its origin in the API's CORS policy. You can have AI write the page</li>
+<li><strong>UsageTracking with streaming:</strong> an override that collects the pieces and at the end writes <code class="i">updates.ToChatResponse().Usage</code>to the log</li>
+<li><strong>Status events:</strong> <code class="i">IAsyncEnumerable&lt;SseItem&lt;string&gt;&gt;</code> and <code class="i">TypedResults.ServerSentEvents(...)</code> — during the tool loop <code class="i">event: status</code> (“checking the tables…”), then the text</li>
+</ul></div>
   </div>
   <div class="callout mt" style="--a:var(--api)">At the start of the next lecture we'll <b>go through this homework together</b></div>
 </section>

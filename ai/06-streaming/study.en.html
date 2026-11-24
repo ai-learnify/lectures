@@ -202,7 +202,7 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <p>With <code>curl -N</code> the text appears piece by piece, on the tool question too; on a too-long question <code>/chat/stream</code> returns the guard's answer and the Gemini log is empty; the README has the TTFT table, the cancellation log and the quiz score</p>
 <h4>⭐ Bonus</h4>
 <ul>
-<li><strong>A browser page:</strong> <code>wwwroot/chat.html</code> with <code>EventSource</code> (a sample in the notes, part 2) + <code>app.UseStaticFiles()</code></li>
+<li><strong>A front-end page:</strong> a separate <code>chat.html</code> outside the project (Live Server) with <code>EventSource</code>; its origin in the API's CORS policy. You can have AI write the page</li>
 <li><strong>UsageTracking with streaming:</strong> an override that collects the pieces and writes <code>updates.ToChatResponse().Usage</code> to the log at the end</li>
 <li><strong>Status events:</strong> <code>IAsyncEnumerable&lt;SseItem&lt;string&gt;&gt;</code> and <code>TypedResults.ServerSentEvents(...)</code> — an <code>event: status</code> (“checking the tables…”) during the tool loop, then the text</li>
 </ul>

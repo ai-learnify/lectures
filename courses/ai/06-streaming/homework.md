@@ -16,7 +16,7 @@
 
 ## ⭐ ბონუსი
 
-- **ბრაუზერის გვერდი:** `wwwroot/chat.html` `EventSource`-ით (ნიმუში კონსპექტში, ნაწილი 2) + `app.UseStaticFiles()`
+- **ფრონტის გვერდი:** ცალკე `chat.html` პროექტის გარეთ (Live Server), `EventSource`-ით; API-ში CORS-ის პოლიტიკაში მისი origin. გვერდი შეიძლება AI-ს დააწერინო
 - **UsageTracking სტრიმინგზე:** override, რომელიც ნაწილებს აგროვებს და ბოლოს `updates.ToChatResponse().Usage`-ს წერს ლოგში
 - **სტატუსის მოვლენები:** `IAsyncEnumerable<SseItem<string>>` და `TypedResults.ServerSentEvents(...)` — tool-ის ციკლის დროს `event: status` ("Checking the tables…"), მერე ტექსტი
 

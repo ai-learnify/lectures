@@ -16,7 +16,7 @@ With `curl -N` the text appears piece by piece, on the tool question too; on a t
 
 ## ⭐ Bonus
 
-- **A browser page:** `wwwroot/chat.html` with `EventSource` (a sample in the notes, part 2) + `app.UseStaticFiles()`
+- **A front-end page:** a separate `chat.html` outside the project (Live Server) with `EventSource`; its origin in the API's CORS policy. You can have AI write the page
 - **UsageTracking with streaming:** an override that collects the pieces and writes `updates.ToChatResponse().Usage` to the log at the end
 - **Status events:** `IAsyncEnumerable<SseItem<string>>` and `TypedResults.ServerSentEvents(...)` — an `event: status` (“checking the tables…”) during the tool loop, then the text
 

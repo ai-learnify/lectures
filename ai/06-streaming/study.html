@@ -202,7 +202,7 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <p><code>curl -N</code>-ით ტექსტი ნაწილ-ნაწილ ჩნდება, tool-იან კითხვაზეც; გრძელ შეკითხვაზე <code>/chat/stream</code> დაცვის პასუხს აბრუნებს და Gemini-ს ლოგი ცარიელია; README-ში TTFT ცხრილი, გაუქმების ლოგი და ტესტის ქულა</p>
 <h4>⭐ ბონუსი</h4>
 <ul>
-<li><strong>ბრაუზერის გვერდი:</strong> <code>wwwroot/chat.html</code> <code>EventSource</code>-ით (ნიმუში კონსპექტში, ნაწილი 2) + <code>app.UseStaticFiles()</code></li>
+<li><strong>ფრონტის გვერდი:</strong> ცალკე <code>chat.html</code> პროექტის გარეთ (Live Server), <code>EventSource</code>-ით; API-ში CORS-ის პოლიტიკაში მისი origin. გვერდი შეიძლება AI-ს დააწერინო</li>
 <li><strong>UsageTracking სტრიმინგზე:</strong> override, რომელიც ნაწილებს აგროვებს და ბოლოს <code>updates.ToChatResponse().Usage</code>-ს წერს ლოგში</li>
 <li><strong>სტატუსის მოვლენები:</strong> <code>IAsyncEnumerable&lt;SseItem&lt;string&gt;&gt;</code> და <code>TypedResults.ServerSentEvents(...)</code> — tool-ის ციკლის დროს <code>event: status</code> ("Checking the tables…"), მერე ტექსტი</li>
 </ul>
