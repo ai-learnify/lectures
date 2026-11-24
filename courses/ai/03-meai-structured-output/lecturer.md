@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-კოდს კლასთან ერთად წერ. დიდ ბლოკებს (`BookingRequest`, `ParseBooking`) წინასწარ ამზადებ, ჩასვამ და ახსნი. სრული კოდი 💻 ღილაკზეა.
+კოდს კლასთან ერთად წერ. დიდ ბლოკებს (`BookingDetails`, `BookingsController.Parse`) წინასწარ ამზადებ, ჩასვამ და ახსნი. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -16,7 +16,7 @@
 
 - RestaurantApi-ში წინასწარ გააკეთე ნაწილი 2 (DI) და გაუშვი `/ask`. ლექციაზე ერთად გადააკეთებთ, მაგრამ იცი, რომ მუშაობს
 - User Secrets შენთან უკვე იყოს. პროექტორზე key-ს **არ** აჩვენებ
-- `BookingRequest` და `ParseBooking` ცალკე ფაილში მოამზადე
+- `BookingDetails` და `BookingsController.Parse` ცალკე ფაილში მოამზადე
 - შეამოწმე [მოდელების სიაში](https://ai.google.dev/gemini-api/docs/models) `gemini-3.8-flash`. შეარჩიე მეორე მოდელიც „მოდელის შეცვლის“ საჩვენებლად
 - სლაიდ 17-ის 3 ტექსტი ერთხელ გაუშვი, რომ იცოდე, „8-ზე“ რას აბრუნებს ახლა (08:00 თუ 20:00)
 
@@ -44,13 +44,13 @@
 
 ### 🆘 თუ ვერ გაიგეს
 
-- **DI ჭედავს →** დაფაზე ორი სვეტი: „API კურსი“ `AddDbContext<DataContext>` / `ProductsController(DataContext db)` და „დღეს“ `AddChatClient` / `AiLabController(IChatClient chat)`. „იგივე ორი ხაზია, მხოლოდ ტიპი შეიცვალა“.
+- **DI ჭედავს →** დაფაზე ორი სვეტი: „API კურსი“ `AddDbContext<DataContext>` / `ProductsController(DataContext db)` და „დღეს“ `AddChatClient` / `AssistantController(IChatClient chat)`. „იგივე ორი ხაზია, მხოლოდ ტიპი შეიცვალა“.
 
 ## 3 · Structured output: enum · 12 წთ · 10–13
 
 - few-shot „თითქმის“ მუშაობს (11): საშინაოში მოვიდა `Search.` და `search`, და `if` ჩავარდა
 - **„few-shot სთხოვს, structured output აიძულებს“**
-- `ReviewSentiment`-ს **ვცვლით** (12): enum, System მოკლდება, `GetResponseAsync<Sentiment>`, `.Result`. Swagger-ში 2–3 შეფასება
+- `FeedbackController.AnalyzeSentiment`-ს **ვცვლით** (12): enum, System მოკლდება, `GetResponseAsync<Sentiment>`, `.Result`. Swagger-ში 2–3 შეფასება
 - შიგნით (13): ტიპი → სქემა → Gemini → `.Result`
 - ✂ ჩამორჩი? სლაიდი 13: მხოლოდ ისრები, `data`-ს გარეშე
 
@@ -70,7 +70,7 @@
 
 ## 4 · ტექსტი → ობიექტი · 15 წთ · 15–17
 
-- `BookingRequest` (16): კოდს **ჩასვამ** და ნაბიჯებად ხსნი: nullable ველები, `Description`, „დატოვე null“, თარიღი prompt-ში
+- `BookingDetails` (16): კოდს **ჩასვამ** და ნაბიჯებად ხსნი: nullable ველები, `Description`, „დატოვე null“, თარიღი prompt-ში
 - 3 ტექსტი (17): თითოზე ჯერ პროგნოზი, მერე Swagger. „8-ზე“ → 08:00? „საღამოს“ → ვარაუდი. „ხინკალი“ → ყველაფერი null
 - დასკვნა: **ფორმა გარანტირებულია, შინაარსი არა**, ამიტომ C# ამოწმებს (`if … is null`)
 - ✂ ჩამორჩი? 17-ზე მხოლოდ ტექსტები 1 და 2
@@ -117,7 +117,7 @@
 მხოლოდ ლექციის ბოლოს. აირჩიე 1–3.
 
 - **🔁 მოდელის შეცვლა კონფიგურაციით · 4 წთ:** `/ask`-ზე ერთი კითხვა, ჩაიწერე ტოკენები. `appsettings.json`-ში `"Model"` შეცვალე მეორეზე, გადატვირთე და შეადარე
-- **💥 როცა JSON ვერ მოვიდა · 5 წთ:** `ParseBooking`-ში `MaxOutputTokens = 20`. „რა მოხდება?“ → `500`, რადგან `.Result` ვერ იკითხება. დასკვნა: შეცდომა უნდა დავიჭიროთ (ლექცია 8)
+- **💥 როცა JSON ვერ მოვიდა · 5 წთ:** `BookingsController.Parse`-ში `MaxOutputTokens = 20`. „რა მოხდება?“ → `500`, რადგან `.Result` ვერ იკითხება. დასკვნა: შეცდომა უნდა დავიჭიროთ (ლექცია 8)
 - **🧪 ყალბი IChatClient · 8 წთ:** კლასი, რომელიც `IChatClient`-ს ახორციელებს და ყოველთვის ერთსა და იმავე JSON-ს აბრუნებს. DI-ში ჩაანაცვლე, და Controller ვერ ამჩნევს. ესაა DI-ის სარგებელი (ლექცია 22)
 - **📝 Description-ის ეფექტი · 5 წთ:** `Description`-ის გარეშე "There are four of us, tomorrow at 8" 3-ჯერ, მერე `At`-ზე აღწერით („ambiguous hour means the evening“). შეადარეთ საათები
 - **🍽️ სია ტექსტიდან · 5 წთ:** `GetResponseAsync<List<OrderItem>>` → "Two khinkali, one khachapuri and three lemonades". ტიპი ნებისმიერი შეიძლება, სიაც

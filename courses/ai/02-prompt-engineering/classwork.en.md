@@ -4,7 +4,7 @@ Your project or RestaurantApi · with code · in Swagger
 
 ## Steps
 
-- **1 · A new endpoint** `POST /api/ai-lab/assistant` — with a list of `ChatMessage`s: System + User
+- **1 · A new endpoint** `POST /api/assistant/chat` — with a list of `ChatMessage`s: System + User
 - **2 · A system prompt for your project** — 4 parts: **who it is** · **which topics** it answers · **in what form** (length, language) · **what it doesn't do**
 - **3 · 3 questions in Swagger:** a normal one · another topic (“write me a poem”) · one it should refuse
 

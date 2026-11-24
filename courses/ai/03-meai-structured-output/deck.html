@@ -47,7 +47,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/მოდელი = იისფერი · ტოკენი/კონფიგურაცია = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — AiLabController (ლექცია 2-დან)
+     პროექტი: RestaurantApi — ლექცია 2-ის controller-ები + BookingsController
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -58,7 +58,7 @@
   </div>
   <div class="abs" style="right:90px;top:220px;width:520px">
     <div class="swr c-post in" style="--d:.6s">
-      <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/parse-booking</span></div>
+      <div class="rh"><span class="m">POST</span><span class="p">/api/bookings/parse</span></div>
       <div class="lab">"There are four of us, tomorrow at 8" → Response · 200</div>
       <pre class="rb">{
   <span class="k">"at"</span>: <span class="s">"2026-11-25T20:00:00"</span>,
@@ -99,7 +99,7 @@
   <h2>რა არის <span class="c-red">ცუდი</span> ამ ორ ხაზში?</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:34px;align-items:start;margin-top:10px">
     <div class="col" style="gap:16px">
-      <code-block lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ლექცია 2">
+      <code-block lang="csharp" cls="sm" title="Controllers/AssistantController.cs · ლექცია 2">
 _chat = new Client(apiKey: config["Gemini:ApiKey"])
     .AsIChatClient("gemini-3.8-flash");
       </code-block>
@@ -158,26 +158,26 @@ builder.Services.AddControllers();
   <div class="kicker">🧑‍💻 Controller · constructor injection</div>
   <h2>Controller <span class="c-mvc">იღებს</span>, არ ქმნის</h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:28px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AssistantController.cs">
 [ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
+[Route("api/assistant")]
+public class AssistantController : ControllerBase
 {
     private readonly IChatClient _chat;
 
-    public AiLabController(IChatClient chat)
+    public AssistantController(IChatClient chat)
     {
         _chat = chat;
     }
 
-    // ask, assistant, review-sentiment — unchanged
+    // chat — unchanged (the same change in AiDiagnostics and Feedback)
 }
     </code-block>
     <div class="col" style="gap:14px">
       <i class="codestep" data-for="c2" data-lines="5-10"></i>
       <div class="callout step" data-with style="--a:var(--api)">შეიცვალა <b>მხოლოდ ეს</b>. <code class="i">_chat</code> იგივე სახელია — endpoint-ებს არ ვეხებით</div>
       <i class="codestep" data-for="c2" data-lines="12"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)">Swagger → <b>/ask</b> → მუშაობს, როგორც ადრე</div>
+      <div class="callout step" data-with style="--a:var(--mvc)">Swagger → <b>/chat</b> → მუშაობს, როგორც ადრე</div>
       <div class="callout ask step">🙋 Gemini-ს ნაცვლად <b>OpenAI</b> რომ გვინდოდეს — რომელ ფაილს შევცვლიდით?</div>
       <div class="callout step" data-with style="--a:var(--asp);font-size:19px">მხოლოდ <b>Program.cs</b>-ს. სხვა მოდელი Gemini-ში — მხოლოდ <b>appsettings.json</b>-ს</div>
     </div>
@@ -216,19 +216,19 @@ public class AiLabController : ControllerBase
 </section>
 
 <section class="slide" data-section="2 · Structured output">
-  <div class="kicker">🧑‍💻 ვცვლით · review-sentiment</div>
+  <div class="kicker">🧑‍💻 ვცვლით · feedback/sentiment</div>
   <h2><span class="mono c-api">GetResponseAsync&lt;Sentiment&gt;</span></h2>
   <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:24px">
-    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ReviewSentiment">
+    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/FeedbackController.cs · AnalyzeSentiment">
 public enum Sentiment { Positive, Negative, Mixed }
 
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
+[HttpPost("sentiment")]
+public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the restaurant review."),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.System, "Classify the guest's review of the restaurant."),
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse<Sentiment> response =
@@ -237,7 +237,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
     Sentiment sentiment = response.Result;
     if (sentiment == Sentiment.Negative) { /* notify the manager */ }
 
-    return Ok(sentiment.ToString());
+    return Ok(new SentimentResponse(sentiment.ToString()));
 }
     </code-block>
     <div class="col" style="gap:12px">
@@ -297,29 +297,29 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
 </section>
 
 <section class="slide" data-section="3 · ტექსტი → ობიექტი">
-  <div class="kicker">🧑‍💻 ვწერთ · parse-booking</div>
-  <h2>"There are four of us, tomorrow at 8" → <span class="mono c-api">BookingRequest</span></h2>
+  <div class="kicker">🧑‍💻 ვწერთ · bookings/parse</div>
+  <h2>"There are four of us, tomorrow at 8" → <span class="mono c-api">BookingDetails</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
-    <code-block id="c4" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ParseBooking">
-public record BookingRequest(
+    <code-block id="c4" lang="csharp" cls="sm" title="Controllers/BookingsController.cs · Parse">
+public record BookingDetails(
     [property: Description("Booking date and time")] DateTime? At,
     [property: Description("Number of guests")] int? Guests);
 
-[HttpPost("parse-booking")]
-public async Task<IActionResult> ParseBooking(AskRequest request)
+[HttpPost("parse")]
+public async Task<IActionResult> Parse(BookingParseRequest request)
 {
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            Extract the booking details from the user's text.
+            Extract the booking details from the guest's message.
             Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            Leave null whatever is not in the text.
+            Leave null whatever is not in the message.
             """),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
-    ChatResponse<BookingRequest> response =
-        await _chat.GetResponseAsync<BookingRequest>(messages);
+    ChatResponse<BookingDetails> response =
+        await _chat.GetResponseAsync<BookingDetails>(messages);
     return Ok(response.Result);
 }
     </code-block>

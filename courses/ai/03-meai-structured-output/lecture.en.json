@@ -21,11 +21,11 @@
       "a": "Few-shot **asks** for a shape with examples — by probability · structured output **forces** it: a JSON Schema from the C# type goes with the request, the model can't write outside the schema, `.Result` is already a C# type"
     },
     {
-      "q": "Why `int? Guests` and not `int` in `BookingRequest`? And why do we put today's date in the prompt?",
+      "q": "Why `int? Guests` and not `int` in `BookingDetails`? And why do we put today's date in the prompt?",
       "a": "`?` gives the model the right to say “I don't know” (null); with `int` it's forced to write something and will make it up · the model doesn't know today's date (stateless, training date) — we provide it for “tomorrow”"
     },
     {
-      "q": "Structured output gave us a `BookingRequest`. Can we write it straight to the database?",
+      "q": "Structured output gave us a `BookingDetails`. Can we write it straight to the database?",
       "a": "No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database"
     }
   ],
@@ -130,10 +130,10 @@
       "slide": 16
     },
     {
-      "q": "Structured output returned a `BookingRequest`. What is guaranteed?",
+      "q": "Structured output returned a `BookingDetails`. What is guaranteed?",
       "options": [
         "That all values are correct",
-        "That the answer has the shape of `BookingRequest`; C# has to check the values",
+        "That the answer has the shape of `BookingDetails`; C# has to check the values",
         "That `At` is always within opening hours",
         "Nothing"
       ],

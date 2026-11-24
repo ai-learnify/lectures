@@ -33,7 +33,7 @@
 
 - (7) „ადგილი გაქვთ?“: ორი ცუდი პასუხი. მოისმინე 2–3 იდეა, როგორ მივაწოდოთ ბაზა („prompt-ში ჩავწეროთ“), და ახსენი, რატომ არა
 - (8) **ციკლი 4 ნაბიჯად**, ნელა, თითო ნაბიჯი ცალკე
-- (9) რა მიდის ქსელში. პარამეტრები = JSON Schema, როგორც `BookingRequest`-ში
+- (9) რა მიდის ქსელში. პარამეტრები = JSON Schema, როგორც `BookingDetails`-ში
 
 ### 🙋 ჰკითხე
 
@@ -51,7 +51,7 @@
 
 - (11) **ერთად წერთ** `RestaurantTools` + `GetMenu` + `AddScoped`: DbContext constructor-ით, `[Description]` მოდელისთვის, LINQ („AI აქ არაფერია“)
 - (12) Controller: `/chat`, `AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")` **ფრჩხილების გარეშე**. Program.cs-ში `.UseFunctionInvocation()` (ახსნა ლექცია 5-ზე)
-- (13) Swagger: ჯერ `/ask` „15 ლარამდე?“ და მოიგონებს, მერე `/chat` და ბაზიდან მოდის, `toolCalls`-ით
+- (13) Swagger: ჯერ `/ask` „15 ლარამდე?“ და მოიგონებს, მერე `/chat` და ბაზიდან მოდის, `Tools called`-ით
 - ✂ ჩამორჩი? `/ask`-ის შედარება გამოტოვე
 
 ### 🙋 ჰკითხე
@@ -62,7 +62,7 @@
 
 - **`Cannot consume scoped service from singleton` →** `AddSingleton<RestaurantTools>` დაწერეს. უნდა იყოს `AddScoped`, რადგან შიგნით `DbContext`-ია.
 - **`Create(_tools.GetMenu())` ფრჩხილებით →** „მეთოდს ვაძლევთ და არა მის შედეგს. მოდელი მერე გადაწყვეტს, გამოიძახოს თუ არა“.
-- **`toolCalls` და `text` ცარიელია →** `options` არ გადასცეს `GetResponseAsync`-ს, ან `.UseFunctionInvocation()` აკლია.
+- **`Tools called` და `text` ცარიელია →** `options` არ გადასცეს `GetResponseAsync`-ს, ან `.UseFunctionInvocation()` აკლია.
 
 ## ☕ შესვენება · 10 წთ · 14
 
@@ -79,7 +79,7 @@
 
 ### 🆘 თუ ვერ გაიგეს
 
-- **„მოდელმა `at` როგორ შეავსო?“ →** „იგივეა, რაც `BookingRequest`-ში: ტექსტი → სქემა. ახლა სქემა tool-ის პარამეტრებია“.
+- **„მოდელმა `at` როგორ შეავსო?“ →** „იგივეა, რაც `BookingDetails`-ში: ტექსტი → სქემა. ახლა სქემა tool-ის პარამეტრებია“.
 - **შედეგი არასწორია `DateTime`-ის გამო →** PostgreSQL `timestamp with time zone` და `DateTime.Kind`. სატესტო ჯავშნები ისე ჩაწერე, რომ შედარება მუშაობდეს.
 
 ## 📝 კლასის დავალება · 32 წთ · 19

@@ -70,45 +70,45 @@ builder.Services.AddScoped<RestaurantTools>();
 
 The controller receives `RestaurantTools` through its constructor and attaches the tool to the request:
 
-```csharp Controllers/AiLabController.cs
+```csharp Controllers/AssistantController.cs
 private readonly IChatClient _chat;
 private readonly RestaurantTools _tools;
+private readonly ILogger<AssistantController> _logger;
 
-public AiLabController(IChatClient chat, RestaurantTools tools)
+public AssistantController(IChatClient chat, RestaurantTools tools, ILogger<AssistantController> logger)
 {
     _chat = chat;
     _tools = tools;
+    _logger = logger;
 }
 ```
 
-```csharp Controllers/AiLabController.cs · Chat
+```csharp Controllers/AssistantController.cs · Chat
 [HttpPost("chat")]
-public async Task<IActionResult> Chat(AskRequest request)
+public async Task<IActionResult> Chat(ChatRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, """
-            You are a restaurant assistant. Answer briefly.
-            Take menu data only from the tool, don't make anything up.
-            """),
-        new(ChatRole.User, request.Prompt)
+        SystemPrompt(),
+        new(ChatRole.User, request.Message)
     ];
 
-    ChatOptions options = new()
-    {
-        Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
-    };
-
-    ChatResponse response = await _chat.GetResponseAsync(messages, options);
+    ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions());
 
     List<string> toolCalls = response.Messages
         .SelectMany(m => m.Contents)
         .OfType<FunctionCallContent>()
         .Select(c => c.Name)
         .ToList();
+    _logger.LogInformation("Tools called: {Tools}", string.Join(", ", toolCalls));
 
-    return Ok(new { response.Text, ToolCalls = toolCalls });
+    return Ok(new ChatReply(response.Text));
 }
+
+private ChatOptions CreateChatOptions() => new()
+{
+    Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
+};
 ```
 
 In `Program.cs` one line turns the loop on:
@@ -123,7 +123,7 @@ builder.Services.AddChatClient(
 `_db.Products` and `p.Price` are RestaurantApi's names. Use your own entities in your project.
 ```
 
-**Result:** "What dishes do you have under 15 GEL?" on `/ask` (no tools) invents dishes, while `/chat` answers from the database and `toolCalls` shows `get_menu`. For "Hello!" it does not call the tool: the model decides whether it needs one.
+**Result:** "What dishes do you have under 15 GEL?" on `POST /api/diagnostics/ai/ask` (no tools) invents dishes, while `POST /api/assistant/chat` answers from the database and `Tools called` shows `get_menu`. For "Hello!" it does not call the tool: the model decides whether it needs one.
 
 ```check
 ? Why `AddScoped<RestaurantTools>` and not `AddSingleton`?
@@ -139,7 +139,7 @@ UseFunctionInvocation — runs the function calling loop automatically
 
 ## 3 · Parameters and a good tool · 15–18
 
-Now a tool whose parameters the model fills in **from the user's text**. `[Description]` on parameters goes into the schema, just like the fields of lecture 3's `BookingRequest`:
+Now a tool whose parameters the model fills in **from the user's text**. `[Description]` on parameters goes into the schema, just like the fields of lecture 3's `BookingDetails`:
 
 ```csharp Ai/RestaurantTools.cs · CheckAvailability
 public record AvailabilityInfo(bool Available, int FreeTables);
@@ -163,14 +163,8 @@ public async Task<AvailabilityInfo> CheckAvailability(
 
 In the controller we add the second tool and today's date (otherwise "tomorrow" cannot be worked out):
 
-```csharp Controllers/AiLabController.cs · Chat
-new(ChatRole.System, $"""
-    You are a restaurant assistant. Answer briefly.
-    Take menu and free-table data only from the tools, don't make anything up.
-    Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-    """),
-// ...
-ChatOptions options = new()
+```csharp Controllers/AssistantController.cs
+private ChatOptions CreateChatOptions() => new()
 {
     Tools =
     [
@@ -178,6 +172,14 @@ ChatOptions options = new()
         AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")
     ]
 };
+
+private static ChatMessage SystemPrompt() => new(ChatRole.System, $"""
+    You are the assistant of the restaurant "Supra".
+    You answer only about the menu, bookings and opening hours (12:00–23:00).
+    Answer in at most 3 sentences, in the language the guest writes in.
+    Take menu and free-table data only from the tools, never make anything up.
+    Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+    """);
 ```
 
 **A good tool, 4 rules:**

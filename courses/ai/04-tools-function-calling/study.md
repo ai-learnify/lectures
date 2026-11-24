@@ -70,45 +70,45 @@ builder.Services.AddScoped<RestaurantTools>();
 
 Controller-ი `RestaurantTools`-ს constructor-ით იღებს და tool-ს მოთხოვნას ატანს:
 
-```csharp Controllers/AiLabController.cs
+```csharp Controllers/AssistantController.cs
 private readonly IChatClient _chat;
 private readonly RestaurantTools _tools;
+private readonly ILogger<AssistantController> _logger;
 
-public AiLabController(IChatClient chat, RestaurantTools tools)
+public AssistantController(IChatClient chat, RestaurantTools tools, ILogger<AssistantController> logger)
 {
     _chat = chat;
     _tools = tools;
+    _logger = logger;
 }
 ```
 
-```csharp Controllers/AiLabController.cs · Chat
+```csharp Controllers/AssistantController.cs · Chat
 [HttpPost("chat")]
-public async Task<IActionResult> Chat(AskRequest request)
+public async Task<IActionResult> Chat(ChatRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, """
-            You are a restaurant assistant. Answer briefly.
-            Take menu data only from the tool, don't make anything up.
-            """),
-        new(ChatRole.User, request.Prompt)
+        SystemPrompt(),
+        new(ChatRole.User, request.Message)
     ];
 
-    ChatOptions options = new()
-    {
-        Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
-    };
-
-    ChatResponse response = await _chat.GetResponseAsync(messages, options);
+    ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions());
 
     List<string> toolCalls = response.Messages
         .SelectMany(m => m.Contents)
         .OfType<FunctionCallContent>()
         .Select(c => c.Name)
         .ToList();
+    _logger.LogInformation("Tools called: {Tools}", string.Join(", ", toolCalls));
 
-    return Ok(new { response.Text, ToolCalls = toolCalls });
+    return Ok(new ChatReply(response.Text));
 }
+
+private ChatOptions CreateChatOptions() => new()
+{
+    Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
+};
 ```
 
 `Program.cs`-ში ციკლს ერთი ხაზი რთავს:
@@ -123,7 +123,7 @@ builder.Services.AddChatClient(
 `_db.Products`, `p.Price` RestaurantApi-ის სახელებია. შენს პროექტში შენი entity-ები გამოიყენე.
 ```
 
-**შედეგი:** "What dishes do you have under 15 GEL?" `/ask`-ზე (tool-ის გარეშე) მოიგონებს კერძებს, `/chat`-ზე კი ბაზიდან უპასუხებს, და `toolCalls`-ში `get_menu` ჩანს. „გამარჯობა!“-ზე tool-ს არ გამოიძახებს: მოდელი თვითონ წყვეტს, სჭირდება თუ არა.
+**შედეგი:** "What dishes do you have under 15 GEL?" `POST /api/diagnostics/ai/ask`-ზე (tool-ის გარეშე) მოიგონებს კერძებს, `POST /api/assistant/chat`-ზე კი ბაზიდან უპასუხებს, და ლოგში `Tools called: get_menu` ჩანს. „გამარჯობა!“-ზე tool-ს არ გამოიძახებს: მოდელი თვითონ წყვეტს, სჭირდება თუ არა.
 
 ```check
 ? რატომ `AddScoped<RestaurantTools>` და არა `AddSingleton`?
@@ -139,7 +139,7 @@ UseFunctionInvocation — function calling-ის ციკლს ავტო�
 
 ## 3 · პარამეტრები და კარგი tool · 15–18
 
-ახლა tool, რომლის პარამეტრებს მოდელი **მომხმარებლის ტექსტიდან** ავსებს. `[Description]` პარამეტრებზე სქემაში ჯდება, ისე როგორც ლექცია 3-ის `BookingRequest`-ში:
+ახლა tool, რომლის პარამეტრებს მოდელი **მომხმარებლის ტექსტიდან** ავსებს. `[Description]` პარამეტრებზე სქემაში ჯდება, ისე როგორც ლექცია 3-ის `BookingDetails`-ში:
 
 ```csharp Ai/RestaurantTools.cs · CheckAvailability
 public record AvailabilityInfo(bool Available, int FreeTables);
@@ -163,14 +163,8 @@ public async Task<AvailabilityInfo> CheckAvailability(
 
 Controller-ში მეორე tool-ს და დღევანდელ თარიღს ვამატებთ (თორემ „ხვალ“ ვერ გამოითვლება):
 
-```csharp Controllers/AiLabController.cs · Chat
-new(ChatRole.System, $"""
-    You are a restaurant assistant. Answer briefly.
-    Take menu and free-table data only from the tools, don't make anything up.
-    Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-    """),
-// ...
-ChatOptions options = new()
+```csharp Controllers/AssistantController.cs
+private ChatOptions CreateChatOptions() => new()
 {
     Tools =
     [
@@ -178,6 +172,14 @@ ChatOptions options = new()
         AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")
     ]
 };
+
+private static ChatMessage SystemPrompt() => new(ChatRole.System, $"""
+    You are the assistant of the restaurant "Supra".
+    You answer only about the menu, bookings and opening hours (12:00–23:00).
+    Answer in at most 3 sentences, in the language the guest writes in.
+    Take menu and free-table data only from the tools, never make anything up.
+    Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+    """);
 ```
 
 **კარგი tool, 4 წესი:**

@@ -62,7 +62,7 @@
       "explain": "The loop stops at step 2: the answer contains only a FunctionCallContent, and Text is empty."
     },
     {
-      "q": "On “Hello!” `toolCalls` is empty. What does it mean?",
+      "q": "On “Hello!” `Tools called` is empty. What does it mean?",
       "options": [
         "The tools weren't registered",
         "The model decided it doesn't need a tool — that's normal",

@@ -4,7 +4,7 @@
 
 ## მოთხოვნები
 
-- **endpoint** `POST /api/ai-lab/classify` — მომხმარებლის ტექსტი → **ერთი** კატეგორია შენი პროექტისთვის (მინიმუმ 3 კატეგორია, მაგ. `Search` / `Order` / `Question`)
+- **endpoint** `POST /api/assistant/classify` — მომხმარებლის ტექსტი → **ერთი** კატეგორია შენი პროექტისთვის (მინიმუმ 3 კატეგორია, მაგ. `Search` / `Order` / `Question`)
 - **few-shot:** System + მინიმუმ **3 მაგალითი** User/Assistant წყვილებად
 - **შედარება README-ში:** 5 ტექსტი — zero-shot (მაგალითების გარეშე) vs few-shot. ცხრილი: ტექსტი · zero-shot პასუხი · few-shot პასუხი · `inputTokens` ორივეზე
 - **ენა:** ერთი და იგივე ტექსტი ქართულად და ინგლისურად — `inputTokens` ცხრილში
@@ -29,9 +29,15 @@ endpoint 5-ვე ტექსტზე აბრუნებს ზუსტა
 
 ნიმუში — ბიბლიოთეკის API (ლექცია 1-ის საშინაოდან: „მოთხოვნის ტიპი“).
 
-```csharp Controllers/AiLabController.cs · Classify!
+```csharp Dtos/Assistant/ClassifyDtos.cs!
+public record ClassifyRequest(string Text);
+
+public record ClassifyResponse(string Category, long? InputTokens);
+```
+
+```csharp Controllers/AssistantController.cs · Classify!
 [HttpPost("classify")]
-public async Task<IActionResult> Classify(AskRequest request)
+public async Task<IActionResult> Classify(ClassifyRequest request)
 {
     List<ChatMessage> messages =
     [
@@ -43,11 +49,11 @@ public async Task<IActionResult> Classify(AskRequest request)
         new(ChatRole.Assistant, "Reserve"),
         new(ChatRole.User, "Until what time are you open on Saturday?"),
         new(ChatRole.Assistant, "Question"),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new ClassifyResponse(response.Text, response.Usage?.InputTokenCount));
 }
 ```
 

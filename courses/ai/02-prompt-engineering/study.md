@@ -32,19 +32,19 @@ API key პაროლია. არასდროს ჩაწერო კ�
 
 **3. პირველი endpoint.** DTO-ები:
 
-```csharp Dtos/AiLab/AskDtos.cs
+```csharp Dtos/Diagnostics/PromptDtos.cs
 using Microsoft.Extensions.AI;
 
-public record AskRequest(string Prompt);
+public record PromptRequest(string Prompt);
 
-public record AskResponse(
+public record PromptResponse(
     string Text,
     long? InputTokens,
     long? OutputTokens,
     long? ReasoningTokens,
     string? FinishReason)
 {
-    public static AskResponse From(ChatResponse response) => new(
+    public static PromptResponse From(ChatResponse response) => new(
         response.Text,
         response.Usage?.InputTokenCount,
         response.Usage?.OutputTokenCount,
@@ -55,34 +55,34 @@ public record AskResponse(
 
 Controller:
 
-```csharp Controllers/AiLabController.cs
+```csharp Controllers/AiDiagnosticsController.cs
 using Google.GenAI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.AI;
 
 [ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
+[Route("api/diagnostics/ai")]
+public class AiDiagnosticsController : ControllerBase
 {
     private readonly IChatClient _chat;
 
     // created here for now — moves to DI in lecture 3
-    public AiLabController(IConfiguration config)
+    public AiDiagnosticsController(IConfiguration config)
     {
         _chat = new Client(apiKey: config["Gemini:ApiKey"])
             .AsIChatClient("gemini-3.8-flash");
     }
 
     [HttpPost("ask")]
-    public async Task<IActionResult> Ask(AskRequest request)
+    public async Task<IActionResult> Ask(PromptRequest request)
     {
         ChatResponse response = await _chat.GetResponseAsync(request.Prompt);
-        return Ok(AskResponse.From(response));
+        return Ok(PromptResponse.From(response));
     }
 }
 ```
 
-Swagger-ში `POST /api/ai-lab/ask` დააბრუნებს ტექსტს და ტოკენებს: `inputTokens`, `outputTokens`, `reasoningTokens` (ფიქრი, output-ის ფასით) და `finishReason`.
+Swagger-ში `POST /api/diagnostics/ai/ask` დააბრუნებს ტექსტს და ტოკენებს: `inputTokens`, `outputTokens`, `reasoningTokens` (ფიქრი, output-ის ფასით) და `finishReason`.
 
 ```note
 `new Client(...)` Controller-ის შიგნით დროებითია. ლექცია 3-ზე `IChatClient`-ს DI-ში გადავიტანთ.
@@ -101,10 +101,10 @@ finishReason — რატომ გაჩერდა მოდელი: stop 
 
 ## 2 · პარამეტრები კოდში · 11–13
 
-ლექცია 1-ის პარამეტრები C#-ში `ChatOptions`-შია: `Temperature`, `TopP`, `MaxOutputTokens`. `AskRequest`-ს ორ არასავალდებულო ველს ვამატებთ:
+ლექცია 1-ის პარამეტრები C#-ში `ChatOptions`-შია: `Temperature`, `TopP`, `MaxOutputTokens`. `PromptRequest`-ს ორ არასავალდებულო ველს ვამატებთ:
 
-```csharp Dtos/AiLab/AskDtos.cs
-public record AskRequest(
+```csharp Dtos/Diagnostics/PromptDtos.cs
+public record PromptRequest(
     string Prompt,
     float? Temperature = null,
     int? MaxOutputTokens = null);
@@ -112,7 +112,7 @@ public record AskRequest(
 
 და `Ask`-ში `ChatOptions`-ს ვქმნით (`null` = მოდელის ნაგულისხმევი):
 
-```csharp Controllers/AiLabController.cs
+```csharp Controllers/AiDiagnosticsController.cs
 var options = new ChatOptions
 {
     Temperature = request.Temperature,
@@ -148,7 +148,7 @@ reasoning მოდელზე ლიმიტი ყოველთვის �
 List<ChatMessage> messages =
 [
     new(ChatRole.System, "You are…"),
-    new(ChatRole.User, request.Prompt)
+    new(ChatRole.User, request.Message)
 ];
 
 ChatResponse response = await _chat.GetResponseAsync(messages);
@@ -156,31 +156,38 @@ ChatResponse response = await _chat.GetResponseAsync(messages);
 
 კარგი **system prompt** ოთხი ნაწილისგან შედგება: 👤 როლი · 🎯 თემები · 📏 ფორმა · 🚫 საზღვრები.
 
-```csharp Controllers/AiLabController.cs · Assistant
-private const string RestaurantName = "Supra";
-private const string OpenHours = "12:00–23:00";
+ასისტენტი ცალკე controller-ია, თავისი DTO-ებით:
 
-[HttpPost("assistant")]
-public async Task<IActionResult> Assistant(AskRequest request)
+```csharp Dtos/Assistant/ChatDtos.cs
+public record ChatRequest(string Message);
+
+public record ChatReply(string Text);
+```
+
+```csharp Controllers/AssistantController.cs · Chat
+[HttpPost("chat")]
+public async Task<IActionResult> Chat(ChatRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, $"""
-            You are the assistant of the restaurant "{RestaurantName}".
-            You answer only about the menu, bookings and hours ({OpenHours}).
-            Answer: at most 3 sentences, in the language the user writes in.
-            On any other topic you politely decline and say what you can help with.
-            You don't invent prices or ingredients — you say they are on the menu.
-            """),
-        new(ChatRole.User, request.Prompt)
+        SystemPrompt(),
+        new(ChatRole.User, request.Message)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new ChatReply(response.Text));
 }
+
+private static ChatMessage SystemPrompt() => new(ChatRole.System, """
+    You are the assistant of the restaurant "Supra".
+    You answer only about the menu, bookings and opening hours (12:00–23:00).
+    Answer in at most 3 sentences, in the language the guest writes in.
+    On any other topic, politely decline and say what you can help with.
+    Never invent prices or ingredients — say they are on the menu.
+    """);
 ```
 
-**სცადე `/assistant`-ზე:** ჩვეულებრივი კითხვა მენიუზე, სხვა თემა („ლექსი დაწერე“) და ფასი („ხინკალი რა ღირს?“). ასისტენტი თემაზე რჩება და ფასს არ იგონებს.
+**სცადე `POST /api/assistant/chat`-ზე:** ჩვეულებრივი კითხვა მენიუზე, სხვა თემა („ლექსი დაწერე“) და ფასი („ხინკალი რა ღირს?“). ასისტენტი თემაზე რჩება და ფასს არ იგონებს.
 
 ```warn
 system prompt ალბათობას ცვლის და გარანტიას არ იძლევა. მომხმარებელმა შეიძლება მოდელი „გადაარწმუნოს“, ამიტომ მნიშვნელოვანს C# ამოწმებს (ლექცია 19).
@@ -203,25 +210,27 @@ ChatMessage — ერთი შეტყობინება როლით (
 
 პასუხს ხშირად **C# კოდი** იყენებს, მაგალითად `if (label == "Negative")`. zero-shot შეიძლება შინაარსით სწორი, მაგრამ ფორმით არასწორი იყოს („უარყოფითი“, `Negative.`). მაგალითები ფორმას აფიქსირებს. კოდში ისინი User/Assistant წყვილებია სიაში:
 
-```csharp Controllers/AiLabController.cs · ReviewSentiment
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
+შეფასებების კლასიფიკაცია `FeedbackController`-შია (`SentimentRequest(string Text)`, `SentimentResponse(string Sentiment)`):
+
+```csharp Controllers/FeedbackController.cs · AnalyzeSentiment
+[HttpPost("sentiment")]
+public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the restaurant review. " +
+        new(ChatRole.System, "Classify the guest's review of the restaurant. " +
             "Answer with one word only: Positive, Negative or Mixed."),
-        new(ChatRole.User, "The khinkali was delicious, the service fast"),
+        new(ChatRole.User, "The khinkali was delicious and the service was fast"),
         new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "We waited an hour, the food came cold"),
+        new(ChatRole.User, "We waited an hour and the food came cold"),
         new(ChatRole.Assistant, "Negative"),
         new(ChatRole.User, "The dishes are good, but the prices are very high"),
         new(ChatRole.Assistant, "Mixed"),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new SentimentResponse(response.Text));
 }
 ```
 

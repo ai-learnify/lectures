@@ -4,9 +4,9 @@ Your project or RestaurantApi · with code · in Swagger
 
 ## Steps
 
-- **1 · DI** — if you haven't done it yet: `AddChatClient` in `Program.cs`, the key in User Secrets, `AiLabController` — through the constructor
+- **1 · DI** — if you haven't done it yet: `AddChatClient` in `Program.cs`, the key in User Secrets, the AI controllers — through the constructor
 - **2 · Your type** — a `record` with **at least 3 fields** for text in your project; one field is an **enum**, optional fields are **nullable** (`?`)
-- **3 · An endpoint** `POST /api/ai-lab/extract` — System: **what** to extract and “leave null whatever is not in the text” → `GetResponseAsync<your type>` → `Ok(response.Result)`
+- **3 · An endpoint** `POST /api/{resource}/parse` — System: **what** to extract and “leave null whatever is not in the text” → `GetResponseAsync<your type>` → `Ok(response.Result)`
 - **4 · 3 texts in Swagger:** complete · partial (something is missing) · off-topic
 
 ## ✓ Done when

@@ -40,19 +40,19 @@ builder.Services.AddControllers();
 
 The controller receives the client through its constructor. The field name stays the same (`_chat`), so the rest of the code does not change:
 
-```csharp Controllers/AiLabController.cs
+```csharp Controllers/AssistantController.cs
 [ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
+[Route("api/assistant")]
+public class AssistantController : ControllerBase
 {
     private readonly IChatClient _chat;
 
-    public AiLabController(IChatClient chat)
+    public AssistantController(IChatClient chat)
     {
         _chat = chat;
     }
 
-    // ask, assistant, review-sentiment — unchanged
+    // chat — unchanged (the same change in AiDiagnostics and Feedback)
 }
 ```
 
@@ -76,16 +76,18 @@ Few-shot returns the exact word "almost" always, but sometimes you get `Search.`
 
 **Structured output:** we write the answer type in C#, and the model cannot write anything outside it:
 
-```csharp Controllers/AiLabController.cs · ReviewSentiment
+```csharp Dtos/Feedback/SentimentDtos.cs
 public enum Sentiment { Positive, Negative, Mixed }
+```
 
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
+```csharp Controllers/FeedbackController.cs · AnalyzeSentiment
+[HttpPost("sentiment")]
+public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the restaurant review."),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.System, "Classify the guest's review of the restaurant."),
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse<Sentiment> response =
@@ -94,7 +96,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
     Sentiment sentiment = response.Result;
     if (sentiment == Sentiment.Negative) { /* notify the manager */ }
 
-    return Ok(sentiment.ToString());
+    return Ok(new SentimentResponse(sentiment.ToString()));
 }
 ```
 
@@ -118,26 +120,32 @@ JSON Schema — a description of a JSON shape: which fields and of which types
 
 The user writes "There are four of us, tomorrow at 8", but a booking needs a `DateTime` and an `int`. Structured output bridges the two:
 
-```csharp Controllers/AiLabController.cs · ParseBooking
-public record BookingRequest(
+```csharp Dtos/Bookings/BookingParseDtos.cs
+using System.ComponentModel;
+
+public record BookingParseRequest(string Text);
+
+public record BookingDetails(
     [property: Description("Booking date and time")] DateTime? At,
     [property: Description("Number of guests")] int? Guests);
+```
 
-[HttpPost("parse-booking")]
-public async Task<IActionResult> ParseBooking(AskRequest request)
+```csharp Controllers/BookingsController.cs · Parse
+[HttpPost("parse")]
+public async Task<IActionResult> Parse(BookingParseRequest request)
 {
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            Extract the booking details from the user's text.
+            Extract the booking details from the guest's message.
             Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            Leave null whatever is not in the text.
+            Leave null whatever is not in the message.
             """),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
-    ChatResponse<BookingRequest> response =
-        await _chat.GetResponseAsync<BookingRequest>(messages);
+    ChatResponse<BookingDetails> response =
+        await _chat.GetResponseAsync<BookingDetails>(messages);
     return Ok(response.Result);
 }
 ```
@@ -149,7 +157,7 @@ public async Task<IActionResult> ParseBooking(AskRequest request)
 **The form is guaranteed, the content is not.** "At 8" may become 08:00, and for "khinkali" every field will be null. So C# checks:
 
 ```csharp
-BookingRequest b = response.Result;
+BookingDetails b = response.Result;
 
 if (b.At is null) return BadRequest("Which day and what time?");
 if (b.Guests is null) return BadRequest("How many of you?");
@@ -162,6 +170,6 @@ if (b.At.Value.Hour < 12 || b.At.Value.Hour >= 23)
 ```check
 ? Why `int? Guests` and not `int`?
 = An `int` cannot be empty, so if the text does not give a number, the model invents one. `null` means "not said".
-? We got a `BookingRequest`. Can we write it straight to the database?
+? We got a `BookingDetails`. Can we write it straight to the database?
 = No. First we check it in C# (nulls, a past date, the size), because the content may be wrong.
 ```

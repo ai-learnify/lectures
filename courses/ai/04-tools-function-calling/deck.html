@@ -58,7 +58,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/მოდელი = იისფერი · tool/გამოძახება = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — AiLabController (ლექცია 3-დან) + RestaurantTools
+     პროექტი: RestaurantApi — AssistantController (ლექცია 3-დან) + RestaurantTools
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -178,7 +178,7 @@
     </div>
   </div>
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
-    <div class="callout step" style="--a:var(--net);font-size:20px">პარამეტრები = <b>JSON Schema</b>, ზუსტად ისე, როგორც ლექცია 3-ის <code class="i">BookingRequest</code></div>
+    <div class="callout step" style="--a:var(--net);font-size:20px">პარამეტრები = <b>JSON Schema</b>, ზუსტად ისე, როგორც ლექცია 3-ის <code class="i">BookingDetails</code></div>
     <div class="callout ask step">🙋 ვინ ასრულებს მეთოდს: <b>Gemini</b> თუ <b>ჩვენი სერვერი</b>?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ჩვენი სერვერი. მოდელი მხოლოდ ითხოვს (functionCall) — ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ</div>
   </div>
@@ -237,37 +237,35 @@ builder.Services.AddScoped<RestaurantTools>();
 </section>
 
 <section class="slide" data-section="2 · პირველი tool">
-  <div class="kicker">🧑‍💻 ვწერთ · Program.cs + AiLabController</div>
+  <div class="kicker">🧑‍💻 ვწერთ · Program.cs + AssistantController</div>
   <h2>tool-ების სია და <span class="c-asp">ერთი ხაზი</span>, რომელიც ციკლს ატრიალებს</h2>
   <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Chat">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AssistantController.cs · Chat">
 [HttpPost("chat")]
-public async Task<IActionResult> Chat(AskRequest request)
+public async Task<IActionResult> Chat(ChatRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, """
-            You are a restaurant assistant. Answer briefly.
-            Take menu data only from the tool, don't make anything up.
-            """),
-        new(ChatRole.User, request.Prompt)
+        SystemPrompt(),
+        new(ChatRole.User, request.Message)
     ];
 
-    ChatOptions options = new()
-    {
-        Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
-    };
-
-    ChatResponse response = await _chat.GetResponseAsync(messages, options);
+    ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions());
 
     List<string> toolCalls = response.Messages
         .SelectMany(m => m.Contents)
         .OfType<FunctionCallContent>()
         .Select(c => c.Name)
         .ToList();
+    _logger.LogInformation("Tools called: {Tools}", string.Join(", ", toolCalls));
 
-    return Ok(new { response.Text, ToolCalls = toolCalls });
+    return Ok(new ChatReply(response.Text));
 }
+
+private ChatOptions CreateChatOptions() => new()
+{
+    Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
+};
     </code-block>
     <div class="col" style="gap:12px">
       <code-block id="c3" lang="csharp" cls="sm" title="Program.cs">
@@ -275,24 +273,24 @@ builder.Services.AddChatClient(
         new Client(apiKey: apiKey).AsIChatClient(model))
     .UseFunctionInvocation();
       </code-block>
-      <i class="codestep" data-for="c2" data-lines="13-16"></i>
+      <i class="codestep" data-for="c2" data-lines="22-25"></i>
       <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>AIFunctionFactory.Create</b>: მეთოდი → tool (სახელი, აღწერა, სქემა)</div>
       <i class="codestep" data-for="c3" data-lines="3"></i>
       <div class="callout step" data-with style="--a:var(--net);font-size:18px">ციკლის 2–3 ნაბიჯს <b>ეს ხაზი</b> ასრულებს. რა არის შიგნით — ლექცია 5</div>
-      <i class="codestep" data-for="c2" data-lines="20-24"></i>
+      <i class="codestep" data-for="c2" data-lines="12-17"></i>
       <div class="callout step" data-with style="--a:var(--api);font-size:18px">ისტორიაში ჩანს, <b>რომელი tool</b> გამოიძახა</div>
     </div>
   </div>
 </section>
 
 <section class="slide" data-section="2 · პირველი tool">
-  <div class="kicker">🧪 Swagger · POST /api/ai-lab/chat</div>
+  <div class="kicker">🧪 Swagger · POST /api/assistant/chat</div>
   <h2>იგივე კითხვა: <span class="c-red">/ask</span> vs <span class="c-mvc">/chat</span></h2>
   <div class="vs" style="margin-top:8px">
     <div class="col" style="gap:12px">
       <div class="txt"><span class="who">prompt</span>What dishes do you have under 15 GEL?</div>
       <div class="swr c-post step" style="--c:#f93e3e">
-        <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/ask</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/api/diagnostics/ai/ask</span></div>
         <pre class="rb">{
   <span class="k">"text"</span>: <span class="s">"We have khachapuri, khinkali,
     mtsvadi, lobiani…"</span>
@@ -302,16 +300,17 @@ builder.Services.AddChatClient(
     </div>
     <div class="col" style="gap:12px">
       <div class="swr c-post step">
-        <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/chat</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/api/assistant/chat</span></div>
         <pre class="rb">{
   <span class="k">"text"</span>: <span class="s">"Under 15 GEL: lobio in a clay pot
-    (12 ₾) and mchadi (4 ₾)."</span>,
-  <span class="k">"toolCalls"</span>: [ <span class="s">"get_menu"</span> ]
+    (12 ₾) and mchadi (4 ₾)."</span>
 }</pre>
+        <div class="lab">Console</div>
+        <pre class="rb">info: Tools called: <span class="s">get_menu</span></pre>
       </div>
       <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ფასები <b>ჩვენი ბაზიდან</b>. ფილტრი (15 ₾) მოდელმა თვითონ გააკეთა</div>
       <div class="callout ask step">🙋 „გამარჯობა!“-ზე გამოიძახებს get_menu-ს?</div>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">არა: <code class="i">toolCalls: []</code>. <b>როდის</b> გამოიძახოს, მოდელი წყვეტს</div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">არა: ლოგში <code class="i">Tools called:</code> ცარიელია. <b>როდის</b> გამოიძახოს, მოდელი წყვეტს</div>
     </div>
   </div>
 </section>
@@ -359,7 +358,7 @@ public async Task<AvailabilityInfo> CheckAvailability(
 }
     </code-block>
     <div class="col" style="gap:12px">
-      <code-block id="c5" lang="csharp" cls="sm" title="AiLabController.cs · Chat">
+      <code-block id="c5" lang="csharp" cls="sm" title="AssistantController.cs · CreateChatOptions">
 // In System: Today is {DateTime.Now:yyyy-MM-dd, dddd}.
 Tools =
 [

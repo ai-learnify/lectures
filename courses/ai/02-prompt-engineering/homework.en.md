@@ -4,7 +4,7 @@ With code · an endpoint + a table in the README
 
 ## Requirements
 
-- **An endpoint** `POST /api/ai-lab/classify` — the user's text → **one** category for your project (at least 3 categories, e.g. `Search` / `Order` / `Question`)
+- **An endpoint** `POST /api/assistant/classify` — the user's text → **one** category for your project (at least 3 categories, e.g. `Search` / `Order` / `Question`)
 - **Few-shot:** System + at least **3 examples** as User/Assistant pairs
 - **A comparison in the README:** 5 texts — zero-shot (without examples) vs few-shot. Table: text · zero-shot answer · few-shot answer · `inputTokens` for both
 - **Language:** the same text in Georgian and in English — `inputTokens` in the table
@@ -29,9 +29,15 @@ The endpoint returns exactly one category from your list for all 5 texts; the RE
 
 Example — a library API (from the lecture 1 homework: “request type”).
 
-```csharp Controllers/AiLabController.cs · Classify!
+```csharp Dtos/Assistant/ClassifyDtos.cs!
+public record ClassifyRequest(string Text);
+
+public record ClassifyResponse(string Category, long? InputTokens);
+```
+
+```csharp Controllers/AssistantController.cs · Classify!
 [HttpPost("classify")]
-public async Task<IActionResult> Classify(AskRequest request)
+public async Task<IActionResult> Classify(ClassifyRequest request)
 {
     List<ChatMessage> messages =
     [
@@ -43,11 +49,11 @@ public async Task<IActionResult> Classify(AskRequest request)
         new(ChatRole.Assistant, "Reserve"),
         new(ChatRole.User, "Until what time are you open on Saturday?"),
         new(ChatRole.Assistant, "Question"),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new ClassifyResponse(response.Text, response.Usage?.InputTokenCount));
 }
 ```
 

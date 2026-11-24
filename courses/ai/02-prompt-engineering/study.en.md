@@ -32,19 +32,19 @@ An API key is a password. Never put it in code, `appsettings.json` or Git: bots 
 
 **3. The first endpoint.** The DTOs:
 
-```csharp Dtos/AiLab/AskDtos.cs
+```csharp Dtos/Diagnostics/PromptDtos.cs
 using Microsoft.Extensions.AI;
 
-public record AskRequest(string Prompt);
+public record PromptRequest(string Prompt);
 
-public record AskResponse(
+public record PromptResponse(
     string Text,
     long? InputTokens,
     long? OutputTokens,
     long? ReasoningTokens,
     string? FinishReason)
 {
-    public static AskResponse From(ChatResponse response) => new(
+    public static PromptResponse From(ChatResponse response) => new(
         response.Text,
         response.Usage?.InputTokenCount,
         response.Usage?.OutputTokenCount,
@@ -55,34 +55,34 @@ public record AskResponse(
 
 The controller:
 
-```csharp Controllers/AiLabController.cs
+```csharp Controllers/AiDiagnosticsController.cs
 using Google.GenAI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.AI;
 
 [ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
+[Route("api/diagnostics/ai")]
+public class AiDiagnosticsController : ControllerBase
 {
     private readonly IChatClient _chat;
 
     // created here for now — moves to DI in lecture 3
-    public AiLabController(IConfiguration config)
+    public AiDiagnosticsController(IConfiguration config)
     {
         _chat = new Client(apiKey: config["Gemini:ApiKey"])
             .AsIChatClient("gemini-3.8-flash");
     }
 
     [HttpPost("ask")]
-    public async Task<IActionResult> Ask(AskRequest request)
+    public async Task<IActionResult> Ask(PromptRequest request)
     {
         ChatResponse response = await _chat.GetResponseAsync(request.Prompt);
-        return Ok(AskResponse.From(response));
+        return Ok(PromptResponse.From(response));
     }
 }
 ```
 
-In Swagger, `POST /api/ai-lab/ask` returns the text and the tokens: `inputTokens`, `outputTokens`, `reasoningTokens` (thinking, billed as output) and `finishReason`.
+In Swagger, `POST /api/diagnostics/ai/ask` returns the text and the tokens: `inputTokens`, `outputTokens`, `reasoningTokens` (thinking, billed as output) and `finishReason`.
 
 ```note
 `new Client(...)` inside the controller is temporary. In lecture 3 we move `IChatClient` into DI.
@@ -101,10 +101,10 @@ finishReason — why the model stopped: stop (finished) or length (hit the limit
 
 ## 2 · Parameters in code · 11–13
 
-Lecture 1's parameters live in `ChatOptions` in C#: `Temperature`, `TopP`, `MaxOutputTokens`. We add two optional fields to `AskRequest`:
+Lecture 1's parameters live in `ChatOptions` in C#: `Temperature`, `TopP`, `MaxOutputTokens`. We add two optional fields to `PromptRequest`:
 
-```csharp Dtos/AiLab/AskDtos.cs
-public record AskRequest(
+```csharp Dtos/Diagnostics/PromptDtos.cs
+public record PromptRequest(
     string Prompt,
     float? Temperature = null,
     int? MaxOutputTokens = null);
@@ -112,7 +112,7 @@ public record AskRequest(
 
 and create `ChatOptions` in `Ask` (`null` = the model's default):
 
-```csharp Controllers/AiLabController.cs
+```csharp Controllers/AiDiagnosticsController.cs
 var options = new ChatOptions
 {
     Temperature = request.Temperature,
@@ -148,7 +148,7 @@ We send the model not one text but **a list of messages**. Each has its own role
 List<ChatMessage> messages =
 [
     new(ChatRole.System, "You are…"),
-    new(ChatRole.User, request.Prompt)
+    new(ChatRole.User, request.Message)
 ];
 
 ChatResponse response = await _chat.GetResponseAsync(messages);
@@ -156,31 +156,38 @@ ChatResponse response = await _chat.GetResponseAsync(messages);
 
 A good **system prompt** has four parts: 👤 role · 🎯 topics · 📏 format · 🚫 boundaries.
 
-```csharp Controllers/AiLabController.cs · Assistant
-private const string RestaurantName = "Supra";
-private const string OpenHours = "12:00–23:00";
+The assistant is a separate controller, with its own DTOs:
 
-[HttpPost("assistant")]
-public async Task<IActionResult> Assistant(AskRequest request)
+```csharp Dtos/Assistant/ChatDtos.cs
+public record ChatRequest(string Message);
+
+public record ChatReply(string Text);
+```
+
+```csharp Controllers/AssistantController.cs · Chat
+[HttpPost("chat")]
+public async Task<IActionResult> Chat(ChatRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, $"""
-            You are the assistant of the restaurant "{RestaurantName}".
-            You answer only about the menu, bookings and hours ({OpenHours}).
-            Answer: at most 3 sentences, in the language the user writes in.
-            On any other topic you politely decline and say what you can help with.
-            You don't invent prices or ingredients — you say they are on the menu.
-            """),
-        new(ChatRole.User, request.Prompt)
+        SystemPrompt(),
+        new(ChatRole.User, request.Message)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new ChatReply(response.Text));
 }
+
+private static ChatMessage SystemPrompt() => new(ChatRole.System, """
+    You are the assistant of the restaurant "Supra".
+    You answer only about the menu, bookings and opening hours (12:00–23:00).
+    Answer in at most 3 sentences, in the language the guest writes in.
+    On any other topic, politely decline and say what you can help with.
+    Never invent prices or ingredients — say they are on the menu.
+    """);
 ```
 
-**Try `/assistant`:** a normal menu question, an off-topic one ("write a poem") and a price ("how much is khinkali?"). The assistant stays on topic and does not invent prices.
+**Try `POST /api/assistant/chat`:** a normal menu question, an off-topic one ("write a poem") and a price ("how much is khinkali?"). The assistant stays on topic and does not invent prices.
 
 ```warn
 A system prompt changes probabilities; it is not a guarantee. A user may "talk the model round", so anything important is checked in C# (lecture 19).
@@ -203,25 +210,27 @@ ChatMessage — one message with a role (System / User / Assistant) and text
 
 The answer is often used by **C# code**, for example `if (label == "Negative")`. Zero-shot may be right in content but wrong in form ("negative", `Negative.`). Examples pin down the form. In code they are User/Assistant pairs in the list:
 
-```csharp Controllers/AiLabController.cs · ReviewSentiment
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
+Review classification lives in `FeedbackController` (`SentimentRequest(string Text)`, `SentimentResponse(string Sentiment)`):
+
+```csharp Controllers/FeedbackController.cs · AnalyzeSentiment
+[HttpPost("sentiment")]
+public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the restaurant review. " +
+        new(ChatRole.System, "Classify the guest's review of the restaurant. " +
             "Answer with one word only: Positive, Negative or Mixed."),
-        new(ChatRole.User, "The khinkali was delicious, the service fast"),
+        new(ChatRole.User, "The khinkali was delicious and the service was fast"),
         new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "We waited an hour, the food came cold"),
+        new(ChatRole.User, "We waited an hour and the food came cold"),
         new(ChatRole.Assistant, "Negative"),
         new(ChatRole.User, "The dishes are good, but the prices are very high"),
         new(ChatRole.Assistant, "Mixed"),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new SentimentResponse(response.Text));
 }
 ```
 

@@ -5,9 +5,9 @@
 ## მოთხოვნები
 
 - **DI:** Controller-ებში `new Client(...)` არსად — `IChatClient` მხოლოდ `AddChatClient`-ით; key — User Secrets-ში, მოდელი — `appsettings.json`-ში
-- **classify enum-ით:** საშინაო 2-ის `POST /api/ai-lab/classify` გადაწერე `GetResponseAsync<შენი enum>`-ით (few-shot მაგალითების გარეშე)
+- **classify enum-ით:** საშინაო 2-ის `POST /api/assistant/classify` გადაწერე `GetResponseAsync<შენი enum>`-ით (few-shot მაგალითების გარეშე)
 - **შედარება README-ში:** იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · `inputTokens` ორივეზე
-- **ტექსტიდან ჩანაწერი:** ერთი endpoint შენი პროექტის **ნამდვილ** Controller-ში (არა ai-lab): ტექსტი → `record` → C# შემოწმება (სავალდებულო ველი `null` → `400` კითხვით) → შენი არსებული ლოგიკით **ბაზაში** ჩაწერა
+- **ტექსტიდან ჩანაწერი:** ერთი endpoint შენი პროექტის **ნამდვილ** Controller-ში (არა ასისტენტის controller-ში): ტექსტი → `record` → C# შემოწმება (სავალდებულო ველი `null` → `400` კითხვით) → შენი არსებული ლოგიკით **ბაზაში** ჩაწერა
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
 ## ✓ მზადაა, როცა
@@ -30,32 +30,40 @@
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 2-ის გაგრძელება).
 
-```csharp Controllers/AiLabController.cs · Classify!
+```csharp Dtos/Assistant/ClassifyDtos.cs!
 public enum RequestType { Search, Reserve, Question }
 
+public record ClassifyRequest(string Text);
+
+public record ClassifyResponse(string Category, long? InputTokens);
+```
+
+```csharp Controllers/AssistantController.cs · Classify!
 [HttpPost("classify")]
-public async Task<IActionResult> Classify(AskRequest request)
+public async Task<IActionResult> Classify(ClassifyRequest request)
 {
     List<ChatMessage> messages =
     [
         new(ChatRole.System, "Classify the library user's request."),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse<RequestType> response =
         await _chat.GetResponseAsync<RequestType>(messages);
 
-    return Ok(new { Type = response.Result.ToString(), response.Usage?.InputTokenCount });
+    return Ok(new ClassifyResponse(response.Result.ToString(), response.Usage?.InputTokenCount));
 }
 ```
 
 ```csharp Controllers/ReservationsController.cs · FromText
+public record ReservationTextRequest(string Text);
+
 public record ReservationDraft(
     [property: Description("Book title")] string? Title,
     [property: Description("Hold until which day")] DateOnly? Until);
 
 [HttpPost("from-text")]
-public async Task<IActionResult> FromText(AskRequest request)
+public async Task<IActionResult> FromText(ReservationTextRequest request)
 {
     List<ChatMessage> messages =
     [
@@ -64,7 +72,7 @@ public async Task<IActionResult> FromText(AskRequest request)
             Today is {DateTime.Now:yyyy-MM-dd, dddd}.
             Leave null whatever is not in the text.
             """),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse<ReservationDraft> response =

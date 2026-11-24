@@ -6,13 +6,13 @@
 
 - **Tools კლასი:** `Ai/<შენი>Tools.cs`, `AddScoped`, მონაცემი **შენი ბაზიდან** (ან შენი არსებული სერვისიდან)
 - **2 tool:** ერთი **პარამეტრის გარეშე**, ერთი **მინიმუმ 2 პარამეტრით**; ორივე **მხოლოდ კითხულობს**; `[Description]` მეთოდებზე და პარამეტრებზე; სახელები ზმნა + რა
-- **`POST /api/ai-lab/chat`:** System — ასისტენტის როლი, "Data only from the tools", დღევანდელი თარიღი (თუ თარიღიანი პარამეტრი გაქვს); პასუხში `Text` და `ToolCalls` **პარამეტრებით**
-- **README-ში ცხრილი — 5 ტექსტი:** tool-ის გარეშე · პირველი tool · მეორე tool · ორივე ერთად · ისეთი, სადაც პარამეტრი აკლია. სვეტები: ტექსტი · `toolCalls` (არგუმენტებით) · პასუხი სწორია? · რა შენიშნე
+- **`POST /api/assistant/chat`:** System — ასისტენტის როლი, "Data only from the tools", დღევანდელი თარიღი (თუ თარიღიანი პარამეტრი გაქვს); ლოგში `Tools called` **პარამეტრებით**
+- **README-ში ცხრილი — 5 ტექსტი:** tool-ის გარეშე · პირველი tool · მეორე tool · ორივე ერთად · ისეთი, სადაც პარამეტრი აკლია. სვეტები: ტექსტი · `Tools called` (არგუმენტებით) · პასუხი სწორია? · რა შენიშნე
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
 ## ✓ მზადაა, როცა
 
-5-ვე ტექსტი ცხრილშია; ბაზის მონაცემი პასუხში ჩანს და არ არის მოგონილი; „tool-ის გარეშე“ ტექსტზე `toolCalls` ცარიელია; „პარამეტრი აკლია“ ტექსტზე აღწერილია, რა გააკეთა მოდელმა (ჰკითხა? თვითონ აირჩია?)
+5-ვე ტექსტი ცხრილშია; ბაზის მონაცემი პასუხში ჩანს და არ არის მოგონილი; „tool-ის გარეშე“ ტექსტზე `Tools called` ცარიელია; „პარამეტრი აკლია“ ტექსტზე აღწერილია, რა გააკეთა მოდელმა (ჰკითხა? თვითონ აირჩია?)
 
 ## ⭐ ბონუსი
 
@@ -24,7 +24,7 @@
 
 - tool-ის შედეგად entity-ს ნუ დააბრუნებ — `record` მხოლოდ საჭირო ველებით (ნაკლები ტოკენი, ნავიგაციის ციკლები არ ჩნდება)
 - `AIFunctionFactory.Create`-ს მეთოდს **ფრჩხილების გარეშე** აწვდი: `_tools.GetMenu`, არა `_tools.GetMenu()`
-- `ToolCalls`-ში არგუმენტებისთვის: `.Select(c => $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary<string, object?>())})")`
+- ლოგში არგუმენტებისთვის: `.Select(c => $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary<string, object?>())})")`
 - ჯერ აღწერას ასწორებ, მერე კოდს — თუ tool არ იძახება
 
 ## ამოხსნა
@@ -54,9 +54,9 @@ public class LibraryTools
 }
 ```
 
-```csharp Controllers/AiLabController.cs · Chat
+```csharp Controllers/AssistantController.cs · Chat
 [HttpPost("chat")]
-public async Task<IActionResult> Chat(AskRequest request)
+public async Task<IActionResult> Chat(ChatRequest request)
 {
     List<ChatMessage> messages =
     [
@@ -64,7 +64,7 @@ public async Task<IActionResult> Chat(AskRequest request)
             You are a library assistant. Answer briefly.
             Take book and genre data only from the tools, don't make anything up.
             """),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Message)
     ];
 
     ChatOptions options = new()
@@ -84,11 +84,13 @@ public async Task<IActionResult> Chat(AskRequest request)
         .Select(c => $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary<string, object?>())})")
         .ToList();
 
-    return Ok(new { response.Text, ToolCalls = toolCalls });
+    _logger.LogInformation("Tools called: {Tools}", string.Join(", ", toolCalls));
+
+    return Ok(new ChatReply(response.Text));
 }
 ```
 
-| ტექსტი | `toolCalls` | სწორია? | რა შევნიშნე |
+| ტექსტი | `Tools called` | სწორია? | რა შევნიშნე |
 |---|---|---|---|
 | „გამარჯობა!“ | — | ✓ | tool არ სჭირდებოდა |
 | "What genres do you have?" | `get_genres()` | ✓ | სია ბაზიდან |

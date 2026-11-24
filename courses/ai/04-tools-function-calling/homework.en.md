@@ -6,13 +6,13 @@ With code · your project · a table in the README
 
 - **Tools class:** `Ai/<Your>Tools.cs`, `AddScoped`, data **from your database** (or your existing service)
 - **2 tools:** one **without parameters**, one **with at least 2 parameters**; both **only read**; `[Description]` on the methods and parameters; names are verb + what
-- **`POST /api/ai-lab/chat`:** System — the assistant's role, “data only from the tools”, today's date (if you have a date parameter); the response has `Text` and `ToolCalls` **with parameters**
-- **A table in the README — 5 texts:** no tool · the first tool · the second tool · both together · one where a parameter is missing. Columns: text · `toolCalls` (with arguments) · is the answer correct? · what you noticed
+- **`POST /api/assistant/chat`:** System — the assistant's role, “data only from the tools”, today's date (if you have a date parameter); `Tools called` in the log **with parameters**
+- **A table in the README — 5 texts:** no tool · the first tool · the second tool · both together · one where a parameter is missing. Columns: text · `Tools called` (with arguments) · is the answer correct? · what you noticed
 - The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 
-All 5 texts are in the table; data from the database shows up in the answer and isn't made up; on the “no tool” text `toolCalls` is empty; for the “parameter missing” text you describe what the model did (did it ask? pick something itself?)
+All 5 texts are in the table; data from the database shows up in the answer and isn't made up; on the “no tool” text `Tools called` is empty; for the “parameter missing” text you describe what the model did (did it ask? pick something itself?)
 
 ## ⭐ Bonus
 
@@ -24,7 +24,7 @@ All 5 texts are in the table; data from the database shows up in the answer and 
 
 - Don't return an entity as a tool result — a `record` with only the needed fields (fewer tokens, no navigation cycles)
 - Pass the method to `AIFunctionFactory.Create` **without parentheses**: `_tools.GetMenu`, not `_tools.GetMenu()`
-- For arguments in `ToolCalls`: `.Select(c => $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary<string, object?>())})")`
+- For arguments in the log: `.Select(c => $"{c.Name}({string.Join(", ", c.Arguments ?? new Dictionary<string, object?>())})")`
 - If a tool isn't called, fix the description first, the code second
 
 ## Solution
@@ -54,7 +54,7 @@ public class LibraryTools
 }
 ```
 
-| Text | `toolCalls` | Correct? | What I noticed |
+| Text | `Tools called` | Correct? | What I noticed |
 |---|---|---|---|
 | “Hello!” | — | ✓ | no tool needed |
 | “What genres do you have?” | `get_genres()` | ✓ | the list from the database |

@@ -51,7 +51,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/მოდელი = იისფერი · ტოკენი/ფასი = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — AiLabController (ექსპერიმენტების Controller)
+     პროექტი: RestaurantApi — AiDiagnosticsController, AssistantController, FeedbackController
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -62,7 +62,7 @@
   </div>
   <div class="abs" style="right:90px;top:210px;width:540px">
     <div class="swr c-post in" style="--d:.6s">
-      <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/ask</span></div>
+      <div class="rh"><span class="m">POST</span><span class="p">/api/diagnostics/ai/ask</span></div>
       <div class="lab">Response · 200</div>
       <pre class="rb">{
   <span class="k">"text"</span>: <span class="s">"Try grilled eggplant with walnuts…"</span>,
@@ -140,37 +140,37 @@
 </section>
 
 <section class="slide" data-section="1 · პირველი გამოძახება">
-  <div class="kicker">🧑‍💻 ვწერთ ერთად · AiLabController</div>
-  <h2>პირველი endpoint: <span class="mono c-api">POST /api/ai-lab/ask</span></h2>
+  <div class="kicker">🧑‍💻 ვწერთ ერთად · AiDiagnosticsController</div>
+  <h2>პირველი endpoint: <span class="mono c-api">POST /api/diagnostics/ai/ask</span></h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:26px">
-    <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiLabController.cs">
+    <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiDiagnosticsController.cs">
 using Google.GenAI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.AI;
 
 [ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
+[Route("api/diagnostics/ai")]
+public class AiDiagnosticsController : ControllerBase
 {
     private readonly IChatClient _chat;
 
     // created here for now — moves to DI in lecture 3
-    public AiLabController(IConfiguration config)
+    public AiDiagnosticsController(IConfiguration config)
     {
         _chat = new Client(apiKey: config["Gemini:ApiKey"])
             .AsIChatClient("gemini-3.8-flash");
     }
 
     [HttpPost("ask")]
-    public async Task<IActionResult> Ask(AskRequest request)
+    public async Task<IActionResult> Ask(PromptRequest request)
     {
         ChatResponse response = await _chat.GetResponseAsync(request.Prompt);
-        return Ok(AskResponse.From(response));
+        return Ok(PromptResponse.From(response));
     }
 }
     </code-block>
     <div class="col" style="gap:14px">
-      <div class="callout" style="--a:var(--muted);font-size:18px">📋 <b>AskDtos.cs</b> — მზა, კონსპექტიდან დააკოპირე</div>
+      <div class="callout" style="--a:var(--muted);font-size:18px">📋 <b>PromptDtos.cs</b> — მზა, კონსპექტიდან დააკოპირე</div>
       <i class="codestep" data-for="c1" data-lines="12-16"></i>
       <div class="callout step" data-with style="--a:var(--net)">ტიპი — <b>IChatClient</b>, ობიექტი — Gemini-ს. key — კონფიგურაციიდან: <code class="i">config["Gemini:ApiKey"]</code></div>
       <i class="codestep" data-for="c1" data-lines="21"></i>
@@ -186,7 +186,7 @@ public class AiLabController : ControllerBase
   <h2>პირველი პასუხი — <span class="c-mvc">ჩვენი API-დან</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:30px;align-items:start">
     <div class="swr c-post">
-      <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/ask</span></div>
+      <div class="rh"><span class="m">POST</span><span class="p">/api/diagnostics/ai/ask</span></div>
       <div class="lab">Request body</div>
       <pre class="rb">{ <span class="k">"prompt"</span>: <span class="s">"Suggest one light vegetarian dish. One sentence."</span> }</pre>
       <div class="lab">Response · 200</div>
@@ -221,9 +221,9 @@ public class AiLabController : ControllerBase
   <div class="kicker">🧑‍💻 ვამატებთ · ChatOptions</div>
   <h2>პარამეტრები <span class="c-asp">კოდიდან</span></h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:26px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Ask">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiDiagnosticsController.cs · Ask">
 [HttpPost("ask")]
-public async Task<IActionResult> Ask(AskRequest request)
+public async Task<IActionResult> Ask(PromptRequest request)
 {
     var options = new ChatOptions
     {
@@ -233,12 +233,12 @@ public async Task<IActionResult> Ask(AskRequest request)
 
     ChatResponse response =
         await _chat.GetResponseAsync(request.Prompt, options);
-    return Ok(AskResponse.From(response));
+    return Ok(PromptResponse.From(response));
 }
     </code-block>
     <div class="col" style="gap:14px">
-      <code-block lang="csharp" cls="sm" title="Dtos/AiLab/AskDtos.cs">
-public record AskRequest(
+      <code-block lang="csharp" cls="sm" title="Dtos/Diagnostics/PromptDtos.cs">
+public record PromptRequest(
     string Prompt,
     float? Temperature = null,
     int? MaxOutputTokens = null);
@@ -302,7 +302,7 @@ public record AskRequest(
 List<ChatMessage> messages =
 [
     new(ChatRole.System, "You are…"),
-    new(ChatRole.User, request.Prompt)
+    new(ChatRole.User, request.Message)
 ];
 
 await _chat.GetResponseAsync(messages);
@@ -316,40 +316,39 @@ await _chat.GetResponseAsync(messages);
   <div class="kicker">🧑‍💻 ვწერთ · system prompt</div>
   <h2>რესტორნის ასისტენტი: <span class="c-net">4 ნაწილი</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:24px">
-    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Assistant">
-private const string RestaurantName = "Supra";
-private const string OpenHours = "12:00–23:00";
-
-[HttpPost("assistant")]
-public async Task<IActionResult> Assistant(AskRequest request)
+    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AssistantController.cs · Chat">
+[HttpPost("chat")]
+public async Task<IActionResult> Chat(ChatRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, $"""
-            You are the assistant of the restaurant "{RestaurantName}".
-            You answer only about the menu, bookings and hours ({OpenHours}).
-            Answer: at most 3 sentences, in the language the user writes in.
-            On any other topic you politely decline and say what you can help with.
-            You don't invent prices or ingredients — you say they are on the menu.
-            """),
-        new(ChatRole.User, request.Prompt)
+        SystemPrompt(),
+        new(ChatRole.User, request.Message)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new ChatReply(response.Text));
 }
+
+private static ChatMessage SystemPrompt() => new(ChatRole.System, """
+    You are the assistant of the restaurant "Supra".
+    You answer only about the menu, bookings and opening hours (12:00–23:00).
+    Answer in at most 3 sentences, in the language the guest writes in.
+    On any other topic, politely decline and say what you can help with.
+    Never invent prices or ingredients — say they are on the menu.
+    """);
     </code-block>
     <div class="col" style="gap:10px">
-      <i class="codestep" data-for="c3" data-lines="10"></i>
+      <i class="codestep" data-for="c3" data-lines="15"></i>
       <div class="part step" data-with style="--a:var(--net)"><span class="pi">👤</span><span><b>როლი</b> — ვინ არის</span></div>
-      <i class="codestep" data-for="c3" data-lines="11"></i>
+      <i class="codestep" data-for="c3" data-lines="16"></i>
       <div class="part step" data-with style="--a:var(--api)"><span class="pi">🎯</span><span><b>თემები</b> — რაზე ლაპარაკობს</span></div>
-      <i class="codestep" data-for="c3" data-lines="12"></i>
+      <i class="codestep" data-for="c3" data-lines="17"></i>
       <div class="part step" data-with style="--a:var(--asp)"><span class="pi">📏</span><span><b>ფორმა</b> — სიგრძე, ენა</span></div>
-      <i class="codestep" data-for="c3" data-lines="13-14"></i>
+      <i class="codestep" data-for="c3" data-lines="18-19"></i>
       <div class="part step" data-with style="--a:var(--red)"><span class="pi">🚫</span><span><b>საზღვრები</b> — რას არ აკეთებს</span></div>
-      <i class="codestep" data-for="c3" data-lines="1-2"></i>
-      <div class="callout step" data-with style="--a:var(--muted);font-size:18px"><b>$"""…{ცვლადი}…"""</b> — შაბლონი: მონაცემი C#-დან. მოგვიანებით — ბაზიდან</div>
+      <i class="codestep" data-for="c3" data-lines="6,14"></i>
+      <div class="callout step" data-with style="--a:var(--muted);font-size:18px"><b>SystemPrompt()</b> — ცალკე მეთოდი: prompt ერთ ადგილას, endpoint-ი სუფთაა</div>
     </div>
   </div>
 </section>
@@ -398,25 +397,25 @@ public async Task<IActionResult> Assistant(AskRequest request)
   <div class="kicker">🧑‍💻 few-shot კოდში</div>
   <h2>მაგალითები = <span class="c-mvc">User / Assistant წყვილები</span></h2>
   <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:24px">
-    <code-block id="c4" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ReviewSentiment">
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
+    <code-block id="c4" lang="csharp" cls="sm" title="Controllers/FeedbackController.cs · AnalyzeSentiment">
+[HttpPost("sentiment")]
+public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the restaurant review. " +
+        new(ChatRole.System, "Classify the guest's review of the restaurant. " +
             "Answer with one word only: Positive, Negative or Mixed."),
-        new(ChatRole.User, "The khinkali was delicious, the service fast"),
+        new(ChatRole.User, "The khinkali was delicious and the service was fast"),
         new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "We waited an hour, the food came cold"),
+        new(ChatRole.User, "We waited an hour and the food came cold"),
         new(ChatRole.Assistant, "Negative"),
         new(ChatRole.User, "The dishes are good, but the prices are very high"),
         new(ChatRole.Assistant, "Mixed"),
-        new(ChatRole.User, request.Prompt)
+        new(ChatRole.User, request.Text)
     ];
 
     ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
+    return Ok(new SentimentResponse(response.Text));
 }
     </code-block>
     <div class="col" style="gap:12px">
@@ -448,7 +447,7 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
       <li><b>system prompt</b> = როლი + თემები + ფორმა + საზღვრები</li>
       <li><b>few-shot</b> — მაგალითები ფორმატს აფიქსირებს</li></ul></div>
     <div class="col" style="gap:14px">
-      <code-block lang="csharp" cls="sm" title="AiLabController.cs">
+      <code-block lang="csharp" cls="sm" title="AssistantController.cs">
 _chat = new Client(apiKey: config["Gemini:ApiKey"])
     .AsIChatClient("gemini-3.8-flash");
       </code-block>

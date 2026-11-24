@@ -4,7 +4,7 @@
 
 ## ნაბიჯები
 
-- **1 · ახალი endpoint** `POST /api/ai-lab/assistant` — `ChatMessage`-ების სიით: System + User
+- **1 · ახალი endpoint** `POST /api/assistant/chat` — `ChatMessage`-ების სიით: System + User
 - **2 · system prompt შენი პროექტისთვის** — 4 ნაწილი: **ვინ არის** · **რა თემებზე** პასუხობს · **რა ფორმით** (სიგრძე, ენა) · **რას არ აკეთებს**
 - **3 · Swagger-ში 3 კითხვა:** ჩვეულებრივი · სხვა თემაზე ("Write me a poem") · ისეთი, რომელზეც უარი უნდა თქვას
 
