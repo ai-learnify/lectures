@@ -5,9 +5,9 @@
 ## მოთხოვნები
 
 - **`/chat` ისტორიით** შენს პროექტში: `ChatHistoryStore` (jsonb), `ChatRequest` `conversationId`-ით, ბაზაში ყველა შეტყობინება, System prompt — ბაზის გარეშე
-- **`GET /chat/stream` ისტორიით:** პარამეტრები `Guid conversationId, string prompt` (id-ს კლიენტი ქმნის); iterator ჯერ ისტორიას ტვირთავს, ნაწილებს `yield return`-ით აგზავნის, **სტრიმის ბოლოს** კი `updates.ToChatResponse().Messages`-ს ინახავს
+- **`GET /chat/stream` ისტორიით:** პარამეტრები `Guid conversationId, string message` (id-ს კლიენტი ქმნის); iterator ჯერ ისტორიას ტვირთავს, ნაწილებს `yield return`-ით აგზავნის, **სტრიმის ბოლოს** კი `updates.ToChatResponse().Messages`-ს ინახავს
 - **reducer:** `MessageCountingChatReducer` ორივე endpoint-ში — ბაზაში ყველაფერი, კონტექსტში ბოლო N
-- **`GET /conversations/{id}`** — საუბარი UI-სთვის: მხოლოდ ტექსტიანი შეტყობინებები, `{ role, text }`
+- **`GET /api/assistant/conversations/{id}`** — საუბარი UI-სთვის: მხოლოდ ტექსტიანი შეტყობინებები, `{ role, text }`
 - **README — ბიუჯეტის ცხრილი:** ერთი საუბარი 6 შეკითხვით (2 მათგანზე tool-ი, რომელიც ბევრ მონაცემს აბრუნებს). სვეტები: შეკითხვა · InputTokenCount reducer-ის გარეშე · InputTokenCount `MessageCountingChatReducer(6)`-ით
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
@@ -23,26 +23,26 @@
 
 ## 💡 დეტალები
 
-- `ToChatResponse()` — `using Microsoft.Extensions.AI;`; ნაწილები `List<ChatResponseUpdate>`-ში შეაგროვე **და** `yield return` გააკეთე, როგორც ლექცია 6-ის ⭐ TokenCounter-ში
+- `ToChatResponse()` — `using Microsoft.Extensions.AI;`; ნაწილები `List<ChatResponseUpdate>`-ში შეაგროვე **და** `yield return` გააკეთე, როგორც ლექცია 6-ის ⭐ UsageTracking-ში
 - id-ს კლიენტი ქმნის: curl-ისთვის ნებისმიერი Guid (Visual Studio → Tools → Create GUID, ან PowerShell `[guid]::NewGuid()`); ბრაუზერში `crypto.randomUUID()`
 - iterator-ში `AppendAsync`-ს `cancellationToken` გადაეცი; გაუქმებისას ბოლო ხაზი არ შესრულდება — ეს ⭐-ის კითხვაა
-- ცხრილისთვის `InputTokenCount` `/chat`-ის პასუხიდან აიღე; reducer-ის გარეშე ვერსია — ერთი ხაზის დაკომენტარებით
+- ცხრილისთვის `InputTokenCount` კონსოლის `🔢 in:` ხაზიდან აიღე (`UsageTrackingChatClient`); reducer-ის გარეშე ვერსია — ერთი ხაზის დაკომენტარებით
 
 ## ამოხსნა
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 6-ის გაგრძელება).
 
-```csharp Controllers/AiLabController.cs · StreamAnswer!
-private async IAsyncEnumerable<string> StreamAnswer(Guid conversationId, string prompt,
+```csharp Controllers/AssistantController.cs · StreamAnswer!
+private async IAsyncEnumerable<string> StreamAnswer(Guid conversationId, string message,
     [EnumeratorCancellation] CancellationToken ct)
 {
     List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
     IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
-    ChatMessage question = new(ChatRole.User, prompt);
+    ChatMessage question = new(ChatRole.User, message);
 
     List<ChatResponseUpdate> updates = [];
     await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(
-        [SystemPrompt(), .. recent, question], ChatToolOptions(), ct))
+        [SystemPrompt(), .. recent, question], CreateChatOptions(), ct))
     {
         updates.Add(update);
         if (!string.IsNullOrEmpty(update.Text))
@@ -54,10 +54,10 @@ private async IAsyncEnumerable<string> StreamAnswer(Guid conversationId, string 
 }
 ```
 
-```csharp Controllers/AiLabController.cs · ChatStream და Conversation
+```csharp Controllers/AssistantController.cs · ChatStream და Conversation
 [HttpGet("chat/stream")]
-public IResult ChatStream(Guid conversationId, string prompt, CancellationToken ct) =>
-    TypedResults.ServerSentEvents(StreamAnswer(conversationId, prompt, ct));
+public IResult ChatStream(Guid conversationId, string message, CancellationToken ct) =>
+    TypedResults.ServerSentEvents(StreamAnswer(conversationId, message, ct));
 
 [HttpGet("conversations/{id:guid}")]
 public async Task<IActionResult> Conversation(Guid id, CancellationToken ct)

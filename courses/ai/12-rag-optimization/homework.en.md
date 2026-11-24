@@ -4,8 +4,8 @@ With code · your project · a results table and a conclusion in the README
 
 ## Requirements
 
-- **golden set** — 10 questions (2 with an exact word/code/number, 2 with a synonym, 1 with the answer in two places); `/rag/eval` — `HitAt3`, `Mrr`, `Misses`
-- **hybrid search** — a `tsvector` generated column (`'english'`) + a GIN index, `OrQuery`, vector + full-text → RRF → top 5; `/chat` and `/rag/eval` use hybrid
+- **golden set** — 10 questions (2 with an exact word/code/number, 2 with a synonym, 1 with the answer in two places); `/evaluation/retrieval` — `HitAt3`, `Mrr`, `Misses`
+- **hybrid search** — a `tsvector` generated column (`'english'`) + a GIN index, `OrQuery`, vector + full-text → RRF → top 5; `/chat` and `/evaluation/retrieval` use hybrid
 - **metadata filtering** — one metadata field on `Document` (category, language, branch…), filled in on upload; a filter parameter for the search, the filter — in SQL
 - **one chunking experiment** — the size (e.g. 400 or 1500) **or** the heading in the prefix; upload again and measure
 - **groundedness** — `GroundednessEvaluator` on 3 answers: the number and the `Reason`
@@ -20,12 +20,12 @@ The table has three versions with numbers and hybrid shows on the exact words; t
 
 - **LLM-rerank:** hybrid's 20 candidates → Gemini (`GetResponseAsync<RankResult>`) → 5. hit@3 and the time — is it worth it?
 - **pg_trgm:** `CREATE EXTENSION pg_trgm` and `similarity()` — did it help with typos (“cancelation” / “cancellation”)?
-- **eval as a test:** an xUnit test that runs `/rag/eval` and fails if `HitAt3 < 0.8` (an early version of lecture 22)
+- **eval as a test:** an xUnit test that runs `/evaluation/retrieval` and fails if `HitAt3 < 0.8` (an early version of lecture 22)
 
 ## 💡 Details
 
 - Before the chunking experiment **delete the old parts** (or a new database), otherwise both versions are searched together
-- The heading in the prefix: `EmbeddingText.Document(sectionTitle, chunk)` — in Word/Markdown the headings are ready; in a PDF — a line that's short and doesn't end with a full stop (a simple heuristic)
+- The heading in the prefix: `EmbeddingInput.Document(sectionTitle, chunk)` — in Word/Markdown the headings are ready; in a PDF — a line that's short and doesn't end with a full stop (a simple heuristic)
 - `GroundednessEvaluator` — NuGet `Microsoft.Extensions.AI.Evaluation.Quality`; a separate `IChatClient` as the judge (without tools)
 - An empty `OrQuery` (a question with only symbols) — skip the full-text
 
@@ -33,15 +33,15 @@ The table has three versions with numbers and hybrid shows on the exact words; t
 
 A sample — the library API (a continuation of homework 11), 10 questions.
 
-```csharp Controllers/AiLabController.cs · HybridSearchAsync (with a filter)!
-IQueryable<DocumentChunk> chunks = _db.DocumentChunks;
+```csharp Ai/Documents/DocumentSearch.cs · SearchAsync (with a filter)!
+IQueryable<Chunk> chunks = _db.Chunks;
 if (category is not null)
     chunks = chunks.Where(c => c.Document.Category == category);
-var words = EF.Functions.ToTsQuery("english", OrQuery(q));
+var words = EF.Functions.ToTsQuery("english", OrQuery(query));
 
 List<int> byMeaning = await chunks
-    .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
-    .OrderBy(c => c.Embedding!.CosineDistance(query))
+    .Where(c => 1 - c.Embedding!.CosineDistance(queryVector) >= _minScore)
+    .OrderBy(c => c.Embedding!.CosineDistance(queryVector))
     .Select(c => c.Id).Take(20).ToListAsync(ct);
 
 List<int> byWords = await chunks

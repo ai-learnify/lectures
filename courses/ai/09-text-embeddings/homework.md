@@ -5,9 +5,9 @@
 ## მოთხოვნები
 
 - **`IEmbeddingGenerator`** შენს პროექტში: `gemini-embedding-2`, 768 განზომილება, მოდელი `appsettings.json`-ში
-- **`EmbeddingText`** — `Query` და `Document` prefix-ები; ყველა დოკუმენტი ერთი ფორმატით, ყველა შეკითხვა — მეორით
-- **ინდექსი:** `POST .../index` — შენი ძირითადი ჩანაწერები (კერძები, წიგნები, კურსები…) `GenerateAsync`-ით **ერთ** გამოძახებაში, ვექტორები Singleton-ში; თუ ჩანაწერს აღწერა არ აქვს — დაამატე
-- **ძებნა:** `GET .../search?q=` — top 3 score-ით, **ზღვრით**: თუ საუკეთესო score ზღვარზე დაბალია (ზღვარი — `appsettings.json`-ში), დააბრუნე ცარიელი სია. ზღვარი შენი ცდებით აირჩიე
+- **`EmbeddingInput`** — `Query` და `Document` prefix-ები; ყველა დოკუმენტი ერთი ფორმატით, ყველა შეკითხვა — მეორით
+- **ინდექსი:** `POST .../embeddings` — შენი ძირითადი ჩანაწერები (კერძები, წიგნები, კურსები…) `GenerateAsync`-ით **ერთ** გამოძახებაში, ვექტორები ჯერ მეხსიერებაში (`static` სია); თუ ჩანაწერს აღწერა არ აქვს — დაამატე
+- **ძებნა:** `GET .../search?query=` — top 3 score-ით, **ზღვრით**: თუ საუკეთესო score ზღვარზე დაბალია (ზღვარი — `appsettings.json`-ში), დააბრუნე ცარიელი სია. ზღვარი შენი ცდებით აირჩიე
 - **README — შედარების ცხრილი:** 5 შეკითხვა (ერთი ინგლისურად, ერთი — ისეთი, რაც შენს მონაცემებში საერთოდ არ არის). სვეტები: შეკითხვა · `LIKE`-ის შედეგი · embeddings-ის top 3 score-ებით · სწორია?
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
@@ -23,7 +23,7 @@
 
 ## 💡 დეტალები
 
-- ინდექსი რესტარტზე ქრება — ეს ნორმალურია, ლექცია 10-მდე. გაშვების შემდეგ `/index` ერთხელ გამოიძახე
+- ინდექსი რესტარტზე ქრება — ეს ნორმალურია, ლექცია 10-მდე. გაშვების შემდეგ `/embeddings` ერთხელ გამოიძახე
 - ზღვრის ასარჩევად ჯერ ნახე score-ები სწორ და არასწორ შედეგებზე: სადაა „საზღვარი“? ზღვარი მოდელზეა დამოკიდებული
 - `GenerateAsync` ბევრ ტექსტზე: ერთ გამოძახებაში 100-მდე ჩანაწერი. მეტი თუ გაქვს — `Chunk(100)`
 - `TensorPrimitives.CosineSimilarity` — `System.Numerics.Tensors`
@@ -32,38 +32,41 @@
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 8-ის გაგრძელება).
 
-```csharp Controllers/AiLabController.cs · SearchBooks!
-[HttpGet("books/search")]
-public async Task<IActionResult> SearchBooks(string q, CancellationToken ct)
+```csharp Controllers/BooksController.cs · Search!
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, CancellationToken ct)
 {
     float minScore = _config.GetValue<float>("Search:MinScore");   // 0.55
 
-    ReadOnlyMemory<float> query = await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct);
+    ReadOnlyMemory<float> queryVector = await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct);
 
-    var top = _books.Items
-        .Select(b => new { b.Title, Score = TensorPrimitives.CosineSimilarity(query.Span, b.Vector.Span) })
-        .Where(x => x.Score >= minScore)
-        .OrderByDescending(x => x.Score)
-        .Take(3);
+    List<BookMatch> top = _vectors
+        .Select(v => new BookMatch(v.Title,
+            TensorPrimitives.CosineSimilarity(queryVector.Span, v.Vector.Span)))
+        .Where(m => m.Score >= minScore)
+        .OrderByDescending(m => m.Score)
+        .Take(3)
+        .ToList();
 
     return Ok(top);
 }
 ```
 
-```csharp Controllers/AiLabController.cs · IndexBooks
-[HttpPost("books/index")]
-public async Task<IActionResult> IndexBooks(CancellationToken ct)
+```csharp Controllers/BooksController.cs · GenerateEmbeddings
+private static List<(string Title, ReadOnlyMemory<float> Vector)> _vectors = [];
+
+[HttpPost("embeddings")]
+public async Task<IActionResult> GenerateEmbeddings(CancellationToken ct)
 {
     List<Book> books = await _db.Books.ToListAsync(ct);
-    var vectors = await _embeddings.GenerateAsync(
-        books.Select(b => EmbeddingText.Document(b.Title, $"{b.Author}. {b.Description}")),
+
+    GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+        books.Select(b => EmbeddingInput.Document(b.Title, $"{b.Author}. {b.Description}")),
         cancellationToken: ct);
 
-    _books.Items.Clear();
-    for (int i = 0; i < books.Count; i++)
-        _books.Items.Add((books[i].Title, vectors[i].Vector));
-    return Ok(new { Indexed = books.Count });
+    _vectors = books.Select((b, i) => (b.Title, vectors[i].Vector)).ToList();
+    return Ok(new EmbeddingsResult(books.Count));
 }
 ```
 

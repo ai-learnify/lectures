@@ -2,24 +2,59 @@
   "title": "RAG Optimization and Evaluation",
   "why": "Lecture 11's RAG sometimes finds the wrong part — especially on exact words (“B-2”, “12%”). But “sometimes” isn't a number, and “I think it's better” doesn't count. In real teams every RAG change — chunking, the search method, the prompt — is proven by measurement. Today we measure (golden set, hit@k, MRR), improve (hybrid search, filtering, chunking) and check the answer's groundedness.",
   "outcomes": [
-    "You'll explain where RAG fails (retrieval vs generation), put together a golden set and calculate hit@3 and MRR with `/rag/eval`",
+    "You'll explain where RAG fails (retrieval vs generation), put together a golden set and calculate hit@3 and MRR with `/evaluation/retrieval`",
     "You'll build hybrid search: the vector + PostgreSQL full-text (`tsvector`, `'english'`), merged with RRF, and prove the improvement with a number",
     "You'll add metadata filtering in SQL and explain why it's also a security matter",
     "You'll compare chunking strategies and reranking, and evaluate the answer's groundedness with `GroundednessEvaluator`"
   ],
   "review": [
-    {"q": "In which two places does RAG fail, and which one is more common?", "a": "retrieval — the right part didn't get into the top k (the most common; then even the best model can't answer) · generation — the part is right, but the model added something that isn't in the source"},
-    {"q": "What are hit@3 and MRR? Why do we write a phrase in the golden set and not the chunk's Id?", "a": "hit@3 — on what share of the questions the right part was in the top three · MRR — the average 1/rank, how high it is · when the chunking changes the Ids change, the phrase doesn't"},
-    {"q": "Why do we need hybrid search, and why do we merge the lists by rank (RRF) and not by scores?", "a": "the vector finds exact words (a code, a number, a name) badly, full-text finds them exactly · the scores are in different “units”, the rank is the same everywhere: Σ 1/(60 + rank)"},
-    {"q": "Why must metadata filtering be in SQL and not in the prompt?", "a": "the model doesn't always obey the prompt; if someone else's part got into the context, it has already leaked · a tenant/permissions filter is security, before the model"},
-    {"q": "What is groundedness and how do we measure it? Why don't we trust the judge completely?", "a": "does the answer rely only on the sources? · LLM-as-judge: GroundednessEvaluator, 1–5 and an explanation · the judge is a model too — it makes mistakes and rates its own answers softly; on many examples and manually from time to time"}
+    {
+      "q": "In which two places does RAG fail, and which one is more common?",
+      "a": "retrieval — the right part didn't get into the top k (the most common; then even the best model can't answer) · generation — the part is right, but the model added something that isn't in the source"
+    },
+    {
+      "q": "What are hit@3 and MRR? Why do we write a phrase in the golden set and not the chunk's Id?",
+      "a": "hit@3 — on what share of the questions the right part was in the top three · MRR — the average 1/rank, how high it is · when the chunking changes the Ids change, the phrase doesn't"
+    },
+    {
+      "q": "Why do we need hybrid search, and why do we merge the lists by rank (RRF) and not by scores?",
+      "a": "the vector finds exact words (a code, a number, a name) badly, full-text finds them exactly · the scores are in different “units”, the rank is the same everywhere: Σ 1/(60 + rank)"
+    },
+    {
+      "q": "Why must metadata filtering be in SQL and not in the prompt?",
+      "a": "the model doesn't always obey the prompt; if someone else's part got into the context, it has already leaked · a tenant/permissions filter is security, before the model"
+    },
+    {
+      "q": "What is groundedness and how do we measure it? Why don't we trust the judge completely?",
+      "a": "does the answer rely only on the sources? · LLM-as-judge: GroundednessEvaluator, 1–5 and an explanation · the judge is a model too — it makes mistakes and rates its own answers softly; on many examples and manually from time to time"
+    }
   ],
   "resources": [
-    {"title": "Microsoft.Extensions.AI.Evaluation", "url": "https://learn.microsoft.com/dotnet/ai/evaluation/libraries", "note": "Quality evaluators: Groundedness, Relevance, Retrieval, Completeness"},
-    {"title": "PostgreSQL — Full Text Search", "url": "https://www.postgresql.org/docs/current/textsearch.html", "note": "tsvector, tsquery, ts_rank, GIN"},
-    {"title": "Npgsql EF Core — Full Text Search", "url": "https://www.npgsql.org/efcore/mapping/full-text-search.html", "note": "HasGeneratedTsVectorColumn, Matches, Rank"},
-    {"title": "Reciprocal Rank Fusion (Cormack et al., 2009)", "url": "https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf", "note": "the original RRF paper: k = 60"},
-    {"title": "pgvector — Hybrid Search", "url": "https://github.com/pgvector/pgvector#hybrid-search", "note": "pgvector + full-text together"}
+    {
+      "title": "Microsoft.Extensions.AI.Evaluation",
+      "url": "https://learn.microsoft.com/dotnet/ai/evaluation/libraries",
+      "note": "Quality evaluators: Groundedness, Relevance, Retrieval, Completeness"
+    },
+    {
+      "title": "PostgreSQL — Full Text Search",
+      "url": "https://www.postgresql.org/docs/current/textsearch.html",
+      "note": "tsvector, tsquery, ts_rank, GIN"
+    },
+    {
+      "title": "Npgsql EF Core — Full Text Search",
+      "url": "https://www.npgsql.org/efcore/mapping/full-text-search.html",
+      "note": "HasGeneratedTsVectorColumn, Matches, Rank"
+    },
+    {
+      "title": "Reciprocal Rank Fusion (Cormack et al., 2009)",
+      "url": "https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf",
+      "note": "the original RRF paper: k = 60"
+    },
+    {
+      "title": "pgvector — Hybrid Search",
+      "url": "https://github.com/pgvector/pgvector#hybrid-search",
+      "note": "pgvector + full-text together"
+    }
   ],
   "quiz": [
     {
@@ -53,7 +88,7 @@
       "explain": "A golden set must survive changes."
     },
     {
-      "q": "The `/rag/eval` misses show “Where is hall B-2?” and “12%”. What do they have in common?",
+      "q": "The `/evaluation/retrieval` misses show “Where is hall B-2?” and “12%”. What do they have in common?",
       "options": [
         "They're long questions",
         "Exact words — a code and a number that the vector “sees” badly",

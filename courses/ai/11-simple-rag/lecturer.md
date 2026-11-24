@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-`UploadDocument`-ს და `/chat`-ის ცვლილებას კლასთან ერთად წერ. `PdfText`-ს, `TextChunker`-ს, entity-ებს, `SearchChunksAsync`-ს და წესებს მზას ჩასვამ. სრული კოდი 💻 ღილაკზეა.
+`DocumentsController.Upload`-ს და `/chat`-ის ცვლილებას კლასთან ერთად წერ. `PdfTextReader`-ს, `TextChunker`-ს, entity-ებს, `DocumentSearch.SearchAsync`-ს და წესებს მზას ჩასვამ. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -16,7 +16,7 @@
 
 - **2–3 დღით ადრე მისწერე სტუდენტებს:** „მოიტანეთ 2–3-გვერდიანი PDF თქვენი პროექტის თემაზე, **ინგლისურად** (წესები, FAQ, ინსტრუქცია). Word → Save as PDF, **არა** სკანი“
 - შენი PDF: „რესტორნის წესები“, 4–6 გვერდი, Word → Save as PDF. შეამოწმე, რომ PdfPig ტექსტს სწორად კითხულობს
-- RestaurantApi-ში წინასწარ: `PdfPig`, `PdfText`, `TextChunker`, `Document`/`DocumentChunk` + migration (HNSW-ით), `UploadDocument`, `SearchChunksAsync`, ახალი `/chat`, `Rag:MinScore`
+- RestaurantApi-ში წინასწარ: `PdfPig`, `PdfTextReader`, `TextChunker`, `Document`/`Chunk` + migration (HNSW-ით), `DocumentsController.Upload`, `DocumentSearch.SearchAsync`, ახალი `/chat`, `Rag:MinScore`
 - ზღვარი შენს PDF-ზე: 5 სწორი და 3 „არარსებული“ შეკითხვა → score-ები → `Rag:MinScore`
 - შენი PDF სტუდენტებისთვის გასაზიარებლად მზად გქონდეს (ვისაც თავისი არ მოუტანია)
 
@@ -28,7 +28,7 @@
 
 ### 🆘 თუ ვერ გაიგეს
 
-- **EXPLAIN ვერავინ გააკეთა →** ერთხელ შენს ბაზაზე, 1 წუთი. დღეს `DocumentChunk`-ს იგივე ინდექსი ექნება.
+- **EXPLAIN ვერავინ გააკეთა →** ერთხელ შენს ბაზაზე, 1 წუთი. დღეს `Chunk`-ს იგივე ინდექსი ექნება.
 
 ## 2 · RAG-ის იდეა · 11 წთ · 6–8
 
@@ -49,9 +49,9 @@
 
 ## 3 · Ingestion · 16 წთ · 9–12
 
-- (10) PDF = ასოები კოორდინატებით. `PdfText` **ჩასვი**: `ContentOrderTextExtractor` და გაწმენდა. ცოცხლად: ერთი გვერდის ტექსტი კონსოლში. ⚠️ სკანი ცარიელს აბრუნებს
+- (10) PDF = ასოები კოორდინატებით. `PdfTextReader` **ჩასვი**: `ContentOrderTextExtractor` და გაწმენდა. ცოცხლად: ერთი გვერდის ტექსტი კონსოლში. ⚠️ სკანი ცარიელს აბრუნებს
 - (11) chunking: ორი ნაწილი ეკრანზე, overlap ფერით. `TextChunker` **ჩასვი**, ერთი წინადადებით ახსენი
-- (12) **ერთად წერთ** `UploadDocument`, entity-ები ჩასვი. Swagger: `rules.pdf` → `chunks: N`. psql: `SELECT "Page", left("Content", 60) FROM "DocumentChunks"`
+- (12) **ერთად წერთ** `DocumentsController.Upload`, entity-ები ჩასვი. Swagger: `rules.pdf` → `chunks: N`. psql: `SELECT "Page", left("Content", 60) FROM "Chunks"`
 
 ### 🙋 ჰკითხე
 
@@ -67,7 +67,7 @@
 
 ## 4 · Query · 13 წთ · 14–16
 
-- (15) `SearchChunksAsync` **ჩასვი**: „ლექცია 10-ის ძებნაა, 5 შედეგით“. წყაროების ბლოკი ნომრებით. ზღვარი: "a borscht recipe" → 0 შედეგი
+- (15) `DocumentSearch.SearchAsync` **ჩასვი**: „ლექცია 10-ის ძებნაა, 5 შედეგით“. წყაროების ბლოკი ნომრებით. ზღვარი: "a borscht recipe" → 0 შედეგი
 - (16) **ერთად წერთ** `/chat`-ის ცვლილება: `sources`, `augmented`, messages, `AppendAsync([question, …])`. წესები system prompt-ში **ჩასვი**
 - ცოცხლად ოთხი შეკითხვა: ჯავშანი → `[1]`; ალერგია → `[1][2]`; ბორში → „ინფორმაცია არ მაქვს“; ლობიოს ფასი → tool
 
@@ -84,7 +84,7 @@
 ## 📝 კლასის დავალება · 26 წთ · 17
 
 - **ნიმუში, ~3 წთ:** ერთი შეკითხვა ერთად: „‚ძაღლით შეიძლება?‘ რომელ გვერდზეა?“ კლასი ამბობს „4“ → `/documents/search` → [1] გვ. 4. „ახლა თქვენ: ხუთი შეკითხვა, და ჯერ გამოიცანით“
-- **ისინი, ~19 წთ:** PDF-ის ატვირთვა, `/documents/search` (`SearchChunksAsync` + `Ok(...)`), 5 შეკითხვა რვეულში პროგნოზით, მერე Swagger
+- **ისინი, ~19 წთ:** PDF-ის ატვირთვა, `/documents/search` (`DocumentSearch.SearchAsync` + `Ok(...)`), 5 შეკითხვა რვეულში პროგნოზით, მერე Swagger
 - **ბოლოს, ~4 წთ:** 2–3 სტუდენტი: „რომელი ჩავარდა? სიტყვის გამო თუ მნიშვნელობის?“
 
 ### 🙋 სანამ დადიხარ, ჰკითხე

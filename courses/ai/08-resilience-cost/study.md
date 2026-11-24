@@ -63,7 +63,7 @@ builder.Services.AddChatClient(sp =>
 
 შესამოწმებლად ხელოვნური 503:
 
-```csharp Ai/ChaosHandler.cs · მხოლოდ ცდისთვის
+```csharp Ai/Diagnostics/ChaosHandler.cs · მხოლოდ ცდისთვის
 public class ChaosHandler : DelegatingHandler
 {
     private int _count;
@@ -108,7 +108,7 @@ circuit breaker — ბევრი ჩავარდნის შემდე�
 
 თუ მოდელი 5 წუთია გადატვირთულია, სამი retry-ც ჩავარდება. მაშინ სხვა მოდელზე გადავდივართ. ფენა შეცდომას იჭერს, ოღონდ **მხოლოდ დროებითს**:
 
-```csharp Ai/FallbackChatClient.cs
+```csharp Ai/Middleware/FallbackChatClient.cs
 public class FallbackChatClient : DelegatingChatClient
 {
     private readonly IChatClient _fallback;
@@ -152,7 +152,7 @@ IChatClient fallback = new Client(apiKey: apiKey)
 builder.Services.AddChatClient(sp => /* gemini — as on slide 11 */)
     .Use(inner => new InputGuardChatClient(inner))
     .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(inner, /* ... */))
+    .Use((inner, sp) => new UsageTrackingChatClient(inner, /* ... */))
     .UseLogging()
     .Use((inner, sp) => new FallbackChatClient(inner, fallback,
         sp.GetRequiredService<ILogger<FallbackChatClient>>()));
@@ -160,8 +160,8 @@ builder.Services.AddChatClient(sp => /* gemini — as on slide 11 */)
 
 **ხარჯი ბაზაში.** ლოგი რამდენიმე დღეში იკარგება, ბაზიდან კი დღის ან თვის ჯამს დავითვლით:
 
-```csharp Data/AiUsageRecord.cs
-public class AiUsageRecord
+```csharp Entities/AiUsage.cs
+public class AiUsage
 {
     public Guid Id { get; set; }
     public DateTime At { get; set; }
@@ -171,12 +171,12 @@ public class AiUsageRecord
 }
 ```
 
-```csharp Ai/TokenCounterChatClient.cs
-public class TokenCounterChatClient : DelegatingChatClient
+```csharp Ai/Middleware/UsageTrackingChatClient.cs
+public class UsageTrackingChatClient : DelegatingChatClient
 {
     private readonly IServiceScopeFactory _scopes;
 
-    public TokenCounterChatClient(IChatClient inner, IServiceScopeFactory scopes) : base(inner)
+    public UsageTrackingChatClient(IChatClient inner, IServiceScopeFactory scopes) : base(inner)
     {
         _scopes = scopes;
     }
@@ -192,7 +192,7 @@ public class TokenCounterChatClient : DelegatingChatClient
         using IServiceScope scope = _scopes.CreateScope();
         DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-        db.AiUsage.Add(new AiUsageRecord
+        db.AiUsage.Add(new AiUsage
         {
             Id = Guid.NewGuid(),
             At = DateTime.UtcNow,
@@ -206,13 +206,13 @@ public class TokenCounterChatClient : DelegatingChatClient
         return response;
     }
 }
-// Program.cs: .Use((inner, sp) => new TokenCounterChatClient(inner,
+// Program.cs: .Use((inner, sp) => new UsageTrackingChatClient(inner,
 //                 sp.GetRequiredService<IServiceScopeFactory>()))
 ```
 
 ```sql
 SELECT "Model", SUM("InputTokens") AS input, SUM("OutputTokens") AS output
-FROM "AiUsage"
+FROM "AiUsages"
 WHERE "At" >= CURRENT_DATE
 GROUP BY "Model";
 ```

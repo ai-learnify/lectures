@@ -48,7 +48,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: დოკუმენტი/ingestion = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი · ძებნა/ვექტორი = იისფერი
              სწორი/წყარო = მწვანე · პრობლემა = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — Ai/PdfText, Ai/TextChunker, Data/Document + DocumentChunk, AiLabController: documents, chat (RAG)
+     პროექტი: RestaurantApi — Ai/Documents (PdfTextReader, TextChunker, DocumentSearch), Entities/Document + Chunk, DocumentsController, AssistantController.Chat (RAG)
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -79,7 +79,7 @@
   <h2>3 ნაბიჯი: <span class="c-net">იდეა</span> → <span class="c-asp">დოკუმენტი ბაზაში</span> → <span class="c-mvc">პასუხი წყაროთი</span></h2>
   <div class="route">
     <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>💡 RAG-ის იდეა</h3><p>მოდელს „ღია წიგნით“ ვაბარებინებთ გამოცდას</p><span class="from">retrieve · augment · generate</span></div>
-    <div class="stop" style="--a:var(--asp)"><span class="sn">2</span><h3>📄 Ingestion</h3><p>PDF-დან ტექსტი, ტექსტი ნაწილებად, ნაწილები ვექტორებად ბაზაში</p><span class="from">PdfPig · chunking · DocumentChunk</span></div>
+    <div class="stop" style="--a:var(--asp)"><span class="sn">2</span><h3>📄 Ingestion</h3><p>PDF-დან ტექსტი, ტექსტი ნაწილებად, ნაწილები ვექტორებად ბაზაში</p><span class="from">PdfPig · chunking · Chunk</span></div>
     <div class="stop" style="--a:var(--mvc)"><span class="sn">3</span><h3>💬 Query</h3><p>ძებნა, ნაწილები კონტექსტში, პასუხი წყაროს ნომრით</p><span class="from">top 5 · [1] · „არ ვიცი“</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: ჩატი, რომელიც რესტორნის <b>წესებიდან</b> პასუხობს და ამბობს, <b>საიდან</b> იცის</div>
@@ -129,7 +129,7 @@
         <div class="box"><i>🔤</i>ტექსტი<small>გვერდებით</small></div><span class="ar">→</span>
         <div class="box"><i>✂️</i>ნაწილები<small>chunks</small></div><span class="ar">→</span>
         <div class="box"><i>🧭</i>ვექტორები<small>embedding</small></div><span class="ar">→</span>
-        <div class="box"><i>🐘</i>ბაზა<small>DocumentChunk</small></div>
+        <div class="box"><i>🐘</i>ბაზა<small>Chunk</small></div>
       </div>
     </div>
     <div class="lane step" style="--a:var(--mvc)">
@@ -151,7 +151,7 @@
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2</div>
     <h1 class="in" style="--d:.1s">დოკუმენტი<br><span class="grad">ბაზაში</span></h1>
-    <p class="lead mt in" style="--d:.3s">PdfPig · გაწმენდა · chunking · DocumentChunk</p>
+    <p class="lead mt in" style="--d:.3s">PdfPig · გაწმენდა · chunking · Chunk</p>
   </div>
   <div class="big-num">02</div>
 </section>
@@ -161,7 +161,7 @@
   <h2>PDF ტექსტი კი არა, <span class="c-asp">ასოები გვერდზეა</span></h2>
   <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:22px">
     <div class="col" style="gap:12px">
-      <code-block id="c1" lang="csharp" cls="sm" title="Ai/PdfText.cs">
+      <code-block id="c1" lang="csharp" cls="sm" title="Ai/Documents/PdfTextReader.cs">
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 
@@ -209,7 +209,7 @@ public static class PdfText
         <div class="chunk" style="--a:var(--asp)"><span class="meta">chunk 7 · გვ. 3</span>You can book on the website or by phone. A booking is held for 2 hours. <span class="ov">Cancellation is possible up to 24 hours before the visit.</span></div>
         <div class="chunk" style="--a:var(--asp)"><span class="meta">chunk 8 · გვ. 3</span><span class="ov">Cancellation is possible up to 24 hours before the visit.</span> A booking for 8+ people requires a 30% prepayment. If cancelled late, the money isn't returned.</div>
       </div>
-      <div class="step"><code-block lang="csharp" cls="sm" title="Ai/TextChunker.cs">
+      <div class="step"><code-block lang="csharp" cls="sm" title="Ai/Documents/TextChunker.cs">
 var chunks = TextChunker.Split(text, maxChars: 800, overlap: 1);
       </code-block></div>
     </div>
@@ -217,26 +217,26 @@ var chunks = TextChunker.Split(text, maxChars: 800, overlap: 1);
 </section>
 
 <section class="slide" data-section="2 · ingestion">
-  <div class="kicker">🧑‍💻 ვწერთ · POST /api/ai-lab/documents</div>
+  <div class="kicker">🧑‍💻 ვწერთ · POST /api/documents</div>
   <h2>ატვირთვა → ნაწილები → <span class="c-asp">ვექტორები ბაზაში</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · UploadDocument">
-[HttpPost("documents")]
-public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToken ct)
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/DocumentsController.cs · Upload">
+[HttpPost]
+public async Task<IActionResult> Upload(IFormFile file, CancellationToken ct)
 {
     using var ms = new MemoryStream();
     await file.CopyToAsync(ms, ct);
 
-    var doc = new Document { FileName = file.FileName, UploadedAt = DateTime.UtcNow };
-    foreach (var (page, text) in PdfText.ReadPages(ms.ToArray()))
-        foreach (string chunk in TextChunker.Split(text))
-            doc.Chunks.Add(new DocumentChunk { Page = page, Content = chunk });
+    var document = new Document { FileName = file.FileName, UploadedAt = DateTime.UtcNow };
+    foreach (var (page, text) in PdfTextReader.ReadPages(ms.ToArray()))
+        foreach (string content in TextChunker.Split(text))
+            document.Chunks.Add(new Chunk { Page = page, Content = content });
 
     string model = _config["Gemini:EmbeddingModel"]!;
-    foreach (DocumentChunk[] batch in doc.Chunks.Chunk(100))
+    foreach (Chunk[] batch in document.Chunks.Chunk(100))
     {
-        var vectors = await _embeddings.GenerateAsync(
-            batch.Select(c => EmbeddingText.Document(doc.FileName, c.Content)),
+        GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+            batch.Select(c => EmbeddingInput.Document(document.FileName, c.Content)),
             cancellationToken: ct);
         for (int i = 0; i < batch.Length; i++)
         {
@@ -245,14 +245,14 @@ public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToke
         }
     }
 
-    _db.Documents.Add(doc);
+    _db.Documents.Add(document);
     await _db.SaveChangesAsync(ct);
-    return Ok(new { doc.Id, Chunks = doc.Chunks.Count });
+    return Ok(new DocumentUploaded(document.Id, document.Chunks.Count));
 }
     </code-block>
     <div class="col" style="gap:12px">
-      <code-block lang="csharp" cls="sm" title="Data/DocumentChunk.cs">
-public class DocumentChunk
+      <code-block lang="csharp" cls="sm" title="Entities/Chunk.cs">
+public class Chunk
 {
     public int Id { get; set; }
     public int DocumentId { get; set; }
@@ -298,22 +298,21 @@ public class DocumentChunk
   <h2>ნაპოვნი ნაწილები → <span class="c-mvc">გადანომრილი წყაროები</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:22px">
     <div class="col" style="gap:12px">
-      <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · SearchChunksAsync">
-private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationToken ct)
+      <code-block id="c3" lang="csharp" cls="sm" title="Ai/Documents/DocumentSearch.cs · SearchAsync">
+public async Task<List<ChunkMatch>> SearchAsync(string query, CancellationToken ct)
 {
-    float minScore = _config.GetValue<float>("Rag:MinScore");
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
+    var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct));
 
-    List<FoundChunk> top = await _db.DocumentChunks
+    List<ChunkMatch> top = await _db.Chunks
         .Where(c => c.Embedding != null)
-        .OrderBy(c => c.Embedding!.CosineDistance(query))
-        .Select(c => new FoundChunk(c.Document.FileName, c.Page, c.Content,
-            1 - c.Embedding!.CosineDistance(query)))
+        .OrderBy(c => c.Embedding!.CosineDistance(queryVector))
         .Take(5)
+        .Select(c => new ChunkMatch(c.Document.FileName, c.Page, c.Content,
+            1 - c.Embedding!.CosineDistance(queryVector)))
         .ToListAsync(ct);
 
-    return top.Where(c => c.Score >= minScore).ToList();
+    return top.Where(c => c.Score >= _minScore).ToList();   // Rag:MinScore
 }
       </code-block>
     </div>
@@ -338,25 +337,25 @@ A booking for 8+ people requires…
   <h2>ისტორია + <span class="c-mvc">წყაროები</span> + შეკითხვა → პასუხი [1]</h2>
   <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:22px">
     <div class="col" style="gap:12px">
-      <code-block id="c4" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Chat">
+      <code-block id="c4" lang="csharp" cls="sm" title="Controllers/AssistantController.cs · Chat">
 List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
 IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
 
-List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);
-ChatMessage question = new(ChatRole.User, request.Prompt);
+List<ChunkMatch> sources = await _documents.SearchAsync(request.Message, ct);
+ChatMessage question = new(ChatRole.User, request.Message);
 ChatMessage augmented = new(ChatRole.User, $"""
     Sources:
-    {BuildContext(sources)}
+    {DocumentSearch.FormatContext(sources)}
 
-    Question: {request.Prompt}
+    Question: {request.Message}
     """);
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
-ChatResponse response = await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);
+ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions(), ct);
 
 await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
-return Ok(new { conversationId, response.Text,
-    Sources = sources.Select((s, i) => new { N = i + 1, s.File, s.Page }) });
+return Ok(new ChatReply(conversationId, response.Text,
+    sources.Select((s, i) => new ChatSource(i + 1, s.File, s.Page)).ToList()));
       </code-block>
     </div>
     <div class="col" style="gap:12px">
@@ -366,14 +365,14 @@ from the sources and give the number: [1].
 If it isn't in the sources — say:
 “I don't have information on this”.
 The menu and prices — from the tools.</div>
-      <i class="codestep" data-for="c4" data-lines="15"></i>
+      <i class="codestep" data-for="c4" data-lines="16"></i>
       <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">💾</span><div><b>ისტორიაში — ორიგინალი შეკითხვა</b><span>წყაროები მხოლოდ <b>ამ</b> მოთხოვნისთვისაა — ისტორიას არ ბერავს</span></div></div>
       <div class="swr c-post step">
         <div class="rh"><span class="m">POST</span><span class="p">/chat</span></div>
         <pre class="rb"><span class="k">"text"</span>: <span class="s">"You can cancel up to 24 hours before the visit [1]."</span>
-<span class="k">"sources"</span>: [ { <span class="k">"n"</span>: <span class="n">1</span>, <span class="k">"file"</span>: <span class="s">"rules.pdf"</span>, <span class="k">"page"</span>: <span class="n">3</span> } ]</pre>
+<span class="k">"sources"</span>: [ { <span class="k">"number"</span>: <span class="n">1</span>, <span class="k">"file"</span>: <span class="s">"rules.pdf"</span>, <span class="k">"page"</span>: <span class="n">3</span> } ]</pre>
       </div>
-      <div class="callout ask step">🙋 ლექცია 9-ის ⭐-ში ძებნა <b>tool</b> იყო. რა სჯობს?</div>
+      <div class="callout ask step">🙋 ლექცია 10-ის ⭐-ში ძებნა <b>tool</b> იყო. რა სჯობს?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ორივე რეალური გზაა: „ყოველთვის“ — მარტივი და პროგნოზირებადი; tool — ძებნა მხოლოდ საჭიროებისას (ლექცია 15)</div>
     </div>
   </div>

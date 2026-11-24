@@ -6,8 +6,8 @@
 
 - **resilience** შენს პროექტში: `AddHttpClient("gemini").AddStandardResilienceHandler(...)` LLM-ისთვის გაზრდილი timeout-ით; Google.GenAI ამ HttpClient-ს იყენებს (`ClientOptions.HttpClientFactory`), მისი საკუთარი retry გამორთულია
 - **`FallbackChatClient`** — მხოლოდ დროებით შეცდომაზე (429, 5xx, ქსელი, timeout); სარეზერვო მოდელი `appsettings.json`-ში (`Gemini:FallbackModel`); pipeline-ში ყველაზე შიგნით
-- **`TokenCounterChatClient` ბაზაში** (`AiUsage`) — `ReasoningTokenCount` output-ს ემატება
-- **`GET /api/ai-lab/usage/today`** — მოდელების მიხედვით: გამოძახებები, input, output და ფასი დოლარში; ფასები `appsettings.json`-ში (`AiPricing:<მოდელი>:InputPerMillion` / `OutputPerMillion`), კოდში — არა
+- **`UsageTrackingChatClient` ბაზაში** (`AiUsage`) — `ReasoningTokenCount` output-ს ემატება
+- **`GET /api/diagnostics/ai/usage/today`** — მოდელების მიხედვით: გამოძახებები, input, output და ფასი დოლარში; ფასები `appsettings.json`-ში (`AiPricing:<მოდელი>:InputPerMillion` / `OutputPerMillion`), კოდში — არა
 - **README — შეცდომების ცხრილი:** სამი ცდა `ChaosHandler`-ით და კონფიგურაციით: (1) ორი 503 · (2) არასწორი მოდელის სახელი · (3) ყოველთვის 503. სვეტები: ცდა · რამდენი მოთხოვნა წავიდა · რა მიიღო მომხმარებელმა · ლოგის 1–2 ხაზი
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
@@ -32,13 +32,13 @@
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 7-ის გაგრძელება).
 
-```csharp Controllers/AiLabController.cs · UsageToday!
+```csharp Controllers/AiDiagnosticsController.cs · UsageToday!
 public record ModelPrice(decimal InputPerMillion, decimal OutputPerMillion);
 
 [HttpGet("usage/today")]
 public async Task<IActionResult> UsageToday(CancellationToken ct)
 {
-    var rows = await _db.AiUsage
+    var rows = await _db.AiUsages
         .Where(u => u.At >= DateTime.UtcNow.Date)
         .GroupBy(u => u.Model)
         .Select(g => new { Model = g.Key, Calls = g.Count(),
@@ -58,7 +58,7 @@ public async Task<IActionResult> UsageToday(CancellationToken ct)
 builder.Services.AddChatClient(sp => /* Gemini with our HttpClient, Attempts = 1 */)
     .Use(inner => new LibraryGuardChatClient(inner))
     .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(inner, sp.GetRequiredService<IServiceScopeFactory>()))
+    .Use((inner, sp) => new UsageTrackingChatClient(inner, sp.GetRequiredService<IServiceScopeFactory>()))
     .UseLogging()
     .Use((inner, sp) => new FallbackChatClient(inner, fallback,
         sp.GetRequiredService<ILogger<FallbackChatClient>>()));

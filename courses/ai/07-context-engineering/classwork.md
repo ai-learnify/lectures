@@ -4,10 +4,10 @@
 
 ## ნაბიჯები
 
-- **1 · ცხრილი** — `ChatMessageRecord` (`Id`, `ConversationId`, `Position`, `Role`, `Json` — `[Column(TypeName = "jsonb")]`, `CreatedAt`), `DbSet` `DataContext`-ში, migration
+- **1 · ცხრილი** — `Message` (`Id`, `ConversationId`, `Position`, `Role`, `Json` — `[Column(TypeName = "jsonb")]`, `CreatedAt`), `DbSet` `DataContext`-ში, migration
 - **2 · store** — `ChatHistoryStore`: `LoadAsync` და `AppendAsync`, JSON პარამეტრებით `new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true }`; `AddScoped` `Program.cs`-ში
-- **3 · endpoint** — `ChatRequest(Guid? ConversationId, string Prompt)`; `/chat`: ჩატვირთე → `[SystemPrompt(), .. history, question]` → `GetResponseAsync` → `AppendAsync([question, .. response.Messages])` → პასუხში `conversationId`
-- **4 · შემოწმება** — Swagger-ში ორი შეკითხვა ერთი `conversationId`-ით, სადაც მეორე პირველის გარეშე გაუგებარია (მაგ. "And at 21:00?"); მერე ბაზაში `SELECT "Position", "Role", "Json" FROM "ChatMessages"`
+- **3 · endpoint** — `ChatRequest(Guid? ConversationId, string Message)`; `/chat`: ჩატვირთე → `[SystemPrompt(), .. history, question]` → `GetResponseAsync` → `AppendAsync([question, .. response.Messages])` → პასუხში `conversationId`
+- **4 · შემოწმება** — Swagger-ში ორი შეკითხვა ერთი `conversationId`-ით, სადაც მეორე პირველის გარეშე გაუგებარია (მაგ. "And at 21:00?"); მერე ბაზაში `SELECT "Position", "Role", "Json" FROM "Messages"`
 
 ## ✓ მზადაა, როცა
 
@@ -16,8 +16,8 @@
 ## ⭐ ბონუსი
 
 - `MessageCountingChatReducer(4)` — და ჰკითხე რამე, რაც 3 შეკითხვის წინ თქვი. ახსოვს?
-- jsonb-ში ძებნა: `SELECT "Json" FROM "ChatMessages" WHERE "Json" @> '{"contents":[{"$type":"functionCall"}]}'` — რამდენჯერ გამოიძახა მოდელმა tool?
-- პასუხში დაამატე `InputTokenCount` და ნახე, როგორ იზრდება ყოველ შეკითხვაზე
+- jsonb-ში ძებნა: `SELECT "Json" FROM "Messages" WHERE "Json" @> '{"contents":[{"$type":"functionCall"}]}'` — რამდენჯერ გამოიძახა მოდელმა tool?
+- კონსოლში `🔢 in:`-ს უყურე და ნახე, როგორ იზრდება ყოველ შეკითხვაზე
 
 ## 💡 თუ გაიჭედე
 

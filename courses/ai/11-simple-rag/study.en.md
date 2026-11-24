@@ -34,7 +34,7 @@ ingestion — processing a document and storing it in the database for search
 
 **PDF → text.** A PDF contains letters and their coordinates, not words. PdfPig assembles them into text page by page:
 
-```csharp Ai/PdfText.cs
+```csharp Ai/Documents/PdfTextReader.cs
 using System.Text.RegularExpressions;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
@@ -61,7 +61,7 @@ A scanned PDF (photos) contains no text and returns nothing. It needs OCR.
 
 **Chunking.** A whole document as one vector is vague; a single sentence loses its context. We cut ~800 characters, at sentence boundaries, with overlap:
 
-```csharp Ai/TextChunker.cs
+```csharp Ai/Documents/TextChunker.cs
 public static class TextChunker
 {
     public static List<string> Split(string text, int maxChars = 800, int overlap = 1)
@@ -88,18 +88,18 @@ public static class TextChunker
 
 **Two tables and the upload:**
 
-```csharp Data/Document.cs
+```csharp Entities/Document.cs
 public class Document
 {
     public int Id { get; set; }
     public string FileName { get; set; } = "";
     public DateTime UploadedAt { get; set; }
-    public List<DocumentChunk> Chunks { get; set; } = [];
+    public List<Chunk> Chunks { get; set; } = [];
 }
 ```
 
-```csharp Data/DocumentChunk.cs
-public class DocumentChunk
+```csharp Entities/Chunk.cs
+public class Chunk
 {
     public int Id { get; set; }
     public int DocumentId { get; set; }
@@ -113,26 +113,27 @@ public class DocumentChunk
 }
 ```
 
-```csharp Controllers/AiLabController.cs · UploadDocument
-[HttpPost("documents")]
-public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToken ct)
+```csharp Controllers/DocumentsController.cs · Upload
+[HttpPost]
+public async Task<IActionResult> Upload(IFormFile file, CancellationToken ct)
 {
     using var ms = new MemoryStream();
     await file.CopyToAsync(ms, ct);
 
     // 1–2: PDF → pages → parts
-    var doc = new Document { FileName = file.FileName, UploadedAt = DateTime.UtcNow };
-    foreach (var (page, text) in PdfText.ReadPages(ms.ToArray()))
-        foreach (string chunk in TextChunker.Split(text))
-            doc.Chunks.Add(new DocumentChunk { Page = page, Content = chunk });
+    var document = new Document { FileName = file.FileName, UploadedAt = DateTime.UtcNow };
+    foreach (var (page, text) in PdfTextReader.ReadPages(ms.ToArray()))
+        foreach (string content in TextChunker.Split(text))
+            document.Chunks.Add(new Chunk { Page = page, Content = content });
 
     // 3: vectors, in batches of 100
     string model = _config["Gemini:EmbeddingModel"]!;
-    foreach (DocumentChunk[] batch in doc.Chunks.Chunk(100))
+    foreach (Chunk[] batch in document.Chunks.Chunk(100))
     {
-        var vectors = await _embeddings.GenerateAsync(
-            batch.Select(c => EmbeddingText.Document(doc.FileName, c.Content)),
+        GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+            batch.Select(c => EmbeddingInput.Document(document.FileName, c.Content)),
             cancellationToken: ct);
+
         for (int i = 0; i < batch.Length; i++)
         {
             batch[i].Embedding = new Vector(vectors[i].Vector);
@@ -141,9 +142,10 @@ public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToke
     }
 
     // 4: into the database — the document and all its parts together
-    _db.Documents.Add(doc);
+    _db.Documents.Add(document);
     await _db.SaveChangesAsync(ct);
-    return Ok(new { doc.Id, Chunks = doc.Chunks.Count });
+
+    return Ok(new DocumentUploaded(document.Id, document.Chunks.Count));
 }
 ```
 
@@ -161,57 +163,64 @@ overlap — chunks share some text so an idea is not cut at the boundary
 
 **Retrieve:** lecture 10's search, but over chunks, with 5 results and a threshold:
 
-```csharp Controllers/AiLabController.cs · SearchChunksAsync
-public record FoundChunk(string File, int Page, string Content, double Score);
+```csharp Dtos/Documents/DocumentDtos.cs
+public record DocumentUploaded(int Id, int Chunks);
 
-private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationToken ct)
+public record ChunkMatch(string File, int Page, string Content, double Score);
+```
+
+```csharp Ai/Documents/DocumentSearch.cs · SearchAsync
+public async Task<List<ChunkMatch>> SearchAsync(string query, CancellationToken ct)
 {
-    float minScore = _config.GetValue<float>("Rag:MinScore");   // by testing — like lecture 9's homework
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
+    var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct));
 
-    List<FoundChunk> top = await _db.DocumentChunks
+    List<ChunkMatch> top = await _db.Chunks
         .Where(c => c.Embedding != null)
-        .OrderBy(c => c.Embedding!.CosineDistance(query))
-        .Select(c => new FoundChunk(c.Document.FileName, c.Page, c.Content,
-            1 - c.Embedding!.CosineDistance(query)))
+        .OrderBy(c => c.Embedding!.CosineDistance(queryVector))
         .Take(5)
+        .Select(c => new ChunkMatch(c.Document.FileName, c.Page, c.Content,
+            1 - c.Embedding!.CosineDistance(queryVector)))
         .ToListAsync(ct);
 
-    return top.Where(c => c.Score >= minScore).ToList();
+    return top.Where(c => c.Score >= _minScore).ToList();
 }
 ```
 
 **Augment:** the found chunks as numbered sources:
 
-```csharp Controllers/AiLabController.cs · BuildContext
-private static string BuildContext(List<FoundChunk> chunks) =>
+```csharp Ai/Documents/DocumentSearch.cs · FormatContext
+// the found parts as text for the model: "[1] (rules.pdf, p. 3)" + the text
+public static string FormatContext(List<ChunkMatch> chunks) =>
     chunks.Count == 0
         ? "(No relevant information was found in the sources)"
         : string.Join("\n\n", chunks.Select((c, i) => $"[{i + 1}] ({c.File}, p. {c.Page})\n{c.Content}"));
 ```
 
-Lecture 7's `/chat` gets one more step: search and an augmented message. The history keeps the **original** question:
+Lecture 7's `AssistantController.Chat` gets one more step: search and an augmented message. The history keeps the **original** question:
 
-```csharp Controllers/AiLabController.cs · Chat
+```csharp Controllers/AssistantController.cs · Chat
 List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
 IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
 
-List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);   // retrieve
-ChatMessage question = new(ChatRole.User, request.Prompt);
+List<ChunkMatch> sources = await _documents.SearchAsync(request.Message, ct);   // retrieve
+ChatMessage question = new(ChatRole.User, request.Message);
 ChatMessage augmented = new(ChatRole.User, $"""
     Sources:
-    {BuildContext(sources)}
+    {DocumentSearch.FormatContext(sources)}
 
-    Question: {request.Prompt}
-    """);                                                                  // augment
+    Question: {request.Message}
+    """);                                                                        // augment
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
-ChatResponse response = await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);   // generate
+ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions(), ct);   // generate
 
 await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
-return Ok(new { conversationId, response.Text,
-    Sources = sources.Select((s, i) => new { N = i + 1, s.File, s.Page }) });
+
+List<ChatSource> sourceList = sources
+    .Select((s, i) => new ChatSource(i + 1, s.File, s.Page))
+    .ToList();
+return Ok(new ChatReply(conversationId, response.Text, sourceList));
 ```
 
 The rules in the system prompt:

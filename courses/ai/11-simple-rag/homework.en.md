@@ -4,8 +4,8 @@ With code · your project · a test table in the README
 
 ## Requirements
 
-- **Ingestion:** `Document` + `DocumentChunk` (`vector(768)`, `Page`, an HNSW index), `POST .../documents` — PdfPig, `TextChunker` (800 / overlap 1), `Chunk(100)`
-- **Query:** `SearchChunksAsync` (top 5, the threshold in `appsettings.json`), `BuildContext` — `[N] (file, p. P)`
+- **Ingestion:** `Document` + `Chunk` (`vector(768)`, `Page`, an HNSW index), `POST .../documents` — PdfPig, `TextChunker` (800 / overlap 1), `Chunk(100)`
+- **Query:** `DocumentSearch.SearchAsync` (top 5, the threshold in `appsettings.json`), `FormatContext` — `[N] (file, p. P)`
 - **In the chat:** your lecture 7 `/chat` — an augmented message, the original question in the history, `sources` in the response; rules in the system prompt: only from the sources, with the number, the exact phrase “I don't have information on this”
 - **README — a test table:** 8 questions on your PDF (2 — something that isn't in the PDF, 1 — with the answer on two different pages, 1 — with an exact number/name). Columns: question · correct page · sources found · is the answer correct? · is the source correct?
 - The study notes **quiz** (8 questions) — write down your score
@@ -24,30 +24,32 @@ The answers come with a source number and `sources` points to the right page; on
 
 - This table is the basis of lecture 12's **golden set** — keep it
 - The threshold by testing: the scores on correct and “non-existent” questions — where's the boundary?
-- To see the parts: `SELECT "Page", left("Content", 80) FROM "DocumentChunks" ORDER BY "Id";`
+- To see the parts: `SELECT "Page", left("Content", 80) FROM "Chunks" ORDER BY "Id";`
 - Keep only the sources whose number appears in the answer in `Sources`: `response.Text.Contains($"[{n}]")`
 
 ## Solution
 
 A sample — the library API (rules: borrowing books, fines, reading rooms).
 
-```csharp Controllers/AiLabController.cs · Chat (RAG)!
-List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);
-ChatMessage question = new(ChatRole.User, request.Prompt);
+```csharp Controllers/AssistantController.cs · Chat (RAG)!
+List<ChunkMatch> sources = await _documents.SearchAsync(request.Message, ct);
+ChatMessage question = new(ChatRole.User, request.Message);
 ChatMessage augmented = new(ChatRole.User, $"""
     Sources:
-    {BuildContext(sources)}
+    {DocumentSearch.FormatContext(sources)}
 
-    Question: {request.Prompt}
+    Question: {request.Message}
     """);
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
-ChatResponse response = await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);
+ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions(), ct);
 await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
 
-var cited = sources.Select((s, i) => new { N = i + 1, s.File, s.Page })
-    .Where(s => response.Text.Contains($"[{s.N}]"));
-return Ok(new { conversationId, response.Text, Sources = cited });
+List<ChatSource> cited = sources
+    .Select((s, i) => new ChatSource(i + 1, s.File, s.Page))
+    .Where(s => response.Text.Contains($"[{s.Number}]"))
+    .ToList();
+return Ok(new ChatReply(conversationId, response.Text, cited));
 ```
 
 ```text System prompt · rules

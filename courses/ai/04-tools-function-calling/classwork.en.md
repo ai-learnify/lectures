@@ -6,7 +6,7 @@ Your project or RestaurantApi · with code · in Swagger
 
 - **1 · Tools class** — `Ai/<Your>Tools.cs`: `DbContext` (or your service) through the constructor, `AddScoped` in `Program.cs`
 - **2 · A tool with a parameter** — one **read** method over your database, **with at least 1 parameter**; `[Description]` on the method and on the parameter; name = verb + what
-- **3 · `POST /api/assistant/chat`** — System: who the assistant is + “data only from the tool, don't make anything up” → `ChatOptions.Tools` → `GetResponseAsync(messages, options)` → `Ok(new { response.Text, ToolCalls })`. `.UseFunctionInvocation()` in `Program.cs`
+- **3 · `POST /api/assistant/chat`** — System: who the assistant is + “data only from the tool, don't make anything up” → `ChatOptions.Tools` → `GetResponseAsync(messages, options)` → `Ok(new ChatReply(response.Text))`. `.UseFunctionInvocation()` in `Program.cs`
 - **4 · 3 texts in Swagger:** one where the tool should be called · one where it should **not** be called · one where the parameter is written in the text in other words
 
 ## ✓ Done when

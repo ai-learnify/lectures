@@ -52,7 +52,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/ვექტორი = იისფერი · მსგავსება/ძებნა = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი/ნაპოვნი = მწვანე · არ ემთხვევა = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — AddEmbeddingGenerator, Ai/MenuIndex, AiLabController: embed, menu/index, menu/search
+     პროექტი: RestaurantApi — AddEmbeddingGenerator, AiDiagnosticsController: embed, similarity · MenuController: embeddings, search
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -183,7 +183,7 @@
 </section>
 
 <section class="slide" data-section="2 · კოდში">
-  <div class="kicker">🧑‍💻 ვწერთ · Program.cs და POST /api/ai-lab/embed</div>
+  <div class="kicker">🧑‍💻 ვწერთ · Program.cs და POST /api/diagnostics/ai/embed</div>
   <h2><span class="mono c-api">IEmbeddingGenerator</span> — როგორც IChatClient</h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:22px">
     <div class="col" style="gap:12px">
@@ -194,16 +194,16 @@ builder.Services.AddEmbeddingGenerator(
     new Client(apiKey: apiKey)
         .AsIEmbeddingGenerator(embeddingModel, defaultModelDimensions: 768));
       </code-block>
-      <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Embed">
+      <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiDiagnosticsController.cs · Embed">
 // constructor: IEmbeddingGenerator<string, Embedding<float>> embeddings
 
 [HttpPost("embed")]
-public async Task<IActionResult> Embed(AskRequest request, CancellationToken ct)
+public async Task<IActionResult> Embed(EmbedRequest request, CancellationToken ct)
 {
     ReadOnlyMemory<float> vector =
-        await _embeddings.GenerateVectorAsync(request.Prompt, cancellationToken: ct);
+        await _embeddings.GenerateVectorAsync(request.Text, cancellationToken: ct);
 
-    return Ok(new { vector.Length, First5 = vector.ToArray()[..5] });
+    return Ok(new EmbedResponse(vector.Length, vector.ToArray()[..5]));
 }
       </code-block>
     </div>
@@ -232,8 +232,8 @@ public async Task<IActionResult> Embed(AskRequest request, CancellationToken ct)
       <div class="vec"><span class="k">task: search result | query:</span> something light, without meat</div>
       <p class="sec-l step" style="margin-top:6px">დოკუმენტი (რაც უნდა ვიპოვოთ)</p>
       <div class="vec step" data-with><span class="k">title:</span> Lobio in a clay pot <span class="k">| text:</span> red beans, onion, coriander…</div>
-      <code-block lang="csharp" cls="sm" title="Ai/EmbeddingText.cs">
-public static class EmbeddingText
+      <code-block lang="csharp" cls="sm" title="Ai/Embeddings/EmbeddingInput.cs">
+public static class EmbeddingInput
 {
     public static string Query(string q) =>
         $"task: search result | query: {q}";
@@ -320,39 +320,40 @@ float score = TensorPrimitives.CosineSimilarity(a.Span, b.Span);
   <div class="kicker">🧑‍💻 ვწერთ · მენიუს სემანტიკური ძებნა</div>
   <h2>მენიუ ერთხელ → ვექტორები · შეკითხვა → <span class="c-asp">top 3</span></h2>
   <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · menu/index, menu/search">
-[HttpPost("menu/index")]
-public async Task<IActionResult> IndexMenu(CancellationToken ct)
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/MenuController.cs · GenerateEmbeddings, Search">
+// for now in memory: private static List<(string Name, ReadOnlyMemory<float> Vector)> _vectors
+
+[HttpPost("embeddings")]
+public async Task<IActionResult> GenerateEmbeddings(CancellationToken ct)
 {
     List<Product> products = await _db.Products.ToListAsync(ct);
     GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
-        products.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+        products.Select(p => EmbeddingInput.Document(p.Name, p.Description)),
         cancellationToken: ct);
 
-    _menu.Items.Clear();
-    for (int i = 0; i < products.Count; i++)
-        _menu.Items.Add((products[i].Name, vectors[i].Vector));
-
-    return Ok(new { Indexed = products.Count });
+    _vectors = products.Select((p, i) => (p.Name, vectors[i].Vector)).ToList();
+    return Ok(new EmbeddingsResult(products.Count));
 }
 
-[HttpGet("menu/search")]
-public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, CancellationToken ct)
 {
-    ReadOnlyMemory<float> query = await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct);
+    ReadOnlyMemory<float> queryVector = await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct);
 
-    var top = _menu.Items
-        .Select(m => new { m.Name, Score = TensorPrimitives.CosineSimilarity(query.Span, m.Vector.Span) })
-        .OrderByDescending(x => x.Score)
-        .Take(3);
+    List<MenuMatch> top = _vectors
+        .Select(v => new MenuMatch(v.Name,
+            TensorPrimitives.CosineSimilarity(queryVector.Span, v.Vector.Span)))
+        .OrderByDescending(m => m.Score)
+        .Take(3)
+        .ToList();
 
     return Ok(top);
 }
     </code-block>
     <div class="col" style="gap:12px">
       <div class="swr c-get step">
-        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=without meat</span></div>
+        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?query=without meat</span></div>
         <pre class="rb">[
   { <span class="k">"name"</span>: <span class="s">"Lobio in a clay pot"</span>,     <span class="k">"score"</span>: <span class="n">0.71</span> },
   { <span class="k">"name"</span>: <span class="s">"Aubergine with walnuts"</span>, <span class="k">"score"</span>: <span class="n">0.68</span> },

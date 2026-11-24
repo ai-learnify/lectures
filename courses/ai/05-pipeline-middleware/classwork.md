@@ -5,7 +5,7 @@
 ## ნაბიჯები
 
 - **1 · ლოგი** — `.UseLogging()` Program.cs-ში, `appsettings.Development.json`-ში `"Microsoft.Extensions.AI": "Debug"`. `/chat`-ზე ერთი tool-იანი კითხვა → კონსოლში დათვალე Gemini-ს მოთხოვნები
-- **2 · შენი ფენა** — `Ai/<სახელი>ChatClient.cs : DelegatingChatClient`, override `GetResponseAsync`. აირჩიე **ერთი**:
+- **2 · შენი ფენა** — `Ai/Middleware/<სახელი>ChatClient.cs : DelegatingChatClient`, override `GetResponseAsync`. აირჩიე **ერთი**:
   - **აჩერებს** — შენი წესით (მაგ. აკრძალული სიტყვები, სხვა თემა, ცარიელი შეკითხვა) პასუხს თვითონ აბრუნებს, `base`-ის გარეშე
   - **უყურებს** — `Stopwatch`-ით ზომავს, რამდენ ხანს გაგრძელდა `base` და ლოგში წერს
 - **3 · რეგისტრაცია** — `.Use(...)` Program.cs-ში. **სად** დგას? აჩერებს → პირველი; უყურებს → იფიქრე: ციკლის ყოველი მოთხოვნა თუ ჯამი?
@@ -27,4 +27,4 @@
 - **კონსოლში არაფერი?** `appsettings.Development.json`-ში დონე და გაშვების პროფილი (Development) შეამოწმე
 - **`DelegatingChatClient` ვერ პოულობს?** `using Microsoft.Extensions.AI;`
 - **ILogger გჭირდება ფენაში?** `.Use((inner, sp) => new MyChatClient(inner, sp.GetRequiredService<ILogger<MyChatClient>>()))`
-- **`/parse-booking` exception-ს აგდებს შეჩერებისას?** შეჩერების ტექსტი JSON არ არის — სტრუქტურირებულ endpoint-ზე `TryGetResult` (ლექცია 3)
+- **`/bookings/parse` exception-ს აგდებს შეჩერებისას?** შეჩერების ტექსტი JSON არ არის — სტრუქტურირებულ endpoint-ზე `TryGetResult` (ლექცია 3)

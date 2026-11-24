@@ -6,8 +6,8 @@ With code · your project · a table in the README
 
 - **Resilience** in your project: `AddHttpClient("gemini").AddStandardResilienceHandler(...)` with timeouts raised for an LLM; Google.GenAI uses this HttpClient (`ClientOptions.HttpClientFactory`), and its own retry is turned off
 - **`FallbackChatClient`** — only on a transient error (429, 5xx, the network, a timeout); the fallback model in `appsettings.json` (`Gemini:FallbackModel`); the innermost layer of the pipeline
-- **`TokenCounterChatClient` to the database** (`AiUsage`) — `ReasoningTokenCount` added to the output
-- **`GET /api/ai-lab/usage/today`** — per model: calls, input, output and the cost in dollars; the prices in `appsettings.json` (`AiPricing:<model>:InputPerMillion` / `OutputPerMillion`), not in the code
+- **`UsageTrackingChatClient` to the database** (`AiUsage`) — `ReasoningTokenCount` added to the output
+- **`GET /api/diagnostics/ai/usage/today`** — per model: calls, input, output and the cost in dollars; the prices in `appsettings.json` (`AiPricing:<model>:InputPerMillion` / `OutputPerMillion`), not in the code
 - **README — an error table:** three tests with `ChaosHandler` and configuration: (1) two 503s · (2) a wrong model name · (3) always 503. Columns: test · how many requests went out · what the user got · 1–2 lines of the log
 - The study notes **quiz** (8 questions) — write down your score
 
@@ -32,13 +32,13 @@ On two 503s the user gets an answer; on a 404 there's no retry; on “always 503
 
 A sample — the library API (continuing homework 7).
 
-```csharp Controllers/AiLabController.cs · UsageToday!
+```csharp Controllers/AiDiagnosticsController.cs · UsageToday!
 public record ModelPrice(decimal InputPerMillion, decimal OutputPerMillion);
 
 [HttpGet("usage/today")]
 public async Task<IActionResult> UsageToday(CancellationToken ct)
 {
-    var rows = await _db.AiUsage
+    var rows = await _db.AiUsages
         .Where(u => u.At >= DateTime.UtcNow.Date)
         .GroupBy(u => u.Model)
         .Select(g => new { Model = g.Key, Calls = g.Count(),
@@ -58,7 +58,7 @@ public async Task<IActionResult> UsageToday(CancellationToken ct)
 builder.Services.AddChatClient(sp => /* Gemini with our HttpClient, Attempts = 1 */)
     .Use(inner => new LibraryGuardChatClient(inner))
     .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(inner, sp.GetRequiredService<IServiceScopeFactory>()))
+    .Use((inner, sp) => new UsageTrackingChatClient(inner, sp.GetRequiredService<IServiceScopeFactory>()))
     .UseLogging()
     .Use((inner, sp) => new FallbackChatClient(inner, fallback,
         sp.GetRequiredService<ILogger<FallbackChatClient>>()));

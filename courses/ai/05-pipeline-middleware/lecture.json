@@ -8,17 +8,48 @@
     "დაწერ საკუთარ ფენას `DelegatingChatClient`-ით: ერთს, რომელიც პასუხს უყურებს, და მეორეს, რომელიც მოთხოვნას აჩერებს"
   ],
   "review": [
-    {"q": "რა არის `.UseFunctionInvocation()` და სად გვინახავს მსგავსი იდეა?", "a": "ფენა (middleware) `IChatClient`-ის გარშემო — `IChatClient`, რომელიც სხვა `IChatClient`-ს ეხვევა · `AddChatClient` აბრუნებს `ChatClientBuilder`-ს, ყოველი `.Use…()` ერთ ფენას ამატებს · როგორც ASP.NET Core-ის `app.UseAuthentication()` HTTP მოთხოვნებზე"},
-    {"q": "Program.cs-ში `.UseFunctionInvocation().UseLogging()` — რომელია Controller-თან ახლოს? რატომ ჩანს ლოგში Gemini-ს ორივე მოთხოვნა?", "a": "პირველი `.Use…()` = გარე ფენა (Controller-თან ახლოს) · Logging შიდაა, Gemini-სთან ყველაზე ახლოს — FunctionInvocation-ის ციკლის ყოველი მოთხოვნა მასში გადის"},
-    {"q": "როდის არის `UseDistributedCache` კარგი და როდის საშიში?", "a": "კარგი — როცა ერთსა და იმავე შეკითხვაზე პასუხი არ იცვლება (FAQ, თარგმანი, კლასიფიკაცია) · საშიში — როცა პასუხი ცვალებად მონაცემზეა (თავისუფალი მაგიდა): ქეში ძველ პასუხს დააბრუნებს"},
-    {"q": "`DelegatingChatClient`-ში `base.GetResponseAsync(...)`-მდე და მის შემდეგ — რას ხედავს კოდი?", "a": "base-მდე — მოთხოვნას (Gemini-მდე) · base-ის შემდეგ — პასუხს (ტოკენები, ტექსტი) · ASP.NET Core-ის `await next()`-ის ანალოგი"},
-    {"q": "როგორ აჩერებს ფენა მოთხოვნას და რატომ ვსვამთ ასეთ ფენას პირველად?", "a": "`base`-ს არ იძახებს და პასუხს თვითონ აბრუნებს (short-circuit) — Gemini-მდე არაფერი მიდის, 0 ტოკენი · პირველი = რაც ადრე გავაჩერებთ, მით ნაკლები ფენა იმუშავებს"}
+    {
+      "q": "რა არის `.UseFunctionInvocation()` და სად გვინახავს მსგავსი იდეა?",
+      "a": "ფენა (middleware) `IChatClient`-ის გარშემო — `IChatClient`, რომელიც სხვა `IChatClient`-ს ეხვევა · `AddChatClient` აბრუნებს `ChatClientBuilder`-ს, ყოველი `.Use…()` ერთ ფენას ამატებს · როგორც ASP.NET Core-ის `app.UseAuthentication()` HTTP მოთხოვნებზე"
+    },
+    {
+      "q": "Program.cs-ში `.UseFunctionInvocation().UseLogging()` — რომელია Controller-თან ახლოს? რატომ ჩანს ლოგში Gemini-ს ორივე მოთხოვნა?",
+      "a": "პირველი `.Use…()` = გარე ფენა (Controller-თან ახლოს) · Logging შიდაა, Gemini-სთან ყველაზე ახლოს — FunctionInvocation-ის ციკლის ყოველი მოთხოვნა მასში გადის"
+    },
+    {
+      "q": "როდის არის `UseDistributedCache` კარგი და როდის საშიში?",
+      "a": "კარგი — როცა ერთსა და იმავე შეკითხვაზე პასუხი არ იცვლება (FAQ, თარგმანი, კლასიფიკაცია) · საშიში — როცა პასუხი ცვალებად მონაცემზეა (თავისუფალი მაგიდა): ქეში ძველ პასუხს დააბრუნებს"
+    },
+    {
+      "q": "`DelegatingChatClient`-ში `base.GetResponseAsync(...)`-მდე და მის შემდეგ — რას ხედავს კოდი?",
+      "a": "base-მდე — მოთხოვნას (Gemini-მდე) · base-ის შემდეგ — პასუხს (ტოკენები, ტექსტი) · ASP.NET Core-ის `await next()`-ის ანალოგი"
+    },
+    {
+      "q": "როგორ აჩერებს ფენა მოთხოვნას და რატომ ვსვამთ ასეთ ფენას პირველად?",
+      "a": "`base`-ს არ იძახებს და პასუხს თვითონ აბრუნებს (short-circuit) — Gemini-მდე არაფერი მიდის, 0 ტოკენი · პირველი = რაც ადრე გავაჩერებთ, მით ნაკლები ფენა იმუშავებს"
+    }
   ],
   "resources": [
-    {"title": "IChatClient — pipelines და middleware", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "ChatClientBuilder, caching, telemetry, DelegatingChatClient — მაგალითებით"},
-    {"title": "Microsoft.Extensions.AI — მიმოხილვა", "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai", "note": "ფენების იდეა და მზა middleware-ები"},
-    {"title": "ASP.NET Core Middleware", "url": "https://learn.microsoft.com/aspnet/core/fundamentals/middleware/", "note": "იგივე იდეა HTTP მოთხოვნებზე — API კურსიდან"},
-    {"title": "Logging in .NET", "url": "https://learn.microsoft.com/dotnet/core/extensions/logging", "note": "ლოგის დონეები და appsettings-ში კონფიგურაცია"}
+    {
+      "title": "IChatClient — pipelines და middleware",
+      "url": "https://learn.microsoft.com/dotnet/ai/ichatclient",
+      "note": "ChatClientBuilder, caching, telemetry, DelegatingChatClient — მაგალითებით"
+    },
+    {
+      "title": "Microsoft.Extensions.AI — მიმოხილვა",
+      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
+      "note": "ფენების იდეა და მზა middleware-ები"
+    },
+    {
+      "title": "ASP.NET Core Middleware",
+      "url": "https://learn.microsoft.com/aspnet/core/fundamentals/middleware/",
+      "note": "იგივე იდეა HTTP მოთხოვნებზე — API კურსიდან"
+    },
+    {
+      "title": "Logging in .NET",
+      "url": "https://learn.microsoft.com/dotnet/core/extensions/logging",
+      "note": "ლოგის დონეები და appsettings-ში კონფიგურაცია"
+    }
   ],
   "quiz": [
     {
@@ -94,7 +125,7 @@
       "slide": 11
     },
     {
-      "q": "TokenCounter `UseFunctionInvocation`-ის შიგნით დგას. tool-იან კითხვაზე რამდენ ხაზს დაწერს?",
+      "q": "UsageTracking `UseFunctionInvocation`-ის შიგნით დგას. tool-იან კითხვაზე რამდენ ხაზს დაწერს?",
       "options": [
         "1 — ჯამს",
         "2 — Gemini-ს ყოველ მოთხოვნას ცალკე",

@@ -74,7 +74,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/მოდელი = იისფერი · სტრიმი/SSE = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — AiLabController: chat/chunks, chat/stream
+     პროექტი: RestaurantApi — AiDiagnosticsController.StreamTiming, AssistantController.ChatStream
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -84,7 +84,7 @@
     <p class="lead in mt" style="--d:.35s">GetStreamingResponseAsync · Server-Sent Events · გაუქმება</p>
   </div>
   <div class="abs" style="right:90px;top:260px;width:540px">
-    <div class="sse in" style="--d:.5s"><span class="d">$</span> curl -N …/api/ai-lab/chat/stream?prompt=…
+    <div class="sse in" style="--d:.5s"><span class="d">$</span> curl -N …/api/assistant/chat/stream?message=…
 
 <span class="k">data:</span> ხვალ 20:00-ზე
 <span class="k">data:</span>  ოთხი კაცისთვის
@@ -171,12 +171,12 @@ await foreach (ChatResponseUpdate update in
 </section>
 
 <section class="slide" data-section="1 · სტრიმი Gemini-დან">
-  <div class="kicker">🧑‍💻 ვზომავთ · POST /api/ai-lab/chat/chunks</div>
+  <div class="kicker">🧑‍💻 ვზომავთ · POST /api/diagnostics/ai/stream-timing</div>
   <h2>როდის მოდის <span class="c-asp">თითო ნაწილი</span>?</h2>
   <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:22px">
-    <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ChatChunks">
-[HttpPost("chat/chunks")]
-public async Task<IActionResult> ChatChunks(AskRequest request)
+    <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiDiagnosticsController.cs · StreamTiming">
+[HttpPost("stream-timing")]
+public async Task<IActionResult> StreamTiming(PromptRequest request)
 {
     Stopwatch sw = Stopwatch.StartNew();
     List<object> chunks = [];
@@ -192,7 +192,7 @@ public async Task<IActionResult> ChatChunks(AskRequest request)
     </code-block>
     <div class="col" style="gap:12px">
       <div class="swr c-post step">
-        <div class="rh"><span class="m">POST</span><span class="p">/chat/chunks</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/stream-timing</span></div>
         <pre class="rb">[
   { <span class="k">"ms"</span>: <span class="n">640</span>,  <span class="k">"text"</span>: <span class="s">"Georgian cuisine"</span> },
   { <span class="k">"ms"</span>: <span class="n">910</span>,  <span class="k">"text"</span>: <span class="s">" is famous for khinkali…"</span> },
@@ -257,31 +257,23 @@ public async Task<IActionResult> ChatChunks(AskRequest request)
 </section>
 
 <section class="slide" data-section="2 · SSE">
-  <div class="kicker">🧑‍💻 ვწერთ · GET /api/ai-lab/chat/stream</div>
+  <div class="kicker">🧑‍💻 ვწერთ · GET /api/assistant/chat/stream</div>
   <h2><span class="mono c-asp">TypedResults.ServerSentEvents</span> — .NET 10</h2>
   <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · ChatStream">
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AssistantController.cs · ChatStream">
 [HttpGet("chat/stream")]
-public IResult ChatStream(string prompt, CancellationToken cancellationToken)
+public IResult ChatStream(string message, CancellationToken cancellationToken)
 {
-    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+    return TypedResults.ServerSentEvents(StreamAnswer(message, cancellationToken));
 }
 
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)
 {
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, $"""
-            You are a restaurant assistant. Answer briefly.
-            Take menu and table data only from the tools.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            """),
-        new(ChatRole.User, prompt)
-    ];
+    List<ChatMessage> messages = [SystemPrompt(), new(ChatRole.User, message)];
 
     await foreach (ChatResponseUpdate update in
-        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+        _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))
     {
         if (!string.IsNullOrEmpty(update.Text))
             yield return update.Text;
@@ -291,9 +283,9 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
     <div class="col" style="gap:12px">
       <i class="codestep" data-for="c2" data-lines="4"></i>
       <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>ServerSentEvents</b>: Content-Type, data:, flush. ყველაფერს თვითონ აკეთებს</div>
-      <i class="codestep" data-for="c2" data-lines="7,24"></i>
+      <i class="codestep" data-for="c2" data-lines="7,16"></i>
       <div class="callout step" data-with style="--a:var(--api);font-size:18px"><b>yield return</b>: ნაწილს მაშინვე აბრუნებს, სია არ გვჭირდება</div>
-      <div class="sse step" style="font-size:14px"><span class="d">$</span> curl -N "http://localhost:5080/api/ai-lab/chat/stream?prompt=..."
+      <div class="sse step" style="font-size:14px"><span class="d">$</span> curl -N "http://localhost:5080/api/assistant/chat/stream?message=..."
 <span class="k">data:</span> ხვალ 20:00-ზე
 <span class="k">data:</span>  ოთხი კაცისთვის ▍</div>
       <div class="callout step" data-with style="--a:var(--mvc);font-size:17px"><b>-N</b> = curl-მა არ დააგროვოს. ტექსტი ჩნდება ნაწილ-ნაწილ</div>
@@ -318,7 +310,7 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
     <div class="col" style="gap:12px">
       <div class="prob" style="--a:var(--red)"><span class="pi">💸</span><div><b>token-ის გარეშე</b><span>მომხმარებელმა 2 წამში დახურა, Gemini კი 30 წამი წერს. ტოკენებს ვიხდით, პასუხს არავინ კითხულობს</span></div></div>
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">✋</span><div><b>token-ით</b><span>ASP.NET Core კავშირის გაწყვეტას ხედავს → token → Gemini-ს მოთხოვნა წყდება</span></div></div>
-      <div class="sse step" style="font-size:14px"><span class="d">$</span> curl -N ".../chat/stream?prompt=..."
+      <div class="sse step" style="font-size:14px"><span class="d">$</span> curl -N ".../chat/stream?message=..."
 <span class="k">data:</span> ქართული სამზარეულო
 <span class="k">data:</span>  ცნობილია…
 ^C
@@ -327,10 +319,10 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
     </div>
     <div class="col" style="gap:12px">
       <code-block id="c3" lang="csharp" cls="sm" title="ChatStream · ერთი token, სამი ადგილი">
-public IResult ChatStream(string prompt,
+public IResult ChatStream(string message,
     CancellationToken cancellationToken)          // ①
 …
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)  // ②
 …
 _chat.GetStreamingResponseAsync(messages, options,

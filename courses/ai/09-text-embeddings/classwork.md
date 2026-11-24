@@ -5,7 +5,7 @@
 ## ნაბიჯები
 
 - **1 · რეგისტრაცია** — `AddEmbeddingGenerator(new Client(apiKey: apiKey).AsIEmbeddingGenerator("gemini-embedding-2", defaultModelDimensions: 768))`; მოდელის სახელი `appsettings.json`-ში
-- **2 · endpoint** — `POST /api/ai-lab/similarity`, body `{ "a": "...", "b": "..." }`: ორი ვექტორი (`GenerateAsync([a, b])` — ერთი გამოძახებით) → `TensorPrimitives.CosineSimilarity` → `{ score }`
+- **2 · endpoint** — `POST /api/diagnostics/ai/similarity`, body `{ "first": "...", "second": "..." }`: ორი ვექტორი (`GenerateAsync([first, second])` — ერთი გამოძახებით) → `TensorPrimitives.CosineSimilarity` → `{ score }`
 - **3 · ჯერ გამოიცანი** — რვეულში 5 წყვილი შენი პროექტის თემით და თითოეულზე **შენი პროგნოზი** (მაღალი / საშუალო / დაბალი) — Swagger-ის გაშვებამდე. ერთი წყვილი ქართული ↔ ინგლისური, ერთი — ერთნაირი სიტყვებით, მაგრამ სხვა მნიშვნელობით
 - **4 · გაზომე** — Swagger-ში ხუთივე; დაალაგე score-ით. სად შეცდი?
 
@@ -15,7 +15,7 @@
 
 ## ⭐ ბონუსი
 
-- იგივე წყვილები **prefix-ით**: `a` — `EmbeddingText.Query`, `b` — `EmbeddingText.Document`. დალაგება შეიცვალა?
+- იგივე წყვილები **prefix-ით**: `a` — `EmbeddingInput.Query`, `b` — `EmbeddingInput.Document`. დალაგება შეიცვალა?
 - `defaultModelDimensions: 3072` — score-ები და დალაგება შეიცვალა? რამდენჯერ დიდია ვექტორი?
 - cosine **ხელით** (სლაიდ 15-ის loop) — იგივე რიცხვი გამოდის, რაც `TensorPrimitives`-ით?
 

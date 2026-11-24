@@ -63,7 +63,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/კონტექსტი = იისფერი · ისტორია/ბაზა = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — Ai/ChatHistoryStore, Data/ChatMessageRecord, AiLabController: chat (conversationId)
+     პროექტი: RestaurantApi — Ai/Chat/ChatHistoryStore, Entities/Message, AssistantController.Chat (conversationId)
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -182,8 +182,8 @@
   <h2>ერთი ხაზი = ერთი <span class="mono c-asp">ChatMessage</span>, <span class="mono c-net">jsonb</span>-ში</h2>
   <div class="grid2" style="grid-template-columns:1fr 1.2fr;gap:22px;align-items:start">
     <div class="col" style="gap:12px">
-      <code-block lang="csharp" cls="sm" title="Data/ChatMessageRecord.cs">
-public class ChatMessageRecord
+      <code-block lang="csharp" cls="sm" title="Entities/Message.cs">
+public class Message
 {
     public Guid Id { get; set; }
     public Guid ConversationId { get; set; }
@@ -198,7 +198,7 @@ public class ChatMessageRecord
       </code-block>
       <div class="callout step" style="--a:var(--asp);font-size:17px"><b>Contents</b> სხვადასხვა ტიპისაა: ტექსტი, tool-ის გამოძახება, შედეგი, ფიქრი. ერთ <b>jsonb</b> სვეტში ყველა ეტევა</div>
     </div>
-    <code-block id="c1" lang="csharp" cls="sm" title="Ai/ChatHistoryStore.cs">
+    <code-block id="c1" lang="csharp" cls="sm" title="Ai/Chat/ChatHistoryStore.cs">
 public class ChatHistoryStore
 {
     // jsonb reorders keys — "$type" is no longer first
@@ -210,7 +210,7 @@ public class ChatHistoryStore
 
     public async Task<List<ChatMessage>> LoadAsync(Guid conversationId, CancellationToken ct)
     {
-        List<string> rows = await _db.ChatMessages
+        List<string> rows = await _db.Messages
             .Where(m => m.ConversationId == conversationId)
             .OrderBy(m => m.Position)
             .Select(m => m.Json)
@@ -221,10 +221,10 @@ public class ChatHistoryStore
 
     public async Task AppendAsync(Guid conversationId, IEnumerable<ChatMessage> messages, CancellationToken ct)
     {
-        int position = await _db.ChatMessages.CountAsync(m => m.ConversationId == conversationId, ct);
+        int position = await _db.Messages.CountAsync(m => m.ConversationId == conversationId, ct);
         foreach (ChatMessage message in messages)
         {
-            _db.ChatMessages.Add(new ChatMessageRecord
+            _db.Messages.Add(new Message
             {
                 Id = Guid.NewGuid(),
                 ConversationId = conversationId,
@@ -242,11 +242,11 @@ public class ChatHistoryStore
 </section>
 
 <section class="slide" data-section="2 · ისტორია ბაზაში">
-  <div class="kicker">🧑‍💻 ვწერთ · POST /api/ai-lab/chat</div>
+  <div class="kicker">🧑‍💻 ვწერთ · POST /api/assistant/chat</div>
   <h2>ჩატვირთე → <span class="c-net">გაგზავნე</span> → <span class="c-asp">შეინახე</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Chat">
-public record ChatRequest(Guid? ConversationId, string Prompt);
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AssistantController.cs · Chat">
+public record ChatRequest(Guid? ConversationId, string Message);   // Dtos/Assistant
 
 [HttpPost("chat")]
 public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
@@ -254,15 +254,15 @@ public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
     Guid conversationId = request.ConversationId ?? Guid.NewGuid();
 
     List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-    ChatMessage question = new(ChatRole.User, request.Prompt);
+    ChatMessage question = new(ChatRole.User, request.Message);
 
     List<ChatMessage> messages = [SystemPrompt(), .. history, question];
     ChatResponse response =
-        await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);
+        await _chat.GetResponseAsync(messages, CreateChatOptions(), ct);
 
     await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
 
-    return Ok(new { conversationId, response.Text, response.Usage?.InputTokenCount });
+    return Ok(new ChatReply(conversationId, response.Text));
 }
     </code-block>
     <div class="col" style="gap:12px">
@@ -362,7 +362,7 @@ public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
   <div class="kicker">🧑‍💻 ვწერთ · ბოლო N შეტყობინება</div>
   <h2><span class="mono c-asp">IChatReducer</span>: ბაზაში ყველაფერი, მოდელთან — ბოლო 10</h2>
   <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:22px">
-    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · Chat">
+    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AssistantController.cs · Chat">
 #pragma warning disable MEAI001   // reducers are still experimental
 private static readonly IChatReducer Reducer = new MessageCountingChatReducer(10);
 #pragma warning restore MEAI001
@@ -371,7 +371,7 @@ private static readonly IChatReducer Reducer = new MessageCountingChatReducer(10
 List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
 IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
 
-ChatMessage question = new(ChatRole.User, request.Prompt);
+ChatMessage question = new(ChatRole.User, request.Message);
 List<ChatMessage> messages = [SystemPrompt(), .. recent, question];
 // ... GetResponseAsync, AppendAsync — unchanged
     </code-block>

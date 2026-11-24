@@ -229,7 +229,7 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <ul>
 <li><strong>1 · Tools კლასი</strong> — <code>Ai/&lt;შენი&gt;Tools.cs</code>: constructor-ით <code>DbContext</code> (ან შენი სერვისი), <code>Program.cs</code>-ში <code>AddScoped</code></li>
 <li><strong>2 · tool პარამეტრით</strong> — ერთი <strong>კითხვის</strong> მეთოდი შენი ბაზიდან, <strong>მინიმუმ 1 პარამეტრით</strong>; <code>[Description]</code> მეთოდზე და პარამეტრზე; სახელი = ზმნა + რა</li>
-<li><strong>3 · <code>POST /api/assistant/chat</code></strong> — System: ვინ არის ასისტენტი + "Data only from the tool, don't make anything up" → <code>ChatOptions.Tools</code> → <code>GetResponseAsync(messages, options)</code> → <code>Ok(new { response.Text, ToolCalls })</code>. <code>Program.cs</code>-ში <code>.UseFunctionInvocation()</code></li>
+<li><strong>3 · <code>POST /api/assistant/chat</code></strong> — System: ვინ არის ასისტენტი + "Data only from the tool, don't make anything up" → <code>ChatOptions.Tools</code> → <code>GetResponseAsync(messages, options)</code> → <code>Ok(new ChatReply(response.Text))</code>. <code>Program.cs</code>-ში <code>.UseFunctionInvocation()</code></li>
 <li><strong>4 · Swagger-ში 3 ტექსტი:</strong> ისეთი, რომელზეც tool უნდა გამოიძახოს · ისეთი, რომელზეც <strong>არ</strong> უნდა გამოიძახოს · ისეთი, სადაც პარამეტრი ტექსტში წერია სხვა სიტყვებით</li>
 </ul>
 <h4>✓ მზადაა, როცა</h4>

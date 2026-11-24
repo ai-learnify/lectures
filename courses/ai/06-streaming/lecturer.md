@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-`/chat/chunks`-ს კლასთან ერთად წერ, `/chat/stream`-ს მზას ჩასვამ. ტერმინალი (curl) პროექტორზე უნდა ჩანდეს. სრული კოდი 💻 ღილაკზეა.
+`/stream-timing`-ს კლასთან ერთად წერ, `/chat/stream`-ს მზას ჩასვამ. ტერმინალი (curl) პროექტორზე უნდა ჩანდეს. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -14,11 +14,11 @@
 
 ### ✅ მომზადება
 
-- RestaurantApi-ში წინასწარ დაწერე `/chat/chunks`, `ChatToolOptions()`, `/chat/stream` და გაუშვი
+- RestaurantApi-ში წინასწარ დაწერე `/stream-timing`, `CreateChatOptions()`, `/chat/stream` და გაუშვი
 - ტერმინალი დიდი შრიფტით. შეამოწმე ქართული (`chcp 65001`). თუ დამახინჯებულია, prompt ინგლისურად
 - curl-ის 3 ბრძანება ფაილში: მოკლე, tool-იანი („What do you have under 15 GEL?“), გრძელი („Tell us about Georgian cuisine in detail“)
 - `UseLogging` `Debug`-ზე. ერთხელ გაუშვი Ctrl+C და ნახე, რას წერს ლოგი
-- `/chat/chunks` ერთხელ გაუშვი გრძელ კითხვაზე და ჩაიწერე პირველი და ბოლო ms
+- `/stream-timing` ერთხელ გაუშვი გრძელ კითხვაზე და ჩაიწერე პირველი და ბოლო ms
 
 ## 1 · გამეორება და საშინაო · 8 წთ · 1–5
 
@@ -31,7 +31,7 @@
 
 - (7) ორი ზოლი: 8 წამი ცარიელი vs 0.6 წამზე პირველი სიტყვა. **მთლიანი დრო იგივეა**, იცვლება TTFT
 - (8) `Task<T>` → `IAsyncEnumerable<T>`. `await foreach` შემდეგ ელემენტს ელოდება. tool-ებიც მუშაობს
-- (9) **ერთად წერთ** `/chat/chunks` Stopwatch-ით → Swagger → ms-ები
+- (9) **ერთად წერთ** `/stream-timing` Stopwatch-ით → Swagger → ms-ები
 
 ### 🙋 ჰკითხე
 
@@ -84,7 +84,7 @@
 
 ## 📝 კლასის დავალება · 26 წთ · 16
 
-- **ნიმუში, ~2 წთ:** დაუბრუნდი 13-ს: „ChatToolOptions → iterator (`yield return`) → `ServerSentEvents` → curl -N. ზუსტად იგივე თქვენს `/chat`-ზე, ბოლოს კი Ctrl+C და ლოგი“
+- **ნიმუში, ~2 წთ:** დაუბრუნდი 13-ს: „CreateChatOptions → iterator (`yield return`) → `ServerSentEvents` → curl -N. ზუსტად იგივე თქვენს `/chat`-ზე, ბოლოს კი Ctrl+C და ლოგი“
 - **ისინი, ~21 წთ:** საკუთარ პროექტში iterator, endpoint, curl-ით 3 ტესტი (ჩვეულებრივი, tool-იანი, Ctrl+C)
 - **ბოლოს, ~3 წთ:** ერთი სტუდენტის ტერმინალი პროექტორზე
 - ✂ ჩამორჩი? tool-ების გარეშე, ჩვეულებრივი System prompt-ით
@@ -95,8 +95,8 @@
 
 ### 🆘 თუ ვერ იწყებენ
 
-- **ტერმინალი არ მუშაობს →** URL პირდაპირ ბრაუზერში (`…/chat/stream?prompt=hello`). ბევრი ბრაუზერი `text/event-stream`-ს ტექსტად აჩვენებს.
-- **tool-იანი `/chat` არ აქვთ →** `ChatToolOptions()` გამოტოვონ.
+- **ტერმინალი არ მუშაობს →** URL პირდაპირ ბრაუზერში (`…/chat/stream?message=hello`). ბევრი ბრაუზერი `text/event-stream`-ს ტექსტად აჩვენებს.
+- **tool-იანი `/chat` არ აქვთ →** `CreateChatOptions()` გამოტოვონ.
 - **პორტს ვერ პოულობენ →** კონსოლში `Now listening on: http://localhost:XXXX`.
 - **`Ok(StreamAnswer(...))` არ მუშაობს →** უნდა იყოს `TypedResults.ServerSentEvents(...)`.
 
@@ -111,7 +111,7 @@
 მხოლოდ ლექციის ბოლოს. აირჩიე 1–3.
 
 - **🌐 ბრაუზერის გვერდი · 6 წთ:** კონსპექტის `wwwroot/chat.html` + `app.UseStaticFiles()`. ტექსტი ნაწილ-ნაწილ ჩანს. „`onerror`-ში `close()` რატომ?“ → EventSource თავიდან უკავშირდება და იგივე კითხვას ხელახლა აგზავნის
-- **🔢 TokenCounter სტრიმინგზე · 8 წთ:** `GetStreamingResponseAsync`-ის override. update-ებს უშვებს და `UsageContent`-ს ითვლის. სიაში არ აგროვებს
+- **🔢 UsageTracking სტრიმინგზე · 8 წთ:** `GetStreamingResponseAsync`-ის override. update-ებს უშვებს და `UsageContent`-ს ითვლის. სიაში არ აგროვებს
 - **🚦 სტატუსის მოვლენები · 8 წთ:** `SseItem<string>` ტიპით: "Checking the tables…" tool-ის დროს, მერე ტექსტი
 - **🧪 InputGuard-ის ხვრელი · 4 წთ:** 1500 სიმბოლო `/chat`-ზე შეჩერდება, `/chat/stream`-ზე Gemini პასუხობს. ფილტრი ორივე მეთოდში უნდა იდგეს (საშინაო)
 

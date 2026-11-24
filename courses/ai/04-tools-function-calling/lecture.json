@@ -30,10 +30,26 @@
     }
   ],
   "resources": [
-    {"title": "IChatClient — tool calling", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "AIFunction, AIFunctionFactory, FunctionInvokingChatClient — მაგალითებით"},
-    {"title": "Function calling — .NET quickstart", "url": "https://learn.microsoft.com/dotnet/ai/quickstarts/use-function-calling", "note": "პირველი tool C#-ში ნაბიჯ-ნაბიჯ"},
-    {"title": "Gemini — Function calling", "url": "https://ai.google.dev/gemini-api/docs/function-calling", "note": "როგორ მუშაობს Gemini-ზე, რჩევები tool-ის დიზაინზე"},
-    {"title": "Anthropic — Writing tools for agents", "url": "https://www.anthropic.com/engineering/writing-tools-for-agents", "note": "კარგი tool-ის სახელი, აღწერა და პარამეტრები — პრაქტიკული რჩევები"}
+    {
+      "title": "IChatClient — tool calling",
+      "url": "https://learn.microsoft.com/dotnet/ai/ichatclient",
+      "note": "AIFunction, AIFunctionFactory, FunctionInvokingChatClient — მაგალითებით"
+    },
+    {
+      "title": "Function calling — .NET quickstart",
+      "url": "https://learn.microsoft.com/dotnet/ai/quickstarts/use-function-calling",
+      "note": "პირველი tool C#-ში ნაბიჯ-ნაბიჯ"
+    },
+    {
+      "title": "Gemini — Function calling",
+      "url": "https://ai.google.dev/gemini-api/docs/function-calling",
+      "note": "როგორ მუშაობს Gemini-ზე, რჩევები tool-ის დიზაინზე"
+    },
+    {
+      "title": "Anthropic — Writing tools for agents",
+      "url": "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "note": "კარგი tool-ის სახელი, აღწერა და პარამეტრები — პრაქტიკული რჩევები"
+    }
   ],
   "quiz": [
     {

@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-EF Core-ის ცვლილებებს, migration-ს და `SearchMenu`-ს კლასთან ერთად წერ, `IndexMenu`-ს მზას ჩასვამ. `EXPLAIN`-ს psql-ში ან pgAdmin-ში ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
+EF Core-ის ცვლილებებს, migration-ს და `MenuController.Search`-ს კლასთან ერთად წერ, `GenerateEmbeddings`-ს მზას ჩასვამ. `EXPLAIN`-ს psql-ში ან pgAdmin-ში ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -15,7 +15,7 @@ EF Core-ის ცვლილებებს, migration-ს და `SearchMenu`
 ### ✅ მომზადება
 
 - **2–3 დღით ადრე მისწერე სტუდენტებს:** „`docker-compose.yml`-ში `postgres:NN` შეცვალეთ `pgvector/pgvector:pgNN`-ით (**იგივე** ვერსია) და `docker compose up -d`“. კლასში ეს ყველაზე დიდ დროს წაიღებს
-- RestaurantApi: image უკვე `pgvector/pgvector`. ცალკე commit ლექცია 9-ის მდგომარეობაზე, რომ ცოცხლად დაამატო NuGet, `UseVector`, `Product.Embedding`, migration, ახალი `IndexMenu`/`SearchMenu`, HNSW
+- RestaurantApi: image უკვე `pgvector/pgvector`. ცალკე commit ლექცია 9-ის მდგომარეობაზე, რომ ცოცხლად დაამატო NuGet, `UseVector`, `Product.Embedding`, migration, ახალი `GenerateEmbeddings`/`MenuController.Search`, HNSW
 - migration წინასწარ სცადე და ნახე SQL (`dotnet ef migrations script`): `CREATE EXTENSION` და `vector(768)`
 - psql ან pgAdmin ღია იყოს `EXPLAIN`-ისთვის, მოთხოვნა მზად გქონდეს
 
@@ -48,13 +48,13 @@ EF Core-ის ცვლილებებს, migration-ს და `SearchMenu`
 ## 3 · EF Core · 15 წთ · 9–11
 
 - (10) **ერთად წერთ:** NuGet, `UseVector`, `HasPostgresExtension`, `Product.Embedding` + `EmbeddingModel`. migration **ცოცხლად**, ფაილი ეკრანზე
-- (11) **ერთად წერთ** `SearchMenu`. `IndexMenu` **ჩასვი** და ახსენი (`Where`, `Chunk(100)`, `new Vector`)
-- ცოცხლად: `/menu/index` → 20, მეორედ → **0**. `/menu/search` → ლოგში SQL
+- (11) **ერთად წერთ** `MenuController.Search`. `GenerateEmbeddings` **ჩასვი** და ახსენი (`Where`, `Chunk(100)`, `new Vector`)
+- ცოცხლად: `/menu/embeddings` → 20, მეორედ → **0**. `/menu/search` → ლოგში SQL
 - აპი გადატვირთე → ძებნა იგივე შედეგს აბრუნებს
 
 ### 🙋 ჰკითხე
 
-(10) **„მოდელის სახელს რატომ ვინახავთ?“** → მოდელი რომ შეიცვალოს, ვიცით, რომელი ვექტორები გადასათვლელია. (11) **„აპი გადავტვირთე. `/menu/index`-ის გარეშე ძებნა იმუშავებს?“** სწორი: კი, ვექტორები ბაზაშია.
+(10) **„მოდელის სახელს რატომ ვინახავთ?“** → მოდელი რომ შეიცვალოს, ვიცით, რომელი ვექტორები გადასათვლელია. (11) **„აპი გადავტვირთე. `/menu/embeddings`-ის გარეშე ძებნა იმუშავებს?“** სწორი: კი, ვექტორები ბაზაშია.
 
 ### 🆘 თუ ვერ გაიგეს
 
@@ -87,8 +87,8 @@ EF Core-ის ცვლილებებს, migration-ს და `SearchMenu`
 ## 📝 კლასის დავალება · 26 წთ · 17
 
 - **ნიმუში, ~2 წთ:** ეკრანზე `Product`-ის ორი property და migration: „თქვენთან `Product`-ის ნაცვლად `Book`, `Course`… დანარჩენი იგივეა“
-- **ისინი, ~20 წთ:** image (თუ ჯერ არ აქვთ), NuGet, migration, `/index`, `/search`, რესტარტის ცდა
-- **ბოლოს, ~4 წთ:** 2–3 სტუდენტი: „რესტარტის შემდეგ იმუშავა? `/index` მეორედ რამდენს აბრუნებს?“
+- **ისინი, ~20 წთ:** image (თუ ჯერ არ აქვთ), NuGet, migration, `/embeddings`, `/search`, რესტარტის ცდა
+- **ბოლოს, ~4 წთ:** 2–3 სტუდენტი: „რესტარტის შემდეგ იმუშავა? `/embeddings` მეორედ რამდენს აბრუნებს?“
 
 ### 🙋 სანამ დადიხარ, ჰკითხე
 

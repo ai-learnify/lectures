@@ -5,9 +5,9 @@ With code · your project · a table in the README
 ## Requirements
 
 - **`/chat` with a history** in your project: `ChatHistoryStore` (jsonb), `ChatRequest` with a `conversationId`, every message in the database, the System prompt kept out of the database
-- **`GET /chat/stream` with a history:** parameters `Guid conversationId, string prompt` (the client creates the id); the iterator loads the history first, sends the pieces with `yield return`, and **at the end of the stream** stores `updates.ToChatResponse().Messages`
+- **`GET /chat/stream` with a history:** parameters `Guid conversationId, string message` (the client creates the id); the iterator loads the history first, sends the pieces with `yield return`, and **at the end of the stream** stores `updates.ToChatResponse().Messages`
 - **A reducer:** `MessageCountingChatReducer` in both endpoints — everything in the database, the last N in the context
-- **`GET /conversations/{id}`** — the conversation for a UI: only the messages with text, `{ role, text }`
+- **`GET /api/assistant/conversations/{id}`** — the conversation for a UI: only the messages with text, `{ role, text }`
 - **README — a budget table:** one conversation with 6 questions (2 of them call a tool that returns a lot of data). Columns: question · InputTokenCount without a reducer · InputTokenCount with `MessageCountingChatReducer(6)`
 - The study notes **quiz** (8 questions) — write down your score
 
@@ -23,26 +23,26 @@ Two questions with `curl -N` and one `conversationId` — the second takes the f
 
 ## 💡 Details
 
-- `ToChatResponse()` — `using Microsoft.Extensions.AI;`; collect the pieces in a `List<ChatResponseUpdate>` **and** `yield return` them, as in lecture 6's ⭐ TokenCounter
+- `ToChatResponse()` — `using Microsoft.Extensions.AI;`; collect the pieces in a `List<ChatResponseUpdate>` **and** `yield return` them, as in lecture 6's ⭐ UsageTracking
 - The client creates the id: for curl any Guid (Visual Studio → Tools → Create GUID, or PowerShell `[guid]::NewGuid()`); in a browser `crypto.randomUUID()`
 - Pass the `cancellationToken` to `AppendAsync` in the iterator; on cancellation the last line doesn't run — that's the ⭐ question
-- For the table take `InputTokenCount` from the `/chat` response; the version without a reducer — by commenting out one line
+- For the table take `InputTokenCount` from the console's `🔢 in:` line (`UsageTrackingChatClient`); the version without a reducer — by commenting out one line
 
 ## Solution
 
 A sample — the library API (continuing homework 6).
 
-```csharp Controllers/AiLabController.cs · StreamAnswer!
-private async IAsyncEnumerable<string> StreamAnswer(Guid conversationId, string prompt,
+```csharp Controllers/AssistantController.cs · StreamAnswer!
+private async IAsyncEnumerable<string> StreamAnswer(Guid conversationId, string message,
     [EnumeratorCancellation] CancellationToken ct)
 {
     List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
     IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
-    ChatMessage question = new(ChatRole.User, prompt);
+    ChatMessage question = new(ChatRole.User, message);
 
     List<ChatResponseUpdate> updates = [];
     await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(
-        [SystemPrompt(), .. recent, question], ChatToolOptions(), ct))
+        [SystemPrompt(), .. recent, question], CreateChatOptions(), ct))
     {
         updates.Add(update);
         if (!string.IsNullOrEmpty(update.Text))
@@ -54,10 +54,10 @@ private async IAsyncEnumerable<string> StreamAnswer(Guid conversationId, string 
 }
 ```
 
-```csharp Controllers/AiLabController.cs · ChatStream and Conversation
+```csharp Controllers/AssistantController.cs · ChatStream and Conversation
 [HttpGet("chat/stream")]
-public IResult ChatStream(Guid conversationId, string prompt, CancellationToken ct) =>
-    TypedResults.ServerSentEvents(StreamAnswer(conversationId, prompt, ct));
+public IResult ChatStream(Guid conversationId, string message, CancellationToken ct) =>
+    TypedResults.ServerSentEvents(StreamAnswer(conversationId, message, ct));
 
 [HttpGet("conversations/{id:guid}")]
 public async Task<IActionResult> Conversation(Guid id, CancellationToken ct)

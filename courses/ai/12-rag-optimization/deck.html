@@ -56,7 +56,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: გაზომვა = იისფერი · ძებნა/SQL = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი/hit = მწვანე · miss/პრობლემა = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — golden.json, AiLabController: rag/eval, HybridSearchAsync (tsvector + RRF), Document.Category, groundedness
+     პროექტი: RestaurantApi — golden.json, EvaluationController: retrieval, groundedness · DocumentSearch.SearchAsync (tsvector + RRF), Document.Category
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -66,7 +66,7 @@
     <p class="lead in mt" style="--d:.35s">golden set · hit@k · hybrid search · chunking · groundedness</p>
   </div>
   <div class="abs" style="right:90px;top:250px;width:520px">
-    <div class="vec in" style="--d:.5s"><span class="k">POST /rag/eval</span>
+    <div class="vec in" style="--d:.5s"><span class="k">POST /evaluation/retrieval</span>
 
 <span class="d">ვექტორით:</span>       hitAt3 <span class="r">0.67</span>   mrr 0.54
 <span class="d">+ full-text:</span>     hitAt3 <span class="g">0.83</span>   mrr 0.71
@@ -147,30 +147,29 @@
 </section>
 
 <section class="slide" data-section="1 · გაზომვა">
-  <div class="kicker">🧑‍💻 ვწერთ · POST /api/ai-lab/rag/eval</div>
+  <div class="kicker">🧑‍💻 ვწერთ · POST /api/evaluation/retrieval</div>
   <h2>golden set → <span class="c-net">ორი ციფრი</span> და miss-ების სია</h2>
   <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:22px">
-    <code-block id="c1" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · EvalRag">
-public record GoldenItem(string Question, string MustContain);
-
-[HttpPost("rag/eval")]
-public async Task<IActionResult> EvalRag(CancellationToken ct)
+    <code-block id="c1" lang="csharp" cls="sm" title="Controllers/EvaluationController.cs · Retrieval">
+// _search: DocumentSearch from lecture 11
+[HttpPost("retrieval")]
+public async Task<IActionResult> Retrieval(CancellationToken ct)
 {
     string json = await System.IO.File.ReadAllTextAsync("golden.json", ct);
     var golden = JsonSerializer.Deserialize<List<GoldenItem>>(json, JsonSerializerOptions.Web)!;
 
-    int hits = 0; double rr = 0; List<string> misses = [];
+    int hits = 0; double reciprocalRanks = 0; List<string> misses = [];
     foreach (GoldenItem item in golden)
     {
-        List<FoundChunk> found = await SearchChunksAsync(item.Question, ct);
+        List<ChunkMatch> found = await _search.SearchAsync(item.Question, ct);
         int rank = found.FindIndex(c => c.Content.Contains(item.MustContain)) + 1;
 
         if (rank is >= 1 and <= 3) hits++; else misses.Add(item.Question);
-        if (rank > 0) rr += 1.0 / rank;
+        if (rank > 0) reciprocalRanks += 1.0 / rank;
     }
 
-    return Ok(new { HitAt3 = (double)hits / golden.Count,
-                    Mrr = rr / golden.Count, Misses = misses });
+    return Ok(new RetrievalReport((double)hits / golden.Count,
+        reciprocalRanks / golden.Count, misses));
 }
     </code-block>
     <div class="col" style="gap:12px">
@@ -180,10 +179,10 @@ public async Task<IActionResult> EvalRag(CancellationToken ct)
   { <span class="k">"question"</span>: "Where is hall B-2?",
     <span class="k">"mustContain"</span>: "B-2" }, …
 ]</div>
-      <i class="codestep" data-for="c1" data-lines="13"></i>
+      <i class="codestep" data-for="c1" data-lines="12"></i>
       <div class="prob step" data-with style="--a:var(--net)"><span class="pi">🔢</span><div><b>რიგი: 1, 2, 3… ან 0</b><span>FindIndex −1-ს აბრუნებს, თუ ვერ იპოვა → +1 = 0</span></div></div>
       <div class="swr c-post step">
-        <div class="rh"><span class="m">POST</span><span class="p">/rag/eval</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/evaluation/retrieval</span></div>
         <pre class="rb">{ <span class="k">"hitAt3"</span>: <span class="n">0.67</span>, <span class="k">"mrr"</span>: <span class="n">0.51</span>,
   <span class="k">"misses"</span>: [ <span class="s">"Where is hall B-2?"</span>, <span class="s">"Service charge for 6 people?"</span> ] }</pre>
       </div>
@@ -231,20 +230,20 @@ public async Task<IActionResult> EvalRag(CancellationToken ct)
 </section>
 
 <section class="slide" data-section="2 · ძებნა">
-  <div class="kicker">🧑‍💻 ვწერთ · tsvector სვეტი და HybridSearchAsync</div>
+  <div class="kicker">🧑‍💻 ვწერთ · tsvector სვეტი და hybrid SearchAsync</div>
   <h2>ორი მოთხოვნა → <span class="c-mvc">RRF</span> → top 5</h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · HybridSearchAsync">
-var query = new Vector(await _embeddings.GenerateVectorAsync(
-    EmbeddingText.Query(q), cancellationToken: ct));
-var words = EF.Functions.ToTsQuery("english", OrQuery(q));
+    <code-block id="c2" lang="csharp" cls="sm" title="Ai/Documents/DocumentSearch.cs · SearchAsync (hybrid)">
+var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+    EmbeddingInput.Query(query), cancellationToken: ct));
+var words = EF.Functions.ToTsQuery("english", OrQuery(query));
 
-List<int> byMeaning = await _db.DocumentChunks
-    .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
-    .OrderBy(c => c.Embedding!.CosineDistance(query))
+List<int> byMeaning = await _db.Chunks
+    .Where(c => 1 - c.Embedding!.CosineDistance(queryVector) >= _minScore)
+    .OrderBy(c => c.Embedding!.CosineDistance(queryVector))
     .Select(c => c.Id).Take(20).ToListAsync(ct);
 
-List<int> byWords = await _db.DocumentChunks
+List<int> byWords = await _db.Chunks
     .Where(c => c.SearchVector.Matches(words))
     .OrderByDescending(c => c.SearchVector.Rank(words))
     .Select(c => c.Id).Take(20).ToListAsync(ct);
@@ -252,14 +251,14 @@ List<int> byWords = await _db.DocumentChunks
 List<int> top = Rrf(byMeaning, byWords).Take(5).ToList();
 
 static IEnumerable<int> Rrf(params List<int>[] lists) => lists
-    .SelectMany(l => l.Select((id, i) => (id, s: 1.0 / (60 + i + 1))))
+    .SelectMany(list => list.Select((id, i) => (id, score: 1.0 / (60 + i + 1))))
     .GroupBy(x => x.id)
-    .OrderByDescending(g => g.Sum(x => x.s))
+    .OrderByDescending(g => g.Sum(x => x.score))
     .Select(g => g.Key);
     </code-block>
     <div class="col" style="gap:12px">
       <code-block lang="csharp" cls="sm" title="Data/DataContext.cs · OnModelCreating">
-modelBuilder.Entity<DocumentChunk>()
+modelBuilder.Entity<Chunk>()
     .HasGeneratedTsVectorColumn(
         c => c.SearchVector, "english", c => new { c.Content })
     .HasIndex(c => c.SearchVector)
@@ -268,7 +267,7 @@ modelBuilder.Entity<DocumentChunk>()
       <i class="codestep" data-for="c2" data-lines="3"></i>
       <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🔀</span><div><b>OrQuery: „ან“ სიტყვებს შორის</b><span>"Where is hall B-2" → <span class="mono">Where | is | hall | B-2</span>. „და“-თი — ყველა სიტყვა უნდა იყოს</span></div></div>
       <div class="swr c-post step">
-        <div class="rh"><span class="m">POST</span><span class="p">/rag/eval · hybrid</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/evaluation/retrieval · hybrid</span></div>
         <pre class="rb">{ <span class="k">"hitAt3"</span>: <span class="n">0.83</span>, <span class="k">"mrr"</span>: <span class="n">0.72</span>,
   <span class="k">"misses"</span>: [ <span class="s">"Service charge for 6 people?"</span> ] }</pre>
       </div>
@@ -283,12 +282,12 @@ modelBuilder.Entity<DocumentChunk>()
   <h2>ვეძებთ მხოლოდ <span class="c-asp">საჭირო</span> დოკუმენტებში</h2>
   <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:24px;align-items:start;margin-top:6px">
     <div class="col" style="gap:12px">
-      <code-block lang="csharp" cls="sm" title="Controllers/AiLabController.cs · HybridSearchAsync(q, category)">
-IQueryable<DocumentChunk> chunks = _db.DocumentChunks;
+      <code-block lang="csharp" cls="sm" title="Ai/Documents/DocumentSearch.cs · SearchAsync(query, category)">
+IQueryable<Chunk> chunks = _db.Chunks;
 if (category is not null)
     chunks = chunks.Where(c => c.Document.Category == category);
 
-// byMeaning and byWords — from chunks, not from _db.DocumentChunks
+// byMeaning and byWords — from chunks, not from _db.Chunks
       </code-block>
       <table class="menu step">
         <tr><th>metadata</th><th>როდის</th></tr>
@@ -336,7 +335,7 @@ if (category is not null)
     <div class="s step" style="--a:var(--net)"><b>🧠 მნიშვნელობით</b><div class="bars"><i style="width:70%"></i><i style="width:55%"></i><i style="width:88%"></i></div><span>ჭრის, სადაც მომდევნო წინადადებების ვექტორი „შორდება“. ძვირი, ყოველთვის არ სჯობს</span></div>
   </div>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:22px;margin-top:14px">
-    <div class="vec step"><span class="k">ცვლილება</span>  →  <span class="k">თავიდან ატვირთვა</span>  →  <span class="g">/rag/eval</span>
+    <div class="vec step"><span class="k">ცვლილება</span>  →  <span class="k">თავიდან ატვირთვა</span>  →  <span class="g">/evaluation/retrieval</span>
 წინადადებით, 800:    hitAt3 0.83   mrr 0.72
 სათაურებით:          hitAt3 <span class="g">0.92</span>   mrr <span class="g">0.81</span>
 წინადადებით, 300:    hitAt3 <span class="r">0.75</span>   mrr 0.60</div>
@@ -375,22 +374,22 @@ if (category is not null)
   <div class="kicker">✅ groundedness · პასუხი წყაროებს ეყრდნობა?</div>
   <h2>მოდელი <span class="c-net">მოდელს</span> ამოწმებს: LLM-as-judge</h2>
   <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:22px">
-    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · CheckGroundedness">
+    <code-block id="c3" lang="csharp" cls="sm" title="Controllers/EvaluationController.cs · Groundedness">
 using Microsoft.Extensions.AI.Evaluation;
 using Microsoft.Extensions.AI.Evaluation.Quality;
 
 IEvaluator evaluator = new GroundednessEvaluator();
 
 EvaluationResult result = await evaluator.EvaluateAsync(
-    [new ChatMessage(ChatRole.User, question)],
+    [new ChatMessage(ChatRole.User, request.Question)],
     response,
     new ChatConfiguration(_judge),
-    [new GroundednessEvaluatorContext(BuildContext(sources))],
+    [new GroundednessEvaluatorContext(context)],   // the same sources the model got
     ct);
 
-NumericMetric g = result.Get<NumericMetric>(
+NumericMetric score = result.Get<NumericMetric>(
     GroundednessEvaluator.GroundednessMetricName);
-// g.Value: 1–5 · g.Reason: why
+// score.Value: 1–5 · score.Reason: why
     </code-block>
     <div class="col" style="gap:10px">
       <div class="prob" style="--a:var(--mvc)"><span class="pi">5</span><div><b>"Cake — 15 GEL service charge [1]"</b><span>ყველაფერი წყაროშია</span></div></div>

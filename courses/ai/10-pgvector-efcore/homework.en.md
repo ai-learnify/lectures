@@ -5,7 +5,7 @@ With code · your project · results in the README
 ## Requirements
 
 - **Vectors in the database** — the classwork code: a `vector(768)` column, `EmbeddingModel`, indexing only what needs recalculating, search with `CosineDistance` and a threshold
-- **Automatic recalculation** — when a record is created or its description changes (your existing POST/PUT endpoints), `Embedding = null`; `/index` calculates only those
+- **Automatic recalculation** — when a record is created or its description changes (your existing POST/PUT endpoints), `Embedding = null`; `/embeddings` calculates only those
 - **Filter + meaning** — one filter parameter for `/search` (price, category, author…): `Where` and `OrderBy(CosineDistance)` in **one** SQL query
 - **HNSW index** — `HasMethod("hnsw").HasOperators("vector_cosine_ops")`, a migration
 - **README — `EXPLAIN`:** the search SQL (from the log) with `EXPLAIN` twice: normally and with `SET enable_seqscan = off`. Both results and one sentence: why they differ
@@ -13,7 +13,7 @@ With code · your project · results in the README
 
 ## Done when
 
-A new record appears in the search after `/index`; the filtered search is one SQL query (the log); the README has two `EXPLAIN`s (`Seq Scan` and `Index Scan`) with an explanation, and the quiz score
+A new record appears in the search after `/embeddings`; the filtered search is one SQL query (the log); the README has two `EXPLAIN`s (`Seq Scan` and `Index Scan`) with an explanation, and the quiz score
 
 ## Bonus
 
@@ -32,24 +32,25 @@ A new record appears in the search after `/index`; the filtered search is one SQ
 
 A sample — the library API (a continuation of homework 9).
 
-```csharp Controllers/AiLabController.cs · SearchBooks!
-[HttpGet("books/search")]
-public async Task<IActionResult> SearchBooks(string q, string? author, CancellationToken ct)
+```csharp Controllers/BooksController.cs · Search!
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, string? author, CancellationToken ct)
 {
     float minScore = _config.GetValue<float>("Search:MinScore");   // 0.55
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
+    var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct));
+
     IQueryable<Book> books = _db.Books.Where(b => b.Embedding != null);
     if (author is not null)
         books = books.Where(b => b.Author == author);           // the filter — in the same SQL
-    var top = await books
-        .OrderBy(b => b.Embedding!.CosineDistance(query))
-        .Select(b => new { b.Title, Distance = b.Embedding!.CosineDistance(query) })
+
+    List<BookMatch> top = await books
+        .OrderBy(b => b.Embedding!.CosineDistance(queryVector))
         .Take(3)
+        .Select(b => new BookMatch(b.Title, 1 - b.Embedding!.CosineDistance(queryVector)))
         .ToListAsync(ct);
 
-    return Ok(top.Select(x => new { x.Title, Score = 1 - x.Distance })
-                 .Where(x => x.Score >= minScore));
+    return Ok(top.Where(m => m.Score >= minScore));
 }
 ```
 

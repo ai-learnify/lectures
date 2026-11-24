@@ -4,9 +4,9 @@
 
 ## მოთხოვნები
 
-- **`GET /api/ai-lab/chat/stream`** შენს პროექტში: tool-ებით (`ChatToolOptions()`), `TypedResults.ServerSentEvents`, async iterator, `CancellationToken` სამივე ადგილას
+- **`GET /api/assistant/chat/stream`** შენს პროექტში: tool-ებით (`CreateChatOptions()`), `TypedResults.ServerSentEvents`, async iterator, `CancellationToken` სამივე ადგილას
 - **InputGuard სტრიმინგზე:** ლექცია 5-ის დაცვის ფენას დაუმატე `GetStreamingResponseAsync` override — შეჩერებისას **ერთი** `ChatResponseUpdate` შეტყობინებით და `yield break`, Gemini-ს გარეშე
-- **README — TTFT ცხრილი:** `/chat/chunks`-ით 3 კითხვა: მოკლე · გრძელი · tool-იანი. სვეტები: კითხვა · პირველი ნაწილის ms · ბოლო ნაწილის ms · ნაწილების რაოდენობა
+- **README — TTFT ცხრილი:** `/stream-timing`-ით 3 კითხვა: მოკლე · გრძელი · tool-იანი. სვეტები: კითხვა · პირველი ნაწილის ms · ბოლო ნაწილის ms · ნაწილების რაოდენობა
 - **README — გაუქმება:** გრძელ პასუხზე Ctrl+C → სერვერის ლოგის 3–5 ხაზი, სადაც ჩანს, რომ მოთხოვნა გაუქმდა
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
@@ -17,7 +17,7 @@
 ## ⭐ ბონუსი
 
 - **ბრაუზერის გვერდი:** `wwwroot/chat.html` `EventSource`-ით (ნიმუში კონსპექტში, ნაწილი 2) + `app.UseStaticFiles()`
-- **TokenCounter სტრიმინგზე:** override, რომელიც ნაწილებს აგროვებს და ბოლოს `updates.ToChatResponse().Usage`-ს წერს ლოგში
+- **UsageTracking სტრიმინგზე:** override, რომელიც ნაწილებს აგროვებს და ბოლოს `updates.ToChatResponse().Usage`-ს წერს ლოგში
 - **სტატუსის მოვლენები:** `IAsyncEnumerable<SseItem<string>>` და `TypedResults.ServerSentEvents(...)` — tool-ის ციკლის დროს `event: status` ("Checking the tables…"), მერე ტექსტი
 
 ## 💡 დეტალები
@@ -31,7 +31,7 @@
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 5-ის გაგრძელება).
 
-```csharp Ai/LibraryGuardChatClient.cs · სტრიმინგი!
+```csharp Ai/Middleware/LibraryGuardChatClient.cs · სტრიმინგი!
 public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
     IEnumerable<ChatMessage> messages, ChatOptions? options = null,
     [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -51,12 +51,12 @@ public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseA
 }
 ```
 
-```csharp Controllers/AiLabController.cs · ChatStream
+```csharp Controllers/AssistantController.cs · ChatStream
 [HttpGet("chat/stream")]
-public IResult ChatStream(string prompt, CancellationToken cancellationToken) =>
-    TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+public IResult ChatStream(string message, CancellationToken cancellationToken) =>
+    TypedResults.ServerSentEvents(StreamAnswer(message, cancellationToken));
 
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)
 {
     List<ChatMessage> messages =
@@ -65,11 +65,11 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
             You are a library assistant. Answer briefly.
             Take book and genre data only from the tools.
             """),
-        new(ChatRole.User, prompt)
+        new(ChatRole.User, message)
     ];
 
     await foreach (ChatResponseUpdate update in
-        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+        _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))
     {
         if (!string.IsNullOrEmpty(update.Text))
             yield return update.Text;

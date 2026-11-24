@@ -8,17 +8,48 @@
     "`CancellationToken`-ს სამ ადგილას გადასცემ, რომ კლიენტის წასვლისას Gemini-ს მოთხოვნაც შეწყდეს"
   ],
   "review": [
-    {"q": "სტრიმინგი პასუხს უფრო სწრაფს ხდის? რა იცვლება სინამდვილეში?", "a": "მთლიანი დრო თითქმის იგივეა · იცვლება TTFT — დრო პირველ სიტყვამდე (წამები → მილიწამები) · მომხმარებელი კითხვას მაშინვე იწყებს, ცარიელი ეკრანი აღარ არის"},
-    {"q": "რას აბრუნებს `GetStreamingResponseAsync` და როგორ ვკითხულობთ?", "a": "`IAsyncEnumerable<ChatResponseUpdate>` — ნაწილების ნაკადი · `await foreach` — შემდეგ ნაწილს ელოდება · `update.Text` — ტექსტის ნაჭერი; იგივე messages/options, tool-ებიც მუშაობს"},
-    {"q": "`/chat/chunks`-ში Gemini სტრიმავდა, Swagger-მა კი ყველაფერი ერთად აჩვენა. რატომ? როგორ გავასწორეთ?", "a": "ნაწილებს სიაში ვაგროვებდით და ბოლოს ვაბრუნებდით — სტრიმი Controller-ში წყდებოდა · async iterator (`yield return`) + `TypedResults.ServerSentEvents` — თითო ნაწილი მაშინვე მიდის კლიენტთან"},
-    {"q": "რა არის SSE და რატომ არის ის AI ჩატისთვის საკმარისი (WebSocket/SignalR-ის ნაცვლად)?", "a": "HTTP პასუხი `text/event-stream`-ით, რომელიც ღია რჩება; `data: …` + ცარიელი ხაზი · AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი) · WebSocket/SignalR ორმხრივისთვისაა"},
-    {"q": "სად და რატომ გადავეცით `CancellationToken`?", "a": "① action-ის პარამეტრი (RequestAborted) ② `[EnumeratorCancellation]` iterator-ში ③ `GetStreamingResponseAsync`-ს · კლიენტი წავიდა → Gemini-ს მოთხოვნა წყდება → ტოკენები აღარ იხარჯება"}
+    {
+      "q": "სტრიმინგი პასუხს უფრო სწრაფს ხდის? რა იცვლება სინამდვილეში?",
+      "a": "მთლიანი დრო თითქმის იგივეა · იცვლება TTFT — დრო პირველ სიტყვამდე (წამები → მილიწამები) · მომხმარებელი კითხვას მაშინვე იწყებს, ცარიელი ეკრანი აღარ არის"
+    },
+    {
+      "q": "რას აბრუნებს `GetStreamingResponseAsync` და როგორ ვკითხულობთ?",
+      "a": "`IAsyncEnumerable<ChatResponseUpdate>` — ნაწილების ნაკადი · `await foreach` — შემდეგ ნაწილს ელოდება · `update.Text` — ტექსტის ნაჭერი; იგივე messages/options, tool-ებიც მუშაობს"
+    },
+    {
+      "q": "`/stream-timing`-ში Gemini სტრიმავდა, Swagger-მა კი ყველაფერი ერთად აჩვენა. რატომ? როგორ გავასწორეთ?",
+      "a": "ნაწილებს სიაში ვაგროვებდით და ბოლოს ვაბრუნებდით — სტრიმი Controller-ში წყდებოდა · async iterator (`yield return`) + `TypedResults.ServerSentEvents` — თითო ნაწილი მაშინვე მიდის კლიენტთან"
+    },
+    {
+      "q": "რა არის SSE და რატომ არის ის AI ჩატისთვის საკმარისი (WebSocket/SignalR-ის ნაცვლად)?",
+      "a": "HTTP პასუხი `text/event-stream`-ით, რომელიც ღია რჩება; `data: …` + ცარიელი ხაზი · AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი) · WebSocket/SignalR ორმხრივისთვისაა"
+    },
+    {
+      "q": "სად და რატომ გადავეცით `CancellationToken`?",
+      "a": "① action-ის პარამეტრი (RequestAborted) ② `[EnumeratorCancellation]` iterator-ში ③ `GetStreamingResponseAsync`-ს · კლიენტი წავიდა → Gemini-ს მოთხოვნა წყდება → ტოკენები აღარ იხარჯება"
+    }
   ],
   "resources": [
-    {"title": "IChatClient — streaming", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "GetStreamingResponseAsync, ChatResponseUpdate, ToChatResponse"},
-    {"title": "TypedResults.ServerSentEvents", "url": "https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.typedresults.serversentevents", "note": ".NET 10 — SSE შედეგი ASP.NET Core-ში"},
-    {"title": "MDN — Using server-sent events", "url": "https://developer.mozilla.org/docs/Web/API/Server-sent_events/Using_server-sent_events", "note": "SSE-ის ფორმატი და EventSource ბრაუზერში"},
-    {"title": "Iterating with async enumerables", "url": "https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream", "note": "IAsyncEnumerable, await foreach, [EnumeratorCancellation]"}
+    {
+      "title": "IChatClient — streaming",
+      "url": "https://learn.microsoft.com/dotnet/ai/ichatclient",
+      "note": "GetStreamingResponseAsync, ChatResponseUpdate, ToChatResponse"
+    },
+    {
+      "title": "TypedResults.ServerSentEvents",
+      "url": "https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.typedresults.serversentevents",
+      "note": ".NET 10 — SSE შედეგი ASP.NET Core-ში"
+    },
+    {
+      "title": "MDN — Using server-sent events",
+      "url": "https://developer.mozilla.org/docs/Web/API/Server-sent_events/Using_server-sent_events",
+      "note": "SSE-ის ფორმატი და EventSource ბრაუზერში"
+    },
+    {
+      "title": "Iterating with async enumerables",
+      "url": "https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream",
+      "note": "IAsyncEnumerable, await foreach, [EnumeratorCancellation]"
+    }
   ],
   "quiz": [
     {
@@ -58,7 +89,7 @@
       "slide": 8
     },
     {
-      "q": "`/chat/chunks`-ში Swagger-მა ყველა ნაწილი ერთბაშად აჩვენა. რატომ?",
+      "q": "`/stream-timing`-ში Swagger-მა ყველა ნაწილი ერთბაშად აჩვენა. რატომ?",
       "options": [
         "Gemini არ სტრიმავდა",
         "ნაწილებს სიაში ვაგროვებდით და `Ok(chunks)`-ს ბოლოს ვაბრუნებდით",

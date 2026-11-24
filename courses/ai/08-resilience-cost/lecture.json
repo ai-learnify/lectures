@@ -8,18 +8,53 @@
     "ყოველი გამოძახების ტოკენებს ბაზაში ჩაწერ (`IServiceScopeFactory`) და დღის ხარჯს დაითვლი"
   ],
   "review": [
-    {"q": "რომელ შეცდომაზე შველის retry და რომელზე — არა? თითო მაგალითი.", "a": "დროებითი — 429, 500/503, timeout, ქსელი: თავიდან ცდა შველის · მუდმივი — 400, 401, 403, 404: იგივე მოთხოვნა იგივე შეცდომას მოიტანს · შინაარსის (length, ცუდი JSON) — კოდში"},
-    {"q": "რატომ არ ვცდით თავიდან მაშინვე 10-ჯერ? რა არის backoff და jitter?", "a": "გადატვირთულ სერვისს კიდევ მეტ მოთხოვნას ვუგზავნით · backoff — მზარდი პაუზა (2→4→8 წმ) · jitter — შემთხვევითი ნაწილი, რომ ბევრმა კლიენტმა ერთდროულად არ სცადოს · 429-ზე — Retry-After"},
-    {"q": "რატომ ვთიშავთ Google.GenAI-ის საკუთარ retry-ს?", "a": "retry ერთ ადგილას უნდა იყოს · ორი retry ერთმანეთში = 4 × 4 = 16 ცდა და წუთობით ლოდინი · `HttpRetryOptions { Attempts = 1 }` + ჩვენი HttpClient `ClientOptions.HttpClientFactory`-ით"},
-    {"q": "სად დგას `FallbackChatClient` pipeline-ში და რომელ შეცდომას იჭერს?", "a": "ყველაზე შიგნით (ბოლო `.Use`) — tool-ის ციკლის თითო მოთხოვნას თავისი fallback · მხოლოდ დროებითს: ApiException 429/5xx, ქსელი, timeout · `catch … when`"},
-    {"q": "TokenCounter ბაზაში რატომ იღებს DbContext-ს `IServiceScopeFactory`-ით?", "a": "pipeline Singleton-ია, DbContext — Scoped · პირდაპირ ჩასმა = captive dependency · ფენა ყოველ ჯერზე საკუთარ scope-ს ქმნის"}
+    {
+      "q": "რომელ შეცდომაზე შველის retry და რომელზე — არა? თითო მაგალითი.",
+      "a": "დროებითი — 429, 500/503, timeout, ქსელი: თავიდან ცდა შველის · მუდმივი — 400, 401, 403, 404: იგივე მოთხოვნა იგივე შეცდომას მოიტანს · შინაარსის (length, ცუდი JSON) — კოდში"
+    },
+    {
+      "q": "რატომ არ ვცდით თავიდან მაშინვე 10-ჯერ? რა არის backoff და jitter?",
+      "a": "გადატვირთულ სერვისს კიდევ მეტ მოთხოვნას ვუგზავნით · backoff — მზარდი პაუზა (2→4→8 წმ) · jitter — შემთხვევითი ნაწილი, რომ ბევრმა კლიენტმა ერთდროულად არ სცადოს · 429-ზე — Retry-After"
+    },
+    {
+      "q": "რატომ ვთიშავთ Google.GenAI-ის საკუთარ retry-ს?",
+      "a": "retry ერთ ადგილას უნდა იყოს · ორი retry ერთმანეთში = 4 × 4 = 16 ცდა და წუთობით ლოდინი · `HttpRetryOptions { Attempts = 1 }` + ჩვენი HttpClient `ClientOptions.HttpClientFactory`-ით"
+    },
+    {
+      "q": "სად დგას `FallbackChatClient` pipeline-ში და რომელ შეცდომას იჭერს?",
+      "a": "ყველაზე შიგნით (ბოლო `.Use`) — tool-ის ციკლის თითო მოთხოვნას თავისი fallback · მხოლოდ დროებითს: ApiException 429/5xx, ქსელი, timeout · `catch … when`"
+    },
+    {
+      "q": "UsageTracking ბაზაში რატომ იღებს DbContext-ს `IServiceScopeFactory`-ით?",
+      "a": "pipeline Singleton-ია, DbContext — Scoped · პირდაპირ ჩასმა = captive dependency · ფენა ყოველ ჯერზე საკუთარ scope-ს ქმნის"
+    }
   ],
   "resources": [
-    {"title": "Build resilient HTTP apps (.NET)", "url": "https://learn.microsoft.com/dotnet/core/resilience/http-resilience", "note": "AddStandardResilienceHandler, პარამეტრები, retry/timeout/circuit breaker"},
-    {"title": "Gemini — Rate limits", "url": "https://ai.google.dev/gemini-api/docs/rate-limits", "note": "RPM/TPM/RPD ლიმიტები და 429"},
-    {"title": "Gemini — Troubleshooting", "url": "https://ai.google.dev/gemini-api/docs/troubleshooting", "note": "შეცდომის კოდები: 400, 403, 404, 429, 500, 503"},
-    {"title": "Google.GenAI — HttpRetryOptions", "url": "https://googleapis.github.io/dotnet-genai/api/Google.GenAI.Types.HttpRetryOptions.html", "note": "SDK-ის საკუთარი retry და როგორ გამოვრთოთ"},
-    {"title": "Gemini — ფასები", "url": "https://ai.google.dev/gemini-api/docs/pricing", "note": "input/output ფასი 1M ტოკენზე — საშინაოსთვის"}
+    {
+      "title": "Build resilient HTTP apps (.NET)",
+      "url": "https://learn.microsoft.com/dotnet/core/resilience/http-resilience",
+      "note": "AddStandardResilienceHandler, პარამეტრები, retry/timeout/circuit breaker"
+    },
+    {
+      "title": "Gemini — Rate limits",
+      "url": "https://ai.google.dev/gemini-api/docs/rate-limits",
+      "note": "RPM/TPM/RPD ლიმიტები და 429"
+    },
+    {
+      "title": "Gemini — Troubleshooting",
+      "url": "https://ai.google.dev/gemini-api/docs/troubleshooting",
+      "note": "შეცდომის კოდები: 400, 403, 404, 429, 500, 503"
+    },
+    {
+      "title": "Google.GenAI — HttpRetryOptions",
+      "url": "https://googleapis.github.io/dotnet-genai/api/Google.GenAI.Types.HttpRetryOptions.html",
+      "note": "SDK-ის საკუთარი retry და როგორ გამოვრთოთ"
+    },
+    {
+      "title": "Gemini — ფასები",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "note": "input/output ფასი 1M ტოკენზე — საშინაოსთვის"
+    }
   ],
   "quiz": [
     {

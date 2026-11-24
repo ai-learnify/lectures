@@ -8,18 +8,53 @@
     "cosine similarity-ს გამოთვლი (ხელით და `TensorPrimitives`-ით) და მენიუს სემანტიკურ ძებნას დაწერ top 3-ით"
   ],
   "review": [
-    {"q": "რატომ ვერ პოულობს LIKE „ხორცის გარეშე“-ზე ლობიოს და რას აკეთებს embedding სხვანაირად?", "a": "LIKE სიტყვებს ეძებს, ეს სიტყვები აღწერაში არ წერია · embedding ტექსტს ვექტორად აქცევს, სადაც მსგავსი მნიშვნელობა ახლოსაა — ენისა და სიტყვების მიუხედავად"},
-    {"q": "რით განსხვავდება embedding მოდელი ჩატის მოდელისგან? რომელს ვიყენებთ და რა ზომით?", "a": "ტექსტს არ წერს — ერთ ვექტორს აბრუნებს, მხოლოდ input ფასდება · `IEmbeddingGenerator` · `gemini-embedding-2`, 768 განზომილება"},
-    {"q": "რატომ არ შეიძლება მოდელის „უბრალოდ“ შეცვლა, თუ ვექტორები უკვე შენახულია?", "a": "ყველა მოდელს (და ზომას) თავისი „რუკა“ აქვს — სხვადასხვა მოდელის ვექტორები არ შეედრება · მოდელის შეცვლა = ყველა ვექტორის თავიდან დათვლა"},
-    {"q": "რა არის task prefix და რატომ აქვს შეკითხვას და დოკუმენტს სხვადასხვა?", "a": "ასიმეტრიული ძებნა: მოკლე „სურვილი“ ↔ გრძელი „ფაქტები“ · `task: search result | query: …` და `title: … | text: …` · ყოველთვის ერთი წესით"},
-    {"q": "რას ზომავს cosine similarity და როგორ ვკითხულობთ ციფრს?", "a": "ორი ვექტორის კუთხეს: 1 — ერთი მიმართულება, 0 — არაფერი საერთო · ციფრი მოდელზეა დამოკიდებული — ვადარებთ და ვალაგებთ, ცალკე არ ვაფასებთ"}
+    {
+      "q": "რატომ ვერ პოულობს LIKE „ხორცის გარეშე“-ზე ლობიოს და რას აკეთებს embedding სხვანაირად?",
+      "a": "LIKE სიტყვებს ეძებს, ეს სიტყვები აღწერაში არ წერია · embedding ტექსტს ვექტორად აქცევს, სადაც მსგავსი მნიშვნელობა ახლოსაა — ენისა და სიტყვების მიუხედავად"
+    },
+    {
+      "q": "რით განსხვავდება embedding მოდელი ჩატის მოდელისგან? რომელს ვიყენებთ და რა ზომით?",
+      "a": "ტექსტს არ წერს — ერთ ვექტორს აბრუნებს, მხოლოდ input ფასდება · `IEmbeddingGenerator` · `gemini-embedding-2`, 768 განზომილება"
+    },
+    {
+      "q": "რატომ არ შეიძლება მოდელის „უბრალოდ“ შეცვლა, თუ ვექტორები უკვე შენახულია?",
+      "a": "ყველა მოდელს (და ზომას) თავისი „რუკა“ აქვს — სხვადასხვა მოდელის ვექტორები არ შეედრება · მოდელის შეცვლა = ყველა ვექტორის თავიდან დათვლა"
+    },
+    {
+      "q": "რა არის task prefix და რატომ აქვს შეკითხვას და დოკუმენტს სხვადასხვა?",
+      "a": "ასიმეტრიული ძებნა: მოკლე „სურვილი“ ↔ გრძელი „ფაქტები“ · `task: search result | query: …` და `title: … | text: …` · ყოველთვის ერთი წესით"
+    },
+    {
+      "q": "რას ზომავს cosine similarity და როგორ ვკითხულობთ ციფრს?",
+      "a": "ორი ვექტორის კუთხეს: 1 — ერთი მიმართულება, 0 — არაფერი საერთო · ციფრი მოდელზეა დამოკიდებული — ვადარებთ და ვალაგებთ, ცალკე არ ვაფასებთ"
+    }
   ],
   "resources": [
-    {"title": "Gemini — Embeddings", "url": "https://ai.google.dev/gemini-api/docs/embeddings", "note": "gemini-embedding-2, განზომილებები, task prefix-ები"},
-    {"title": "Embeddings in .NET", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/embeddings", "note": "რა არის embedding და IEmbeddingGenerator"},
-    {"title": "Google.GenAI — AsIEmbeddingGenerator", "url": "https://googleapis.github.io/dotnet-genai/api/Microsoft.Extensions.AI.GoogleGenAIExtensions.html", "note": "Gemini → IEmbeddingGenerator, defaultModelDimensions"},
-    {"title": "TensorPrimitives.CosineSimilarity", "url": "https://learn.microsoft.com/dotnet/api/system.numerics.tensors.tensorprimitives.cosinesimilarity", "note": "cosine similarity SIMD-ით"},
-    {"title": "pgvector", "url": "https://github.com/pgvector/pgvector", "note": "შემდეგი ლექციისთვის: ვექტორები PostgreSQL-ში"}
+    {
+      "title": "Gemini — Embeddings",
+      "url": "https://ai.google.dev/gemini-api/docs/embeddings",
+      "note": "gemini-embedding-2, განზომილებები, task prefix-ები"
+    },
+    {
+      "title": "Embeddings in .NET",
+      "url": "https://learn.microsoft.com/dotnet/ai/conceptual/embeddings",
+      "note": "რა არის embedding და IEmbeddingGenerator"
+    },
+    {
+      "title": "Google.GenAI — AsIEmbeddingGenerator",
+      "url": "https://googleapis.github.io/dotnet-genai/api/Microsoft.Extensions.AI.GoogleGenAIExtensions.html",
+      "note": "Gemini → IEmbeddingGenerator, defaultModelDimensions"
+    },
+    {
+      "title": "TensorPrimitives.CosineSimilarity",
+      "url": "https://learn.microsoft.com/dotnet/api/system.numerics.tensors.tensorprimitives.cosinesimilarity",
+      "note": "cosine similarity SIMD-ით"
+    },
+    {
+      "title": "pgvector",
+      "url": "https://github.com/pgvector/pgvector",
+      "note": "შემდეგი ლექციისთვის: ვექტორები PostgreSQL-ში"
+    }
   ],
   "quiz": [
     {
@@ -107,7 +142,7 @@
       "slide": 15
     },
     {
-      "q": "მენიუს ვექტორებს ერთხელ ვითვლით (`/menu/index`), შეკითხვაზე — მხოლოდ შეკითხვის ვექტორს. რატომ?",
+      "q": "მენიუს ვექტორებს ერთხელ ვითვლით (`/menu/embeddings`), შეკითხვაზე — მხოლოდ შეკითხვის ვექტორს. რატომ?",
       "options": [
         "ასე მოითხოვს IEmbeddingGenerator",
         "მენიუ იშვიათად იცვლება; ყოველ შეკითხვაზე 200 კერძის ვექტორი = ფული და დრო",

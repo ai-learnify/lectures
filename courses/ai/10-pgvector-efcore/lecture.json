@@ -8,22 +8,57 @@
     "HNSW ინდექსს შექმნი, `EXPLAIN`-ით შეამოწმებ და ახსნი, რას ნიშნავს მიახლოებითი ძებნა და recall"
   ],
   "review": [
-    {"q": "რა სამი პრობლემა აქვს მეხსიერებაში შენახულ ვექტორებს?", "a": "რესტარტზე ქრება — ყველაფერი თავიდან ითვლება · ძებნა ყველას სათითაოდ ადარებს (O(n)) · მონაცემი ორ ადგილასაა — აღწერა შეიცვალა, ვექტორი ძველი რჩება"},
-    {"q": "რას ზომავს `<=>` და რატომ ვალაგებთ ზრდადობით?", "a": "cosine distance = 1 − similarity · 0 — ერთი მიმართულება · პატარა მანძილი = ახლოს, ამიტომ ORDER BY distance ASC · score 0.71 → distance 0.29"},
-    {"q": "რატომ ინახავს `Product` `EmbeddingModel`-საც?", "a": "ერთი მოდელი — ერთი რუკა · მოდელის შეცვლისას ვიცით, რომელი ვექტორებია გადასათვლელი · ინდექსაცია მხოლოდ მათ (და null-ებს) ითვლის"},
-    {"q": "რას ნიშნავს, რომ HNSW მიახლოებითია? რა არის recall?", "a": "ANN — ყველას არ ადარებს, გრაფით „სართულებზე“ ეძებს; ძალიან სწრაფია, მაგრამ იშვიათად შეიძლება ერთი სწორი გამოტოვოს · recall — ზუსტი ძებნის შედეგების რა წილი იპოვა"},
-    {"q": "HNSW ინდექსი შექმენი, `EXPLAIN` კი `Seq Scan`-ს აჩვენებს. ორი შესაძლო მიზეზი?", "a": "ოპერატორი ძებნას არ ემთხვევა (vector_l2_ops vs CosineDistance) · ცხრილი პატარაა — პლანერისთვის seq scan იაფია, ეს ნორმალურია"}
+    {
+      "q": "რა სამი პრობლემა აქვს მეხსიერებაში შენახულ ვექტორებს?",
+      "a": "რესტარტზე ქრება — ყველაფერი თავიდან ითვლება · ძებნა ყველას სათითაოდ ადარებს (O(n)) · მონაცემი ორ ადგილასაა — აღწერა შეიცვალა, ვექტორი ძველი რჩება"
+    },
+    {
+      "q": "რას ზომავს `<=>` და რატომ ვალაგებთ ზრდადობით?",
+      "a": "cosine distance = 1 − similarity · 0 — ერთი მიმართულება · პატარა მანძილი = ახლოს, ამიტომ ORDER BY distance ASC · score 0.71 → distance 0.29"
+    },
+    {
+      "q": "რატომ ინახავს `Product` `EmbeddingModel`-საც?",
+      "a": "ერთი მოდელი — ერთი რუკა · მოდელის შეცვლისას ვიცით, რომელი ვექტორებია გადასათვლელი · ინდექსაცია მხოლოდ მათ (და null-ებს) ითვლის"
+    },
+    {
+      "q": "რას ნიშნავს, რომ HNSW მიახლოებითია? რა არის recall?",
+      "a": "ANN — ყველას არ ადარებს, გრაფით „სართულებზე“ ეძებს; ძალიან სწრაფია, მაგრამ იშვიათად შეიძლება ერთი სწორი გამოტოვოს · recall — ზუსტი ძებნის შედეგების რა წილი იპოვა"
+    },
+    {
+      "q": "HNSW ინდექსი შექმენი, `EXPLAIN` კი `Seq Scan`-ს აჩვენებს. ორი შესაძლო მიზეზი?",
+      "a": "ოპერატორი ძებნას არ ემთხვევა (vector_l2_ops vs CosineDistance) · ცხრილი პატარაა — პლანერისთვის seq scan იაფია, ეს ნორმალურია"
+    }
   ],
   "resources": [
-    {"title": "pgvector", "url": "https://github.com/pgvector/pgvector", "note": "vector ტიპი, ოპერატორები, HNSW და IVFFlat, Docker"},
-    {"title": "pgvector-dotnet", "url": "https://github.com/pgvector/pgvector-dotnet", "note": "Pgvector.EntityFrameworkCore: UseVector, CosineDistance, ინდექსი"},
-    {"title": "Npgsql EF Core — PostgreSQL extensions", "url": "https://www.npgsql.org/efcore/", "note": "HasPostgresExtension, Npgsql-ის EF provider"},
-    {"title": "PostgreSQL — EXPLAIN", "url": "https://www.postgresql.org/docs/current/using-explain.html", "note": "როგორ წავიკითხოთ მოთხოვნის გეგმა"},
-    {"title": "Vector databases in .NET (VectorData)", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/vector-databases", "note": "Microsoft.Extensions.VectorData — როდის გვჭირდება"}
+    {
+      "title": "pgvector",
+      "url": "https://github.com/pgvector/pgvector",
+      "note": "vector ტიპი, ოპერატორები, HNSW და IVFFlat, Docker"
+    },
+    {
+      "title": "pgvector-dotnet",
+      "url": "https://github.com/pgvector/pgvector-dotnet",
+      "note": "Pgvector.EntityFrameworkCore: UseVector, CosineDistance, ინდექსი"
+    },
+    {
+      "title": "Npgsql EF Core — PostgreSQL extensions",
+      "url": "https://www.npgsql.org/efcore/",
+      "note": "HasPostgresExtension, Npgsql-ის EF provider"
+    },
+    {
+      "title": "PostgreSQL — EXPLAIN",
+      "url": "https://www.postgresql.org/docs/current/using-explain.html",
+      "note": "როგორ წავიკითხოთ მოთხოვნის გეგმა"
+    },
+    {
+      "title": "Vector databases in .NET (VectorData)",
+      "url": "https://learn.microsoft.com/dotnet/ai/conceptual/vector-databases",
+      "note": "Microsoft.Extensions.VectorData — როდის გვჭირდება"
+    }
   ],
   "quiz": [
     {
-      "q": "ლექცია 9-ის ძებნის ვექტორები `MenuIndex` Singleton-შია. რა ხდება deploy-ის შემდეგ?",
+      "q": "ლექცია 9-ის ძებნის ვექტორები `MenuController`-ის `static` სიაშია. რა ხდება deploy-ის შემდეგ?",
       "options": [
         "არაფერი — Singleton რჩება",
         "ვექტორები ქრება და მთელი მენიუ თავიდან უნდა გაიგზავნოს embedding მოდელთან",
@@ -71,7 +106,7 @@
       "slide": 10
     },
     {
-      "q": "`/menu/index` მეორედ გამოიძახე და `Indexed: 0` დაბრუნდა. რატომ?",
+      "q": "`/menu/embeddings` მეორედ გამოიძახე და `count: 0` დაბრუნდა. რატომ?",
       "options": [
         "შეცდომაა",
         "ინდექსაცია მხოლოდ იმას ითვლის, რასაც ვექტორი არ აქვს ან სხვა მოდელით აქვს — ყველას უკვე აქვს",

@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-`ChatMessageRecord`-ს, `/chat`-ს და reducer-ს კლასთან ერთად წერ, `ChatHistoryStore`-ს მზას ჩასვამ (გრძელია). SQL-ით ბაზის ხაზებს ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
+`Message`-ს, `/chat`-ს და reducer-ს კლასთან ერთად წერ, `ChatHistoryStore`-ს მზას ჩასვამ (გრძელია). SQL-ით ბაზის ხაზებს ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -14,7 +14,7 @@
 
 ### ✅ მომზადება
 
-- RestaurantApi-ში წინასწარ დაწერე `ChatMessageRecord`, migration, `ChatHistoryStore`, `ChatRequest`, ახალი `/chat`, `SystemPrompt()` და reducer, და გაუშვი
+- RestaurantApi-ში წინასწარ დაწერე `Message`, migration, `ChatHistoryStore`, `ChatRequest`, ახალი `/chat`, `SystemPrompt()` და reducer, და გაუშვი
 - მოამზადე „ლექცია 6-ის ბოლოს“ ვერსიაც (ისტორიის გარეშე), პრობლემის საჩვენებლად
 - შეამოწმე migration შენს PostgreSQL-ზე და რომ `Json` სვეტი `jsonb`-ია
 - 2 შეკითხვა ერთი `conversationId`-ით, ორივეზე `check_availability`. მეორეზე შეცდომა არ უნდა იყოს
@@ -52,7 +52,7 @@
 ## 3 · ისტორია ბაზაში · 18 წთ · 9–13
 
 - (10) სამი ვარიანტი → PostgreSQL. ყველაფერს ვინახავთ, tool-ების შეტყობინებებსაც
-- (11) **ერთად წერთ** `ChatMessageRecord` + `DbSet` + migration
+- (11) **ერთად წერთ** `Message` + `DbSet` + migration
 - `ChatHistoryStore` **ჩასვი** და ახსენი: jsonb, `AIJsonUtilities`, `$type`, `AllowOutOfOrderMetadataProperties`
 - (12) **ერთად წერთ** `ChatRequest` და `/chat`: ჩატვირთე → გაგზავნე → შეინახე. Swagger: ორი შეკითხვა ერთი id-ით, და **მუშაობს**
 - (13) **ცოცხლად SQL:** ბაზის ხაზები
@@ -73,7 +73,7 @@
 
 - (16) ზრდა ზოლებით. ოთხი პრობლემა: ფასი, ლიმიტი, ძველი მონაცემი, ყურადღება
 - (17) სამი სტრატეგია: „ბაზაში ყველაფერი → ჩვენი კოდი ირჩევს → კონტექსტში ნაწილი“
-- (18) **ერთად წერთ** reducer, 3 ხაზი. Swagger: 6 შეკითხვა, და InputTokenCount აღარ იზრდება
+- (18) **ერთად წერთ** reducer, 3 ხაზი. Swagger: 6 შეკითხვა, და კონსოლის `🔢 in:` აღარ იზრდება
 
 ### 🙋 ჰკითხე
 

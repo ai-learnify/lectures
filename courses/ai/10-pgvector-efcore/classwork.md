@@ -6,19 +6,19 @@
 
 - **1 · image** — `docker-compose.yml`-ში `postgres:NN` → `pgvector/pgvector:pgNN` (**იგივე** ვერსია), `docker compose up -d`
 - **2 · EF Core** — NuGet `Pgvector.EntityFrameworkCore`; `UseNpgsql(..., o => o.UseVector())`; `HasPostgresExtension("vector")`; შენს ძირითად entity-ს (წიგნი, კურსი, კერძი…) — `Vector? Embedding` (`vector(768)`) და `string? EmbeddingModel`; migration
-- **3 · ინდექსაცია** — `/index` ვექტორებს ბაზაში წერს: მხოლოდ `Embedding == null` ან სხვა მოდელი, `Chunk(100)`
+- **3 · ინდექსაცია** — `/embeddings` ვექტორებს ბაზაში წერს: მხოლოდ `Embedding == null` ან სხვა მოდელი, `Chunk(100)`
 - **4 · ძებნა** — `/search` `CosineDistance`-ით, top 3, `Score = 1 - Distance`, ზღვარი — ლექცია 9-ის საშინაოდან
-- **5 · ცდა** — აპი გადატვირთე და `/index`-ის გარეშე ეძებე. მერე psql-ში: `SELECT "Title", "Embedding" IS NOT NULL FROM ...` — ყველას აქვს ვექტორი?
+- **5 · ცდა** — აპი გადატვირთე და `/embeddings`-ის გარეშე ეძებე. მერე psql-ში: `SELECT "Title", "Embedding" IS NOT NULL FROM ...` — ყველას აქვს ვექტორი?
 
 ## ✓ მზადაა, როცა
 
-ძებნა რესტარტის შემდეგაც მუშაობს; `/index`-ის მეორე გამოძახება `Indexed: 0`-ს აბრუნებს; ლოგში ჩანს `ORDER BY ... <=> ... LIMIT`
+ძებნა რესტარტის შემდეგაც მუშაობს; `/embeddings`-ის მეორე გამოძახება `count: 0`-ს აბრუნებს; ლოგში ჩანს `ORDER BY ... <=> ... LIMIT`
 
 ## ⭐ ბონუსი
 
-- **ფილტრი + მნიშვნელობა:** `/search?q=...&maxPrice=20` (ან შენი პროექტის ველი: ავტორი, კატეგორია) — `Where` `OrderBy`-მდე. ერთი SQL მოთხოვნაა?
+- **ფილტრი + მნიშვნელობა:** `/search?query=...&maxPrice=20` (ან შენი პროექტის ველი: ავტორი, კატეგორია) — `Where` `OrderBy`-მდე. ერთი SQL მოთხოვნაა?
 - **SQL ხელით:** psql-ში — 3 ჩანაწერი, რომლებიც ერთ კონკრეტულ ჩანაწერს ყველაზე მეტად ჰგავს (`ORDER BY "Embedding" <=> (SELECT "Embedding" FROM ... WHERE ...)`)
-- **ვექტორის გაუქმება:** ჩანაწერის აღწერის შეცვლისას `Embedding = null` — და `/index` მხოლოდ მას გადათვლის
+- **ვექტორის გაუქმება:** ჩანაწერის აღწერის შეცვლისას `Embedding = null` — და `/embeddings` მხოლოდ მას გადათვლის
 
 ## 💡 თუ გაიჭედე
 

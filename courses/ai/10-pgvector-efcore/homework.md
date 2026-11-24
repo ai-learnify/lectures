@@ -5,7 +5,7 @@
 ## მოთხოვნები
 
 - **ვექტორები ბაზაში** — კლასის დავალების კოდი: `vector(768)` სვეტი, `EmbeddingModel`, ინდექსაცია მხოლოდ გადასათვლელზე, ძებნა `CosineDistance`-ით და ზღვრით
-- **ავტომატური გადათვლა** — ჩანაწერის შექმნისას ან აღწერის შეცვლისას (შენი არსებული POST/PUT endpoint-ები) `Embedding = null`; `/index` მხოლოდ მათ ითვლის
+- **ავტომატური გადათვლა** — ჩანაწერის შექმნისას ან აღწერის შეცვლისას (შენი არსებული POST/PUT endpoint-ები) `Embedding = null`; `/embeddings` მხოლოდ მათ ითვლის
 - **ფილტრი + მნიშვნელობა** — `/search`-ს ერთი ფილტრის პარამეტრი (ფასი, კატეგორია, ავტორი…): `Where` და `OrderBy(CosineDistance)` **ერთ** SQL მოთხოვნაში
 - **HNSW ინდექსი** — `HasMethod("hnsw").HasOperators("vector_cosine_ops")`, migration
 - **README — `EXPLAIN`:** ძებნის SQL (ლოგიდან) `EXPLAIN`-ით ორჯერ: ჩვეულებრივად და `SET enable_seqscan = off`-ით. ორივე შედეგი და ერთი წინადადება: რატომ განსხვავდება
@@ -13,7 +13,7 @@
 
 ## ✓ მზადაა, როცა
 
-ახალი ჩანაწერი `/index`-ის შემდეგ ძებნაში ჩნდება; ფილტრიანი ძებნა ერთი SQL-ია (ლოგი); README-ში ორი `EXPLAIN` (`Seq Scan` და `Index Scan`) ახსნით და ტესტის ქულა
+ახალი ჩანაწერი `/embeddings`-ის შემდეგ ძებნაში ჩნდება; ფილტრიანი ძებნა ერთი SQL-ია (ლოგი); README-ში ორი `EXPLAIN` (`Seq Scan` და `Index Scan`) ახსნით და ტესტის ქულა
 
 ## ⭐ ბონუსი
 
@@ -32,24 +32,25 @@
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 9-ის გაგრძელება).
 
-```csharp Controllers/AiLabController.cs · SearchBooks!
-[HttpGet("books/search")]
-public async Task<IActionResult> SearchBooks(string q, string? author, CancellationToken ct)
+```csharp Controllers/BooksController.cs · Search!
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, string? author, CancellationToken ct)
 {
     float minScore = _config.GetValue<float>("Search:MinScore");   // 0.55
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
+    var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct));
+
     IQueryable<Book> books = _db.Books.Where(b => b.Embedding != null);
     if (author is not null)
         books = books.Where(b => b.Author == author);           // the filter — in the same SQL
-    var top = await books
-        .OrderBy(b => b.Embedding!.CosineDistance(query))
-        .Select(b => new { b.Title, Distance = b.Embedding!.CosineDistance(query) })
+
+    List<BookMatch> top = await books
+        .OrderBy(b => b.Embedding!.CosineDistance(queryVector))
         .Take(3)
+        .Select(b => new BookMatch(b.Title, 1 - b.Embedding!.CosineDistance(queryVector)))
         .ToListAsync(ct);
 
-    return Ok(top.Select(x => new { x.Title, Score = 1 - x.Distance })
-                 .Where(x => x.Score >= minScore));
+    return Ok(top.Where(m => m.Score >= minScore));
 }
 ```
 

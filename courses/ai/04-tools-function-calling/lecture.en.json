@@ -8,17 +8,48 @@
     "You'll write a good tool: a verb name, a description, typed parameters; and explain why today's tools only read"
   ],
   "review": [
-    {"q": "Does the model call our C# method itself? Describe the loop step by step.", "a": "No · 1) us: the question + the list of tools · 2) the model: a call request (name + arguments) · 3) our code runs the method and sends the result · 4) the model: a text answer · at least 2 requests to Gemini"},
-    {"q": "The model can't see a tool's code. How does it learn what the tool does and when to call it?", "a": "From the name, the description (`[Description]`) and the parameters' JSON Schema · so a bad description = the tool is called at the wrong time or not at all"},
-    {"q": "What does `.UseFunctionInvocation()` do? What would happen without it?", "a": "It runs the loop for us: sees the request, calls the method, sends the result, returns the final answer · without it `GetResponseAsync` would return a call request instead of text and we'd have to write the rest ourselves"},
-    {"q": "Why `CheckAvailability(DateTime at, int guests)` and not `Check(string data)`?", "a": "The name says what it does · typed parameters go into the schema as exact types — the model doesn't have to guess a format and we don't have to parse a string · `[Description]` on each parameter"},
-    {"q": "Why did we give the model only read tools today? What would be the problem with `create_booking`?", "a": "The model would call a writing tool by itself — it might take “8” as 8 a.m. and not ask the user · writing needs confirmation (human-in-the-loop, lecture 15)"}
+    {
+      "q": "Does the model call our C# method itself? Describe the loop step by step.",
+      "a": "No · 1) us: the question + the list of tools · 2) the model: a call request (name + arguments) · 3) our code runs the method and sends the result · 4) the model: a text answer · at least 2 requests to Gemini"
+    },
+    {
+      "q": "The model can't see a tool's code. How does it learn what the tool does and when to call it?",
+      "a": "From the name, the description (`[Description]`) and the parameters' JSON Schema · so a bad description = the tool is called at the wrong time or not at all"
+    },
+    {
+      "q": "What does `.UseFunctionInvocation()` do? What would happen without it?",
+      "a": "It runs the loop for us: sees the request, calls the method, sends the result, returns the final answer · without it `GetResponseAsync` would return a call request instead of text and we'd have to write the rest ourselves"
+    },
+    {
+      "q": "Why `CheckAvailability(DateTime at, int guests)` and not `Check(string data)`?",
+      "a": "The name says what it does · typed parameters go into the schema as exact types — the model doesn't have to guess a format and we don't have to parse a string · `[Description]` on each parameter"
+    },
+    {
+      "q": "Why did we give the model only read tools today? What would be the problem with `create_booking`?",
+      "a": "The model would call a writing tool by itself — it might take “8” as 8 a.m. and not ask the user · writing needs confirmation (human-in-the-loop, lecture 15)"
+    }
   ],
   "resources": [
-    {"title": "IChatClient — tool calling", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "AIFunction, AIFunctionFactory, FunctionInvokingChatClient — with examples"},
-    {"title": "Function calling — .NET quickstart", "url": "https://learn.microsoft.com/dotnet/ai/quickstarts/use-function-calling", "note": "Your first tool in C#, step by step"},
-    {"title": "Gemini — Function calling", "url": "https://ai.google.dev/gemini-api/docs/function-calling", "note": "How it works on Gemini, tips on tool design"},
-    {"title": "Anthropic — Writing tools for agents", "url": "https://www.anthropic.com/engineering/writing-tools-for-agents", "note": "Practical tips on a good tool's name, description and parameters"}
+    {
+      "title": "IChatClient — tool calling",
+      "url": "https://learn.microsoft.com/dotnet/ai/ichatclient",
+      "note": "AIFunction, AIFunctionFactory, FunctionInvokingChatClient — with examples"
+    },
+    {
+      "title": "Function calling — .NET quickstart",
+      "url": "https://learn.microsoft.com/dotnet/ai/quickstarts/use-function-calling",
+      "note": "Your first tool in C#, step by step"
+    },
+    {
+      "title": "Gemini — Function calling",
+      "url": "https://ai.google.dev/gemini-api/docs/function-calling",
+      "note": "How it works on Gemini, tips on tool design"
+    },
+    {
+      "title": "Anthropic — Writing tools for agents",
+      "url": "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "note": "Practical tips on a good tool's name, description and parameters"
+    }
   ],
   "quiz": [
     {

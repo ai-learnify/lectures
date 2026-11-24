@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-`Program.cs`-ის რეგისტრაციას და `FallbackChatClient`-ს კლასთან ერთად წერ, `ChaosHandler`-ს და ახალ `TokenCounter`-ს მზას ჩასვამ. შეცდომებს `ChaosHandler`-ით ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
+`Program.cs`-ის რეგისტრაციას და `FallbackChatClient`-ს კლასთან ერთად წერ, `ChaosHandler`-ს და ახალ `UsageTracking`-ს მზას ჩასვამ. შეცდომებს `ChaosHandler`-ით ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -14,7 +14,7 @@
 
 ### ✅ მომზადება
 
-- RestaurantApi-ში წინასწარ დაწერე resilience-ის რეგისტრაცია, `ChaosHandler`, `FallbackChatClient`, `AiUsageRecord` + migration, ახალი `TokenCounterChatClient`
+- RestaurantApi-ში წინასწარ დაწერე resilience-ის რეგისტრაცია, `ChaosHandler`, `FallbackChatClient`, `AiUsage` + migration, ახალი `UsageTrackingChatClient`
 - `Microsoft.Extensions.Http.Resilience` დააყენე და ჩაიწერე ვერსია, სტუდენტებს იგივე სჭირდებათ
 - შეამოწმე, რომ შენს Google.GenAI-ის ვერსიაში არსებობს `ClientOptions.HttpClientFactory` და `HttpOptions.RetryOptions`
 - `Gemini:FallbackModel`: აირჩიე ნამდვილი, უფრო მსუბუქი მოდელი და შეამოწმე შენი key-ით
@@ -69,11 +69,11 @@
 
 - (15) **ერთად წერთ** `FallbackChatClient`: `try` → `base`; `catch … when (IsTransient)` → `_fallback`. რეგისტრაცია ყველაზე შიგნით
 - ცოცხლად: chaos „ყოველთვის 503“ → ლოგში 🛟 სარეზერვო მოდელი
-- (16) `AiUsageRecord` + ახალი `TokenCounter` **ჩასვი** და ახსენი `IServiceScopeFactory`. SQL: დღის ჯამი. `ModelId`-ში fallback-იც ჩანს
+- (16) `AiUsage` + ახალი `UsageTracking` **ჩასვი** და ახსენი `IServiceScopeFactory`. SQL: დღის ჯამი. `ModelId`-ში fallback-იც ჩანს
 
 ### 🙋 ჰკითხე
 
-შესვენებიდან: **„Gemini 5 წუთია 503-ს აბრუნებს და სამივე retry ჩავარდა. რა ვქნათ?“** → სხვა მოდელი ან პროვაიდერი. მერე (16): **„რატომ არა უბრალოდ `DataContext db` TokenCounter-ის constructor-ში?“** სწორი: pipeline Singleton-ია, DbContext Scoped. ერთი DbContext ყველა მოთხოვნას სამუდამოდ გაეზიარებოდა.
+შესვენებიდან: **„Gemini 5 წუთია 503-ს აბრუნებს და სამივე retry ჩავარდა. რა ვქნათ?“** → სხვა მოდელი ან პროვაიდერი. მერე (16): **„რატომ არა უბრალოდ `DataContext db` UsageTracking-ის constructor-ში?“** სწორი: pipeline Singleton-ია, DbContext Scoped. ერთი DbContext ყველა მოთხოვნას სამუდამოდ გაეზიარებოდა.
 
 ### 🆘 თუ ვერ გაიგეს
 
@@ -82,8 +82,8 @@
 
 ## 📝 კლასის დავალება · 28 წთ · 17
 
-- **ნიმუში, ~3 წთ:** დაუბრუნდი 16-ს და ლექცია 5-ის InputGuard-ს: „InputGuard-ი, ოღონდ შემოწმება ბაზიდან: დღეს რამდენი დავხარჯეთ? DbContext scope-ით, როგორც TokenCounter-ში“
-- **ისინი, ~22 წთ:** `AiUsage` + TokenCounter ბაზაში, `BudgetGuardChatClient`, ლიმიტი კონფიგურაციაში, ფენა პირველი
+- **ნიმუში, ~3 წთ:** დაუბრუნდი 16-ს და ლექცია 5-ის InputGuard-ს: „InputGuard-ი, ოღონდ შემოწმება ბაზიდან: დღეს რამდენი დავხარჯეთ? DbContext scope-ით, როგორც UsageTracking-ში“
+- **ისინი, ~22 წთ:** `AiUsage` + UsageTracking ბაზაში, `BudgetGuardChatClient`, ლიმიტი კონფიგურაციაში, ფენა პირველი
 - **ბოლოს, ~3 წთ:** ერთი სტუდენტის Swagger: ლიმიტის შემდეგ უარი, და ლოგში Gemini არ ჩანს
 - ✂ ჩამორჩი? ლიმიტი კოდში, კონფიგურაციის გარეშე
 
@@ -101,7 +101,7 @@
 
 - 5 კითხვა (18): ჯერ სტუდენტი, მერე პასუხი
 - შეჯამება (19): „‚რამე მსუბუქი, ხორცის გარეშე‘ და 200 კერძი. რას ვუგზავნით?“ → ლექცია 9
-- საშინაო (20): resilience + fallback + TokenCounter ბაზაში + `/usage/today` + შეცდომების ცხრილი
+- საშინაო (20): resilience + fallback + UsageTracking ბაზაში + `/usage/today` + შეცდომების ცხრილი
 
 ## ⭐ თუ დრო დარჩა
 

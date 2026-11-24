@@ -4,9 +4,9 @@ With code · your project · a table in the README
 
 ## Requirements
 
-- **`GET /api/ai-lab/chat/stream`** in your project: with tools (`ChatToolOptions()`), `TypedResults.ServerSentEvents`, an async iterator, a `CancellationToken` in all three places
+- **`GET /api/assistant/chat/stream`** in your project: with tools (`CreateChatOptions()`), `TypedResults.ServerSentEvents`, an async iterator, a `CancellationToken` in all three places
 - **InputGuard with streaming:** add a `GetStreamingResponseAsync` override to lecture 5's guard layer — when it stops, **one** `ChatResponseUpdate` with the message and `yield break`, without Gemini
-- **README — a TTFT table:** 3 questions through `/chat/chunks`: short · long · with a tool. Columns: question · ms of the first piece · ms of the last piece · number of pieces
+- **README — a TTFT table:** 3 questions through `/stream-timing`: short · long · with a tool. Columns: question · ms of the first piece · ms of the last piece · number of pieces
 - **README — cancellation:** Ctrl+C on a long answer → 3–5 lines of the server log showing the request was cancelled
 - The study notes **quiz** (8 questions) — write down your score
 
@@ -17,7 +17,7 @@ With `curl -N` the text appears piece by piece, on the tool question too; on a t
 ## ⭐ Bonus
 
 - **A browser page:** `wwwroot/chat.html` with `EventSource` (a sample in the notes, part 2) + `app.UseStaticFiles()`
-- **TokenCounter with streaming:** an override that collects the pieces and writes `updates.ToChatResponse().Usage` to the log at the end
+- **UsageTracking with streaming:** an override that collects the pieces and writes `updates.ToChatResponse().Usage` to the log at the end
 - **Status events:** `IAsyncEnumerable<SseItem<string>>` and `TypedResults.ServerSentEvents(...)` — an `event: status` (“checking the tables…”) during the tool loop, then the text
 
 ## 💡 Details
@@ -31,7 +31,7 @@ With `curl -N` the text appears piece by piece, on the tool question too; on a t
 
 A sample — the library API (continuing homework 5).
 
-```csharp Ai/LibraryGuardChatClient.cs · streaming!
+```csharp Ai/Middleware/LibraryGuardChatClient.cs · streaming!
 public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
     IEnumerable<ChatMessage> messages, ChatOptions? options = null,
     [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -51,12 +51,12 @@ public override async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseA
 }
 ```
 
-```csharp Controllers/AiLabController.cs · ChatStream
+```csharp Controllers/AssistantController.cs · ChatStream
 [HttpGet("chat/stream")]
-public IResult ChatStream(string prompt, CancellationToken cancellationToken) =>
-    TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+public IResult ChatStream(string message, CancellationToken cancellationToken) =>
+    TypedResults.ServerSentEvents(StreamAnswer(message, cancellationToken));
 
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)
 {
     List<ChatMessage> messages =
@@ -65,11 +65,11 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
             You are a library assistant. Answer briefly.
             Take book and genre data only from the tools.
             """),
-        new(ChatRole.User, prompt)
+        new(ChatRole.User, message)
     ];
 
     await foreach (ChatResponseUpdate update in
-        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+        _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))
     {
         if (!string.IsNullOrEmpty(update.Text))
             yield return update.Text;

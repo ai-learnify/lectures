@@ -4,10 +4,10 @@
 
 ## ნაბიჯები
 
-- **1 · ChatToolOptions()** — ლექცია 4-ის `/chat`-ის `ChatOptions` ცალკე მეთოდში გაიტანე, რომ ორმა endpoint-მა გამოიყენოს
-- **2 · iterator** — `private async IAsyncEnumerable<string> StreamAnswer(string prompt, [EnumeratorCancellation] CancellationToken cancellationToken)`: იგივე System prompt, რაც `/chat`-ში → `await foreach` `GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken)` → ტექსტიან ნაწილზე `yield return`
-- **3 · endpoint** — `[HttpGet("chat/stream")]`, პარამეტრები `string prompt, CancellationToken cancellationToken` → `TypedResults.ServerSentEvents(StreamAnswer(...))`
-- **4 · შემოწმება** — `curl -N "http://localhost:<პორტი>/api/ai-lab/chat/stream?prompt=..."`: ჯერ ჩვეულებრივი კითხვა, მერე ისეთი, რომელზეც **tool** გამოიძახება, ბოლოს გრძელი პასუხი და შუაში **Ctrl+C**
+- **1 · CreateChatOptions()** — ლექცია 4-ის `/chat`-ის `ChatOptions` ცალკე მეთოდში გაიტანე, რომ ორმა endpoint-მა გამოიყენოს
+- **2 · iterator** — `private async IAsyncEnumerable<string> StreamAnswer(string message, [EnumeratorCancellation] CancellationToken cancellationToken)`: იგივე System prompt, რაც `/chat`-ში → `await foreach` `GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken)` → ტექსტიან ნაწილზე `yield return`
+- **3 · endpoint** — `[HttpGet("chat/stream")]`, პარამეტრები `string message, CancellationToken cancellationToken` → `TypedResults.ServerSentEvents(StreamAnswer(...))`
+- **4 · შემოწმება** — `curl -N "http://localhost:<პორტი>/api/assistant/chat/stream?message=..."`: ჯერ ჩვეულებრივი კითხვა, მერე ისეთი, რომელზეც **tool** გამოიძახება, ბოლოს გრძელი პასუხი და შუაში **Ctrl+C**
 
 ## ✓ მზადაა, როცა
 
@@ -15,9 +15,9 @@
 
 ## ⭐ ბონუსი
 
-- `/chat`-მაც `ChatToolOptions()` გამოიყენოს — ერთი ადგილი tool-ების სიისთვის
+- `/chat`-მაც `CreateChatOptions()` გამოიყენოს — ერთი ადგილი tool-ების სიისთვის
 - სტრიმის ბოლოს ცალკე მოვლენა: `yield return "[DONE]"` — როგორც OpenAI-ის API-ში. რისთვის სჭირდება კლიენტს?
-- `/chat/chunks` შენს endpoint-ზე: პირველი და ბოლო ნაწილის ms — tool-იან და tool-ის გარეშე კითხვაზე
+- `/stream-timing` შენს endpoint-ზე: პირველი და ბოლო ნაწილის ms — tool-იან და tool-ის გარეშე კითხვაზე
 
 ## 💡 თუ გაიჭედე
 

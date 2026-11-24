@@ -2,24 +2,59 @@
   "title": "RAG ოპტიმიზაცია და შეფასება",
   "why": "ლექცია 11-ის RAG ზოგჯერ არასწორ ნაწილს პოულობს — განსაკუთრებით ზუსტ სიტყვებზე („B-2“, „12%“). მაგრამ „ზოგჯერ“ ციფრი არ არის, და „მგონი უკეთესია“ არ ითვლება. რეალურ გუნდებში RAG-ის ყოველი ცვლილება — chunking, ძებნის მეთოდი, prompt — გაზომვით მტკიცდება. დღეს ვზომავთ (golden set, hit@k, MRR), ვაუმჯობესებთ (hybrid search, ფილტრი, chunking) და პასუხის groundedness-ს ვამოწმებთ.",
   "outcomes": [
-    "ახსნი, სად ცდება RAG (retrieval vs generation), შეადგენ golden set-ს და `/rag/eval`-ით hit@3-სა და MRR-ს გამოთვლი",
+    "ახსნი, სად ცდება RAG (retrieval vs generation), შეადგენ golden set-ს და `/evaluation/retrieval`-ით hit@3-სა და MRR-ს გამოთვლი",
     "hybrid search-ს ააწყობ: ვექტორი + PostgreSQL full-text (`tsvector`, `'english'`), შერწყმული RRF-ით, და გაუმჯობესებას ციფრით დაამტკიცებ",
     "metadata filtering-ს SQL-ში დაამატებ და ახსნი, რატომ არის ის უსაფრთხოების საკითხიც",
     "chunking-ის სტრატეგიებს და reranking-ს შეადარებ, და პასუხის groundedness-ს `GroundednessEvaluator`-ით შეაფასებ"
   ],
   "review": [
-    {"q": "RAG რომელ ორ ადგილას ცდება და რომელია უფრო ხშირი?", "a": "retrieval — სწორი ნაწილი top k-ში არ მოხვდა (ყველაზე ხშირი; მაშინ საუკეთესო მოდელიც ვერ უპასუხებს) · generation — ნაწილი სწორია, მოდელმა კი წყაროში არარსებული დაამატა"},
-    {"q": "რა არის hit@3 და MRR? რატომ ვწერთ golden set-ში ფრაზას და არა chunk-ის Id-ს?", "a": "hit@3 — რა წილ შეკითხვაზე იყო სწორი ნაწილი პირველ სამში · MRR — საშუალო 1/რიგი, რამდენად მაღლაა · chunking-ის შეცვლისას Id-ები იცვლება, ფრაზა — არა"},
-    {"q": "რატომ გვჭირდება hybrid search და რატომ ვაერთიანებთ სიებს რიგით (RRF) და არა score-ებით?", "a": "ვექტორი ზუსტ სიტყვებს (კოდი, რიცხვი, სახელი) ცუდად პოულობს, full-text — ზუსტად · score-ები სხვადასხვა „ერთეულშია“, რიგი — ერთნაირი: Σ 1/(60 + რიგი)"},
-    {"q": "metadata filtering რატომ უნდა იყოს SQL-ში და არა prompt-ში?", "a": "prompt-ს მოდელი ყოველთვის არ ემორჩილება; სხვისი ნაწილი კონტექსტში თუ მოხვდა — უკვე გაჟონა · tenant/უფლებების ფილტრი — უსაფრთხოებაა, მოდელამდე"},
-    {"q": "რა არის groundedness და როგორ ვზომავთ? რატომ არ ვენდობით მსაჯს ბოლომდე?", "a": "პასუხი მხოლოდ წყაროებს ეყრდნობა? · LLM-as-judge: GroundednessEvaluator, 1–5 და ახსნა · მსაჯიც მოდელია — ცდება, საკუთარ პასუხებს რბილად აფასებს; ბევრ მაგალითზე და დროდადრო ხელით"}
+    {
+      "q": "RAG რომელ ორ ადგილას ცდება და რომელია უფრო ხშირი?",
+      "a": "retrieval — სწორი ნაწილი top k-ში არ მოხვდა (ყველაზე ხშირი; მაშინ საუკეთესო მოდელიც ვერ უპასუხებს) · generation — ნაწილი სწორია, მოდელმა კი წყაროში არარსებული დაამატა"
+    },
+    {
+      "q": "რა არის hit@3 და MRR? რატომ ვწერთ golden set-ში ფრაზას და არა chunk-ის Id-ს?",
+      "a": "hit@3 — რა წილ შეკითხვაზე იყო სწორი ნაწილი პირველ სამში · MRR — საშუალო 1/რიგი, რამდენად მაღლაა · chunking-ის შეცვლისას Id-ები იცვლება, ფრაზა — არა"
+    },
+    {
+      "q": "რატომ გვჭირდება hybrid search და რატომ ვაერთიანებთ სიებს რიგით (RRF) და არა score-ებით?",
+      "a": "ვექტორი ზუსტ სიტყვებს (კოდი, რიცხვი, სახელი) ცუდად პოულობს, full-text — ზუსტად · score-ები სხვადასხვა „ერთეულშია“, რიგი — ერთნაირი: Σ 1/(60 + რიგი)"
+    },
+    {
+      "q": "metadata filtering რატომ უნდა იყოს SQL-ში და არა prompt-ში?",
+      "a": "prompt-ს მოდელი ყოველთვის არ ემორჩილება; სხვისი ნაწილი კონტექსტში თუ მოხვდა — უკვე გაჟონა · tenant/უფლებების ფილტრი — უსაფრთხოებაა, მოდელამდე"
+    },
+    {
+      "q": "რა არის groundedness და როგორ ვზომავთ? რატომ არ ვენდობით მსაჯს ბოლომდე?",
+      "a": "პასუხი მხოლოდ წყაროებს ეყრდნობა? · LLM-as-judge: GroundednessEvaluator, 1–5 და ახსნა · მსაჯიც მოდელია — ცდება, საკუთარ პასუხებს რბილად აფასებს; ბევრ მაგალითზე და დროდადრო ხელით"
+    }
   ],
   "resources": [
-    {"title": "Microsoft.Extensions.AI.Evaluation", "url": "https://learn.microsoft.com/dotnet/ai/evaluation/libraries", "note": "Quality evaluators: Groundedness, Relevance, Retrieval, Completeness"},
-    {"title": "PostgreSQL — Full Text Search", "url": "https://www.postgresql.org/docs/current/textsearch.html", "note": "tsvector, tsquery, ts_rank, GIN"},
-    {"title": "Npgsql EF Core — Full Text Search", "url": "https://www.npgsql.org/efcore/mapping/full-text-search.html", "note": "HasGeneratedTsVectorColumn, Matches, Rank"},
-    {"title": "Reciprocal Rank Fusion (Cormack et al., 2009)", "url": "https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf", "note": "RRF-ის ორიგინალი სტატია: k = 60"},
-    {"title": "pgvector — Hybrid Search", "url": "https://github.com/pgvector/pgvector#hybrid-search", "note": "pgvector + full-text ერთად"}
+    {
+      "title": "Microsoft.Extensions.AI.Evaluation",
+      "url": "https://learn.microsoft.com/dotnet/ai/evaluation/libraries",
+      "note": "Quality evaluators: Groundedness, Relevance, Retrieval, Completeness"
+    },
+    {
+      "title": "PostgreSQL — Full Text Search",
+      "url": "https://www.postgresql.org/docs/current/textsearch.html",
+      "note": "tsvector, tsquery, ts_rank, GIN"
+    },
+    {
+      "title": "Npgsql EF Core — Full Text Search",
+      "url": "https://www.npgsql.org/efcore/mapping/full-text-search.html",
+      "note": "HasGeneratedTsVectorColumn, Matches, Rank"
+    },
+    {
+      "title": "Reciprocal Rank Fusion (Cormack et al., 2009)",
+      "url": "https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf",
+      "note": "RRF-ის ორიგინალი სტატია: k = 60"
+    },
+    {
+      "title": "pgvector — Hybrid Search",
+      "url": "https://github.com/pgvector/pgvector#hybrid-search",
+      "note": "pgvector + full-text ერთად"
+    }
   ],
   "quiz": [
     {
@@ -59,7 +94,7 @@
       "slide": 8
     },
     {
-      "q": "`/rag/eval` miss-ებში \"Where is hall B-2?\" და \"12%\" ჩანს. რა აქვთ საერთო?",
+      "q": "`/evaluation/retrieval` miss-ებში \"Where is hall B-2?\" და \"12%\" ჩანს. რა აქვთ საერთო?",
       "options": [
         "გრძელი შეკითხვებია",
         "ზუსტი სიტყვები — კოდი და რიცხვი, რომელსაც ვექტორი ცუდად „ხედავს“",

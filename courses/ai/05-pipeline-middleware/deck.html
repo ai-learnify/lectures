@@ -75,7 +75,7 @@
 builder.Services.AddChatClient(gemini)
     .Use(inner => new InputGuardChatClient(inner))
     .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(…))
+    .Use((inner, sp) => new UsageTrackingChatClient(…))
     .UseLogging();
     </code-block>
   </div>
@@ -255,18 +255,18 @@ builder.Services.AddChatClient(
 </section>
 
 <section class="slide" data-section="3 · ჩვენი ფენა">
-  <div class="kicker">🧑‍💻 ვწერთ · Ai/TokenCounterChatClient.cs</div>
+  <div class="kicker">🧑‍💻 ვწერთ · Ai/Middleware/UsageTrackingChatClient.cs</div>
   <h2>ფენა = <span class="c-api">DelegatingChatClient</span> + <span class="c-asp">ერთი override</span></h2>
   <div class="grid2" style="grid-template-columns:1.55fr 1fr;align-items:start;gap:22px">
-    <code-block id="c3" lang="csharp" cls="sm" title="Ai/TokenCounterChatClient.cs">
+    <code-block id="c3" lang="csharp" cls="sm" title="Ai/Middleware/UsageTrackingChatClient.cs">
 using Microsoft.Extensions.AI;
 
-public class TokenCounterChatClient : DelegatingChatClient
+public class UsageTrackingChatClient : DelegatingChatClient
 {
-    private readonly ILogger<TokenCounterChatClient> _logger;
+    private readonly ILogger<UsageTrackingChatClient> _logger;
 
-    public TokenCounterChatClient(IChatClient inner,
-        ILogger<TokenCounterChatClient> logger) : base(inner)
+    public UsageTrackingChatClient(IChatClient inner,
+        ILogger<UsageTrackingChatClient> logger) : base(inner)
     {
         _logger = logger;
     }
@@ -308,9 +308,9 @@ public class TokenCounterChatClient : DelegatingChatClient
     <div class="col" style="gap:10px">
       <p class="sec-l">A · FunctionInvocation-ის გარეთ</p>
       <code-block lang="csharp" cls="sm">
-.Use((inner, sp) => new TokenCounterChatClient(
+.Use((inner, sp) => new UsageTrackingChatClient(
     inner, sp.GetRequiredService<
-        ILogger<TokenCounterChatClient>>()))
+        ILogger<UsageTrackingChatClient>>()))
 .UseFunctionInvocation()
 .UseLogging();
       </code-block>
@@ -321,9 +321,9 @@ public class TokenCounterChatClient : DelegatingChatClient
       <p class="sec-l">B · FunctionInvocation-ის შიგნით</p>
       <code-block lang="csharp" cls="sm">
 .UseFunctionInvocation()
-.Use((inner, sp) => new TokenCounterChatClient(
+.Use((inner, sp) => new UsageTrackingChatClient(
     inner, sp.GetRequiredService<
-        ILogger<TokenCounterChatClient>>()))
+        ILogger<UsageTrackingChatClient>>()))
 .UseLogging();
       </code-block>
       <div class="con step">🔢 in: 158, out: 12, total: 170
@@ -335,10 +335,10 @@ public class TokenCounterChatClient : DelegatingChatClient
 </section>
 
 <section class="slide" data-section="3 · ჩვენი ფენა">
-  <div class="kicker">🧑‍💻 ფენა, რომელიც აჩერებს · Ai/InputGuardChatClient.cs</div>
+  <div class="kicker">🧑‍💻 ფენა, რომელიც აჩერებს · Ai/Middleware/InputGuardChatClient.cs</div>
   <h2>ზოგი ფენა <span class="c-mvc">უყურებს</span>, ზოგი <span class="c-red">აჩერებს</span></h2>
   <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start;gap:22px">
-    <code-block id="c4" lang="csharp" cls="sm" title="Ai/InputGuardChatClient.cs">
+    <code-block id="c4" lang="csharp" cls="sm" title="Ai/Middleware/InputGuardChatClient.cs">
 public class InputGuardChatClient : DelegatingChatClient
 {
     private const int MaxLength = 1000;
@@ -367,7 +367,7 @@ public class InputGuardChatClient : DelegatingChatClient
       <code-block lang="csharp" cls="sm" title="Program.cs">
 .Use(inner => new InputGuardChatClient(inner))
 .UseFunctionInvocation()
-.Use((inner, sp) => new TokenCounterChatClient(…))
+.Use((inner, sp) => new UsageTrackingChatClient(…))
 .UseLogging();
       </code-block>
       <i class="codestep" data-for="c4" data-lines="14-19"></i>
@@ -394,7 +394,7 @@ public class InputGuardChatClient : DelegatingChatClient
       <li><b>UseDistributedCache</b> — მხოლოდ უცვლელ პასუხებზე</li>
       <li><b>DelegatingChatClient</b>: base-მდე მოთხოვნა, base-ის შემდეგ პასუხი; base-ის გარეშე — შეჩერება</li></ul></div>
     <div class="col" style="gap:14px">
-      <code-block lang="csharp" cls="sm" title="TokenCounterChatClient · InputGuardChatClient">
+      <code-block lang="csharp" cls="sm" title="UsageTrackingChatClient · InputGuardChatClient">
 public override async Task<ChatResponse> GetResponseAsync(…)
 // GetStreamingResponseAsync — not overridden
       </code-block>

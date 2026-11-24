@@ -8,17 +8,48 @@
     "You'll write your own layer with `DelegatingChatClient`: one that looks at the response and one that stops the request"
   ],
   "review": [
-    {"q": "What is `.UseFunctionInvocation()` and where have we seen a similar idea?", "a": "A layer (middleware) around `IChatClient` — an `IChatClient` that wraps another `IChatClient` · `AddChatClient` returns a `ChatClientBuilder`, every `.Use…()` adds one layer · like ASP.NET Core's `app.UseAuthentication()` for HTTP requests"},
-    {"q": "`.UseFunctionInvocation().UseLogging()` in Program.cs — which is closer to the Controller? Why does the log show both Gemini requests?", "a": "The first `.Use…()` = the outer layer (close to the Controller) · Logging is inner, closest to Gemini — every request of the FunctionInvocation loop passes through it"},
-    {"q": "When is `UseDistributedCache` good and when is it dangerous?", "a": "Good — when the answer to the same question doesn't change (FAQ, translation, classification) · dangerous — when the answer depends on changing data (a free table): the cache returns an old answer"},
-    {"q": "In a `DelegatingChatClient`, what does code see before and after `base.GetResponseAsync(...)`?", "a": "Before base — the request (before Gemini) · after base — the response (tokens, text) · the analogue of ASP.NET Core's `await next()`"},
-    {"q": "How does a layer stop a request, and why do we put such a layer first?", "a": "It doesn't call `base` and returns a response itself (short-circuit) — nothing reaches Gemini, 0 tokens · first = the earlier we stop, the fewer layers do work"}
+    {
+      "q": "What is `.UseFunctionInvocation()` and where have we seen a similar idea?",
+      "a": "A layer (middleware) around `IChatClient` — an `IChatClient` that wraps another `IChatClient` · `AddChatClient` returns a `ChatClientBuilder`, every `.Use…()` adds one layer · like ASP.NET Core's `app.UseAuthentication()` for HTTP requests"
+    },
+    {
+      "q": "`.UseFunctionInvocation().UseLogging()` in Program.cs — which is closer to the Controller? Why does the log show both Gemini requests?",
+      "a": "The first `.Use…()` = the outer layer (close to the Controller) · Logging is inner, closest to Gemini — every request of the FunctionInvocation loop passes through it"
+    },
+    {
+      "q": "When is `UseDistributedCache` good and when is it dangerous?",
+      "a": "Good — when the answer to the same question doesn't change (FAQ, translation, classification) · dangerous — when the answer depends on changing data (a free table): the cache returns an old answer"
+    },
+    {
+      "q": "In a `DelegatingChatClient`, what does code see before and after `base.GetResponseAsync(...)`?",
+      "a": "Before base — the request (before Gemini) · after base — the response (tokens, text) · the analogue of ASP.NET Core's `await next()`"
+    },
+    {
+      "q": "How does a layer stop a request, and why do we put such a layer first?",
+      "a": "It doesn't call `base` and returns a response itself (short-circuit) — nothing reaches Gemini, 0 tokens · first = the earlier we stop, the fewer layers do work"
+    }
   ],
   "resources": [
-    {"title": "IChatClient — pipelines and middleware", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "ChatClientBuilder, caching, telemetry, DelegatingChatClient — with examples"},
-    {"title": "Microsoft.Extensions.AI — overview", "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai", "note": "The idea of layers and the ready-made middleware"},
-    {"title": "ASP.NET Core Middleware", "url": "https://learn.microsoft.com/aspnet/core/fundamentals/middleware/", "note": "The same idea for HTTP requests — from the API course"},
-    {"title": "Logging in .NET", "url": "https://learn.microsoft.com/dotnet/core/extensions/logging", "note": "Log levels and configuring them in appsettings"}
+    {
+      "title": "IChatClient — pipelines and middleware",
+      "url": "https://learn.microsoft.com/dotnet/ai/ichatclient",
+      "note": "ChatClientBuilder, caching, telemetry, DelegatingChatClient — with examples"
+    },
+    {
+      "title": "Microsoft.Extensions.AI — overview",
+      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
+      "note": "The idea of layers and the ready-made middleware"
+    },
+    {
+      "title": "ASP.NET Core Middleware",
+      "url": "https://learn.microsoft.com/aspnet/core/fundamentals/middleware/",
+      "note": "The same idea for HTTP requests — from the API course"
+    },
+    {
+      "title": "Logging in .NET",
+      "url": "https://learn.microsoft.com/dotnet/core/extensions/logging",
+      "note": "Log levels and configuring them in appsettings"
+    }
   ],
   "quiz": [
     {
@@ -82,7 +113,7 @@
       "explain": "Cache only where the answer to the same question doesn't change."
     },
     {
-      "q": "TokenCounter sits inside `UseFunctionInvocation`. How many lines does it write for a tool question?",
+      "q": "UsageTracking sits inside `UseFunctionInvocation`. How many lines does it write for a tool question?",
       "options": [
         "1 — the total",
         "2 — each Gemini request separately",

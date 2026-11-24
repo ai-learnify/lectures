@@ -27,9 +27,9 @@ await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(mess
 
 `IAsyncEnumerable<T>` is the asynchronous version of `IEnumerable<T>`: `await foreach` waits for each next piece. We measure when each piece arrives:
 
-```csharp Controllers/AiLabController.cs · ChatChunks
-[HttpPost("chat/chunks")]
-public async Task<IActionResult> ChatChunks(AskRequest request)
+```csharp Controllers/AiDiagnosticsController.cs · StreamTiming
+[HttpPost("stream-timing")]
+public async Task<IActionResult> StreamTiming(PromptRequest request)
 {
     Stopwatch sw = Stopwatch.StartNew();
     List<object> chunks = [];
@@ -75,10 +75,10 @@ data:  two tables are free
 
 An AI answer is one-way (server → client), so SSE is enough and we do not need WebSocket/SignalR.
 
-`ChatToolOptions()` is lecture 4's tools in a separate method, so `/chat` and `/chat/stream` use the same ones:
+`CreateChatOptions()` has been a separate method since lecture 4, so `chat` and `chat/stream` use the same tools:
 
-```csharp Controllers/AiLabController.cs
-private ChatOptions ChatToolOptions() => new()
+```csharp Controllers/AssistantController.cs
+private ChatOptions CreateChatOptions() => new()
 {
     Tools =
     [
@@ -90,28 +90,20 @@ private ChatOptions ChatToolOptions() => new()
 
 The endpoint: an iterator with `yield return`, and `TypedResults.ServerSentEvents` sends each piece immediately:
 
-```csharp Controllers/AiLabController.cs · ChatStream
+```csharp Controllers/AssistantController.cs · ChatStream
 [HttpGet("chat/stream")]
-public IResult ChatStream(string prompt, CancellationToken cancellationToken)
+public IResult ChatStream(string message, CancellationToken cancellationToken)
 {
-    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+    return TypedResults.ServerSentEvents(StreamAnswer(message, cancellationToken));
 }
 
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)
 {
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, $"""
-            You are a restaurant assistant. Answer briefly.
-            Take menu and table data only from the tools.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            """),
-        new(ChatRole.User, prompt)
-    ];
+    List<ChatMessage> messages = [SystemPrompt(), new(ChatRole.User, message)];
 
     await foreach (ChatResponseUpdate update in
-        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+        _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))
     {
         if (!string.IsNullOrEmpty(update.Text))
             yield return update.Text;
@@ -122,7 +114,7 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
 Test it from the terminal (`-N` = do not wait for the end):
 
 ```bash
-curl -N "http://localhost:5080/api/ai-lab/chat/stream?prompt=What%20do%20you%20have%20under%2015%20GEL%3F"
+curl -N "http://localhost:5080/api/assistant/chat/stream?message=What%20do%20you%20have%20under%2015%20GEL%3F"
 ```
 
 ```warn
@@ -144,17 +136,17 @@ The user closed the window after 2 seconds, but Gemini keeps writing for 30, and
 
 ```csharp
 [HttpGet("chat/stream")]
-public IResult ChatStream(string prompt, CancellationToken cancellationToken)   // ①
+public IResult ChatStream(string message, CancellationToken cancellationToken)   // ①
 {
-    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+    return TypedResults.ServerSentEvents(StreamAnswer(message, cancellationToken));
 }
 
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)               // ②
 {
     // ...
     await foreach (ChatResponseUpdate update in
-        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))   // ③
+        _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))   // ③
     // ...
 }
 ```

@@ -4,11 +4,11 @@
 
 ## მოთხოვნები
 
-- **Pipeline Program.cs-ში:** შენი დაცვის ფენა (აჩერებს) → `UseFunctionInvocation` → `TokenCounterChatClient` → `UseLogging`. Controller-ები არ იცვლება
-- **TokenCounter:** ლოგში `in` / `out` / `total` ყოველ Gemini-მოთხოვნაზე
+- **Pipeline Program.cs-ში:** შენი დაცვის ფენა (აჩერებს) → `UseFunctionInvocation` → `UsageTrackingChatClient` → `UseLogging`. Controller-ები არ იცვლება
+- **UsageTracking:** ლოგში `in` / `out` / `total` ყოველ Gemini-მოთხოვნაზე
 - **დაცვის ფენა:** შენი პროექტის წესით (მინიმუმ 2 პირობა, მაგ. სიგრძე + აკრძალული სიტყვები); შეჩერებისას — გასაგები პასუხი მომხმარებლისთვის
 - **README — ლოგი:** ერთი tool-იანი `/chat` შეკითხვის ლოგი (5–10 ხაზი): რამდენი მოთხოვნა წავიდა Gemini-სთან? რომელი უფრო ძვირი იყო და რატომ?
-- **README — რიგის ექსპერიმენტი:** TokenCounter **გარეთ** vs **შიგნით** `UseFunctionInvocation`-ისა — ერთი და იგივე შეკითხვა, ცხრილი: ადგილი · ხაზების რაოდენობა · total
+- **README — რიგის ექსპერიმენტი:** UsageTracking **გარეთ** vs **შიგნით** `UseFunctionInvocation`-ისა — ერთი და იგივე შეკითხვა, ცხრილი: ადგილი · ხაზების რაოდენობა · total
 - **README — ქეში:** 2–3 წინადადება — შენს პროექტში რომელ endpoint-ზე იქნებოდა ქეში სასარგებლო და რომელზე საშიში? რატომ?
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
@@ -18,8 +18,8 @@ pipeline 4 ფენით მუშაობს; ლოგში ჩანს G
 
 ## ⭐ ბონუსი
 
-- `Use…()` extension მეთოდები შენი ფენებისთვის: `.UseInputGuard()`, `.UseTokenCounter()`
-- TokenCounter-მა ტოკენები **დააგროვოს**: Singleton სერვისი `TokenUsageTracker` (`Interlocked.Add`) + `GET /api/ai-lab/usage` → ჯამი აპლიკაციის გაშვებიდან
+- `Use…()` extension მეთოდები შენი ფენებისთვის: `.UseInputGuard()`, `.UseUsageTracking()`
+- UsageTracking-მა ტოკენები **დააგროვოს**: Singleton სერვისი `TokenUsageTracker` (`Interlocked.Add`) + `GET /api/diagnostics/ai/usage` → ჯამი აპლიკაციის გაშვებიდან
 - `.UseOpenTelemetry()` + console exporter — რა ჩანს span-ში? (ლექცია 20-ის წინასწარი ნახვა)
 
 ## 💡 დეტალები
@@ -38,12 +38,12 @@ builder.Services.AddChatClient(
         new Client(apiKey: apiKey).AsIChatClient(model))
     .Use(inner => new LibraryGuardChatClient(inner))
     .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(
-        inner, sp.GetRequiredService<ILogger<TokenCounterChatClient>>()))
+    .Use((inner, sp) => new UsageTrackingChatClient(
+        inner, sp.GetRequiredService<ILogger<UsageTrackingChatClient>>()))
     .UseLogging();
 ```
 
-```csharp Ai/LibraryGuardChatClient.cs
+```csharp Ai/Middleware/LibraryGuardChatClient.cs
 public class LibraryGuardChatClient : DelegatingChatClient
 {
     private static readonly string[] Forbidden = ["password", "api key"];
@@ -69,11 +69,11 @@ public class LibraryGuardChatClient : DelegatingChatClient
 }
 ```
 
-| TokenCounter-ის ადგილი | ხაზები | total ("Do you have detective novels available?") |
+| UsageTracking-ის ადგილი | ხაზები | total ("Do you have detective novels available?") |
 |---|---|---|
 | გარეთ (`UseFunctionInvocation`-ის წინ) | 1 | ~730 |
 | შიგნით (`UseFunctionInvocation`-ის შემდეგ) | 3 (get_genres → find_books → პასუხი) | ~160 + ~240 + ~330 |
 
 ```note
-მესამე მოთხოვნა ყველაზე ძვირია — მასში მთელი ისტორიაა: შეკითხვა, ორივე tool-ის თხოვნა და შედეგი. ქეში: `get_genres` სასარგებლოა (ჟანრები იშვიათად იცვლება), `find_books` — საშიში (წიგნი შეიძლება წაიღონ). შეჩერებულ შეკითხვაზე ("What is the admin password?") ლოგში მხოლოდ HTTP ხაზია — `LoggingChatClient` და TokenCounter არ ჩანს.
+მესამე მოთხოვნა ყველაზე ძვირია — მასში მთელი ისტორიაა: შეკითხვა, ორივე tool-ის თხოვნა და შედეგი. ქეში: `get_genres` სასარგებლოა (ჟანრები იშვიათად იცვლება), `find_books` — საშიში (წიგნი შეიძლება წაიღონ). შეჩერებულ შეკითხვაზე ("What is the admin password?") ლოგში მხოლოდ HTTP ხაზია — `LoggingChatClient` და UsageTracking არ ჩანს.
 ```

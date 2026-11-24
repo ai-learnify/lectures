@@ -38,8 +38,8 @@ context engineering — deciding what goes into the context and what does not
 
 We store the history on the server, in PostgreSQL: we do not trust the client with it, and in memory it would be lost on restart. One row is one message:
 
-```csharp Data/ChatMessageRecord.cs
-public class ChatMessageRecord
+```csharp Entities/Message.cs
+public class Message
 {
     public Guid Id { get; set; }
     public Guid ConversationId { get; set; }   // which conversation it belongs to
@@ -53,9 +53,9 @@ public class ChatMessageRecord
 }
 ```
 
-`DbSet<ChatMessageRecord> ChatMessages` in `DataContext`, then a migration. Saving and loading: the whole `ChatMessage` in jsonb, tool messages included:
+`DbSet<Message> Messages` in `DataContext`, then a migration. Saving and loading: the whole `ChatMessage` in jsonb, tool messages included:
 
-```csharp Ai/ChatHistoryStore.cs
+```csharp Ai/Chat/ChatHistoryStore.cs
 public class ChatHistoryStore
 {
     // jsonb reorders keys — "$type" is no longer first
@@ -67,7 +67,7 @@ public class ChatHistoryStore
 
     public async Task<List<ChatMessage>> LoadAsync(Guid conversationId, CancellationToken ct)
     {
-        List<string> rows = await _db.ChatMessages
+        List<string> rows = await _db.Messages
             .Where(m => m.ConversationId == conversationId)
             .OrderBy(m => m.Position)
             .Select(m => m.Json)
@@ -78,10 +78,10 @@ public class ChatHistoryStore
 
     public async Task AppendAsync(Guid conversationId, IEnumerable<ChatMessage> messages, CancellationToken ct)
     {
-        int position = await _db.ChatMessages.CountAsync(m => m.ConversationId == conversationId, ct);
+        int position = await _db.Messages.CountAsync(m => m.ConversationId == conversationId, ct);
         foreach (ChatMessage message in messages)
         {
-            _db.ChatMessages.Add(new ChatMessageRecord
+            _db.Messages.Add(new Message
             {
                 Id = Guid.NewGuid(),
                 ConversationId = conversationId,
@@ -100,26 +100,30 @@ public class ChatHistoryStore
 `AllowOutOfOrderMetadataProperties = true` is required: jsonb reorders the keys, so `"$type"` is no longer first.
 ```
 
-`/chat` with history: load → send → save.
+`AssistantController.Chat` with history: load → send → save.
 
-```csharp Controllers/AiLabController.cs · Chat
-public record ChatRequest(Guid? ConversationId, string Prompt);
+```csharp Dtos/Assistant/ChatDtos.cs
+public record ChatRequest(Guid? ConversationId, string Message);
 
+public record ChatReply(Guid ConversationId, string Text);
+```
+
+```csharp Controllers/AssistantController.cs · Chat
 [HttpPost("chat")]
 public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
 {
     Guid conversationId = request.ConversationId ?? Guid.NewGuid();
 
     List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-    ChatMessage question = new(ChatRole.User, request.Prompt);
+    ChatMessage question = new(ChatRole.User, request.Message);
 
     List<ChatMessage> messages = [SystemPrompt(), .. history, question];
     ChatResponse response =
-        await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);
+        await _chat.GetResponseAsync(messages, CreateChatOptions(), ct);
 
     await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
 
-    return Ok(new { conversationId, response.Text, response.Usage?.InputTokenCount });
+    return Ok(new ChatReply(conversationId, response.Text));
 }
 ```
 
@@ -139,7 +143,7 @@ conversationId — the identifier that ties a conversation's messages together
 
 ## 3 · The token budget · 15–18
 
-The whole history goes with every question, so `InputTokenCount` keeps growing, with a jump after `get_menu`. That causes four problems: cost, the context window limit, stale data and the model's attention.
+The whole history goes with every question, so `InputTokenCount` (`🔢 in:` in the console) keeps growing, with a jump after `get_menu`. That causes four problems: cost, the context window limit, stale data and the model's attention.
 
 | Strategy | What it means |
 |---|---|
@@ -149,7 +153,7 @@ The whole history goes with every question, so `InputTokenCount` keeps growing, 
 
 **Everything in the database, part of it to the model.** `IChatReducer` shrinks the list before it is sent to the model:
 
-```csharp Controllers/AiLabController.cs · Chat
+```csharp Controllers/AssistantController.cs · Chat
 #pragma warning disable MEAI001   // reducers are still experimental
 private static readonly IChatReducer Reducer = new MessageCountingChatReducer(10);
 #pragma warning restore MEAI001
@@ -158,7 +162,7 @@ private static readonly IChatReducer Reducer = new MessageCountingChatReducer(10
 List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
 IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
 
-ChatMessage question = new(ChatRole.User, request.Prompt);
+ChatMessage question = new(ChatRole.User, request.Message);
 List<ChatMessage> messages = [SystemPrompt(), .. recent, question];
 // ... GetResponseAsync, AppendAsync — unchanged
 ```

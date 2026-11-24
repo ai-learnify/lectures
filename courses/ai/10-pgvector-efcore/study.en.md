@@ -63,7 +63,7 @@ modelBuilder.HasPostgresExtension("vector");
 
 We add two fields to `Product`: the vector and the model name (so we know what to recompute when the model changes):
 
-```csharp Data/Product.cs
+```csharp Entities/Product.cs
 using Pgvector;
 
 public class Product
@@ -84,9 +84,9 @@ dotnet ef database update
 
 **Indexing:** only the dishes that have no vector or have one from another model:
 
-```csharp Controllers/AiLabController.cs · menu/index
-[HttpPost("menu/index")]
-public async Task<IActionResult> IndexMenu(CancellationToken ct)
+```csharp Controllers/MenuController.cs · GenerateEmbeddings
+[HttpPost("embeddings")]
+public async Task<IActionResult> GenerateEmbeddings(CancellationToken ct)
 {
     string model = _config["Gemini:EmbeddingModel"]!;
 
@@ -97,8 +97,8 @@ public async Task<IActionResult> IndexMenu(CancellationToken ct)
 
     foreach (Product[] batch in products.Chunk(100))          // Gemini: up to 100 per request
     {
-        var vectors = await _embeddings.GenerateAsync(
-            batch.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+        GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+            batch.Select(p => EmbeddingInput.Document(p.Name, p.Description)),
             cancellationToken: ct);
 
         for (int i = 0; i < batch.Length; i++)
@@ -109,32 +109,32 @@ public async Task<IActionResult> IndexMenu(CancellationToken ct)
     }
 
     await _db.SaveChangesAsync(ct);
-    return Ok(new { Indexed = products.Count });
+    return Ok(new EmbeddingsResult(products.Count));
 }
 ```
 
 **Search:** `CosineDistance` translates to the `<=>` operator in SQL, and the sorting happens in the database:
 
-```csharp Controllers/AiLabController.cs · menu/search
-[HttpGet("menu/search")]
-public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+```csharp Controllers/MenuController.cs · Search
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, CancellationToken ct)
 {
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
+    var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct));
 
-    var top = await _db.Products
+    List<MenuMatch> top = await _db.Products
         .Where(p => p.Embedding != null)
-        .OrderBy(p => p.Embedding!.CosineDistance(query))       // → ORDER BY "Embedding" <=> @query
-        .Select(p => new { p.Name, Distance = p.Embedding!.CosineDistance(query) })
-        .Take(3)                                                  // → LIMIT 3
+        .OrderBy(p => p.Embedding!.CosineDistance(queryVector))  // → ORDER BY "Embedding" <=> @query
+        .Take(3)                                                   // → LIMIT 3
+        .Select(p => new MenuMatch(p.Name, 1 - p.Embedding!.CosineDistance(queryVector)))
         .ToListAsync(ct);
 
-    return Ok(top.Select(x => new { x.Name, Score = 1 - x.Distance }));   // distance → similarity
+    return Ok(top);
 }
 ```
 
 ```check
-? I restarted the app. Does search work without `/menu/index`?
+? I restarted the app. Does search work without `/menu/embeddings`?
 = Yes, the vectors are in the database.
 ```
 

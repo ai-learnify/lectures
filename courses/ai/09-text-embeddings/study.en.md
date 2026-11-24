@@ -43,23 +43,23 @@ builder.Services.AddEmbeddingGenerator(
         .AsIEmbeddingGenerator(embeddingModel, defaultModelDimensions: 768));
 ```
 
-```csharp Controllers/AiLabController.cs · Embed
+```csharp Controllers/AiDiagnosticsController.cs · Embed
 // constructor: IEmbeddingGenerator<string, Embedding<float>> embeddings
 
 [HttpPost("embed")]
-public async Task<IActionResult> Embed(AskRequest request, CancellationToken ct)
+public async Task<IActionResult> Embed(EmbedRequest request, CancellationToken ct)
 {
     ReadOnlyMemory<float> vector =
-        await _embeddings.GenerateVectorAsync(request.Prompt, cancellationToken: ct);
+        await _embeddings.GenerateVectorAsync(request.Text, cancellationToken: ct);
 
-    return Ok(new { vector.Length, First5 = vector.ToArray()[..5] });
+    return Ok(new EmbedResponse(vector.Length, vector.ToArray()[..5]));
 }
 ```
 
 **Task prefix.** A query is short, a document (a dish description) is long. We tell the model which is which:
 
-```csharp Ai/EmbeddingText.cs
-public static class EmbeddingText
+```csharp Ai/Embeddings/EmbeddingInput.cs
+public static class EmbeddingInput
 {
     public static string Query(string q) =>
         $"task: search result | query: {q}";
@@ -110,40 +110,38 @@ float score = TensorPrimitives.CosineSimilarity(a.Span, b.Span);
 
 **Menu search** is two steps: **indexing** (every dish's vector is computed once) and **search** (the query's vector, then ranking by similarity):
 
-```csharp Ai/MenuIndex.cs
-public class MenuIndex
-{
-    public List<(string Name, ReadOnlyMemory<float> Vector)> Items { get; } = [];
-}
-// Program.cs: builder.Services.AddSingleton<MenuIndex>();
-```
+```csharp Controllers/MenuController.cs · GenerateEmbeddings, Search
+// temporary: the vectors in memory, lost when the app restarts (lecture 10 → database)
+private static List<(string Name, ReadOnlyMemory<float> Vector)> _vectors = [];
 
-```csharp Controllers/AiLabController.cs · menu/index, menu/search
-[HttpPost("menu/index")]
-public async Task<IActionResult> IndexMenu(CancellationToken ct)
+[HttpPost("embeddings")]
+public async Task<IActionResult> GenerateEmbeddings(CancellationToken ct)
 {
     List<Product> products = await _db.Products.ToListAsync(ct);
+
     GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
-        products.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+        products.Select(p => EmbeddingInput.Document(p.Name, p.Description)),
         cancellationToken: ct);
 
-    _menu.Items.Clear();
-    for (int i = 0; i < products.Count; i++)
-        _menu.Items.Add((products[i].Name, vectors[i].Vector));
+    _vectors = products
+        .Select((p, i) => (p.Name, vectors[i].Vector))
+        .ToList();
 
-    return Ok(new { Indexed = products.Count });
+    return Ok(new EmbeddingsResult(products.Count));
 }
 
-[HttpGet("menu/search")]
-public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, CancellationToken ct)
 {
-    ReadOnlyMemory<float> query = await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct);
+    ReadOnlyMemory<float> queryVector = await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct);
 
-    var top = _menu.Items
-        .Select(m => new { m.Name, Score = TensorPrimitives.CosineSimilarity(query.Span, m.Vector.Span) })
-        .OrderByDescending(x => x.Score)
-        .Take(3);
+    List<MenuMatch> top = _vectors
+        .Select(v => new MenuMatch(v.Name,
+            TensorPrimitives.CosineSimilarity(queryVector.Span, v.Vector.Span)))
+        .OrderByDescending(m => m.Score)
+        .Take(3)
+        .ToList();
 
     return Ok(top);
 }

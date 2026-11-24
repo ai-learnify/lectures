@@ -28,32 +28,46 @@
 ]
 ```
 
-```csharp Controllers/AiLabController.cs · EvalRag
+```csharp Dtos/Evaluation/EvaluationDtos.cs
 public record GoldenItem(string Question, string MustContain);
 
-[HttpPost("rag/eval")]
-public async Task<IActionResult> EvalRag(CancellationToken ct)
+public record RetrievalReport(double HitAt3, double Mrr, List<string> Misses);
+```
+
+```csharp Controllers/EvaluationController.cs · Retrieval
+[HttpPost("retrieval")]
+public async Task<IActionResult> Retrieval(bool hybrid = true, CancellationToken ct = default)
 {
     string json = await System.IO.File.ReadAllTextAsync("golden.json", ct);   // ControllerBase.File is something else
-    var golden = JsonSerializer.Deserialize<List<GoldenItem>>(json, JsonSerializerOptions.Web)!;
+    List<GoldenItem> golden = JsonSerializer.Deserialize<List<GoldenItem>>(json, JsonSerializerOptions.Web)!;
 
-    int hits = 0; double rr = 0; List<string> misses = [];
+    int hits = 0;
+    double reciprocalRanks = 0;
+    List<string> misses = [];
+
     foreach (GoldenItem item in golden)
     {
-        List<FoundChunk> found = await SearchChunksAsync(item.Question, ct);         // lecture 11's search
+        List<ChunkMatch> found = hybrid
+            ? await _search.SearchAsync(item.Question, null, ct)
+            : await _search.VectorSearchAsync(item.Question, ct);           // lecture 11's search
+
         int rank = found.FindIndex(c => c.Content.Contains(item.MustContain)) + 1;   // 1, 2, 3… or 0
 
-        if (rank is >= 1 and <= 3) hits++; else misses.Add(item.Question);
-        if (rank > 0) rr += 1.0 / rank;
+        if (rank is >= 1 and <= 3) hits++;
+        else misses.Add(item.Question);
+
+        if (rank > 0) reciprocalRanks += 1.0 / rank;
     }
 
-    return Ok(new { HitAt3 = (double)hits / golden.Count,
-                    Mrr = rr / golden.Count, Misses = misses });
+    return Ok(new RetrievalReport(
+        HitAt3: (double)hits / golden.Count,
+        Mrr: reciprocalRanks / golden.Count,
+        Misses: misses));
 }
 ```
 
 ```note
-`/rag/eval` LLM-ს არ იძახებს, მხოლოდ embedding-ს. იაფია და სწრაფი, ამიტომ ყოველ ცვლილებაზე გაუშვი.
+`/evaluation/retrieval` LLM-ს არ იძახებს, მხოლოდ embedding-ს. იაფია და სწრაფი, ამიტომ ყოველ ცვლილებაზე გაუშვი.
 ```
 
 ```check
@@ -73,76 +87,88 @@ MRR — სწორი ნაწილის რიგის საშუალ
 
 full-text სვეტს PostgreSQL თვითონ ითვლის:
 
-```csharp Data/DocumentChunk.cs
+```csharp Entities/Chunk.cs
 using NpgsqlTypes;
 // ...
 public NpgsqlTsVector SearchVector { get; set; } = null!;
 ```
 
 ```csharp Data/DataContext.cs · OnModelCreating
-modelBuilder.Entity<DocumentChunk>()
+modelBuilder.Entity<Chunk>()
     .HasGeneratedTsVectorColumn(c => c.SearchVector, "english", c => new { c.Content })
     .HasIndex(c => c.SearchVector)
     .HasMethod("GIN");
 ```
 
-```csharp Controllers/AiLabController.cs · OrQuery
-private static string OrQuery(string q)
+```csharp Ai/Documents/DocumentSearch.cs · OrQuery
+private static string OrQuery(string query)
 {
-    var words = Regex.Matches(q, @"[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*").Select(m => m.Value);
+    var words = Regex.Matches(query, @"[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*").Select(m => m.Value);
     return string.Join(" | ", words);   // "Where is hall B-2?" → "Where | is | hall | B-2"
 }
 ```
 
-```csharp Controllers/AiLabController.cs · HybridSearchAsync
-private async Task<List<FoundChunk>> HybridSearchAsync(string q, CancellationToken ct)
+```csharp Ai/Documents/DocumentSearch.cs · SearchAsync (hybrid)
+// hybrid: by meaning + by words, merged with RRF
+public async Task<List<ChunkMatch>> SearchAsync(string query, string? category, CancellationToken ct)
 {
-    float minScore = _config.GetValue<float>("Rag:MinScore");
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
-    var words = EF.Functions.ToTsQuery("english", OrQuery(q));
+    var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct));
+    var words = EF.Functions.ToTsQuery("english", OrQuery(query));
 
-    List<int> byMeaning = await _db.DocumentChunks                    // by vector, with a threshold
-        .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
-        .OrderBy(c => c.Embedding!.CosineDistance(query))
-        .Select(c => c.Id).Take(20).ToListAsync(ct);
+    // metadata filtering — always in SQL, before the search
+    IQueryable<Chunk> chunks = _db.Chunks;
+    if (category is not null)
+        chunks = chunks.Where(c => c.Document.Category == category);
 
-    List<int> byWords = await _db.DocumentChunks                      // by words
+    List<int> byMeaning = await chunks                                 // by vector, with a threshold
+        .Where(c => 1 - c.Embedding!.CosineDistance(queryVector) >= _minScore)
+        .OrderBy(c => c.Embedding!.CosineDistance(queryVector))
+        .Select(c => c.Id)
+        .Take(20)
+        .ToListAsync(ct);
+
+    List<int> byWords = await chunks                                   // by words
         .Where(c => c.SearchVector.Matches(words))
         .OrderByDescending(c => c.SearchVector.Rank(words))
-        .Select(c => c.Id).Take(20).ToListAsync(ct);
+        .Select(c => c.Id)
+        .Take(20)
+        .ToListAsync(ct);
 
     List<int> top = Rrf(byMeaning, byWords).Take(5).ToList();
 
-    var chunks = await _db.DocumentChunks
+    var found = await _db.Chunks
         .Where(c => top.Contains(c.Id))
         .Select(c => new { c.Id, c.Document.FileName, c.Page, c.Content })
         .ToDictionaryAsync(c => c.Id, ct);
-    return top.Select((id, i) => new FoundChunk(chunks[id].FileName, chunks[id].Page,
-        chunks[id].Content, Score: 1.0 / (i + 1))).ToList();        // Score — here simply by rank
+
+    return top
+        .Select((id, i) => new ChunkMatch(found[id].FileName, found[id].Page, found[id].Content,
+            Score: 1.0 / (i + 1)))                                     // Score — here simply by rank
+        .ToList();
 }
 
 private static IEnumerable<int> Rrf(params List<int>[] lists) => lists
-    .SelectMany(l => l.Select((id, i) => (id, s: 1.0 / (60 + i + 1))))
+    .SelectMany(list => list.Select((id, i) => (id, score: 1.0 / (60 + i + 1))))
     .GroupBy(x => x.id)
-    .OrderByDescending(g => g.Sum(x => x.s))
+    .OrderByDescending(g => g.Sum(x => x.score))
     .Select(g => g.Key);
 ```
 
 **ფილტრი** (მაგ. კატეგორია) SQL-ში, ძებნამდე:
 
-```csharp Data/Document.cs
+```csharp Entities/Document.cs
 public string Category { get; set; } = "rules";   // "rules" / "menu" / "events"
 ```
 
-```csharp Controllers/AiLabController.cs · HybridSearchAsync(q, category)
-IQueryable<DocumentChunk> chunks = _db.DocumentChunks;
+```csharp Ai/Documents/DocumentSearch.cs · SearchAsync(query, category)
+IQueryable<Chunk> chunks = _db.Chunks;
 if (category is not null)
     chunks = chunks.Where(c => c.Document.Category == category);
 
 // byMeaning and byWords — from chunks:
 List<int> byMeaning = await chunks
-    .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
+    .Where(c => 1 - c.Embedding!.CosineDistance(queryVector) >= _minScore)
     // ... as before
 ```
 
@@ -169,21 +195,21 @@ metadata — ინფორმაცია დოკუმენტზე (კ�
 
 **Groundedness.** ნაწილი სწორია, მაგრამ მოდელმა რამე მოიგონა? მეორე მოდელი (**მსაჯი**) ამოწმებს, ეყრდნობა თუ არა პასუხი წყაროებს:
 
-```csharp Controllers/AiLabController.cs · CheckGroundedness
+```csharp Controllers/EvaluationController.cs · Groundedness
 using Microsoft.Extensions.AI.Evaluation;
 using Microsoft.Extensions.AI.Evaluation.Quality;
 
 IEvaluator evaluator = new GroundednessEvaluator();
 
 EvaluationResult result = await evaluator.EvaluateAsync(
-    [new ChatMessage(ChatRole.User, question)],                       // what was asked
-    response,                                                          // what our RAG answered (ChatResponse)
-    new ChatConfiguration(_judge),                                     // the judge — an IChatClient
-    [new GroundednessEvaluatorContext(BuildContext(sources))],         // the sources the model received
+    [new ChatMessage(ChatRole.User, request.Question)],      // what was asked
+    response,                                                // what our RAG answered (ChatResponse)
+    new ChatConfiguration(_judge),                           // the judge — an IChatClient
+    [new GroundednessEvaluatorContext(context)],             // the sources the model received
     ct);
 
-NumericMetric g = result.Get<NumericMetric>(GroundednessEvaluator.GroundednessMetricName);
-// g.Value — from 1 to 5; g.Reason — the judge's explanation
+NumericMetric score = result.Get<NumericMetric>(GroundednessEvaluator.GroundednessMetricName);
+// score.Value — from 1 to 5; score.Reason — the judge's explanation
 ```
 
 ```check

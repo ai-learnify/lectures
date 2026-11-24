@@ -6,7 +6,7 @@
 
 - **1 · Tools კლასი** — `Ai/<შენი>Tools.cs`: constructor-ით `DbContext` (ან შენი სერვისი), `Program.cs`-ში `AddScoped`
 - **2 · tool პარამეტრით** — ერთი **კითხვის** მეთოდი შენი ბაზიდან, **მინიმუმ 1 პარამეტრით**; `[Description]` მეთოდზე და პარამეტრზე; სახელი = ზმნა + რა
-- **3 · `POST /api/assistant/chat`** — System: ვინ არის ასისტენტი + "Data only from the tool, don't make anything up" → `ChatOptions.Tools` → `GetResponseAsync(messages, options)` → `Ok(new { response.Text, ToolCalls })`. `Program.cs`-ში `.UseFunctionInvocation()`
+- **3 · `POST /api/assistant/chat`** — System: ვინ არის ასისტენტი + "Data only from the tool, don't make anything up" → `ChatOptions.Tools` → `GetResponseAsync(messages, options)` → `Ok(new ChatReply(response.Text))`. `Program.cs`-ში `.UseFunctionInvocation()`
 - **4 · Swagger-ში 3 ტექსტი:** ისეთი, რომელზეც tool უნდა გამოიძახოს · ისეთი, რომელზეც **არ** უნდა გამოიძახოს · ისეთი, სადაც პარამეტრი ტექსტში წერია სხვა სიტყვებით
 
 ## ✓ მზადაა, როცა

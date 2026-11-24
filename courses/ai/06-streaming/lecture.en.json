@@ -8,17 +8,48 @@
     "You'll pass a `CancellationToken` in three places so that the Gemini request stops when the client leaves"
   ],
   "review": [
-    {"q": "Does streaming make the answer faster? What actually changes?", "a": "The total time is almost the same · what changes is the TTFT — the time to the first word (seconds → milliseconds) · the user starts reading right away, no more empty screen"},
-    {"q": "What does `GetStreamingResponseAsync` return and how do we read it?", "a": "An `IAsyncEnumerable<ChatResponseUpdate>` — a stream of pieces · `await foreach` — waits for the next piece · `update.Text` — a chunk of text; the same messages/options, tools work too"},
-    {"q": "In `/chat/chunks` Gemini was streaming, but Swagger showed everything at once. Why? How did we fix it?", "a": "We collected the pieces in a list and returned it at the end — the stream stopped in the Controller · an async iterator (`yield return`) + `TypedResults.ServerSentEvents` — each piece goes to the client right away"},
-    {"q": "What is SSE and why is it enough for an AI chat (instead of WebSocket/SignalR)?", "a": "An HTTP response with `text/event-stream` that stays open; `data: …` + an empty line · an AI answer is one-way (server → client) · WebSocket/SignalR are for two-way communication"},
-    {"q": "Where did we pass the `CancellationToken`, and why?", "a": "① the action parameter (RequestAborted) ② `[EnumeratorCancellation]` in the iterator ③ to `GetStreamingResponseAsync` · the client left → the Gemini request stops → no more tokens are spent"}
+    {
+      "q": "Does streaming make the answer faster? What actually changes?",
+      "a": "The total time is almost the same · what changes is the TTFT — the time to the first word (seconds → milliseconds) · the user starts reading right away, no more empty screen"
+    },
+    {
+      "q": "What does `GetStreamingResponseAsync` return and how do we read it?",
+      "a": "An `IAsyncEnumerable<ChatResponseUpdate>` — a stream of pieces · `await foreach` — waits for the next piece · `update.Text` — a chunk of text; the same messages/options, tools work too"
+    },
+    {
+      "q": "In `/stream-timing` Gemini was streaming, but Swagger showed everything at once. Why? How did we fix it?",
+      "a": "We collected the pieces in a list and returned it at the end — the stream stopped in the Controller · an async iterator (`yield return`) + `TypedResults.ServerSentEvents` — each piece goes to the client right away"
+    },
+    {
+      "q": "What is SSE and why is it enough for an AI chat (instead of WebSocket/SignalR)?",
+      "a": "An HTTP response with `text/event-stream` that stays open; `data: …` + an empty line · an AI answer is one-way (server → client) · WebSocket/SignalR are for two-way communication"
+    },
+    {
+      "q": "Where did we pass the `CancellationToken`, and why?",
+      "a": "① the action parameter (RequestAborted) ② `[EnumeratorCancellation]` in the iterator ③ to `GetStreamingResponseAsync` · the client left → the Gemini request stops → no more tokens are spent"
+    }
   ],
   "resources": [
-    {"title": "IChatClient — streaming", "url": "https://learn.microsoft.com/dotnet/ai/ichatclient", "note": "GetStreamingResponseAsync, ChatResponseUpdate, ToChatResponse"},
-    {"title": "TypedResults.ServerSentEvents", "url": "https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.typedresults.serversentevents", "note": ".NET 10 — the SSE result in ASP.NET Core"},
-    {"title": "MDN — Using server-sent events", "url": "https://developer.mozilla.org/docs/Web/API/Server-sent_events/Using_server-sent_events", "note": "The SSE format and EventSource in the browser"},
-    {"title": "Iterating with async enumerables", "url": "https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream", "note": "IAsyncEnumerable, await foreach, [EnumeratorCancellation]"}
+    {
+      "title": "IChatClient — streaming",
+      "url": "https://learn.microsoft.com/dotnet/ai/ichatclient",
+      "note": "GetStreamingResponseAsync, ChatResponseUpdate, ToChatResponse"
+    },
+    {
+      "title": "TypedResults.ServerSentEvents",
+      "url": "https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.typedresults.serversentevents",
+      "note": ".NET 10 — the SSE result in ASP.NET Core"
+    },
+    {
+      "title": "MDN — Using server-sent events",
+      "url": "https://developer.mozilla.org/docs/Web/API/Server-sent_events/Using_server-sent_events",
+      "note": "The SSE format and EventSource in the browser"
+    },
+    {
+      "title": "Iterating with async enumerables",
+      "url": "https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream",
+      "note": "IAsyncEnumerable, await foreach, [EnumeratorCancellation]"
+    }
   ],
   "quiz": [
     {
@@ -52,7 +83,7 @@
       "explain": "The same options, the same loop; the text arrives after the tool's result."
     },
     {
-      "q": "In `/chat/chunks` Swagger showed all the pieces at once. Why?",
+      "q": "In `/stream-timing` Swagger showed all the pieces at once. Why?",
       "options": [
         "Gemini wasn't streaming",
         "We collected the pieces in a list and returned `Ok(chunks)` at the end",

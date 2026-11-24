@@ -50,7 +50,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM = იისფერი · დროებითი შეცდომა/retry = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · მუდმივი შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — Program.cs (resilience), Ai/FallbackChatClient, Ai/TokenCounterChatClient (ბაზაში), Data/AiUsageRecord
+     პროექტი: RestaurantApi — Program.cs (resilience), Ai/Middleware/FallbackChatClient, Ai/Middleware/UsageTrackingChatClient (ბაზაში), Entities/AiUsage
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -60,11 +60,11 @@
     <p class="lead in mt" style="--d:.35s">429 · 503 · timeout · retry · fallback · ხარჯი</p>
   </div>
   <div class="abs" style="right:90px;top:250px;width:560px">
-    <div class="con in" style="--d:.5s"><span class="d">info:</span> POST /api/ai-lab/chat
+    <div class="con in" style="--d:.5s"><span class="d">info:</span> POST /api/assistant/chat
 <span class="r">fail:</span> Google.GenAI.ServerError: <span class="r">503</span>
       The model is overloaded.
       Please try again later.
-<span class="d">     at RestaurantApi.Controllers.AiLabController…</span>
+<span class="d">     at RestaurantApi.Controllers.AssistantController…</span>
 <span class="r">HTTP 500</span> → მომხმარებელს 😞</div>
   </div>
 </section>
@@ -102,7 +102,7 @@
   <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:26px;align-items:start;margin-top:6px">
     <div class="col" style="gap:12px">
       <div class="swr c-post">
-        <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/chat</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/api/assistant/chat</span></div>
         <div class="lab">Response · 500</div>
         <pre class="rb"><span class="e">Google.GenAI.ServerError:</span>
   <span class="k">"code"</span>: <span class="n">503</span>,
@@ -111,7 +111,7 @@
 <span class="s">     Please try again later."</span></pre>
       </div>
       <div class="swr c-post step">
-        <div class="rh"><span class="m">POST</span><span class="p">/api/ai-lab/chat</span></div>
+        <div class="rh"><span class="m">POST</span><span class="p">/api/assistant/chat</span></div>
         <div class="lab">Response · 500 · უფასო key, ერთ წუთში მე-16 შეკითხვა</div>
         <pre class="rb"><span class="e">Google.GenAI.ClientError:</span>
   <span class="k">"code"</span>: <span class="n">429</span>,
@@ -217,7 +217,7 @@ builder.Services.AddChatClient(sp =>
   <div class="kicker">🧪 ვამოწმებთ · ხელოვნური 503</div>
   <h2>ორი <span class="c-red">503</span> — მომხმარებელი <span class="c-mvc">ვერ ამჩნევს</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:22px;align-items:start">
-    <code-block id="c2" lang="csharp" cls="sm" title="Ai/ChaosHandler.cs · მხოლოდ ცდისთვის">
+    <code-block id="c2" lang="csharp" cls="sm" title="Ai/Diagnostics/ChaosHandler.cs · მხოლოდ ცდისთვის">
 public class ChaosHandler : DelegatingHandler
 {
     private int _count;
@@ -239,7 +239,7 @@ public class ChaosHandler : DelegatingHandler
 // .AddHttpMessageHandler<ChaosHandler>();   // inside
     </code-block>
     <div class="col" style="gap:12px">
-      <div class="con step"><span class="d">info:</span> POST /api/ai-lab/chat
+      <div class="con step"><span class="d">info:</span> POST /api/assistant/chat
 <span class="y">warn:</span> Polly · Standard-Retry · Result: <span class="r">503</span> · Attempt: 0
 <span class="d">      ⏳ ~2s</span>
 <span class="y">warn:</span> Polly · Standard-Retry · Result: <span class="r">503</span> · Attempt: 1
@@ -277,7 +277,7 @@ public class ChaosHandler : DelegatingHandler
   <div class="kicker">🧑‍💻 ვწერთ · სარეზერვო მოდელი</div>
   <h2><span class="mono c-api">FallbackChatClient</span>: არ გამოვიდა → <span class="c-mvc">სხვა მოდელი</span></h2>
   <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:22px">
-    <code-block id="c3" lang="csharp" cls="sm" title="Ai/FallbackChatClient.cs">
+    <code-block id="c3" lang="csharp" cls="sm" title="Ai/Middleware/FallbackChatClient.cs">
 public class FallbackChatClient : DelegatingChatClient
 {
     private readonly IChatClient _fallback;
@@ -330,9 +330,9 @@ public class FallbackChatClient : DelegatingChatClient
 
 <section class="slide" data-section="3 · fallback და ხარჯი">
   <div class="kicker">🧑‍💻 ვწერთ · ტოკენები ბაზაში</div>
-  <h2>TokenCounter ლოგის ნაცვლად — <span class="c-asp">ბაზაში</span> წერს</h2>
+  <h2>UsageTracking ლოგის ნაცვლად — <span class="c-asp">ბაზაში</span> წერს</h2>
   <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:22px">
-    <code-block id="c4" lang="csharp" cls="sm" title="Ai/TokenCounterChatClient.cs · GetResponseAsync">
+    <code-block id="c4" lang="csharp" cls="sm" title="Ai/Middleware/UsageTrackingChatClient.cs · GetResponseAsync">
 ChatResponse response =
     await base.GetResponseAsync(messages, options, cancellationToken);
 
@@ -340,7 +340,7 @@ ChatResponse response =
 using IServiceScope scope = _scopes.CreateScope();
 DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-db.AiUsage.Add(new AiUsageRecord
+db.AiUsage.Add(new AiUsage
 {
     Id = Guid.NewGuid(),
     At = DateTime.UtcNow,
@@ -360,7 +360,7 @@ return response;
 SELECT "Model",
        SUM("InputTokens")  AS input,
        SUM("OutputTokens") AS output
-FROM "AiUsage"
+FROM "AiUsages"
 WHERE "At" >= CURRENT_DATE
 GROUP BY "Model";
       </code-block>

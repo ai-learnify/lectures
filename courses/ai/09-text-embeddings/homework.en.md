@@ -5,9 +5,9 @@ With code · your project · a comparison table in the README
 ## Requirements
 
 - **`IEmbeddingGenerator`** in your project: `gemini-embedding-2`, 768 dimensions, the model in `appsettings.json`
-- **`EmbeddingText`** — the `Query` and `Document` prefixes; every document in one format, every question in the other
-- **The index:** `POST .../index` — your main records (dishes, books, courses…) with `GenerateAsync` in **one** call, the vectors in a Singleton; if a record has no description — add one
-- **The search:** `GET .../search?q=` — top 3 with scores, **with a threshold**: if the best score is below the threshold (the threshold in `appsettings.json`), return an empty list. Choose the threshold through your own tests
+- **`EmbeddingInput`** — the `Query` and `Document` prefixes; every document in one format, every question in the other
+- **The index:** `POST .../embeddings` — your main records (dishes, books, courses…) with `GenerateAsync` in **one** call, the vectors in memory for now (a `static` list); if a record has no description — add one
+- **The search:** `GET .../search?query=` — top 3 with scores, **with a threshold**: if the best score is below the threshold (the threshold in `appsettings.json`), return an empty list. Choose the threshold through your own tests
 - **README — a comparison table:** 5 questions (one in English, one about something that isn't in your data at all). Columns: question · the `LIKE` result · the embeddings top 3 with scores · correct?
 - The study notes **quiz** (8 questions) — write down your score
 
@@ -23,7 +23,7 @@ A question asked with a “synonym” or in English finds the right record where
 
 ## 💡 Details
 
-- The index disappears on restart — that's fine until lecture 10. Call `/index` once after starting
+- The index disappears on restart — that's fine until lecture 10. Call `/embeddings` once after starting
 - To choose the threshold, first look at the scores on right and wrong results: where's the “border”? The threshold depends on the model
 - `GenerateAsync` on many texts: up to 100 records in one call. If you have more — `Chunk(100)`
 - `TensorPrimitives.CosineSimilarity` — `System.Numerics.Tensors`
@@ -32,38 +32,41 @@ A question asked with a “synonym” or in English finds the right record where
 
 A sample — the library API (continuing homework 8).
 
-```csharp Controllers/AiLabController.cs · SearchBooks!
-[HttpGet("books/search")]
-public async Task<IActionResult> SearchBooks(string q, CancellationToken ct)
+```csharp Controllers/BooksController.cs · Search!
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, CancellationToken ct)
 {
     float minScore = _config.GetValue<float>("Search:MinScore");   // 0.55
 
-    ReadOnlyMemory<float> query = await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct);
+    ReadOnlyMemory<float> queryVector = await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct);
 
-    var top = _books.Items
-        .Select(b => new { b.Title, Score = TensorPrimitives.CosineSimilarity(query.Span, b.Vector.Span) })
-        .Where(x => x.Score >= minScore)
-        .OrderByDescending(x => x.Score)
-        .Take(3);
+    List<BookMatch> top = _vectors
+        .Select(v => new BookMatch(v.Title,
+            TensorPrimitives.CosineSimilarity(queryVector.Span, v.Vector.Span)))
+        .Where(m => m.Score >= minScore)
+        .OrderByDescending(m => m.Score)
+        .Take(3)
+        .ToList();
 
     return Ok(top);
 }
 ```
 
-```csharp Controllers/AiLabController.cs · IndexBooks
-[HttpPost("books/index")]
-public async Task<IActionResult> IndexBooks(CancellationToken ct)
+```csharp Controllers/BooksController.cs · GenerateEmbeddings
+private static List<(string Title, ReadOnlyMemory<float> Vector)> _vectors = [];
+
+[HttpPost("embeddings")]
+public async Task<IActionResult> GenerateEmbeddings(CancellationToken ct)
 {
     List<Book> books = await _db.Books.ToListAsync(ct);
-    var vectors = await _embeddings.GenerateAsync(
-        books.Select(b => EmbeddingText.Document(b.Title, $"{b.Author}. {b.Description}")),
+
+    GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+        books.Select(b => EmbeddingInput.Document(b.Title, $"{b.Author}. {b.Description}")),
         cancellationToken: ct);
 
-    _books.Items.Clear();
-    for (int i = 0; i < books.Count; i++)
-        _books.Items.Add((books[i].Title, vectors[i].Vector));
-    return Ok(new { Indexed = books.Count });
+    _vectors = books.Select((b, i) => (b.Title, vectors[i].Vector)).ToList();
+    return Ok(new EmbeddingsResult(books.Count));
 }
 ```
 

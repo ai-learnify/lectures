@@ -3,23 +3,58 @@
   "why": "“How do I cancel a booking?”, “I'm allergic to nuts” — the answer isn't in the menu but in the restaurant's PDFs, and the model doesn't know it. Putting the whole document into the context is expensive, fine-tuning is expensive and has no sources. RAG is exactly for this kind of task: the chatbots of banks, clinics and public services, internal knowledge assistants — they all work this way. Today we build our first complete RAG: PDF → parts → search → an answer with a source.",
   "outcomes": [
     "You'll explain RAG's two pipelines (ingestion and query) and why it beats the whole document in the context and fine-tuning",
-    "You'll extract text from a PDF page by page (PdfPig), cut it into parts with an overlap, and store the parts with vectors in a `DocumentChunk` table",
+    "You'll extract text from a PDF page by page (PdfPig), cut it into parts with an overlap, and store the parts with vectors in a `Chunk` table",
     "You'll find the parts relevant to a question with a threshold and put them into the prompt as numbered sources",
     "You'll plug RAG into lecture 7's chat: an answer with the source number, “I don't have information”, the original question in the history"
   ],
   "review": [
-    {"q": "Why don't we put the whole PDF into the context, and why don't we train the model (fine-tuning)?", "a": "The whole PDF — thousands of tokens on every question, slow, a large document doesn't fit, “lost in the middle” · fine-tuning — expensive, again on every change, it memorizes facts badly and can't name the source"},
-    {"q": "What are RAG's two pipelines, and when does each one run?", "a": "ingestion — once, on upload: PDF → text → parts → vectors → database · query — on every question: vector → top 5 → prompt → an answer with a source"},
-    {"q": "Why do we cut a document into parts, and what do we need the overlap for?", "a": "The vector of a whole document is the “average” of everything — blurry; a part = one idea, a precise vector and a cheap context · the overlap — the last sentence in the next part too, so an idea isn't cut at the boundary"},
-    {"q": "Why do we need a threshold in RAG's search?", "a": "A search always finds something · without a threshold, for “a borscht recipe” the model would get 5 meaningless parts and might make something up · with a threshold — 0 parts and “I don't have information”"},
-    {"q": "Why do we store the original question in the chat history and not the message with the sources (augmented)?", "a": "The sources are only for this request — others will be found next time · storing them in the history would inflate every message with 5 parts (the budget, lecture 7)"}
+    {
+      "q": "Why don't we put the whole PDF into the context, and why don't we train the model (fine-tuning)?",
+      "a": "The whole PDF — thousands of tokens on every question, slow, a large document doesn't fit, “lost in the middle” · fine-tuning — expensive, again on every change, it memorizes facts badly and can't name the source"
+    },
+    {
+      "q": "What are RAG's two pipelines, and when does each one run?",
+      "a": "ingestion — once, on upload: PDF → text → parts → vectors → database · query — on every question: vector → top 5 → prompt → an answer with a source"
+    },
+    {
+      "q": "Why do we cut a document into parts, and what do we need the overlap for?",
+      "a": "The vector of a whole document is the “average” of everything — blurry; a part = one idea, a precise vector and a cheap context · the overlap — the last sentence in the next part too, so an idea isn't cut at the boundary"
+    },
+    {
+      "q": "Why do we need a threshold in RAG's search?",
+      "a": "A search always finds something · without a threshold, for “a borscht recipe” the model would get 5 meaningless parts and might make something up · with a threshold — 0 parts and “I don't have information”"
+    },
+    {
+      "q": "Why do we store the original question in the chat history and not the message with the sources (augmented)?",
+      "a": "The sources are only for this request — others will be found next time · storing them in the history would inflate every message with 5 parts (the budget, lecture 7)"
+    }
   ],
   "resources": [
-    {"title": "RAG in .NET — Microsoft Learn", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/rag", "note": "the concept and architecture of RAG"},
-    {"title": "PdfPig", "url": "https://github.com/UglyToad/PdfPig", "note": "extracting text from a PDF in .NET, ContentOrderTextExtractor"},
-    {"title": "Data ingestion in .NET", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/data-ingestion", "note": "Microsoft.Extensions.DataIngestion (preview) — where the ecosystem is heading"},
-    {"title": "Gemini — Embeddings", "url": "https://ai.google.dev/gemini-api/docs/embeddings", "note": "the input limit, task prefixes"},
-    {"title": "pgvector-dotnet", "url": "https://github.com/pgvector/pgvector-dotnet", "note": "CosineDistance, the index — from lecture 10"}
+    {
+      "title": "RAG in .NET — Microsoft Learn",
+      "url": "https://learn.microsoft.com/dotnet/ai/conceptual/rag",
+      "note": "the concept and architecture of RAG"
+    },
+    {
+      "title": "PdfPig",
+      "url": "https://github.com/UglyToad/PdfPig",
+      "note": "extracting text from a PDF in .NET, ContentOrderTextExtractor"
+    },
+    {
+      "title": "Data ingestion in .NET",
+      "url": "https://learn.microsoft.com/dotnet/ai/conceptual/data-ingestion",
+      "note": "Microsoft.Extensions.DataIngestion (preview) — where the ecosystem is heading"
+    },
+    {
+      "title": "Gemini — Embeddings",
+      "url": "https://ai.google.dev/gemini-api/docs/embeddings",
+      "note": "the input limit, task prefixes"
+    },
+    {
+      "title": "pgvector-dotnet",
+      "url": "https://github.com/pgvector/pgvector-dotnet",
+      "note": "CosineDistance, the index — from lecture 10"
+    }
   ],
   "quiz": [
     {

@@ -4,8 +4,8 @@
 
 ## მოთხოვნები
 
-- **Ingestion:** `Document` + `DocumentChunk` (`vector(768)`, `Page`, HNSW ინდექსი), `POST .../documents` — PdfPig, `TextChunker` (800 / overlap 1), `Chunk(100)`
-- **Query:** `SearchChunksAsync` (top 5, ზღვარი `appsettings.json`-ში), `BuildContext` — `[N] (file, p. P)`
+- **Ingestion:** `Document` + `Chunk` (`vector(768)`, `Page`, HNSW ინდექსი), `POST .../documents` — PdfPig, `TextChunker` (800 / overlap 1), `Chunk(100)`
+- **Query:** `DocumentSearch.SearchAsync` (top 5, ზღვარი `appsettings.json`-ში), `FormatContext` — `[N] (file, p. P)`
 - **ჩატში:** შენი ლექცია 7-ის `/chat` — augmented შეტყობინება, ისტორიაში ორიგინალი შეკითხვა, response-ში `sources`; system prompt-ში წესები: მხოლოდ წყაროებიდან, ნომრით, ზუსტი ფრაზა "I don't have information on this"
 - **README — ტესტის ცხრილი:** 8 შეკითხვა შენს PDF-ზე (2 — რაც PDF-ში არ არის, 1 — ორ სხვადასხვა გვერდზე პასუხით, 1 — ზუსტი რიცხვით/სახელით). სვეტები: შეკითხვა · სწორი გვერდი · ნაპოვნი წყაროები · პასუხი სწორია? · წყარო სწორია?
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
@@ -24,30 +24,32 @@
 
 - ეს ცხრილი ლექცია 12-ის **golden set**-ის საფუძველია — შეინახე
 - ზღვარი ცდებით: score-ები სწორ და „არარსებულ“ შეკითხვებზე — სად გადის საზღვარი?
-- ნაწილების სანახავად: `SELECT "Page", left("Content", 80) FROM "DocumentChunks" ORDER BY "Id";`
+- ნაწილების სანახავად: `SELECT "Page", left("Content", 80) FROM "Chunks" ORDER BY "Id";`
 - `Sources`-ში მხოლოდ ის წყაროები დატოვე, რომელთა ნომერი პასუხში ჩანს: `response.Text.Contains($"[{n}]")`
 
 ## ამოხსნა
 
 ნიმუში — ბიბლიოთეკის API (წესები: წიგნის გატანა, ჯარიმები, დარბაზები).
 
-```csharp Controllers/AiLabController.cs · Chat (RAG)!
-List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);
-ChatMessage question = new(ChatRole.User, request.Prompt);
+```csharp Controllers/AssistantController.cs · Chat (RAG)!
+List<ChunkMatch> sources = await _documents.SearchAsync(request.Message, ct);
+ChatMessage question = new(ChatRole.User, request.Message);
 ChatMessage augmented = new(ChatRole.User, $"""
     Sources:
-    {BuildContext(sources)}
+    {DocumentSearch.FormatContext(sources)}
 
-    Question: {request.Prompt}
+    Question: {request.Message}
     """);
 
 List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
-ChatResponse response = await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);
+ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions(), ct);
 await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
 
-var cited = sources.Select((s, i) => new { N = i + 1, s.File, s.Page })
-    .Where(s => response.Text.Contains($"[{s.N}]"));
-return Ok(new { conversationId, response.Text, Sources = cited });
+List<ChatSource> cited = sources
+    .Select((s, i) => new ChatSource(i + 1, s.File, s.Page))
+    .Where(s => response.Text.Contains($"[{s.Number}]"))
+    .ToList();
+return Ok(new ChatReply(conversationId, response.Text, cited));
 ```
 
 ```text System prompt · წესები

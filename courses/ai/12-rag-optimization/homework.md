@@ -4,8 +4,8 @@
 
 ## მოთხოვნები
 
-- **golden set** — 10 შეკითხვა (2 ზუსტი სიტყვით/კოდით/რიცხვით, 2 სინონიმით, 1 ორ ადგილას პასუხით); `/rag/eval` — `HitAt3`, `Mrr`, `Misses`
-- **hybrid search** — `tsvector` generated column (`'english'`) + GIN ინდექსი, `OrQuery`, ვექტორი + full-text → RRF → top 5; `/chat` და `/rag/eval` hybrid-ს იყენებს
+- **golden set** — 10 შეკითხვა (2 ზუსტი სიტყვით/კოდით/რიცხვით, 2 სინონიმით, 1 ორ ადგილას პასუხით); `/evaluation/retrieval` — `HitAt3`, `Mrr`, `Misses`
+- **hybrid search** — `tsvector` generated column (`'english'`) + GIN ინდექსი, `OrQuery`, ვექტორი + full-text → RRF → top 5; `/chat` და `/evaluation/retrieval` hybrid-ს იყენებს
 - **metadata filtering** — `Document`-ს ერთი metadata ველი (კატეგორია, ენა, ფილიალი…), ატვირთვისას ივსება; ძებნას ფილტრის პარამეტრი, ფილტრი — SQL-ში
 - **ერთი chunking-ის ექსპერიმენტი** — ზომა (მაგ. 400 ან 1500) **ან** სათაური prefix-ში; თავიდან ატვირთვა და გაზომვა
 - **groundedness** — 3 პასუხზე `GroundednessEvaluator`: ციფრი და `Reason`
@@ -20,12 +20,12 @@
 
 - **LLM-rerank:** hybrid-ის 20 კანდიდატი → Gemini (`GetResponseAsync<RankResult>`) → 5. hit@3 და დრო — ღირს?
 - **pg_trgm:** `CREATE EXTENSION pg_trgm` და `similarity()` — ბეჭდვის შეცდომებზე ("cancelation" / "cancellation") უშველა?
-- **eval ტესტად:** xUnit ტესტი, რომელიც `/rag/eval`-ს უშვებს და ჩავარდება, თუ `HitAt3 < 0.8` (ლექცია 22-ის წინასწარი ვერსია)
+- **eval ტესტად:** xUnit ტესტი, რომელიც `/evaluation/retrieval`-ს უშვებს და ჩავარდება, თუ `HitAt3 < 0.8` (ლექცია 22-ის წინასწარი ვერსია)
 
 ## 💡 დეტალები
 
 - chunking-ის ექსპერიმენტამდე **ძველი ნაწილები წაშალე** (ან ახალი ბაზა), თორემ ორივე ვერსია ერთად იძებნება
-- სათაური prefix-ში: `EmbeddingText.Document(sectionTitle, chunk)` — Word/Markdown-ში სათაურები მზაა; PDF-ში — ხაზი, რომელიც მოკლეა და წერტილით არ მთავრდება (მარტივი ევრისტიკა)
+- სათაური prefix-ში: `EmbeddingInput.Document(sectionTitle, chunk)` — Word/Markdown-ში სათაურები მზაა; PDF-ში — ხაზი, რომელიც მოკლეა და წერტილით არ მთავრდება (მარტივი ევრისტიკა)
 - `GroundednessEvaluator` — NuGet `Microsoft.Extensions.AI.Evaluation.Quality`; მსაჯად ცალკე `IChatClient` (tool-ების გარეშე)
 - ცარიელი `OrQuery` (შეკითხვა მხოლოდ სიმბოლოებით) — full-text გამოტოვე
 
@@ -33,15 +33,15 @@
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 11-ის გაგრძელება), 10 შეკითხვა.
 
-```csharp Controllers/AiLabController.cs · HybridSearchAsync (ფილტრით)!
-IQueryable<DocumentChunk> chunks = _db.DocumentChunks;
+```csharp Ai/Documents/DocumentSearch.cs · SearchAsync (ფილტრით)!
+IQueryable<Chunk> chunks = _db.Chunks;
 if (category is not null)
     chunks = chunks.Where(c => c.Document.Category == category);
-var words = EF.Functions.ToTsQuery("english", OrQuery(q));
+var words = EF.Functions.ToTsQuery("english", OrQuery(query));
 
 List<int> byMeaning = await chunks
-    .Where(c => 1 - c.Embedding!.CosineDistance(query) >= minScore)
-    .OrderBy(c => c.Embedding!.CosineDistance(query))
+    .Where(c => 1 - c.Embedding!.CosineDistance(queryVector) >= _minScore)
+    .OrderBy(c => c.Embedding!.CosineDistance(queryVector))
     .Select(c => c.Id).Take(20).ToListAsync(ct);
 
 List<int> byWords = await chunks

@@ -8,18 +8,53 @@
     "ახსნი, რატომ იზრდება ტოკენები ყოველ შეკითხვაზე, და `MessageCountingChatReducer`-ით კონტექსტში მხოლოდ ბოლო N შეტყობინებას გაგზავნი"
   ],
   "review": [
-    {"q": "მოდელს წინა შეკითხვა რატომ არ ახსოვს და როგორ „ვახსენებთ“?", "a": "მოდელი stateless-ია: მხოლოდ ამ მოთხოვნას ხედავს · ისტორიას ყოველ მოთხოვნაში ჩვენ ვუგზავნით — მეხსიერება ჩვენს კოდშია, არა მოდელში"},
-    {"q": "რა შედის კონტექსტში და რომელი ნაწილი იზრდება ყველაზე სწრაფად?", "a": "System + tool-ების აღწერები + ისტორია + tool-ების შედეგები + ახალი შეკითხვა · ხშირად tool-ების შედეგები (მაგ. მთელი მენიუ), რომლებიც ისტორიაში რჩება"},
-    {"q": "რატომ ვინახავთ მთელ `ChatMessage`-ს jsonb-ში და არა Text სვეტს?", "a": "`Contents` სხვადასხვა ტიპისაა: ტექსტი, functionCall, functionResult, ფიქრის ხელმოწერა · `AIJsonUtilities.DefaultOptions` `$type`-ით ინახავს · jsonb key-ებს ალაგებს → `AllowOutOfOrderMetadataProperties`"},
-    {"q": "რატომ არ ვინახავთ System prompt-ს ბაზაში?", "a": "ის ჩვენია, არა საუბრის ნაწილი: შიგ დღევანდელი თარიღია და წესები შეიძლება შეიცვალოს · ყოველ მოთხოვნაზე ახლიდან ვაწყობთ და სიის თავში ვსვამთ"},
-    {"q": "რას აკეთებს `MessageCountingChatReducer(10)` და რა რჩება ბაზაში?", "a": "კონტექსტში ბოლო 10 შეტყობინებას ტოვებს და tool-ის შეტყობინებებს ამოყრის · ბაზაში ყველაფერი რჩება · ფასს მოდელი tool-ით თავიდან იღებს"}
+    {
+      "q": "მოდელს წინა შეკითხვა რატომ არ ახსოვს და როგორ „ვახსენებთ“?",
+      "a": "მოდელი stateless-ია: მხოლოდ ამ მოთხოვნას ხედავს · ისტორიას ყოველ მოთხოვნაში ჩვენ ვუგზავნით — მეხსიერება ჩვენს კოდშია, არა მოდელში"
+    },
+    {
+      "q": "რა შედის კონტექსტში და რომელი ნაწილი იზრდება ყველაზე სწრაფად?",
+      "a": "System + tool-ების აღწერები + ისტორია + tool-ების შედეგები + ახალი შეკითხვა · ხშირად tool-ების შედეგები (მაგ. მთელი მენიუ), რომლებიც ისტორიაში რჩება"
+    },
+    {
+      "q": "რატომ ვინახავთ მთელ `ChatMessage`-ს jsonb-ში და არა Text სვეტს?",
+      "a": "`Contents` სხვადასხვა ტიპისაა: ტექსტი, functionCall, functionResult, ფიქრის ხელმოწერა · `AIJsonUtilities.DefaultOptions` `$type`-ით ინახავს · jsonb key-ებს ალაგებს → `AllowOutOfOrderMetadataProperties`"
+    },
+    {
+      "q": "რატომ არ ვინახავთ System prompt-ს ბაზაში?",
+      "a": "ის ჩვენია, არა საუბრის ნაწილი: შიგ დღევანდელი თარიღია და წესები შეიძლება შეიცვალოს · ყოველ მოთხოვნაზე ახლიდან ვაწყობთ და სიის თავში ვსვამთ"
+    },
+    {
+      "q": "რას აკეთებს `MessageCountingChatReducer(10)` და რა რჩება ბაზაში?",
+      "a": "კონტექსტში ბოლო 10 შეტყობინებას ტოვებს და tool-ის შეტყობინებებს ამოყრის · ბაზაში ყველაფერი რჩება · ფასს მოდელი tool-ით თავიდან იღებს"
+    }
   ],
   "resources": [
-    {"title": "Microsoft.Extensions.AI — stateless vs stateful, chat reducers", "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai", "note": "ისტორია ჩვენს კოდში; MessageCountingChatReducer და SummarizingChatReducer"},
-    {"title": "MessageCountingChatReducer", "url": "https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.messagecountingchatreducer", "note": "ბოლო N შეტყობინება; tool-ის შეტყობინებები არ შედის"},
-    {"title": "Npgsql EF Core — JSON mapping", "url": "https://www.npgsql.org/efcore/mapping/json.html", "note": "jsonb სვეტი EF Core-ში"},
-    {"title": "System.Text.Json — polymorphism", "url": "https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/polymorphism", "note": "$type და AllowOutOfOrderMetadataProperties"},
-    {"title": "Anthropic — Effective context engineering for AI agents", "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents", "note": "context engineering აგენტებისთვის — წასაკითხი სტატია"}
+    {
+      "title": "Microsoft.Extensions.AI — stateless vs stateful, chat reducers",
+      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
+      "note": "ისტორია ჩვენს კოდში; MessageCountingChatReducer და SummarizingChatReducer"
+    },
+    {
+      "title": "MessageCountingChatReducer",
+      "url": "https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.messagecountingchatreducer",
+      "note": "ბოლო N შეტყობინება; tool-ის შეტყობინებები არ შედის"
+    },
+    {
+      "title": "Npgsql EF Core — JSON mapping",
+      "url": "https://www.npgsql.org/efcore/mapping/json.html",
+      "note": "jsonb სვეტი EF Core-ში"
+    },
+    {
+      "title": "System.Text.Json — polymorphism",
+      "url": "https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/polymorphism",
+      "note": "$type და AllowOutOfOrderMetadataProperties"
+    },
+    {
+      "title": "Anthropic — Effective context engineering for AI agents",
+      "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "note": "context engineering აგენტებისთვის — წასაკითხი სტატია"
+    }
   ],
   "quiz": [
     {

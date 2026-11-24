@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-`/embed`-ს და `/menu/search`-ს კლასთან ერთად წერ, `IndexMenu`-ს და `EmbeddingText`-ს მზას ჩასვამ. სრული კოდი 💻 ღილაკზეა.
+`/embed`-ს და `/menu/search`-ს კლასთან ერთად წერ, `GenerateEmbeddings`-ს და `EmbeddingInput`-ს მზას ჩასვამ. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -14,7 +14,7 @@
 
 ### ✅ მომზადება
 
-- RestaurantApi-ში წინასწარ: `Gemini:EmbeddingModel`, `AddEmbeddingGenerator`, `EmbeddingText`, `MenuIndex` (Singleton), `/embed`, `/menu/index`, `/menu/search`, NuGet `System.Numerics.Tensors`
+- RestaurantApi-ში წინასწარ: `Gemini:EmbeddingModel`, `AddEmbeddingGenerator`, `EmbeddingInput`, `MenuController` (`static` სია), `/embed`, `/similarity`, `/menu/embeddings`, `/menu/search`, NuGet `System.Numerics.Tensors`
 - შეამოწმე, რომ `Product`-ს აქვს `Description` და მენიუში 10–20 კერძია რეალური აღწერებით (ხორციანიც და ხორცის გარეშეც). აღწერის გარეშე ძებნა სუსტია
 - გაუშვი `/menu/search` სლაიდის შეკითხვებით ("without meat", „vegetarian“, „რამე ტკბილი“) და ჩაიწერე score-ები
 - შეამოწმე, რომ `gemini-embedding-2` შენი key-ით მუშაობს
@@ -51,7 +51,7 @@
 ## 3 · ვექტორი კოდში · 12 წთ · 10–12
 
 - (11) **ერთად წერთ:** `AddEmbeddingGenerator` (ლექცია 3-ის `AddChatClient`-ის ტყუპისცალი), constructor-ში `IEmbeddingGenerator<string, Embedding<float>>`, `/embed`. Swagger: 768 და პირველი 5 რიცხვი
-- (12) prefix: შეკითხვა და დოკუმენტი ორი ფორმატით. `EmbeddingText` **ჩასვი**
+- (12) prefix: შეკითხვა და დოკუმენტი ორი ფორმატით. `EmbeddingInput` **ჩასვი**
 - ⚠️ prefix-ის წესი ყველგან ერთნაირი უნდა იყოს
 
 ### 🙋 ჰკითხე
@@ -69,7 +69,7 @@
 
 - (15) კუთხე: სამი ისარი, „ერთი მიმართულება = მსგავსი“. loop 1 წუთი („ესაა ფორმულა“), მერე `TensorPrimitives`-ით ერთი ხაზი
 - ⚠️ score-ებს ვადარებთ, ცალკე არ ვაფასებთ
-- (16) **ერთად წერთ** `/menu/search`. `IndexMenu` **ჩასვი** და ახსენი (ერთხელ, `GenerateAsync`, `Document`)
+- (16) **ერთად წერთ** `/menu/search`. `GenerateEmbeddings` **ჩასვი** და ახსენი (ერთხელ, `GenerateAsync`, `Document`)
 - ცოცხლად: index → search "without meat" → top 3. მერე „vegetarian“, და შედეგი იგივეა
 
 ### 🙋 ჰკითხე
@@ -107,7 +107,6 @@
 
 მხოლოდ ლექციის ბოლოს. აირჩიე 1–3.
 
-- **🔧 `search_menu` tool ჩატში · 10 წთ:** `SearchMenu(query)` tool-ად, ჩატში „რამე მსუბუქი ხორცის გარეშე?“ მთელი მენიუს ნაცვლად მხოლოდ 3 კერძი მიდის. ეს RAG-ის წინასწარი ნახვაა
 - **🌍 ენების თამაში · 5 წთ:** "booking a table" ↔ „book a table“ ↔ „забронировать столик“ ↔ „réserver une table“. ყველა მაღალია, ერთი რუკა ყველა ენისთვის
 - **🎯 ზღვრის ძებნა · 6 წთ:** 5 შეკითხვა, რომელიც მენიუშია, და 5, რომელიც არ არის („სუში“). დაფაზე საუკეთესო score-ები. სად გადის საზღვარი?
 - **📏 768 vs 3072 · 5 წთ:** `defaultModelDimensions: 3072` და იგივე შეკითხვები. top 3 ხშირად არ იცვლება, ვექტორი კი 4-ჯერ დიდია

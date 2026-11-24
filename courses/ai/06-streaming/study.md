@@ -27,9 +27,9 @@ await foreach (ChatResponseUpdate update in _chat.GetStreamingResponseAsync(mess
 
 `IAsyncEnumerable<T>` `IEnumerable<T>`-ის ასინქრონული ვერსიაა: `await foreach` ყოველ შემდეგ ნაწილს ელოდება. ვზომავთ, როდის მოდის თითო ნაწილი:
 
-```csharp Controllers/AiLabController.cs · ChatChunks
-[HttpPost("chat/chunks")]
-public async Task<IActionResult> ChatChunks(AskRequest request)
+```csharp Controllers/AiDiagnosticsController.cs · StreamTiming
+[HttpPost("stream-timing")]
+public async Task<IActionResult> StreamTiming(PromptRequest request)
 {
     Stopwatch sw = Stopwatch.StartNew();
     List<object> chunks = [];
@@ -75,10 +75,10 @@ data:  two tables are free
 
 AI-ის პასუხი ცალმხრივია (სერვერი → კლიენტი), ამიტომ SSE საკმარისია და WebSocket/SignalR არ გვჭირდება.
 
-`ChatToolOptions()` ლექცია 4-ის tool-ებია ცალკე მეთოდში, რომ `/chat`-მაც და `/chat/stream`-მაც იგივე გამოიყენონ:
+`CreateChatOptions()` ლექცია 4-იდან ცალკე მეთოდია, ამიტომ `chat`-იც და `chat/stream`-იც ერთსა და იმავე tool-ებს იყენებს:
 
-```csharp Controllers/AiLabController.cs
-private ChatOptions ChatToolOptions() => new()
+```csharp Controllers/AssistantController.cs
+private ChatOptions CreateChatOptions() => new()
 {
     Tools =
     [
@@ -90,28 +90,20 @@ private ChatOptions ChatToolOptions() => new()
 
 endpoint: iterator `yield return`-ით, და `TypedResults.ServerSentEvents` ყოველ ნაწილს მაშინვე აგზავნის:
 
-```csharp Controllers/AiLabController.cs · ChatStream
+```csharp Controllers/AssistantController.cs · ChatStream
 [HttpGet("chat/stream")]
-public IResult ChatStream(string prompt, CancellationToken cancellationToken)
+public IResult ChatStream(string message, CancellationToken cancellationToken)
 {
-    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+    return TypedResults.ServerSentEvents(StreamAnswer(message, cancellationToken));
 }
 
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)
 {
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, $"""
-            You are a restaurant assistant. Answer briefly.
-            Take menu and table data only from the tools.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            """),
-        new(ChatRole.User, prompt)
-    ];
+    List<ChatMessage> messages = [SystemPrompt(), new(ChatRole.User, message)];
 
     await foreach (ChatResponseUpdate update in
-        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))
+        _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))
     {
         if (!string.IsNullOrEmpty(update.Text))
             yield return update.Text;
@@ -122,7 +114,7 @@ private async IAsyncEnumerable<string> StreamAnswer(string prompt,
 შემოწმება ტერმინალიდან (`-N` = არ დაელოდო ბოლომდე):
 
 ```bash
-curl -N "http://localhost:5080/api/ai-lab/chat/stream?prompt=What%20do%20you%20have%20under%2015%20GEL%3F"
+curl -N "http://localhost:5080/api/assistant/chat/stream?message=What%20do%20you%20have%20under%2015%20GEL%3F"
 ```
 
 ```warn
@@ -144,17 +136,17 @@ Server-Sent Events (SSE) — HTTP პასუხი text/event-stream ტიპ
 
 ```csharp
 [HttpGet("chat/stream")]
-public IResult ChatStream(string prompt, CancellationToken cancellationToken)   // ①
+public IResult ChatStream(string message, CancellationToken cancellationToken)   // ①
 {
-    return TypedResults.ServerSentEvents(StreamAnswer(prompt, cancellationToken));
+    return TypedResults.ServerSentEvents(StreamAnswer(message, cancellationToken));
 }
 
-private async IAsyncEnumerable<string> StreamAnswer(string prompt,
+private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)               // ②
 {
     // ...
     await foreach (ChatResponseUpdate update in
-        _chat.GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken))   // ③
+        _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))   // ③
     // ...
 }
 ```

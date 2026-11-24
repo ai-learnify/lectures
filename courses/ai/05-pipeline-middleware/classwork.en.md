@@ -27,4 +27,4 @@ The console shows the Gemini requests and your layer's line; in the “stops” 
 - **Nothing in the console?** Check the level in `appsettings.Development.json` and the launch profile (Development)
 - **Can't find `DelegatingChatClient`?** `using Microsoft.Extensions.AI;`
 - **Need an ILogger in the layer?** `.Use((inner, sp) => new MyChatClient(inner, sp.GetRequiredService<ILogger<MyChatClient>>()))`
-- **`/parse-booking` throws when stopped?** The stop text isn't JSON — use `TryGetResult` on a structured endpoint (lecture 3)
+- **`/bookings/parse` throws when stopped?** The stop text isn't JSON — use `TryGetResult` on a structured endpoint (lecture 3)

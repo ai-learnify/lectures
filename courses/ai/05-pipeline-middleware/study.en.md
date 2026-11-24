@@ -95,15 +95,15 @@ A cache is dangerous where the answer changes. With a cached answer to "Do you h
 
 **A layer that watches.** We derive from `DelegatingChatClient` and override `GetResponseAsync`: before `base` is the request, after `base` the response.
 
-```csharp Ai/TokenCounterChatClient.cs
+```csharp Ai/Middleware/UsageTrackingChatClient.cs
 using Microsoft.Extensions.AI;
 
-public class TokenCounterChatClient : DelegatingChatClient
+public class UsageTrackingChatClient : DelegatingChatClient
 {
-    private readonly ILogger<TokenCounterChatClient> _logger;
+    private readonly ILogger<UsageTrackingChatClient> _logger;
 
-    public TokenCounterChatClient(IChatClient inner,
-        ILogger<TokenCounterChatClient> logger) : base(inner)
+    public UsageTrackingChatClient(IChatClient inner,
+        ILogger<UsageTrackingChatClient> logger) : base(inner)
     {
         _logger = logger;
     }
@@ -134,8 +134,8 @@ Registration with `.Use(...)`:
 builder.Services.AddChatClient(
         new Client(apiKey: apiKey).AsIChatClient(model))
     .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(
-        inner, sp.GetRequiredService<ILogger<TokenCounterChatClient>>()))
+    .Use((inner, sp) => new UsageTrackingChatClient(
+        inner, sp.GetRequiredService<ILogger<UsageTrackingChatClient>>()))
     .UseLogging();
 ```
 
@@ -143,7 +143,7 @@ builder.Services.AddChatClient(
 
 **A layer that stops.** If we do not call `base`, the request never reaches Gemini:
 
-```csharp Ai/InputGuardChatClient.cs
+```csharp Ai/Middleware/InputGuardChatClient.cs
 public class InputGuardChatClient : DelegatingChatClient
 {
     private const int MaxLength = 1000;
@@ -174,8 +174,8 @@ builder.Services.AddChatClient(
         new Client(apiKey: apiKey).AsIChatClient(model))
     .Use(inner => new InputGuardChatClient(inner))          // 1 — stops earliest
     .UseFunctionInvocation()                                // 2 — the tool loop
-    .Use((inner, sp) => new TokenCounterChatClient(         // 3 — every Gemini request
-        inner, sp.GetRequiredService<ILogger<TokenCounterChatClient>>()))
+    .Use((inner, sp) => new UsageTrackingChatClient(         // 3 — every Gemini request
+        inner, sp.GetRequiredService<ILogger<UsageTrackingChatClient>>()))
     .UseLogging();                                          // 4 — closest to Gemini
 ```
 

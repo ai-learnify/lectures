@@ -5,7 +5,7 @@ Your project or RestaurantApi · with code · Swagger and a table in your notebo
 ## Steps
 
 - **1 · PDF** — your 2–3 page PDF **in English** (rules, FAQ, instructions on your project's topic), upload it with `POST /documents`. How many parts came out?
-- **2 · endpoint** — `GET /api/ai-lab/documents/search?q=` — the result of `SearchChunksAsync`: the file, the page, the score and the first 100 characters of the text (`Content[..Math.Min(100, Content.Length)]`)
+- **2 · endpoint** — `GET /api/documents/search?query=` — the result of `DocumentSearch.SearchAsync`: the file, the page, the score and the first 100 characters of the text (`Content[..Math.Min(100, Content.Length)]`)
 - **3 · guess first** — in your notebook 5 questions and for each one **your prediction**: which page is the answer on? One question — in other words (a synonym), one — with an exact number or name, one — something that **isn't** in the PDF
 - **4 · search** — all five in Swagger: is the first part on the right page? Did the threshold work on the “non-existent” one?
 

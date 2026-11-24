@@ -8,18 +8,53 @@
     "You'll explain why the tokens grow with every question, and send only the last N messages into the context with `MessageCountingChatReducer`"
   ],
   "review": [
-    {"q": "Why doesn't the model remember the previous question, and how do we “remind” it?", "a": "The model is stateless: it only sees this request · we send the history in every request — the memory is in our code, not in the model"},
-    {"q": "What goes into the context, and which part grows fastest?", "a": "System + the tool descriptions + the history + the tool results + the new question · often the tool results (e.g. the whole menu), which stay in the history"},
-    {"q": "Why do we store the whole `ChatMessage` in jsonb and not a Text column?", "a": "`Contents` has different types: text, functionCall, functionResult, the thought signature · `AIJsonUtilities.DefaultOptions` stores them with `$type` · jsonb reorders keys → `AllowOutOfOrderMetadataProperties`"},
-    {"q": "Why don't we store the System prompt in the database?", "a": "It's ours, not part of the conversation: it has today's date in it and the rules may change · we build it again on every request and put it at the top of the list"},
-    {"q": "What does `MessageCountingChatReducer(10)` do, and what stays in the database?", "a": "It keeps the last 10 messages in the context and drops the tool messages · everything stays in the database · the model gets the price again with a tool"}
+    {
+      "q": "Why doesn't the model remember the previous question, and how do we “remind” it?",
+      "a": "The model is stateless: it only sees this request · we send the history in every request — the memory is in our code, not in the model"
+    },
+    {
+      "q": "What goes into the context, and which part grows fastest?",
+      "a": "System + the tool descriptions + the history + the tool results + the new question · often the tool results (e.g. the whole menu), which stay in the history"
+    },
+    {
+      "q": "Why do we store the whole `ChatMessage` in jsonb and not a Text column?",
+      "a": "`Contents` has different types: text, functionCall, functionResult, the thought signature · `AIJsonUtilities.DefaultOptions` stores them with `$type` · jsonb reorders keys → `AllowOutOfOrderMetadataProperties`"
+    },
+    {
+      "q": "Why don't we store the System prompt in the database?",
+      "a": "It's ours, not part of the conversation: it has today's date in it and the rules may change · we build it again on every request and put it at the top of the list"
+    },
+    {
+      "q": "What does `MessageCountingChatReducer(10)` do, and what stays in the database?",
+      "a": "It keeps the last 10 messages in the context and drops the tool messages · everything stays in the database · the model gets the price again with a tool"
+    }
   ],
   "resources": [
-    {"title": "Microsoft.Extensions.AI — stateless vs stateful, chat reducers", "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai", "note": "the history in our code; MessageCountingChatReducer and SummarizingChatReducer"},
-    {"title": "MessageCountingChatReducer", "url": "https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.messagecountingchatreducer", "note": "the last N messages; tool messages aren't included"},
-    {"title": "Npgsql EF Core — JSON mapping", "url": "https://www.npgsql.org/efcore/mapping/json.html", "note": "a jsonb column in EF Core"},
-    {"title": "System.Text.Json — polymorphism", "url": "https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/polymorphism", "note": "$type and AllowOutOfOrderMetadataProperties"},
-    {"title": "Anthropic — Effective context engineering for AI agents", "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents", "note": "context engineering for agents — an article to read"}
+    {
+      "title": "Microsoft.Extensions.AI — stateless vs stateful, chat reducers",
+      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
+      "note": "the history in our code; MessageCountingChatReducer and SummarizingChatReducer"
+    },
+    {
+      "title": "MessageCountingChatReducer",
+      "url": "https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.messagecountingchatreducer",
+      "note": "the last N messages; tool messages aren't included"
+    },
+    {
+      "title": "Npgsql EF Core — JSON mapping",
+      "url": "https://www.npgsql.org/efcore/mapping/json.html",
+      "note": "a jsonb column in EF Core"
+    },
+    {
+      "title": "System.Text.Json — polymorphism",
+      "url": "https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/polymorphism",
+      "note": "$type and AllowOutOfOrderMetadataProperties"
+    },
+    {
+      "title": "Anthropic — Effective context engineering for AI agents",
+      "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "note": "context engineering for agents — an article to read"
+    }
   ],
   "quiz": [
     {

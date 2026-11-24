@@ -2,7 +2,7 @@
 
 ## 🎯 მთავარი
 
-`EvalRag`-ს და `HybridSearchAsync`-ის ორ მოთხოვნას კლასთან ერთად წერ. `SearchVector`-ს, `OrQuery`-ს, `Rrf`-ს და groundedness-ს მზას ჩასვამ. ციფრებს (`/rag/eval`) ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
+`EvaluationController.Retrieval`-ს და hybrid `DocumentSearch.SearchAsync`-ის ორ მოთხოვნას კლასთან ერთად წერ. `SearchVector`-ს, `OrQuery`-ს, `Rrf`-ს და groundedness-ს მზას ჩასვამ. ციფრებს (`/evaluation/retrieval`) ცოცხლად აჩვენებ. სრული კოდი 💻 ღილაკზეა.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
@@ -14,9 +14,9 @@
 
 ### ✅ მომზადება
 
-- RestaurantApi-ში წინასწარ: `golden.json` (6 შეკითხვა, ფრაზები **შენი PDF-იდან ზუსტად**), `EvalRag`, `SearchVector` + migration, `OrQuery`, `HybridSearchAsync`, `Rrf`, `Document.Category`, `_judge` (ცალკე `IChatClient` tool-ების გარეშე) და `CheckGroundedness`
+- RestaurantApi-ში წინასწარ: `golden.json` (6 შეკითხვა, ფრაზები **შენი PDF-იდან ზუსტად**), `EvaluationController.Retrieval`, `SearchVector` + migration, `OrQuery`, hybrid `DocumentSearch.SearchAsync`, `Rrf`, `Document.Category`, `_judge` (ცალკე `IChatClient` tool-ების გარეშე) და `EvaluationController.Groundedness`
 - შენს PDF-ში უნდა იყოს „B-2“, "15 GEL", „12%“, „5+ კაცზე“: ზუსტი სიტყვები hybrid-ის დემოსთვის
-- `/rag/eval` ორჯერ გაუშვი: vector-only და hybrid. ჩაიწერე შენი ციფრები. თუ hybrid-მა არ გააუმჯობესა, golden set-ში ზუსტი სიტყვის შეკითხვები შეამოწმე
+- `/evaluation/retrieval` ორჯერ გაუშვი: vector-only და hybrid. ჩაიწერე შენი ციფრები. თუ hybrid-მა არ გააუმჯობესა, golden set-ში ზუსტი სიტყვის შეკითხვები შეამოწმე
 - groundedness-ის ორი პასუხი (კარგი და „ცრუ“) მზად გქონდეს
 
 ## 1 · გამეორება და საშინაო · 8 წთ · 1–5
@@ -33,7 +33,7 @@
 
 - (7) pipeline-ში ორი წითელი ყუთი: ძებნა და პასუხი
 - (8) golden set: hit@3 ერთად დაითვალეთ (4/6). MRR ერთად დაფაზე (1 + 1 + ½ + 0 + ⅓ + ⅕)
-- (9) **ერთად წერთ** `EvalRag`, `golden.json` ჩასვი. ცოცხლად: `/rag/eval` → **შენი** ციფრი
+- (9) **ერთად წერთ** `EvaluationController.Retrieval`, `golden.json` ჩასვი. ცოცხლად: `/evaluation/retrieval` → **შენი** ციფრი
 
 ### 🙋 ჰკითხე
 
@@ -53,7 +53,7 @@
 - (11) ორი ძებნა: ვექტორი ✓/✗, full-text ✓/✗. psql: `to_tsvector('english', …)` ცოცხლად, "guests" → 'guest'. ⚠️ ქართულზე 'simple'
 - სამი სია → RRF, რიგით
 - (12) `SearchVector` + migration **ჩასვი**. **ერთად წერთ** `byMeaning` და `byWords`. `OrQuery`, `Rrf` ჩასვი, თითოზე ერთი წინადადება
-- `/chat`-ში და `EvalRag`-ში `HybridSearchAsync` → **`/rag/eval` ისევ** → ციფრი იზრდება
+- `/chat`-ში და `EvaluationController.Retrieval`-ში hybrid `DocumentSearch.SearchAsync` → **`/evaluation/retrieval` ისევ** → ციფრი იზრდება
 - (13) ფილტრი: 3 ხაზი კოდი
 
 ### 🙋 ჰკითხე
@@ -90,7 +90,7 @@ tsvector წიგნის ბოლოს არსებულ საძი�
 ## 📝 კლასის დავალება · 24 წთ · 19
 
 - **ნიმუში, ~3 წთ:** ერთი შეკითხვა ერთად: „‚ძაღლით შეიძლება?‘ ფრაზა?“ → „ტერასაზე“. მოკლე და უნიკალური, არა „ძაღლი“, რადგან ის შეკითხვაშიც წერია
-- **ისინი, ~17 წთ:** `golden.json` (6 შეკითხვა + ფრაზა), პროგნოზი რვეულში, `/rag/eval`, Swagger
+- **ისინი, ~17 წთ:** `golden.json` (6 შეკითხვა + ფრაზა), პროგნოზი რვეულში, `/evaluation/retrieval`, Swagger
 - **ბოლოს, ~4 წთ:** 2–3 სტუდენტი: „თქვენი ციფრი? პროგნოზი გამართლდა?“ ციფრები დაფაზე
 
 ### 🙋 სანამ დადიხარ, ჰკითხე
@@ -115,7 +115,7 @@ tsvector წიგნის ბოლოს არსებულ საძი�
 მხოლოდ ლექციის ბოლოს. აირჩიე 1–3.
 
 - **🗺️ ნაწილი 1-ის რუკა · 8 წთ:** დაფაზე ერთად `/chat`-ის ერთი მოთხოვნის გზა: InputGuard (5) → ისტორია (7) → hybrid ძებნა (9–12) → augmented (11) → pipeline (5, 8) → resilience (8) → Gemini → tools (4) → SSE (6) → ისტორიაში შენახვა
-- **🥇 LLM-rerank · 10 წთ:** `RerankAsync`: მოდელი 10 კანდიდატიდან საუკეთესო 3-ს ირჩევს (`RankResult`). `/rag/eval` → ციფრი და ფასი
+- **🥇 LLM-rerank · 10 წთ:** `RerankAsync`: მოდელი 10 კანდიდატიდან საუკეთესო 3-ს ირჩევს (`RankResult`). `/evaluation/retrieval` → ციფრი და ფასი
 - **🔤 pg_trgm · 6 წთ:** `similarity('cancellation', 'cancelation')`. ბეჭდვის შეცდომებს full-text ვერ იჭერს, trigram იჭერს
 - **🔎 `RetrievalEvaluator` · 6 წთ:** LLM აფასებს, ნაპოვნი ნაწილები რელევანტურია თუ არა, golden set-ის გარეშე. „hit@3-ს რით ჯობია და რით ჩამორჩება?“
 

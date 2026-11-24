@@ -63,7 +63,7 @@ modelBuilder.HasPostgresExtension("vector");
 
 `Product`-ს ორ ველს ვუმატებთ: ვექტორს და მოდელის სახელს (რომ ვიცოდეთ, რა გადავთვალოთ მოდელის შეცვლისას):
 
-```csharp Data/Product.cs
+```csharp Entities/Product.cs
 using Pgvector;
 
 public class Product
@@ -84,9 +84,9 @@ dotnet ef database update
 
 **ინდექსაცია:** მხოლოდ ის კერძები, რომლებსაც ვექტორი არ აქვს ან სხვა მოდელით აქვს:
 
-```csharp Controllers/AiLabController.cs · menu/index
-[HttpPost("menu/index")]
-public async Task<IActionResult> IndexMenu(CancellationToken ct)
+```csharp Controllers/MenuController.cs · GenerateEmbeddings
+[HttpPost("embeddings")]
+public async Task<IActionResult> GenerateEmbeddings(CancellationToken ct)
 {
     string model = _config["Gemini:EmbeddingModel"]!;
 
@@ -97,8 +97,8 @@ public async Task<IActionResult> IndexMenu(CancellationToken ct)
 
     foreach (Product[] batch in products.Chunk(100))          // Gemini: up to 100 per request
     {
-        var vectors = await _embeddings.GenerateAsync(
-            batch.Select(p => EmbeddingText.Document(p.Name, p.Description)),
+        GeneratedEmbeddings<Embedding<float>> vectors = await _embeddings.GenerateAsync(
+            batch.Select(p => EmbeddingInput.Document(p.Name, p.Description)),
             cancellationToken: ct);
 
         for (int i = 0; i < batch.Length; i++)
@@ -109,32 +109,32 @@ public async Task<IActionResult> IndexMenu(CancellationToken ct)
     }
 
     await _db.SaveChangesAsync(ct);
-    return Ok(new { Indexed = products.Count });
+    return Ok(new EmbeddingsResult(products.Count));
 }
 ```
 
 **ძებნა:** `CosineDistance` SQL-ში `<=>` ოპერატორად ითარგმნება, და დალაგება ბაზაში ხდება:
 
-```csharp Controllers/AiLabController.cs · menu/search
-[HttpGet("menu/search")]
-public async Task<IActionResult> SearchMenu(string q, CancellationToken ct)
+```csharp Controllers/MenuController.cs · Search
+[HttpGet("search")]
+public async Task<IActionResult> Search(string query, CancellationToken ct)
 {
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
+    var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+        EmbeddingInput.Query(query), cancellationToken: ct));
 
-    var top = await _db.Products
+    List<MenuMatch> top = await _db.Products
         .Where(p => p.Embedding != null)
-        .OrderBy(p => p.Embedding!.CosineDistance(query))       // → ORDER BY "Embedding" <=> @query
-        .Select(p => new { p.Name, Distance = p.Embedding!.CosineDistance(query) })
-        .Take(3)                                                  // → LIMIT 3
+        .OrderBy(p => p.Embedding!.CosineDistance(queryVector))  // → ORDER BY "Embedding" <=> @query
+        .Take(3)                                                   // → LIMIT 3
+        .Select(p => new MenuMatch(p.Name, 1 - p.Embedding!.CosineDistance(queryVector)))
         .ToListAsync(ct);
 
-    return Ok(top.Select(x => new { x.Name, Score = 1 - x.Distance }));   // distance → similarity
+    return Ok(top);
 }
 ```
 
 ```check
-? აპი გადავტვირთე. `/menu/index`-ის გარეშე ძებნა იმუშავებს?
+? აპი გადავტვირთე. `/menu/embeddings`-ის გარეშე ძებნა იმუშავებს?
 = კი, ვექტორები ბაზაშია.
 ```
 

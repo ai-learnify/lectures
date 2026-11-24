@@ -44,7 +44,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: ბაზა/SQL = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი · ვექტორი/ინდექსი = იისფერი
              სწორი/ნაპოვნი = მწვანე · პრობლემა = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — Docker image pgvector/pgvector, Product.Embedding (vector(768)), AiLabController: menu/index, menu/search, HNSW ინდექსი
+     პროექტი: RestaurantApi — Docker image pgvector/pgvector, Product.Embedding (vector(768)), MenuController: embeddings, search, HNSW ინდექსი
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -158,7 +158,7 @@ builder.Services.AddDbContext<DataContext>(o =>
       <code-block lang="csharp" cls="sm" title="Data/DataContext.cs · OnModelCreating">
 modelBuilder.HasPostgresExtension("vector");
       </code-block>
-      <code-block id="c1" lang="csharp" cls="sm" title="Data/Product.cs">
+      <code-block id="c1" lang="csharp" cls="sm" title="Entities/Product.cs">
 public class Product
 {
     // ... Id, Name, Description, Price
@@ -185,11 +185,11 @@ public class Product
 </section>
 
 <section class="slide" data-section="2 · EF Core">
-  <div class="kicker">🧑‍💻 ვწერთ · menu/index და menu/search ბაზაზე</div>
+  <div class="kicker">🧑‍💻 ვწერთ · menu/embeddings და menu/search ბაზაზე</div>
   <h2>ვექტორი <span class="c-asp">ჩავწეროთ</span> და <span class="c-asp">ვეძებოთ</span> SQL-ში</h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AiLabController.cs · IndexMenu, SearchMenu">
-// IndexMenu: only what needs (re)calculating
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/MenuController.cs · GenerateEmbeddings, Search">
+// GenerateEmbeddings: only what needs (re)calculating
 List<Product> products = await _db.Products
     .Where(p => p.Embedding == null || p.EmbeddingModel != model)
     .ToListAsync(ct);
@@ -197,18 +197,18 @@ List<Product> products = await _db.Products
 batch[i].Embedding = new Vector(vectors[i].Vector);
 batch[i].EmbeddingModel = model;
 
-// SearchMenu
-var query = new Vector(await _embeddings.GenerateVectorAsync(
-    EmbeddingText.Query(q), cancellationToken: ct));
+// Search
+var queryVector = new Vector(await _embeddings.GenerateVectorAsync(
+    EmbeddingInput.Query(query), cancellationToken: ct));
 
-var top = await _db.Products
+List<MenuMatch> top = await _db.Products
     .Where(p => p.Embedding != null)
-    .OrderBy(p => p.Embedding!.CosineDistance(query))
-    .Select(p => new { p.Name, Distance = p.Embedding!.CosineDistance(query) })
+    .OrderBy(p => p.Embedding!.CosineDistance(queryVector))
     .Take(3)
+    .Select(p => new MenuMatch(p.Name, 1 - p.Embedding!.CosineDistance(queryVector)))
     .ToListAsync(ct);
 
-return Ok(top.Select(x => new { x.Name, Score = 1 - x.Distance }));
+return Ok(top);
     </code-block>
     <div class="col" style="gap:12px">
       <i class="codestep" data-for="c2" data-lines="2-4"></i>
@@ -216,11 +216,11 @@ return Ok(top.Select(x => new { x.Name, Score = 1 - x.Distance }));
       <i class="codestep" data-for="c2" data-lines="15-16"></i>
       <div class="prob step" data-with style="--a:var(--asp)"><span class="pi">🐘</span><div><b>CosineDistance → &lt;=&gt;</b><span>LINQ SQL-ად ითარგმნება: დალაგება ბაზაში ხდება, C#-ში მხოლოდ 3 ხაზი მოდის</span></div></div>
       <div class="swr c-get step">
-        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?q=without meat</span></div>
+        <div class="rh"><span class="m">GET</span><span class="p">/menu/search?query=without meat</span></div>
         <pre class="rb">[ { <span class="k">"name"</span>: <span class="s">"Lobio in a clay pot"</span>, <span class="k">"score"</span>: <span class="n">0.71</span> }, … ]</pre>
       </div>
       <div class="callout ask step">🙋 აპი <b>გადატვირთე</b> და ისევ ეძებე. რა მოხდება?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 იგივე შედეგი — ვექტორები ბაზაშია, /menu/index აღარ გვჭირდება</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 იგივე შედეგი — ვექტორები ბაზაშია, /menu/embeddings თავიდან აღარ გვჭირდება</div>
     </div>
   </div>
 </section>

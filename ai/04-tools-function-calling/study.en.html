@@ -229,7 +229,7 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <ul>
 <li><strong>1 · Tools class</strong> — <code>Ai/&lt;Your&gt;Tools.cs</code>: <code>DbContext</code> (or your service) through the constructor, <code>AddScoped</code> in <code>Program.cs</code></li>
 <li><strong>2 · A tool with a parameter</strong> — one <strong>read</strong> method over your database, <strong>with at least 1 parameter</strong>; <code>[Description]</code> on the method and on the parameter; name = verb + what</li>
-<li><strong>3 · <code>POST /api/assistant/chat</code></strong> — System: who the assistant is + “data only from the tool, don't make anything up” → <code>ChatOptions.Tools</code> → <code>GetResponseAsync(messages, options)</code> → <code>Ok(new { response.Text, ToolCalls })</code>. <code>.UseFunctionInvocation()</code> in <code>Program.cs</code></li>
+<li><strong>3 · <code>POST /api/assistant/chat</code></strong> — System: who the assistant is + “data only from the tool, don't make anything up” → <code>ChatOptions.Tools</code> → <code>GetResponseAsync(messages, options)</code> → <code>Ok(new ChatReply(response.Text))</code>. <code>.UseFunctionInvocation()</code> in <code>Program.cs</code></li>
 <li><strong>4 · 3 texts in Swagger:</strong> one where the tool should be called · one where it should <strong>not</strong> be called · one where the parameter is written in the text in other words</li>
 </ul>
 <h4>✓ Done when</h4>
