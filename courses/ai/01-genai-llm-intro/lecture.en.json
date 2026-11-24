@@ -136,46 +136,5 @@
       ],
       "explain": "The other files go to Git — bots find a leaked key within minutes."
     }
-  ],
-  "study": {
-    "summary": [
-      "In this module an **AI agent** appears in your API: the model decides what to do, and **your C# code** does it.",
-      "The model reads text as **tokens** and sees only numbers. Price, limits and speed are counted in tokens; Georgian takes more tokens.",
-      "The model writes the **likely** next token, not the true one. Prices, stock and reservations must always come **from the database**.",
-      "The model **doesn't remember** the previous request: we send the history every time, and we pay for it.",
-      "**Temperature**, **Top-P** and **Max Tokens** are set per request, depending on the task. Cost = tokens × price, and output is more expensive than input."
-    ],
-    "chapters": {
-      "მოდული": {
-        "title": "The module: what we'll build and who you'll become",
-        "goal": "you'll know what you'll build in 24 lectures, what you're missing now and where this runs in real projects."
-      },
-      "1 · რატომ AI": {
-        "title": "Why AI: where if/else ends",
-        "goal": "you can explain what regular code can't do and why an LLM is, for us, just another HTTP API."
-      },
-      "2 · როგორ მუშაობს": {
-        "title": "How an LLM works",
-        "goal": "you can explain what a token is, how the model writes an answer, why it makes things up and why it doesn't remember the previous conversation."
-      },
-      "3 · პარამეტრები": {
-        "title": "Parameters: Temperature, Top-P, Max Tokens",
-        "goal": "you'll choose parameters for the task and know when a reasoning model is needed."
-      },
-      "4 · პროვაიდერები": {
-        "title": "Providers and price",
-        "goal": "you'll choose cloud or local and calculate the monthly cost of an AI feature."
-      },
-      "პრაქტიკა": {
-        "title": "Classwork: planning an AI feature",
-        "goal": "following the example, you'll plan an AI feature for your project."
-      },
-      "შეჯამება": {
-        "title": "Summary"
-      },
-      "საშინაო": {
-        "title": "Homework"
-      }
-    }
-  }
+  ]
 }

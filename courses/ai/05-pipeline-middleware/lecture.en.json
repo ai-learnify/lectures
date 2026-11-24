@@ -21,33 +21,85 @@
     {"title": "Logging in .NET", "url": "https://learn.microsoft.com/dotnet/core/extensions/logging", "note": "Log levels and configuring them in appsettings"}
   ],
   "quiz": [
-    {"q": "What does `builder.Services.AddChatClient(...)` return?", "options": ["An `IChatClient`", "A `ChatClientBuilder` — layers are added to it with `.Use…()`", "`void`", "An `IServiceCollection`"], "explain": "That's why we can chain `.UseFunctionInvocation()`, `.UseLogging()` and so on directly."},
-    {"q": "What is a layer (middleware) in Microsoft.Extensions.AI?", "options": ["A Controller filter", "An `IChatClient` that wraps another `IChatClient` and sees both the request and the response", "A Gemini parameter", "An appsettings section"], "explain": "The decorator pattern: each layer calls the inner client and returns its result to the outer one."},
-    {"q": "`.UseA().UseB().UseC()` — which layer is closest to the Controller?", "options": ["A", "B", "C", "Order doesn't matter"], "explain": "The first `.Use…()` is the outer layer; the last is closest to the Gemini client."},
-    {"q": "What does the Controller have to change when we add a layer to the pipeline?", "options": ["Its constructor", "Every endpoint", "Nothing — the change is only in Program.cs", "It must take the layer's type instead of `IChatClient`"], "explain": "The Controller only knows `IChatClient`; how many layers are inside is unknown to it."},
-    {"q": "You switched on `UseLogging()`, but nothing shows up in the console. The most likely reason?", "options": ["The Gemini key", "The log level — `Microsoft.Extensions.AI` must be Debug (or Trace) in appsettings.Development.json", "The Controller is missing an ILogger", "UseLogging works only on Linux"], "explain": "LoggingChatClient writes at the Debug/Trace level, while the default is Information."},
-    {"q": "Why is the Trace level dangerous in production?", "options": ["It's slow", "The log gets the full text of users' questions and tool results — personal data", "The Gemini key shows up", "It spends tokens"], "explain": "Trace is for development only — in appsettings.Development.json."},
-    {"q": "The same question twice on `/ask`, with the cache on. What happens the second time?", "options": ["It calls Gemini again, but for free", "The response comes from memory — no request goes to Gemini", "An error: you can't ask the same question twice", "The cache only works with tools"], "explain": "The key = messages + options. Exactly the same → the stored response. The log is empty."},
-    {"q": "Why do we remove the cache from RestaurantApi's `/chat`?", "options": ["Caching is expensive", "A tool answer depends on the database — the cache would return an old “it's free”", "Gemini doesn't allow caching", "The cache is Scoped"], "explain": "Cache only where the answer to the same question doesn't change."},
-    {"q": "In a `DelegatingChatClient`, what does code after `base.GetResponseAsync(...)` mean?", "options": ["It runs before Gemini", "It runs after Gemini's response — it sees the response", "It never runs", "Only on an error"], "explain": "Before base — the request, after base — the response. Like `await next()` in ASP.NET Core."},
-    {"q": "TokenCounter sits inside `UseFunctionInvocation`. How many lines does it write for a tool question?", "options": ["1 — the total", "2 — each Gemini request separately", "0", "As many as there are registered tools"], "explain": "Every request of the loop passes through a layer that sits inside. Outside — one combined response."},
-    {"q": "`InputGuardChatClient` stopped a long question. How many tokens were spent?", "options": ["As many as the question has", "0 — it didn't call base, nothing reached Gemini", "Only output tokens", "1000"], "explain": "A short-circuit: the layer created the response itself."}
-  ],
-  "study": {
-    "summary": [
-      "**`AddChatClient` returns a `ChatClientBuilder`.** Every `.Use…()` adds one layer (middleware) to the `IChatClient` — just like `app.Use…()` in ASP.NET Core.",
-      "**A layer = an `IChatClient` around another `IChatClient`.** The request goes in, the response comes back. The first `.Use…()` is the outer layer (close to the Controller). The Controller knows nothing about the layers.",
-      "**`UseLogging`** — shows how many requests went to Gemini (Debug); Trace writes the full text — development only.",
-      "**`UseDistributedCache`** — doesn't call Gemini for exactly the same request. Only for answers that don't change; not in a chat with tools.",
-      "**`DelegatingChatClient`** — your own layer: before `base` the request, after `base` the response; without `base` — a stop (short-circuit)."
-    ],
-    "chapters": {
-      "1 · Pipeline": {"title": "The pipeline: layers around the client", "goal": "You'll explain what `.UseFunctionInvocation()` is and how a request passes through the layers from the Controller to Gemini."},
-      "2 · მზა ფენები": {"title": "Ready-made layers: logging and caching", "goal": "You'll switch on logging and caching, see the two requests of the tool loop and understand when caching is dangerous."},
-      "3 · ჩვენი ფენა": {"title": "Our own layer: DelegatingChatClient", "goal": "You'll write a layer that counts tokens and a layer that doesn't let a long question reach Gemini."},
-      "პრაქტიკა": {"title": "Classwork: your layer in your project"},
-      "შეჯამება": {"title": "Summary"},
-      "საშინაო": {"title": "Homework"}
+    {
+      "q": "What does `builder.Services.AddChatClient(...)` return?",
+      "options": [
+        "An `IChatClient`",
+        "A `ChatClientBuilder` — layers are added to it with `.Use…()`",
+        "`void`",
+        "An `IServiceCollection`"
+      ],
+      "explain": "That's why we can chain `.UseFunctionInvocation()`, `.UseLogging()` and so on directly."
+    },
+    {
+      "q": "What is a layer (middleware) in Microsoft.Extensions.AI?",
+      "options": [
+        "A Controller filter",
+        "An `IChatClient` that wraps another `IChatClient` and sees both the request and the response",
+        "A Gemini parameter",
+        "An appsettings section"
+      ],
+      "explain": "The decorator pattern: each layer calls the inner client and returns its result to the outer one."
+    },
+    {
+      "q": "What does the Controller have to change when we add a layer to the pipeline?",
+      "options": [
+        "Its constructor",
+        "Every endpoint",
+        "Nothing — the change is only in Program.cs",
+        "It must take the layer's type instead of `IChatClient`"
+      ],
+      "explain": "The Controller only knows `IChatClient`; how many layers are inside is unknown to it."
+    },
+    {
+      "q": "You switched on `UseLogging()`, but nothing shows up in the console. The most likely reason?",
+      "options": [
+        "The Gemini key",
+        "The log level — `Microsoft.Extensions.AI` must be Debug (or Trace) in appsettings.Development.json",
+        "The Controller is missing an ILogger",
+        "UseLogging works only on Linux"
+      ],
+      "explain": "LoggingChatClient writes at the Debug/Trace level, while the default is Information."
+    },
+    {
+      "q": "The same question twice on `/ask`, with the cache on. What happens the second time?",
+      "options": [
+        "It calls Gemini again, but for free",
+        "The response comes from memory — no request goes to Gemini",
+        "An error: you can't ask the same question twice",
+        "The cache only works with tools"
+      ],
+      "explain": "The key = messages + options. Exactly the same → the stored response. The log is empty."
+    },
+    {
+      "q": "Why do we remove the cache from RestaurantApi's `/chat`?",
+      "options": [
+        "Caching is expensive",
+        "A tool answer depends on the database — the cache would return an old “it's free”",
+        "Gemini doesn't allow caching",
+        "The cache is Scoped"
+      ],
+      "explain": "Cache only where the answer to the same question doesn't change."
+    },
+    {
+      "q": "TokenCounter sits inside `UseFunctionInvocation`. How many lines does it write for a tool question?",
+      "options": [
+        "1 — the total",
+        "2 — each Gemini request separately",
+        "0",
+        "As many as there are registered tools"
+      ],
+      "explain": "Every request of the loop passes through a layer that sits inside. Outside — one combined response."
+    },
+    {
+      "q": "`InputGuardChatClient` stopped a long question. How many tokens were spent?",
+      "options": [
+        "As many as the question has",
+        "0 — it didn't call base, nothing reached Gemini",
+        "Only output tokens",
+        "1000"
+      ],
+      "explain": "A short-circuit: the layer created the response itself."
     }
-  }
+  ]
 }

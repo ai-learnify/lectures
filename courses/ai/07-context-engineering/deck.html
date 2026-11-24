@@ -80,16 +80,6 @@
       <div class="txt bot bad in" style="--d:1.1s"><span class="who">ასისტენტი</span>What would you like to know about 21:00? 🤔</div>
     </div>
   </div>
-  <aside class="study">
-## ლექცია 7: Context Engineering — კონტექსტისა და მეხსიერების მართვა
-
-ჩვენი ჩატი tool-ებს იძახებს და პასუხს სტრიმავს, მაგრამ ყოველი შეკითხვა ცალკეა. "Four of us tomorrow at 20:00?" და მერე "And at 21:00?": მეორე შეკითხვას მოდელი ვერ გაიგებს, რადგან პირველი არ ახსოვს (ლექცია 1: მოდელი stateless-ია). დღეს ვსწავლობთ, **რა** მიდის მოდელთან ყოველ მოთხოვნაზე და **ვინ** წყვეტს ამას: ჩვენ. საუბრის ისტორიას PostgreSQL-ში ვინახავთ, ყოველ მოთხოვნაზე ვტვირთავთ და ვხედავთ, რატომ არ შეიძლება მთელი ისტორიის უსასრულოდ გაგზავნა.
-  </aside>
-  <aside class="study-en">
-## Lecture 7: Context Engineering — managing context and memory
-
-Our chat calls tools and streams the answer, but every question is separate. “Four of us tomorrow at 20:00?” and then “And at 21:00?”: the model won't understand the second question, because it doesn't remember the first (lecture 1: the model is stateless). Today we learn **what** goes to the model on every request and **who** decides it: we do. We store the conversation history in PostgreSQL, load it on every request, and see why we can't keep sending the whole history forever.
-  </aside>
 </section>
 
 <lecture-review/>
@@ -107,24 +97,6 @@ Our chat calls tools and streams the answer, but every question is separate. “
     <div class="stop" style="--a:var(--red)"><span class="sn">3</span><h3>⚖️ ბიუჯეტი</h3><p>ისტორია იზრდება, ფასიც. ვწყვეტთ, რა გავგზავნოთ და რა დავტოვოთ ბაზაში</p><span class="from">MessageCountingChatReducer</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>შენი ჩატი</b>, რომელსაც წინა შეკითხვა „ახსოვს“</div>
-  <aside class="study">
-### ლექციის გეგმა: 3 ნაბიჯი
-
-1. 🪟 **კონტექსტი.** რა მიდის მოდელთან ყოველ მოთხოვნაზე: ჩვენი ინსტრუქცია (System), tool-ების აღწერები, საუბრის ისტორია, tool-ების შედეგები და ახალი შეკითხვა. ამ ყველაფრის შერჩევას **context engineering** ჰქვია.
-2. 🗄️ **ისტორია ბაზაში.** საუბარს `conversationId`-ით ვინახავთ PostgreSQL-ში, ყველა შეტყობინებას, tool-ების ჩათვლით, და ყოველ მოთხოვნაზე ვტვირთავთ.
-3. ⚖️ **ბიუჯეტი.** ისტორია ყოველ კითხვაზე იზრდება და მასთან ერთად ტოკენებიც. ვწყვეტთ, რა გავუგზავნოთ მოდელს და რა დარჩეს მხოლოდ ბაზაში.
-
-ბოლოს კლასის დავალებაა: შენს ჩატს ისტორია დაემატება.
-  </aside>
-  <aside class="study-en">
-### Lecture plan: 3 steps
-
-1. 🪟 **Context.** What goes to the model on every request: our instruction (System), the tool descriptions, the conversation history, the tool results and the new question. Choosing all of this is called **context engineering**.
-2. 🗄️ **History in the database.** We store the conversation in PostgreSQL by `conversationId`, every message including the tool ones, and load it on every request.
-3. ⚖️ **The budget.** The history grows with every question, and so do the tokens. We decide what to send to the model and what stays only in the database.
-
-At the end there's classwork: your chat gets a history.
-  </aside>
 </section>
 
 <!-- ================= 1 · კონტექსტი ================= -->
@@ -135,16 +107,6 @@ At the end there's classwork: your chat gets a history.
     <p class="lead mt in" style="--d:.3s">stateless · context window · context engineering</p>
   </div>
   <div class="big-num">01</div>
-  <aside class="study">
-## ნაწილი 1 · კონტექსტი
-
-ჯერ ვნახავთ პრობლემას ცოცხლად: მეორე შეკითხვას მოდელი ვერ იგებს. მერე ვალაგებთ, რა მიდის მოდელთან ერთ მოთხოვნაში და რატომ არის ეს ჩვენი, დეველოპერების, გადასაწყვეტი.
-  </aside>
-  <aside class="study-en">
-## Part 1 · Context
-
-First we see the problem live: the model doesn't understand the second question. Then we lay out what goes to the model in one request and why it's for us, the developers, to decide.
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · კონტექსტი">
@@ -166,34 +128,6 @@ First we see the problem live: the model doesn't understand the second question.
       <div class="prob step" data-with style="--a:var(--mvc)"><span class="pi">📜</span><div><b>ისტორიას ჩვენ ვუგზავნით</b><span>ყოველ მოთხოვნაში: წინა შეკითხვები და პასუხები + ახალი. ChatGPT-იც ასე „იმახსოვრებს“</span></div></div>
     </div>
   </div>
-  <aside class="study">
-### პრობლემა: მოდელს წინა შეკითხვა არ ახსოვს
-
-ჩვენი `/chat` ყოველ მოთხოვნაზე ახალ `messages` სიას ქმნის: System + მომხმარებლის **ერთი** შეკითხვა. ორი მოთხოვნა ერთმანეთზე არაფერი იცის:
-
-| მოთხოვნა | რას ხედავს მოდელი | პასუხი |
-|---|---|---|
-| 1 | System + "Four of us tomorrow at 20:00, do you have room?" | "Yes, two tables" (`check_availability`) |
-| 2 | System + "And at 21:00?" | "What would you like to know about 21:00?" |
-
-მეორე მოთხოვნაში პირველი შეკითხვა **საერთოდ არ არის**. ლექცია 1-დან ვიცით: მოდელი **stateless**-ია, ის მხოლოდ იმას ხედავს, რაც ამ მოთხოვნაში გავუგზავნეთ. „მეხსიერება“ ChatGPT-შიც ასე მუშაობს: ყოველ ახალ შეტყობინებასთან ერთად სერვერი მოდელს **მთელ საუბარს** უგზავნის.
-
-ესე იგი, მეხსიერება მოდელში კი არა, **ჩვენს კოდშია**: ისტორიას ჩვენ ვინახავთ და ჩვენ ვუგზავნით. ლექცია 2-ის ⭐-ში ეს ხელით ვცადეთ `List<ChatMessage>`-ით. დღეს ამას სწორად ვაკეთებთ: ბაზაში.
-  </aside>
-  <aside class="study-en">
-### The problem: the model doesn't remember the previous question
-
-Our `/chat` creates a new `messages` list on every request: System + **one** question from the user. Two requests know nothing about each other:
-
-| Request | What the model sees | Answer |
-|---|---|---|
-| 1 | System + “Four of us tomorrow at 20:00, do you have room?” | “Yes, two tables are free” (`check_availability`) |
-| 2 | System + “And at 21:00?” | “What would you like to know about 21:00?” |
-
-The first question **isn't in** the second request at all. We know from lecture 1: the model is **stateless**, it only sees what we sent in this request. “Memory” works the same way in ChatGPT: with every new message the server sends the model **the whole conversation**.
-
-So memory isn't in the model, it's **in our code**: we store the history and we send it. In lecture 2's ⭐ we tried this by hand with a `List<ChatMessage>`. Today we do it properly: in the database.
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · კონტექსტი">
@@ -217,64 +151,6 @@ So memory isn't in the model, it's **in our code**: we store the history and we 
       <div class="callout step" data-with style="--a:var(--red);font-size:18px">ყველაფერი ტოკენია: <b>ფასი</b>, <b>ლიმიტი</b>, <b>სიჩქარე</b></div>
     </div>
   </div>
-  <aside class="study">
-### კონტექსტი: რას ხედავს მოდელი ერთ მოთხოვნაში
-
-**კონტექსტი** ყველაფერია, რაც მოდელამდე ერთ მოთხოვნაში მიდის. ჩვენს ჩატში ის ხუთი ნაწილისგან შედგება:
-
-| ნაწილი | საიდან | ნიმუში (ტოკენი) |
-|---|---|---|
-| **System** | ჩვენი ინსტრუქცია (ლექცია 2) | ~180 |
-| **Tools** | tool-ების სახელები, აღწერები, პარამეტრების JSON Schema (ლექცია 4) | ~310 |
-| **ისტორია** | წინა შეკითხვები და პასუხები | ~460 |
-| **tool შედეგები** | რაც tool-ებმა დააბრუნა, მაგ. მთელი მენიუ | ~1 780 |
-| **ახალი შეკითხვა** | მომხმარებელი | ~25 |
-
-ციფრები ნიმუშია, მაგრამ სურათი ტიპურია: **ყველაზე დიდი ნაწილი ხშირად tool-ების შედეგებია**, და არა ის, რაც მომხმარებელმა დაწერა. `get_menu` მთელ მენიუს აბრუნებს, და თუ ის ისტორიაში დარჩა, ყოველ შემდეგ მოთხოვნაში თავიდან მიდის.
-
-ყველაფერი ეს ერთ **context window**-ში უნდა ჩაეტიოს (ლექცია 1), და ყველაფერში ვიხდით: input ტოკენი ფასიანია, დიდი კონტექსტი ნელია.
-
-**Prompt engineering vs context engineering:**
-
-- **Prompt engineering** (ლექცია 2) — **როგორ** დავწეროთ ინსტრუქცია: როლი, წესები, მაგალითები.
-- **Context engineering** — **რა** ჩავდოთ ფანჯარაში ყოველ მოთხოვნაზე: რომელი ისტორია, რომელი tool-ები, რომელი შედეგები, რა რიგით, და რა დარჩეს გარეთ. Prompt ამ ფანჯრის ერთი ნაწილია.
-
-აგენტებთან (ლექცია 13+) ეს მთავარი უნარი ხდება: აგენტი ათობით tool-ს იძახებს, და კონტექსტი ძალიან სწრაფად ივსება.
-
-```terms
-კონტექსტი (context) — ყველაფერი, რასაც მოდელი ერთ მოთხოვნაში ხედავს: ინსტრუქცია, tool-ები, ისტორია, tool-ების შედეგები, შეკითხვა
-Context engineering — იმის გადაწყვეტა, რა ჩავდოთ კონტექსტში ყოველ მოთხოვნაზე, რა რიგით და რა დავტოვოთ გარეთ
-```
-  </aside>
-  <aside class="study-en">
-### Context: what the model sees in one request
-
-**Context** is everything that reaches the model in one request. In our chat it has five parts:
-
-| Part | Where from | Sample (tokens) |
-|---|---|---|
-| **System** | our instruction (lecture 2) | ~180 |
-| **Tools** | the tool names, descriptions, parameters' JSON Schema (lecture 4) | ~310 |
-| **History** | the previous questions and answers | ~460 |
-| **Tool results** | what the tools returned, e.g. the whole menu | ~1,780 |
-| **New question** | the user | ~25 |
-
-The numbers are a sample, but the picture is typical: **the biggest part is often the tool results**, not what the user wrote. `get_menu` returns the whole menu, and if it stays in the history, it goes again in every later request.
-
-All of this has to fit in one **context window** (lecture 1), and we pay for all of it: input tokens cost money, and a large context is slow.
-
-**Prompt engineering vs context engineering:**
-
-- **Prompt engineering** (lecture 2) — **how** to write the instruction: the role, the rules, the examples.
-- **Context engineering** — **what** to put in the window on every request: which history, which tools, which results, in what order, and what stays out. The prompt is one part of that window.
-
-With agents (lecture 13+) this becomes the key skill: an agent calls dozens of tools, and the context fills up very fast.
-
-```terms
-Context — everything the model sees in one request: the instruction, the tools, the history, the tool results, the question
-Context engineering — deciding what to put in the context on every request, in what order, and what to leave out
-```
-  </aside>
 </section>
 
 <!-- ================= 2 · ისტორია ბაზაში ================= -->
@@ -285,16 +161,6 @@ Context engineering — deciding what to put in the context on every request, in
     <p class="lead mt in" style="--d:.3s">conversationId · jsonb · ყველა შეტყობინება</p>
   </div>
   <div class="big-num">02</div>
-  <aside class="study">
-## ნაწილი 2 · ისტორია ბაზაში
-
-ისტორია სადღაც უნდა ვინახოთ. ვირჩევთ ადგილს, ვქმნით ცხრილს PostgreSQL-ში და `/chat`-ს ვასწავლით, რომ ყოველ მოთხოვნაზე ჯერ ისტორია ჩატვირთოს, ბოლოს კი ახალი შეტყობინებები შეინახოს.
-  </aside>
-  <aside class="study-en">
-## Part 2 · History in the database
-
-The history has to be stored somewhere. We choose the place, create a table in PostgreSQL, and teach `/chat` to load the history first on every request and save the new messages at the end.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · ისტორია ბაზაში">
@@ -309,32 +175,6 @@ The history has to be stored somewhere. We choose the place, create a table in P
     <div class="callout ask step">🙋 tool-ის გამოძახებაც და შედეგიც <b>შევინახოთ</b>?</div>
     <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><b>კი, ყველაფერს.</b> რეალურ სისტემებშიც ასეა. რას <b>გავუგზავნით</b> მოდელს, ამას ცალკე ვწყვეტთ (ნაწილი 3)</div>
   </div>
-  <aside class="study">
-### სად ვინახოთ ისტორია
-
-| ვარიანტი | რა ხდება | პრობლემა |
-|---|---|---|
-| **კლიენტი აგზავნის** | frontend ყოველ მოთხოვნაში მთელ საუბარს აგზავნის | კლიენტს შეუძლია ისტორია შეცვალოს (მაგ. ჩაწეროს, რომ ასისტენტმა 50% ფასდაკლება „დაჰპირდა“); ტრაფიკი ყოველ ჯერზე იზრდება |
-| **სერვერის მეხსიერება** | Singleton სერვისში `Dictionary<Guid, List<ChatMessage>>` | აპლიკაციის რესტარტზე ყველაფერი ქრება; ორ სერვერზე ერთი მომხმარებლის მოთხოვნები სხვადასხვა მეხსიერებაში ხვდება |
-| **PostgreSQL** ✓ | ცხრილი, სადაც ერთი ხაზი ერთი შეტყობინებაა, `ConversationId`-ით | — |
-
-ბაზაში ისტორია რჩება, ყველა სერვერი ერთსა და იმავეს ხედავს, და შეგვიძლია გავაანალიზოთ: რას კითხულობენ ხშირად, სად ცდება ასისტენტი.
-
-**რას ვინახავთ? ყველაფერს**, tool-ების გამოძახებებისა და შედეგების ჩათვლით. ასე მუშაობს რეალური სისტემებიც: ბაზაში სრული ჩანაწერია, ხოლო ის, რასაც **მოდელს ვუგზავნით**, ცალკე გადაწყვეტილებაა (ნაწილი 3). „ბაზაში ინახება“ და „კონტექსტში მიდის“ ორი სხვადასხვა რამეა.
-  </aside>
-  <aside class="study-en">
-### Where to store the history
-
-| Option | What happens | Problem |
-|---|---|---|
-| **The client sends it** | the frontend sends the whole conversation in every request | the client can change the history (e.g. write that the assistant “promised” a 50% discount); the traffic grows every time |
-| **Server memory** | a `Dictionary<Guid, List<ChatMessage>>` in a Singleton service | everything disappears when the app restarts; with two servers, one user's requests end up in different memories |
-| **PostgreSQL** ✓ | a table where one row is one message, by `ConversationId` | — |
-
-In the database the history stays, every server sees the same one, and we can analyse it: what people ask often, where the assistant makes mistakes.
-
-**What do we store? Everything**, the tool calls and results included. Real systems work this way too: the database has the full record, while what we **send to the model** is a separate decision (part 3). “Stored in the database” and “goes into the context” are two different things.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · ისტორია ბაზაში">
@@ -399,164 +239,6 @@ public class ChatHistoryStore
 }
     </code-block>
   </div>
-  <aside class="study">
-### ცხრილი და შენახვა: `ChatMessageRecord` და `ChatHistoryStore`
-
-**ცხრილი.** ერთი ხაზი ერთი შეტყობინებაა:
-
-```csharp Data/ChatMessageRecord.cs
-public class ChatMessageRecord
-{
-    public Guid Id { get; set; }
-    public Guid ConversationId { get; set; }   // which conversation it belongs to
-    public int Position { get; set; }          // order in the conversation: 0, 1, 2…
-    public string Role { get; set; } = "";     // user / assistant / tool — for looking at the DB
-
-    [Column(TypeName = "jsonb")]
-    public string Json { get; set; } = "";     // the whole ChatMessage
-
-    public DateTime CreatedAt { get; set; }
-}
-```
-
-`DataContext`-ში: `public DbSet<ChatMessageRecord> ChatMessages => Set<ChatMessageRecord>();`, მერე migration (`Add-Migration ChatHistory`, `Update-Database`).
-
-**რატომ jsonb და არა სვეტები?** `ChatMessage`-ს `Text` კი არა, **`Contents`** აქვს: სხვადასხვა ტიპის ნაწილების სია. ტექსტი (`TextContent`), tool-ის გამოძახება (`FunctionCallContent`), tool-ის შედეგი (`FunctionResultContent`), Gemini-ს ფიქრის ხელმოწერა (`TextReasoningContent`, ლექცია 4). ყოველი ტიპისთვის სვეტები რომ გავაკეთოთ, ცხრილი ჩიხი გახდება. ამიტომ მთელ შეტყობინებას JSON-ად ვინახავთ ერთ **jsonb** სვეტში: PostgreSQL მას JSON-ად ინახავს და შიგნით ძებნაც შეუძლია.
-
-**სერიალიზაცია.** `AIJsonUtilities.DefaultOptions` — Microsoft.Extensions.AI-ის მზა პარამეტრები, რომლებმაც `AIContent`-ის ყველა ტიპი იციან. JSON-ში ყოველ ნაწილს `"$type"` ეწერება (`"text"`, `"functionCall"`…), რომ უკან წაკითხვისას სწორი ტიპი შეიქმნას:
-
-```csharp Ai/ChatHistoryStore.cs
-public class ChatHistoryStore
-{
-    // jsonb reorders keys — "$type" is no longer first
-    private static readonly JsonSerializerOptions Json =
-        new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true };
-
-    private readonly DataContext _db;
-    public ChatHistoryStore(DataContext db) { _db = db; }
-
-    public async Task<List<ChatMessage>> LoadAsync(Guid conversationId, CancellationToken ct)
-    {
-        List<string> rows = await _db.ChatMessages
-            .Where(m => m.ConversationId == conversationId)
-            .OrderBy(m => m.Position)
-            .Select(m => m.Json)
-            .ToListAsync(ct);
-
-        return rows.Select(j => JsonSerializer.Deserialize<ChatMessage>(j, Json)!).ToList();
-    }
-
-    public async Task AppendAsync(Guid conversationId, IEnumerable<ChatMessage> messages, CancellationToken ct)
-    {
-        int position = await _db.ChatMessages.CountAsync(m => m.ConversationId == conversationId, ct);
-        foreach (ChatMessage message in messages)
-        {
-            _db.ChatMessages.Add(new ChatMessageRecord
-            {
-                Id = Guid.NewGuid(),
-                ConversationId = conversationId,
-                Position = position++,
-                Role = message.Role.Value,
-                Json = JsonSerializer.Serialize(message, Json),
-                CreatedAt = DateTime.UtcNow
-            });
-        }
-        await _db.SaveChangesAsync(ct);
-    }
-}
-```
-
-`Program.cs`-ში: `builder.Services.AddScoped<ChatHistoryStore>();` (Scoped, რადგან `DataContext`-ს იყენებს).
-
-```warn
-**`AllowOutOfOrderMetadataProperties = true` აუცილებელია.** System.Text.Json ელოდება, რომ `"$type"` ობიექტში **პირველი** იყოს. jsonb კი key-ებს თავისებურად ალაგებს (ჯერ მოკლეს), და `"text"` `"$type"`-ზე წინ ექცევა. ამ პარამეტრის გარეშე წაკითხვისას exception მოვა.
-```
-
-```terms
-jsonb — PostgreSQL-ის ტიპი JSON-ისთვის: ინახავს დამუშავებულ ფორმაში, შიგნით ძებნა შეუძლია
-AIJsonUtilities.DefaultOptions — Microsoft.Extensions.AI-ის JSON პარამეტრები, რომლებმაც ChatMessage და AIContent-ის ყველა ტიპი იციან
-$type — JSON-ში ველი, რომელიც ამბობს, რომელი C# ტიპი შეიქმნას (text, functionCall, functionResult…)
-```
-  </aside>
-  <aside class="study-en">
-### The table and storing: `ChatMessageRecord` and `ChatHistoryStore`
-
-**The table.** One row is one message:
-
-```csharp Data/ChatMessageRecord.cs
-public class ChatMessageRecord
-{
-    public Guid Id { get; set; }
-    public Guid ConversationId { get; set; }   // which conversation it belongs to
-    public int Position { get; set; }          // order in the conversation: 0, 1, 2…
-    public string Role { get; set; } = "";     // user / assistant / tool — for looking at the DB
-
-    [Column(TypeName = "jsonb")]
-    public string Json { get; set; } = "";     // the whole ChatMessage
-
-    public DateTime CreatedAt { get; set; }
-}
-```
-
-In `DataContext`: `public DbSet<ChatMessageRecord> ChatMessages => Set<ChatMessageRecord>();`, then a migration (`Add-Migration ChatHistory`, `Update-Database`).
-
-**Why jsonb and not columns?** A `ChatMessage` doesn't have a `Text`, it has **`Contents`**: a list of parts of different types. Text (`TextContent`), a tool call (`FunctionCallContent`), a tool result (`FunctionResultContent`), Gemini's thought signature (`TextReasoningContent`, lecture 4). If we made columns for every type, the table would become a dead end. So we store the whole message as JSON in one **jsonb** column: PostgreSQL stores it as JSON and can search inside it.
-
-**Serialization.** `AIJsonUtilities.DefaultOptions` — Microsoft.Extensions.AI's ready-made settings that know every `AIContent` type. In the JSON every part gets a `"$type"` (`"text"`, `"functionCall"`…), so that the right type is created when reading it back:
-
-```csharp Ai/ChatHistoryStore.cs
-public class ChatHistoryStore
-{
-    // jsonb reorders keys — "$type" is no longer first
-    private static readonly JsonSerializerOptions Json =
-        new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true };
-
-    private readonly DataContext _db;
-    public ChatHistoryStore(DataContext db) { _db = db; }
-
-    public async Task<List<ChatMessage>> LoadAsync(Guid conversationId, CancellationToken ct)
-    {
-        List<string> rows = await _db.ChatMessages
-            .Where(m => m.ConversationId == conversationId)
-            .OrderBy(m => m.Position)
-            .Select(m => m.Json)
-            .ToListAsync(ct);
-
-        return rows.Select(j => JsonSerializer.Deserialize<ChatMessage>(j, Json)!).ToList();
-    }
-
-    public async Task AppendAsync(Guid conversationId, IEnumerable<ChatMessage> messages, CancellationToken ct)
-    {
-        int position = await _db.ChatMessages.CountAsync(m => m.ConversationId == conversationId, ct);
-        foreach (ChatMessage message in messages)
-        {
-            _db.ChatMessages.Add(new ChatMessageRecord
-            {
-                Id = Guid.NewGuid(),
-                ConversationId = conversationId,
-                Position = position++,
-                Role = message.Role.Value,
-                Json = JsonSerializer.Serialize(message, Json),
-                CreatedAt = DateTime.UtcNow
-            });
-        }
-        await _db.SaveChangesAsync(ct);
-    }
-}
-```
-
-In `Program.cs`: `builder.Services.AddScoped<ChatHistoryStore>();` (Scoped, because it uses `DataContext`).
-
-```warn
-**`AllowOutOfOrderMetadataProperties = true` is required.** System.Text.Json expects `"$type"` to be **first** in the object. But jsonb orders keys its own way (shorter ones first), and `"text"` ends up before `"$type"`. Without this setting reading it back throws an exception.
-```
-
-```terms
-jsonb — PostgreSQL's type for JSON: stores it in a processed form and can search inside it
-AIJsonUtilities.DefaultOptions — Microsoft.Extensions.AI's JSON settings that know ChatMessage and every AIContent type
-$type — a field in the JSON that says which C# type to create (text, functionCall, functionResult…)
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · ისტორია ბაზაში">
@@ -594,80 +276,6 @@ public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 კი — ისტორია ბაზიდან იტვირთება და ყოველ მოთხოვნაში მიდის</div>
     </div>
   </div>
-  <aside class="study">
-### `/chat` ისტორიით: ჩატვირთე → გაგზავნე → შეინახე
-
-```csharp Controllers/AiLabController.cs · Chat
-public record ChatRequest(Guid? ConversationId, string Prompt);
-
-[HttpPost("chat")]
-public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
-{
-    Guid conversationId = request.ConversationId ?? Guid.NewGuid();
-
-    List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-    ChatMessage question = new(ChatRole.User, request.Prompt);
-
-    List<ChatMessage> messages = [SystemPrompt(), .. history, question];
-    ChatResponse response =
-        await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);
-
-    await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
-
-    return Ok(new { conversationId, response.Text, response.Usage?.InputTokenCount });
-}
-```
-
-`ChatHistoryStore` Controller-ს constructor-ით მოდის (`_history`), როგორც `RestaurantTools`.
-
-**ნაბიჯ-ნაბიჯ:**
-
-1. **`ConversationId ?? Guid.NewGuid()`** — პირველ შეკითხვაზე კლიენტს id არ აქვს, ამიტომ ახალ საუბარს ვიწყებთ. id-ს პასუხში ვაბრუნებთ, და კლიენტი მას ყოველ შემდეგ მოთხოვნაში აგზავნის.
-2. **`LoadAsync`** — წინა შეტყობინებები ბაზიდან, რიგით.
-3. **`[SystemPrompt(), .. history, question]`** — collection expression: System პირველი, მერე ისტორია (`..` სიას „შლის“), ბოლოს ახალი შეკითხვა. `SystemPrompt()` იგივე System prompt-ია, რაც ლექცია 6-ში, ცალკე მეთოდში გატანილი, როგორც `ChatToolOptions()`.
-4. **`AppendAsync(conversationId, [question, .. response.Messages])`** — ვინახავთ შეკითხვას და **ყველაფერს**, რაც მოდელმა დაამატა. `response.Messages` tool-ის ციკლში ერთზე მეტი შეტყობინებაა: tool-ის თხოვნა, შედეგი და საბოლოო პასუხი.
-
-**System prompt ბაზაში არ ინახება.** ის ჩვენია, არა საუბრის ნაწილი: შიგ დღევანდელი თარიღია, და თუ ხვალ წესს შევცვლით, ძველ საუბრებსაც ახალი წესი უნდა ჰქონდეს. ამიტომ ყოველ მოთხოვნაზე ახლიდან ვაწყობთ და სიის თავში ვსვამთ.
-
-**Swagger-ში შემოწმება:** პირველი მოთხოვნა `conversationId`-ის გარეშე → პასუხში ახალი id. მეორე მოთხოვნა იმავე id-ით: "And at 21:00?" → მოდელი ხედავს პირველ შეკითხვას და `check_availability`-ს 21:00-ით იძახებს. `InputTokenCount` მეორე მოთხოვნაზე უფრო დიდია: ისტორიაც მიდის.
-  </aside>
-  <aside class="study-en">
-### `/chat` with history: load → send → save
-
-```csharp Controllers/AiLabController.cs · Chat
-public record ChatRequest(Guid? ConversationId, string Prompt);
-
-[HttpPost("chat")]
-public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
-{
-    Guid conversationId = request.ConversationId ?? Guid.NewGuid();
-
-    List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-    ChatMessage question = new(ChatRole.User, request.Prompt);
-
-    List<ChatMessage> messages = [SystemPrompt(), .. history, question];
-    ChatResponse response =
-        await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);
-
-    await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
-
-    return Ok(new { conversationId, response.Text, response.Usage?.InputTokenCount });
-}
-```
-
-`ChatHistoryStore` comes to the Controller through the constructor (`_history`), like `RestaurantTools`.
-
-**Step by step:**
-
-1. **`ConversationId ?? Guid.NewGuid()`** — on the first question the client has no id, so we start a new conversation. We return the id in the response, and the client sends it in every later request.
-2. **`LoadAsync`** — the previous messages from the database, in order.
-3. **`[SystemPrompt(), .. history, question]`** — a collection expression: System first, then the history (`..` “spreads” the list), and the new question last. `SystemPrompt()` is the same System prompt as in lecture 6, moved into its own method, like `ChatToolOptions()`.
-4. **`AppendAsync(conversationId, [question, .. response.Messages])`** — we store the question and **everything** the model added. In the tool loop `response.Messages` is more than one message: the tool request, the result and the final answer.
-
-**The System prompt isn't stored in the database.** It's ours, not part of the conversation: it has today's date in it, and if we change a rule tomorrow, old conversations should get the new rule too. So we build it again on every request and put it at the top of the list.
-
-**Checking it in Swagger:** the first request without a `conversationId` → a new id in the response. The second request with the same id: “And at 21:00?” → the model sees the first question and calls `check_availability` with 21:00. `InputTokenCount` is bigger on the second request: the history goes too.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · ისტორია ბაზაში">
@@ -686,46 +294,6 @@ public async Task<IActionResult> Chat(ChatRequest request, CancellationToken ct)
     <div class="callout ask step">🙋 ერთ შეკითხვაზე <b>ოთხი</b> ხაზი. რატომ?</div>
     <div class="callout step" data-with style="--a:var(--asp);font-size:18px">tool-ის ციკლი (ლექცია 4): <b>თხოვნა → შედეგი → პასუხი</b>. ყველა შეტყობინებაა, ყველა ინახება</div>
   </div>
-  <aside class="study">
-### რა ჩანს ბაზაში ორი შეკითხვის შემდეგ
-
-`SELECT "Position", "Role", "Json" FROM "ChatMessages" WHERE "ConversationId" = '…' ORDER BY "Position";`
-
-| Position | Role | Json (მოკლედ) |
-|---|---|---|
-| 0 | user | `{"text": "Four of us tomorrow at 20:00…", "$type": "text"}` |
-| 1 | assistant | `functionCall`: `check_availability`, `{"at": "…T20:00", "guests": 4}` + ფიქრის ხელმოწერა |
-| 2 | tool | `functionResult`: `{"available": true, "freeTables": 2}` |
-| 3 | assistant | `{"text": "Yes, two tables are free.", "$type": "text"}` |
-| 4 | user | "And at 21:00?" |
-| 5–7 | … | functionCall (21:00) → functionResult → "One table is free at 21:00" |
-
-**ერთ შეკითხვაზე ოთხი ხაზია**, რადგან tool-ის ციკლი (ლექცია 4) შეტყობინებებით მუშაობს: მოდელი ითხოვს გამოძახებას (assistant), ჩვენი კოდი აბრუნებს შედეგს (tool), მოდელი წერს პასუხს (assistant). ყველა მათგანი `response.Messages`-შია, და ყველას ვინახავთ.
-
-**რატომ ვინახავთ ფიქრის ხელმოწერასაც?** Gemini 3 მოითხოვს, რომ მის ფიქრის ბლოკებს ზუსტად ისე დავუბრუნოთ, როგორც გამოგვიგზავნა. მთელ `ChatMessage`-ს რომ ვინახავთ, ეს თავისით სრულდება.
-
-jsonb-ში key-ები სხვა რიგითაა (`"text"` `"$type"`-ზე წინ): სწორედ ამიტომ გვჭირდება `AllowOutOfOrderMetadataProperties`.
-  </aside>
-  <aside class="study-en">
-### What the database shows after two questions
-
-`SELECT "Position", "Role", "Json" FROM "ChatMessages" WHERE "ConversationId" = '…' ORDER BY "Position";`
-
-| Position | Role | Json (short) |
-|---|---|---|
-| 0 | user | `{"text": "Four of us tomorrow at 20:00…", "$type": "text"}` |
-| 1 | assistant | `functionCall`: `check_availability`, `{"at": "…T20:00", "guests": 4}` + the thought signature |
-| 2 | tool | `functionResult`: `{"available": true, "freeTables": 2}` |
-| 3 | assistant | `{"text": "Yes, two tables are free.", "$type": "text"}` |
-| 4 | user | “And at 21:00?” |
-| 5–7 | … | functionCall (21:00) → functionResult → “One table is free at 21:00” |
-
-**One question gives four rows**, because the tool loop (lecture 4) works through messages: the model asks for a call (assistant), our code returns the result (tool), the model writes the answer (assistant). All of them are in `response.Messages`, and we store all of them.
-
-**Why do we store the thought signature too?** Gemini 3 requires us to send its thought blocks back exactly as it sent them. Since we store the whole `ChatMessage`, this happens by itself.
-
-In jsonb the keys are in a different order (`"text"` before `"$type"`): that's exactly why we need `AllowOutOfOrderMetadataProperties`.
-  </aside>
 </section>
 
 <section class="slide divider" data-section="შესვენება">
@@ -745,16 +313,6 @@ In jsonb the keys are in a different order (`"text"` before `"$type"`): that's e
     <p class="lead mt in" style="--d:.3s">ზრდა · შერჩევა · შეკუმშვა · რიგი</p>
   </div>
   <div class="big-num">03</div>
-  <aside class="study">
-## ნაწილი 3 · ტოკენების ბიუჯეტი
-
-ისტორია მუშაობს, მაგრამ ყოველ შეკითხვაზე მთელი საუბარი მიდის, და ის მუდმივად იზრდება. ვნახავთ, რამდენად სწრაფად, რა სტრატეგიები არსებობს და როგორ ვგზავნით მოდელთან ისტორიის მხოლოდ ნაწილს, ისე რომ ბაზაში ყველაფერი რჩება.
-  </aside>
-  <aside class="study-en">
-## Part 3 · The token budget
-
-The history works, but every question sends the whole conversation, and it keeps growing. We see how fast, what strategies exist, and how we send the model only part of the history while everything stays in the database.
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · ბიუჯეტი">
@@ -781,52 +339,6 @@ The history works, but every question sends the whole conversation, and it keeps
       <div class="prob step" style="--a:var(--pink)"><span class="pi">🕰️</span><div><b>ძველი მონაცემი</b><span>ისტორიაში ლობიო ჯერ 12 ლარია, ბაზაში უკვე 14</span></div></div>
     </div>
   </div>
-  <aside class="study">
-### ზრდა: ყოველ შეკითხვაზე მთელი ისტორია მიდის
-
-თითო შეკითხვის `InputTokenCount` ერთ საუბარში (ნიმუში):
-
-| შეკითხვა | რა მოხდა | InputTokenCount |
-|---|---|---|
-| 1 | „გამარჯობა“ | ~620 (System + tool-ები) |
-| 2 | "Four at 20:00?" → `check_availability` | ~1 450 |
-| 3 | "What do you have under 15 GEL?" → **`get_menu`** | ~3 300 |
-| 4 | "Is the lobio spicy?" | ~3 900 |
-| 5 | "What do you have that's vegetarian?" → **`get_menu`** ისევ | ~5 600 |
-| 6 | "OK, I'll book" | ~7 100 |
-
-**ყველაზე დიდი ნახტომი `get_menu`-ის შემდეგაა**: მთელი მენიუ `functionResult`-ად ისტორიაში რჩება და ყოველ შემდეგ შეკითხვას მიჰყვება. თანაც ორჯერ.
-
-**რატომ არის ეს პრობლემა:**
-
-- 💸 **ფასი და სიჩქარე.** input ტოკენი ფასიანია. მე-50 შეკითხვაზე ათობით ათასი ტოკენი მიდის, ყოველ ჯერზე, და დიდ კონტექსტს მოდელი უფრო ნელა ამუშავებს.
-- 🧱 **ლიმიტი.** context window დიდია, მაგრამ არა უსასრულო. გრძელი საუბარი ადრე თუ გვიან ივსება.
-- 🕰️ **ძველი მონაცემი.** ისტორიაში დარჩენილ tool-ის შედეგში ლობიო 12 ლარია, ბაზაში კი უკვე 14. მოდელმა შეიძლება tool თავიდან აღარ გამოიძახოს და ძველი ფასი თქვას.
-- 🎯 **ყურადღება.** რაც მეტია კონტექსტში, მით მეტი რამ „უშლის ხელს“ მთავარს. გრძელ კონტექსტში მოდელი შუა ნაწილს უფრო ხშირად „ვერ ამჩნევს“.
-  </aside>
-  <aside class="study-en">
-### Growth: every question sends the whole history
-
-The `InputTokenCount` of each question in one conversation (sample):
-
-| Question | What happened | InputTokenCount |
-|---|---|---|
-| 1 | “Hello” | ~620 (System + tools) |
-| 2 | “Four of us at 20:00?” → `check_availability` | ~1,450 |
-| 3 | “What do you have under 15 GEL?” → **`get_menu`** | ~3,300 |
-| 4 | “Is the lobio spicy?” | ~3,900 |
-| 5 | “What vegetarian dishes do you have?” → **`get_menu`** again | ~5,600 |
-| 6 | “OK, I'll book” | ~7,100 |
-
-**The biggest jump comes after `get_menu`**: the whole menu stays in the history as a `functionResult` and goes along with every later question. Twice, at that.
-
-**Why this is a problem:**
-
-- 💸 **Cost and speed.** Input tokens cost money. On the 50th question tens of thousands of tokens go every time, and the model processes a large context more slowly.
-- 🧱 **The limit.** The context window is big, but not infinite. A long conversation fills it sooner or later.
-- 🕰️ **Stale data.** In the tool result left in the history the lobio costs 12 GEL, but in the database it's already 14. The model may not call the tool again and quote the old price.
-- 🎯 **Attention.** The more there is in the context, the more things “get in the way” of the main one. In a long context the model more often “misses” the middle part.
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · ბიუჯეტი">
@@ -844,32 +356,6 @@ The `InputTokenCount` of each question in one conversation (sample):
     <div class="arr">→</div>
     <div class="fbox" style="--a:var(--net)"><h4>🪟 კონტექსტში</h4><span class="n">ნაწილი</span><p>რასაც მოდელი ხედავს</p></div>
   </div>
-  <aside class="study">
-### სამი სტრატეგია: შერჩევა, შეკუმშვა, რიგი
-
-| სტრატეგია | რას ნიშნავს | ჩვენს პროექტში |
-|---|---|---|
-| 🎯 **შერჩევა** | კონტექსტში მხოლოდ ის, რაც ამ შეკითხვას სჭირდება | მთელი მენიუს ნაცვლად tool (ლექცია 4: მოდელი თვითონ ითხოვს, რაც სჭირდება) · ისტორიიდან ბოლო N შეტყობინება · ლექცია 11-ში RAG: დოკუმენტებიდან მხოლოდ შესაბამისი ნაწილები |
-| 🗜️ **შეკუმშვა** | ძველი ნაწილი პატარა ფორმით | **truncation**: ძველ შეტყობინებებს ვაგდებთ · **summarization**: ძველ ნაწილს მოდელი მოკლედ აჯამებს და შეჯამება მიდის მის ნაცვლად |
-| 📐 **რიგი** | სად დგას რა კონტექსტში | System ყოველთვის პირველი · ახალი შეკითხვა ბოლოს · მნიშვნელოვანი ინფორმაცია დასაწყისში ან ბოლოს, არა შუაში |
-
-**მთავარი იდეა: ბაზაში ყველაფერი რჩება, კონტექსტში მხოლოდ ნაწილი მიდის.** ჩვენი კოდი ყოველ მოთხოვნაზე წყვეტს, ბაზიდან რა გავიდეს. ეს გადაწყვეტილება ჩვენია და არა მოდელის: სწორედ ესაა context engineering.
-
-**truncation vs summarization.** truncation მარტივი და იაფია, მაგრამ ძველი დეტალი (მაგ. „ოთხნი ვართ“) ქრება. summarization დეტალს ინახავს, მაგრამ ერთი დამატებითი გამოძახება ჯდება და შეჯამებამ შეიძლება რამე გამოტოვოს. დღეს truncation-ს ვაკეთებთ, summarization ⭐-შია.
-  </aside>
-  <aside class="study-en">
-### Three strategies: selection, compression, order
-
-| Strategy | What it means | In our project |
-|---|---|---|
-| 🎯 **Selection** | only what this question needs goes into the context | a tool instead of the whole menu (lecture 4: the model asks for what it needs) · the last N messages of the history · RAG in lecture 11: only the relevant parts of documents |
-| 🗜️ **Compression** | the old part in a smaller form | **truncation**: we drop the old messages · **summarization**: the model sums up the old part briefly and the summary goes in its place |
-| 📐 **Order** | where things stand in the context | System always first · the new question last · important information at the start or the end, not in the middle |
-
-**The main idea: everything stays in the database, only part of it goes into the context.** On every request our code decides what goes out of the database. This decision is ours, not the model's: that's exactly what context engineering is.
-
-**Truncation vs summarization.** Truncation is simple and cheap, but an old detail (e.g. “four of us”) disappears. Summarization keeps the detail, but costs one extra call, and the summary may leave something out. Today we do truncation; summarization is in the ⭐.
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · ბიუჯეტი">
@@ -896,84 +382,6 @@ List<ChatMessage> messages = [SystemPrompt(), .. recent, question];
       <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">tool-ს <b>თავიდან</b> გამოიძახებს → ახალი ფასი ბაზიდან</div>
     </div>
   </div>
-  <aside class="study">
-### `IChatReducer`: მოდელთან ბოლო 10 შეტყობინება
-
-Microsoft.Extensions.AI-ს აქვს **`IChatReducer`**: interface, რომელიც შეტყობინებების სიას იღებს და პატარას აბრუნებს. მზა ვერსია **`MessageCountingChatReducer`** მხოლოდ ბოლო N შეტყობინებას ტოვებს:
-
-```csharp Controllers/AiLabController.cs · Chat
-#pragma warning disable MEAI001   // reducers are still experimental
-private static readonly IChatReducer Reducer = new MessageCountingChatReducer(10);
-#pragma warning restore MEAI001
-
-// inside Chat:
-List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
-
-ChatMessage question = new(ChatRole.User, request.Prompt);
-List<ChatMessage> messages = [SystemPrompt(), .. recent, question];
-// ... GetResponseAsync, AppendAsync — unchanged
-```
-
-**რას აკეთებს `MessageCountingChatReducer(10)`:**
-
-- ტოვებს **ბოლო 10** შეტყობინებას (System-ის გარდა). ძველი კონტექსტში აღარ მიდის.
-- **tool-ის შეტყობინებებს ამოყრის** (`functionCall`, `functionResult`). ამიტომ მენიუ ძველ შეკითხვებს აღარ მიჰყვება: ყველაზე დიდი ნაწილი ქრება.
-- **ბაზას არ ეხება.** `AppendAsync` ისევ ყველაფერს ინახავს. იცვლება მხოლოდ ის, რაც **ამ** მოთხოვნაში მიდის.
-
-**და ფასი?** მენიუ კონტექსტში აღარ არის, ამიტომ თუ მომხმარებელი ფასს კითხულობს, მოდელი `get_menu`-ს **თავიდან** იძახებს და ახალ ფასს იღებს. ეს უკეთესიცაა: ძველი ფასი აღარ „იჭედება“ ისტორიაში.
-
-**რატომ არა უბრალოდ `history.TakeLast(10)`?** შეიძლება სიის შუაში გაჭრა: functionCall დარჩეს, მისი functionResult კი არა. ასეთ ისტორიაზე პროვაიდერი შეცდომას აბრუნებს. reducer tool-ის შეტყობინებებს მთლიანად იღებს და ამ პრობლემას გვერდს უვლის.
-
-```warn
-**`MEAI001`.** reducer-ები Microsoft.Extensions.AI-ში ჯერ **experimental**-ად არის მონიშნული: API შეიძლება შეიცვალოს. compiler-ი შეცდომას აჩვენებს, სანამ `#pragma warning disable MEAI001`-ს (ან `.csproj`-ში `<NoWarn>MEAI001</NoWarn>`) არ დავწერთ.
-```
-
-```terms
-IChatReducer — interface, რომელიც შეტყობინებების სიას ამცირებს, სანამ მოდელს გაეგზავნება
-MessageCountingChatReducer — მზა reducer: ტოვებს ბოლო N შეტყობინებას და ამოყრის tool-ის შეტყობინებებს
-Truncation — ძველი შეტყობინებების კონტექსტიდან ამოგდება
-```
-  </aside>
-  <aside class="study-en">
-### `IChatReducer`: the last 10 messages to the model
-
-Microsoft.Extensions.AI has **`IChatReducer`**: an interface that takes a list of messages and returns a smaller one. The ready-made **`MessageCountingChatReducer`** keeps only the last N messages:
-
-```csharp Controllers/AiLabController.cs · Chat
-#pragma warning disable MEAI001   // reducers are still experimental
-private static readonly IChatReducer Reducer = new MessageCountingChatReducer(10);
-#pragma warning restore MEAI001
-
-// inside Chat:
-List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
-
-ChatMessage question = new(ChatRole.User, request.Prompt);
-List<ChatMessage> messages = [SystemPrompt(), .. recent, question];
-// ... GetResponseAsync, AppendAsync — unchanged
-```
-
-**What `MessageCountingChatReducer(10)` does:**
-
-- It keeps **the last 10** messages (besides System). The older ones no longer go into the context.
-- It **drops the tool messages** (`functionCall`, `functionResult`). So the menu no longer goes along with old questions: the biggest part disappears.
-- It **doesn't touch the database.** `AppendAsync` still stores everything. Only what goes in **this** request changes.
-
-**And the price?** The menu is no longer in the context, so if the user asks about a price, the model calls `get_menu` **again** and gets the new price. This is even better: an old price no longer “gets stuck” in the history.
-
-**Why not just `history.TakeLast(10)`?** It might cut in the middle of a list: a functionCall stays but its functionResult doesn't. On such a history the provider returns an error. The reducer removes the tool messages entirely and sidesteps this problem.
-
-```warn
-**`MEAI001`.** Reducers in Microsoft.Extensions.AI are still marked **experimental**: the API may change. The compiler shows an error until we write `#pragma warning disable MEAI001` (or `<NoWarn>MEAI001</NoWarn>` in the `.csproj`).
-```
-
-```terms
-IChatReducer — an interface that shrinks the list of messages before it's sent to the model
-MessageCountingChatReducer — a ready-made reducer: keeps the last N messages and drops the tool messages
-Truncation — dropping old messages from the context
-```
-  </aside>
 </section>
 
 <lecture-classwork/>
@@ -1000,34 +408,6 @@ Truncation — dropping old messages from the context
         <p class="small"><b>Error Handling, Resilience და ხარჯი</b>: retry, timeout, fallback მოდელი და რამდენი დავხარჯეთ დღეს</p></div>
     </div>
   </div>
-  <aside class="study">
-## შეჯამება
-
-- მოდელი **stateless**-ია. „მეხსიერება“ ისტორიაა, რომელსაც ყოველ მოთხოვნაში **ჩვენ** ვუგზავნით.
-- **კონტექსტი** ყველაფერია, რასაც მოდელი ერთ მოთხოვნაში ხედავს: System, tool-ების აღწერები, ისტორია, tool-ების შედეგები, ახალი შეკითხვა. ყველაზე დიდი ნაწილი ხშირად tool-ების შედეგებია.
-- **Context engineering** — იმის გადაწყვეტა, რა ჩავდოთ კონტექსტში, რა დავტოვოთ გარეთ და რა რიგით. სტრატეგიები: **შერჩევა**, **შეკუმშვა** (truncation, summarization), **რიგი**.
-- ისტორია **PostgreSQL**-შია: ერთი ხაზი = ერთი `ChatMessage`, `ConversationId`-ით, მთელი შეტყობინება **jsonb**-ში (`AIJsonUtilities.DefaultOptions` + `AllowOutOfOrderMetadataProperties`). ვინახავთ **ყველაფერს**, tool-ების ჩათვლით.
-- **System prompt** ბაზაში არ ინახება: ის ჩვენია და ყოველ მოთხოვნაზე ახლიდან იწყობა.
-- **ბაზაში ყველაფერი, კონტექსტში ნაწილი.** `MessageCountingChatReducer` ბოლო N შეტყობინებას ტოვებს და tool-ის შეტყობინებებს ამოყრის; მოდელი საჭიროებისას tool-ს თავიდან იძახებს.
-
-### შემდეგ ლექციაზე
-
-ჩატს ახლა ახსოვს, მაგრამ ყოველი შეკითხვა Gemini-ს რამდენიმე გამოძახებაა, და Gemini ზოგჯერ ცდება: 429 (ძალიან ბევრი მოთხოვნა), 503 (გადატვირთულია), timeout. ახლა ასეთ დროს მომხმარებელი 500-ს ხედავს. ლექცია 8-ზე: **Error Handling, Resilience და ხარჯის კონტროლი** — retry, timeout, fallback მოდელი და ტოკენების აღრიცხვა ბაზაში.
-  </aside>
-  <aside class="study-en">
-## Summary
-
-- The model is **stateless**. “Memory” is the history that **we** send in every request.
-- **Context** is everything the model sees in one request: System, the tool descriptions, the history, the tool results, the new question. The biggest part is often the tool results.
-- **Context engineering** — deciding what to put in the context, what to leave out and in what order. The strategies: **selection**, **compression** (truncation, summarization), **order**.
-- The history is in **PostgreSQL**: one row = one `ChatMessage`, by `ConversationId`, the whole message in **jsonb** (`AIJsonUtilities.DefaultOptions` + `AllowOutOfOrderMetadataProperties`). We store **everything**, the tool messages included.
-- The **System prompt** isn't stored in the database: it's ours and gets built again on every request.
-- **Everything in the database, part of it in the context.** `MessageCountingChatReducer` keeps the last N messages and drops the tool messages; the model calls a tool again when it needs to.
-
-### Next lecture
-
-The chat remembers now, but every question is several Gemini calls, and Gemini sometimes fails: 429 (too many requests), 503 (overloaded), a timeout. Right now the user sees a 500 when that happens. In lecture 8: **Error Handling, Resilience and Cost Control** — retry, timeout, a fallback model and recording the tokens in the database.
-  </aside>
 </section>
 
 <lecture-homework/>

@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,242 +145,46 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 2</small>პირველი გამოძახება და Prompt Engineering</div>
-  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
-  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
-  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+  <div class="bar">
+    <a class="back" href="../../">← ლექციები</a>
+    <div class="ttl"><small>📖 ლექცია 2</small>პირველი გამოძახება და Prompt Engineering</div>
+    <div class="acts">
+      <a class="btn lang" href="study.en.html" title="English">EN</a>
+      <button class="themebtn btn" type="button" title="ღია / მუქი თემა" aria-label="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.html" target="_blank" title="პრეზენტაცია" aria-label="პრეზენტაცია"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">მთავარი</button><button type="button" data-t="topics">თემები<small>4</small></button><button type="button" data-t="tasks">დავალებები</button><button type="button" data-t="quiz">ტესტი<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
-    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">1′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">პირველი გამოძახება: Gemini ჩვენი API-დან</span><span class="nm">4′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">პარამეტრები კოდში: ChatOptions და Usage</span><span class="nm">1′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Prompt engineering: როლები, system prompt, few-shot</span><span class="nm">4′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: შენი ასისტენტი</span><span class="nm">1′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება</span><span class="nm">1′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">1′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">9</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 2</div>
-      <h1>პირველი გამოძახება და Prompt Engineering</h1>
-      <p>ლექციის სრული მასალა თავებად, ~14 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li><code>IChatClient</code> LLM-ის „DbContext“-ია: კოდი <code>GetResponseAsync</code>-ს იძახებს, Gemini-სთან კი provider ლაპარაკობს. პროვაიდერის შეცვლა — ერთი ხაზი.</li><li>API key <strong>User Secrets</strong>-შია (<code>Gemini:ApiKey</code>), არასდროს კოდში ან Git-ში.</li><li><code>ChatOptions</code> ყოველ მოთხოვნას ეყენება. პასუხში <strong><code>Usage</code></strong> (input, output, ფიქრის ტოკენები) და <strong><code>FinishReason</code></strong> (<code>stop</code> / <code>length</code>) გვეუბნება, რა დაჯდა და რატომ გაჩერდა.</li><li>მოდელს <strong><code>ChatMessage</code>-ების სიას</strong> ვუგზავნით: <strong>System</strong> (ჩვენი წესები), <strong>User</strong> (მომხმარებელი), <strong>Assistant</strong> (მოდელის პასუხი).</li><li>კარგი <strong>system prompt</strong> = როლი + თემები + ფორმა + რა არ უნდა გააკეთოს. <strong>Few-shot</strong> მაგალითები პასუხს ზუსტ ფორმატში აფიქსირებს, რომ C# კოდმა გამოიყენოს.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~14 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 11 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — მიმოხილვა</a> — IChatClient, ChatOptions, ChatMessage — ოფიციალური დოკუმენტაცია</li><li><a href="https://googleapis.github.io/dotnet-genai/" target="_blank" rel="noopener">Google Gen AI .NET SDK</a> — Google.GenAI package და AsIChatClient</li><li><a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Gemini — მოდელების სია</a> — მიმდინარე მოდელების სახელები</li><li><a href="https://ai.google.dev/gemini-api/docs/prompting-strategies" target="_blank" rel="noopener">Gemini — Prompt design strategies</a> — Google-ის რჩევები: ინსტრუქციები, few-shot, ფორმატი</li><li><a href="https://aistudio.google.com" target="_blank" rel="noopener">Google AI Studio</a> — key და prompt-ების სწრაფი ცდა ბრაუზერში</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
-<p>ლექცია 1 — <strong>შესავალი Generative AI-სა და LLM API-ებში</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../01-genai-llm-intro/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის ტოკენი და რატომ გვაინტერესებს backend-ში?</summary><div class="ans">ტექსტის ნაჭერი, რომლითაც მოდელი კითხულობს და წერს · ფასი, context window-ის ლიმიტი და სიჩქარე ტოკენებით ითვლება; ქართული — მეტი ტოკენი</div></details><details><summary>როგორ წერს LLM პასუხს?</summary><div class="ans">next-token prediction: ითვლის შემდეგი ტოკენის ალბათობებს → ირჩევს ერთს → უმატებს → იმეორებს, სანამ არ დაასრულებს ან ლიმიტს არ მიაღწევს</div></details><details><summary>მოდელმა ჩვენი კერძის ფასი დაასახელა. რატომ არ ვენდობით?</summary><div class="ans">ჩვენი მენიუ არ უნახავს; წერს სავარაუდოს და არა ჭეშმარიტს — hallucination · ფასი ყოველთვის ბაზიდან</div></details><details><summary>რატომ „არ ახსოვს“ მოდელს წინა მოთხოვნა?</summary><div class="ans">stateless: ყოველი მოთხოვნა დამოუკიდებელია · ისტორია ჩვენ უნდა გავუგზავნოთ ყოველ ჯერზე</div></details><details><summary>შეკვეთის ტიპის დასადგენად რა Temperature-ს დავაყენებთ და რას ნიშნავს <code>finish_reason = length</code>?</summary><div class="ans">0 — ერთი სწორი პასუხი, ყოველ ჯერზე ერთნაირი (Gemini 3-ზე — ნაგულისხმევი, ლექცია 2) · length — Max Tokens-ს მიაღწია, პასუხი მოიჭრა</div></details><details><summary>რესტორნის ჩატს 300 საუბარი აქვს დღეში. რა ზრდის ყველაზე მეტად ხარჯს?</summary><div class="ans">ძვირი მოდელი (ფასი ათჯერ განსხვავდება) · მზარდი ისტორია, რომელიც ყოველ ჯერზე თავიდან იგზავნება · ქართული ტექსტი — მეტი ტოკენი</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
-<p>წინა ლექციის საშინაო: <strong>შენი პროექტის AI გეგმა — და მომზადება კოდისთვის</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
-<h3>მოთხოვნები</h3>
-<ul>
-<li><strong>3 AI ფუნქცია</strong> შენს პროექტში — ცხრილით (შედის / გამოდის / ბაზიდან / Temperature · Max Tokens / ტოკენები)</li>
-<li>ტოკენები — <strong><a href="https://tiktokenizer.vercel.app/">Tiktokenizer</a>-ით</strong> (მოდელი gpt-4o), ქართული ტექსტით</li>
-<li>ერთ ფუნქციაზე <strong>თვის ხარჯი</strong>: Gemini-ს <strong>რეალური</strong> ფასით, ფორმულით</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (12 კითხვა) — ქულა ჩაწერე</li>
-<li><strong>Gemini API key</strong> აიღე და შეინახე — შემდეგ ლექციაზე User Secrets-ში ჩავწერთ (<code>Gemini:ApiKey</code>) და კოდს ვწერთ</li>
-</ul>
-<h3>ამოხსნა</h3>
-<p>ნიმუში — ბიბლიოთეკის API.</p>
-<table>
-<thead>
-<tr>
-<th>ფუნქცია</th>
-<th>შედის</th>
-<th>გამოდის</th>
-<th>ბაზიდან</th>
-<th>Temperature · Max Tokens</th>
-<th>ტოკენები (ქართ.)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>წიგნის რეკომენდაცია</td>
-<td>„რამე მისტიკური, მოკლე“</td>
-<td>3 წიგნი + ახსნა</td>
-<td>წიგნები, ავტორი, გვერდები, ხელმისაწვდომობა</td>
-<td>0.6 · 250</td>
-<td>input ~400 (ინსტრუქცია + წიგნების სია), output ~150</td>
-</tr>
-<tr>
-<td>მოთხოვნის ტიპი</td>
-<td>მომხმარებლის ტექსტი</td>
-<td><code>Search</code> / <code>Reserve</code> / <code>Question</code></td>
-<td>—</td>
-<td>0 · 10</td>
-<td>input ~60, output ~2</td>
-</tr>
-<tr>
-<td>წიგნის მოკლე აღწერა</td>
-<td>წიგნის მონაცემი</td>
-<td>2 წინადადება</td>
-<td>სათაური, ავტორი, ჟანრი</td>
-<td>0.9 · 120</td>
-<td>input ~80, output ~80</td>
-</tr>
-</tbody>
-</table>
-<p>ხარჯი — „წიგნის რეკომენდაცია“, 200 მოთხოვნა დღეში, 30 დღე:</p>
-<div class="codebox"><div class="ch"><span>text</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">input:  200 × 400 × 30 = 2 400 000 = 2.4M</span><span class="ln">output: 200 × 150 × 30 =   900 000 = 0.9M</span><span class="ln">ხარჯი = 2.4 × [input ფასი 1M-ზე] + 0.9 × [output ფასი 1M-ზე]</span></code></pre></div>
-<div class="callout note"><span class="ci">💡</span><div><p>ყველაზე დიდი hallucination-ის რისკი რეკომენდაციაშია: მოდელმა შეიძლება მოიგონოს წიგნი, რომელიც ბიბლიოთეკაში არ არის. გამოსავალი — მოდელს მხოლოდ ბაზიდან წამოღებული სია მივცეთ (RAG, ლექცია 11) ან ძებნა tool-ით (ლექცია 4).</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~4 წთ კითხვა</div><h2>პირველი გამოძახება: Gemini ჩვენი API-დან</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> შენს API-ში იქნება endpoint, რომელიც Gemini-ს იძახებს და ტექსტთან ერთად ტოკენებს და finish reason-ს აბრუნებს.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · Gemini ჩვენი API-დან</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
-<p>ლექცია 1-ზე ვნახეთ, რომ LLM ჩვენთვის <strong>კიდევ ერთი HTTP API-ა</strong>. HTTP მოთხოვნას ხელით არ ავაწყობთ: .NET-ს ამისთვის აქვს ერთიანი ფენა — <strong>Microsoft.Extensions.AI</strong>. ამ ნაწილში RestaurantApi-ში ვქმნით პირველ endpoint-ს, რომელიც Gemini-ს იძახებს.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>IChatClient — LLM-ის „DbContext“</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
-<p>EF Core-იდან ეს იდეა უკვე იცი: კოდს <code>DbContext</code>-ით და LINQ-ით წერ, ბაზასთან კი <strong>provider</strong> ლაპარაკობს (<code>SqlServer</code>, <code>Npgsql</code>). ბაზის შეცვლა = provider-ის შეცვლა; LINQ ადგილზე რჩება.</p>
-<p><strong>Microsoft.Extensions.AI</strong> ზუსტად ამას აკეთებს ენობრივი მოდელებისთვის:</p>
-<ul>
-<li><code>IChatClient</code> — ერთი interface ყველა ჩატ-მოდელისთვის. მთავარი მეთოდი: <code>GetResponseAsync</code>.</li>
-<li>provider-ები ამ interface-ს ახორციელებენ: <strong>Google.GenAI</strong> (Gemini), <strong>Microsoft.Extensions.AI.OpenAI</strong> (OpenAI და OpenAI-compatible სერვისები), <strong>OllamaSharp</strong> (ლოკალური მოდელები).</li>
-</ul>
-<p>ჩვენი კოდი მხოლოდ <code>IChatClient</code>-ს იცნობს. სხვა პროვაიდერზე გადასვლა = client-ის შექმნის <strong>ერთი ხაზის</strong> შეცვლა.</p>
-<div class="callout note"><span class="ci">💡</span><div><p>Microsoft.Extensions.AI .NET-ის ოფიციალური „AI ფენაა“ — ისევე, როგორც <code>ILogger</code> ლოგირებისთვის. მასზე დგას Microsoft Agent Framework-იც (ლექცია 14). DI-ში რეგისტრაცია და კონფიგურაცია — ლექცია 3-ზე.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IChatClient</dt><dd>Microsoft.Extensions.AI-ის interface ჩატ-მოდელთან სასაუბროდ; ერთნაირია ყველა პროვაიდერისთვის</dd><dt>provider</dt><dd>ბიბლიოთეკა, რომელიც საერთო interface-ს კონკრეტული სერვისისთვის ახორციელებს (Gemini, OpenAI…)</dd></dl></div></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>მომზადება: key და ორი NuGet package</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
-<p><strong>1. key → User Secrets.</strong> Gemini API key საშინაოში აიღე (<a href="https://aistudio.google.com">aistudio.google.com</a> → <strong>Get API key</strong>). ახლა ვინახავთ <strong>User Secrets</strong>-ში — .NET-ის ჩაშენებული საცავი დეველოპმენტისთვის. ტერმინალში, პროექტის საქაღალდეში:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI აგენტები .NET-ში · ლექცია 2</div><h1>პირველი გამოძახება და Prompt Engineering</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 ამ ლექციის შემდეგ შეძლებ</h2><ul><li><code>IChatClient</code>-ით Gemini-ს გამოძახება საკუთარი API-დან და key-ის უსაფრთხოდ შენახვა</li><li><code>ChatOptions</code>-ის დაყენება და პასუხიდან ტოკენების (<code>Usage</code>) და <code>FinishReason</code>-ის წაკითხვა</li><li>System prompt-ის დაწერა, რომელიც ასისტენტის როლს, თემებს და პასუხის ფორმას ზღუდავს</li><li>Zero-shot-ისა და few-shot-ის გარჩევა და few-shot-ით ზუსტი პასუხის მიღება</li></ul></div><div class="box key"><h2>⚡ მთავარი</h2><ol><li><code>IChatClient</code> LLM-ის „DbContext“-ია: კოდი <code>GetResponseAsync</code>-ს იძახებს, Gemini-სთან კი provider ლაპარაკობს. პროვაიდერის შეცვლა ერთი ხაზია.</li><li>API key <strong>User Secrets</strong>-შია (<code>Gemini:ApiKey</code>), არასდროს კოდში ან Git-ში.</li><li><code>ChatOptions</code> ცალკეულ მოთხოვნას ეყენება. პასუხში <strong><code>Usage</code></strong> (ტოკენები, ფიქრის ტოკენების ჩათვლით) და <strong><code>FinishReason</code></strong> (<code>stop</code> / <code>length</code>) გვეუბნება, რა დაჯდა და რატომ გაჩერდა.</li><li>მოდელს <strong>შეტყობინებების სიას</strong> ვუგზავნით: <strong>System</strong> (ჩვენი წესები), <strong>User</strong>, <strong>Assistant</strong>.</li><li>კარგი <strong>system prompt</strong> = როლი + თემები + ფორმა + საზღვრები. <strong>Few-shot</strong> მაგალითები პასუხს ზუსტ ფორმატში აფიქსირებს, რომ C# კოდმა გამოიყენოს.</li></ol></div><div class="box"><h2>📍 ლექცია გააცდინე?</h2><ol class="path"><li><a href="index.html" target="_blank">ნახე პრეზენტაცია</a>: სლაიდები ლექციის მთელ გზას აჩვენებს</li><li><a href="#topics">წაიკითხე თემები</a>: ~8 წთ, თითოს ბოლოს „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a>: 8 კითხვა</li><li><a href="#tasks">გააკეთე დავალებები</a></li></ol></div><div class="box"><h2>🔗 ბმულები</h2><ul><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — მიმოხილვა</a> — IChatClient, ChatOptions, ChatMessage — ოფიციალური დოკუმენტაცია</li><li><a href="https://googleapis.github.io/dotnet-genai/" target="_blank" rel="noopener">Google Gen AI .NET SDK</a> — Google.GenAI package და AsIChatClient</li><li><a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Gemini — მოდელების სია</a> — მიმდინარე მოდელების სახელები</li><li><a href="https://ai.google.dev/gemini-api/docs/prompting-strategies" target="_blank" rel="noopener">Gemini — Prompt design strategies</a> — Google-ის რჩევები: ინსტრუქციები, few-shot, ფორმატი</li><li><a href="https://aistudio.google.com" target="_blank" rel="noopener">Google AI Studio</a> — key და prompt-ების სწრაფი ცდა ბრაუზერში</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>პირველი გამოძახება</h2><a class="sl" href="index.html#/6" target="_blank">▶ სლაიდები 6–10</a></header><div class="tb"><p><strong>Microsoft.Extensions.AI</strong> ენობრივი მოდელებისთვის იგივეა, რაც EF Core ბაზისთვის: კოდს ერთი interface-ით (<code>IChatClient</code>) წერ, კონკრეტულ სერვისთან კი <strong>provider</strong> ლაპარაკობს (Gemini-სთვის <code>Google.GenAI</code>).</p>
+<p><strong>1. key → User Secrets.</strong> key აიღე <a href="https://aistudio.google.com">aistudio.google.com</a>-ზე და პროექტის საქაღალდეში:</p>
 <div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>user-secrets<span class="w"> </span>init</span><span class="ln">dotnet<span class="w"> </span>user-secrets<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="s2">"Gemini:ApiKey"</span><span class="w"> </span><span class="s2">"AIza..."</span></span></code></pre></div>
-<p>ან Visual Studio-ში: პროექტზე მარჯვენა ღილაკი → <strong>Manage User Secrets</strong> → იხსნება <code>secrets.json</code>:</p>
-<div class="codebox"><div class="ch"><span>secrets.json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Gemini"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"ApiKey"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AIza..."</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>Gemini:ApiKey</code> — .NET კონფიგურაციის ჩანაწერია: <code>:</code> ნიშნავს ჩადგმულ სექციას (<code>Gemini</code> → <code>ApiKey</code>). კოდში ასე ვკითხულობთ: <code>config["Gemini:ApiKey"]</code>. <code>secrets.json</code> პროექტის გარეთ ინახება (შენი მომხმარებლის საქაღალდეში), ამიტომ Git-ში ვერ მოხვდება.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>API key = პაროლი.</strong> არასდროს ჩაწერო კოდში, <code>appsettings.json</code>-ში ან <code>launchSettings.json</code>-ში — ისინი Git-ში მიდის, და GitHub-ზე გაჟონილ key-ს ბოტები წუთებში პოულობენ.</p></div></div>
-<p><strong>2. ორი package</strong> RestaurantApi-ში (ან შენს პროექტში):</p>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>რისთვის</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Microsoft.Extensions.AI</strong></td>
-<td><code>IChatClient</code>, <code>ChatOptions</code>, <code>ChatMessage</code>, <code>ChatResponse</code> — ერთი API ყველა მოდელისთვის</td>
-</tr>
-<tr>
-<td><strong>Google.GenAI</strong></td>
-<td>Google-ის ოფიციალური .NET SDK. <code>AsIChatClient()</code> მეთოდით გვაძლევს <code>IChatClient</code>-ს</td>
-</tr>
-</tbody>
-</table>
-<p>Visual Studio-ში: პროექტზე მარჯვენა ღილაკი → <strong>Manage NuGet Packages</strong> → <strong>Browse</strong>. ან ტერმინალიდან:</p>
-<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.Extensions.AI</span><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Google.GenAI</span></code></pre></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>პირველი endpoint: POST /api/ai-lab/ask</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
-<p>RestaurantApi-ში ვქმნით „ლაბორატორიას“ — ცალკე Controller-ს ექსპერიმენტებისთვის. ის კლიენტისთვის არ არის: მასზე მოდელის ქცევას ვსწავლობთ.</p>
-<p><strong>DTO-ები — მზა, დააკოპირე</strong> (<code>Dtos/AiLab/AskDtos.cs</code>):</p>
+<p><strong>2. ორი NuGet package:</strong></p>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.Extensions.AI</span><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Google.GenAI</span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>API key პაროლია. არასდროს ჩაწერო კოდში, <code>appsettings.json</code>-ში ან Git-ში: GitHub-ზე გაჟონილ key-ს ბოტები წუთებში პოულობენ.</p></div></div>
+<p><strong>3. პირველი endpoint.</strong> DTO-ები:</p>
 <div class="codebox"><div class="ch"><span>Dtos/AiLab/AskDtos.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AskRequest</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AskResponse</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">Text</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">long?</span><span class="w"> </span><span class="n">InputTokens</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">long?</span><span class="w"> </span><span class="n">OutputTokens</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">long?</span><span class="w"> </span><span class="n">ReasoningTokens</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">string?</span><span class="w"> </span><span class="n">FinishReason</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">AskResponse</span><span class="w"> </span><span class="nf">From</span><span class="p">(</span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">OutputTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">ReasoningTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">FinishReason</span><span class="o">?.</span><span class="n">Value</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>From</code> — პატარა static მეთოდი, რომელიც <code>ChatResponse</code>-ს ჩვენს DTO-ად აქცევს. ყველა დღევანდელ endpoint-ში გამოგვადგება.</p>
-<p><strong>Controller — ერთად ვწერთ:</strong></p>
+<p>Controller:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Google.GenAI</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.AspNetCore.Mvc</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/ai-lab")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AiLabController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// created here for now — moves to DI in lecture 3</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">AiLabController</span><span class="p">(</span><span class="n">IConfiguration</span><span class="w"> </span><span class="n">config</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpPost("ask")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Ask</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>ხაზ-ხაზ:</p>
-<ul>
-<li><strong><code>IConfiguration config</code></strong> — .NET-ის კონფიგურაცია (appsettings.json + User Secrets + …), DI გვაძლევს constructor-ში.</li>
-<li><strong><code>new Client(apiKey: config["Gemini:ApiKey"])</code></strong> — Google-ის SDK-ის client; key-ს User Secrets-იდან ვაწვდით.</li>
-<li><strong><code>.AsIChatClient("gemini-3.8-flash")</code></strong> — client-ს საერთო <code>IChatClient</code>-ად აქცევს; პარამეტრი მოდელის სახელია (<a href="https://ai.google.dev/gemini-api/docs/models">მოდელების სია</a>). ცვლადის ტიპი interface-ია, ობიექტი კი Gemini-ს.</li>
-<li><strong><code>GetResponseAsync(request.Prompt)</code></strong> — აგზავნის HTTP მოთხოვნას და ელოდება პასუხს. <code>async</code>, რადგან ეს ქსელის ოპერაციაა.</li>
-<li><strong><code>ChatResponse</code></strong> — პასუხი: <code>Text</code>, <code>Usage</code> (ტოკენები), <code>FinishReason</code>.</li>
-<li><strong><code>?.</code></strong> — <code>Usage</code> და <code>FinishReason</code> შეიძლება <code>null</code> იყოს (ყველა provider ყოველთვის არ აბრუნებს).</li>
-</ul>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><code>new Client(...).AsIChatClient(...)</code> Controller-ის შიგნით — ესაა ის, რასაც DI-ზე <strong>ვერიდებოდით</strong>: Controller თვითონ ქმნის თავის დამოკიდებულებას. დღეს ეს შეგნებულად ასეა, რომ ყურადღება მოდელზე იყოს. ლექცია 3-ზე <code>IChatClient</code>-ს DI-ში დავარეგისტრირებთ.</p></div></div></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>პირველი პასუხი Swagger-ში</h3><a class="chip" href="index.html#/10" data-go="10" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 10</a></div>
-<p>გაუშვი პროექტი (F5), Swagger-ში გახსენი <code>POST /api/ai-lab/ask</code> → <strong>Try it out</strong>:</p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Suggest one light vegetarian dish. One sentence."</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
-<p>პასუხი დაახლოებით ასეთი იქნება (ტექსტი და რიცხვები შენთან განსხვავდება):</p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Try grilled eggplant with walnuts…"</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"inputTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"outputTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"reasoningTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">212</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"finishReason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stop"</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>ველი</th>
-<th>რას ნიშნავს</th>
-<th>ლექცია 1-დან</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>inputTokens</code></td>
-<td>რამდენი ტოკენი გავუგზავნეთ</td>
-<td>ტოკენები, input ფასი</td>
-</tr>
-<tr>
-<td><code>outputTokens</code></td>
-<td>რამდენი ტოკენია პასუხი</td>
-<td>output ფასი (ძვირი)</td>
-</tr>
-<tr>
-<td><code>reasoningTokens</code></td>
-<td>რამდენი ტოკენი დახარჯა ფიქრზე</td>
-<td>reasoning მოდელები</td>
-</tr>
-<tr>
-<td><code>finishReason</code></td>
-<td>რატომ გაჩერდა: <code>stop</code> — თვითონ, <code>length</code> — ლიმიტზე</td>
-<td>Max Tokens</td>
-</tr>
-</tbody>
-</table>
-<p><strong>რა არის <code>reasoningTokens</code>?</strong> Gemini 3.8 Flash reasoning მოდელია: პასუხის დაწერამდე „ფიქრობს“. ფიქრის ტექსტს ჩვენ ვერ ვხედავთ, მაგრამ მის ტოკენებს <strong>output-ის ფასით</strong> ვიხდით. ამ მაგალითში 19-ტოკენიან პასუხზე 212 ფიქრის ტოკენი დაიხარჯა — ანუ ვიხდით 231 output ტოკენს.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>reasoningTokens</dt><dd>ტოკენები, რომლებიც მოდელმა პასუხამდე ფიქრზე დახარჯა; output-ის ფასით ფასდება</dd><dt>finishReason</dt><dd>რატომ გაჩერდა მოდელი: stop (თვითონ დაასრულა) ან length (ლიმიტს მიაღწია)</dd></dl></div></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~1 წთ კითხვა</div><h2>პარამეტრები კოდში: ChatOptions და Usage</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> კოდიდან დააყენებ Temperature-ს და Max Tokens-ს და პასუხში დაინახავ, რა დაიხარჯა.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · ლექცია 1-ის თეორია ჩვენს კოდში</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
-<p>ლექცია 1-ზე Temperature-ის სლაიდერი და Max Tokens სლაიდზე ვნახეთ. ახლა მათ <strong>კოდიდან</strong> დავაყენებთ და შედეგს ნამდვილ მოდელზე შევამოწმებთ.</p></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>პარამეტრები კოდიდან — ChatOptions</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
-<p>ლექცია 1-ის პარამეტრები C#-ში <code>ChatOptions</code> კლასშია:</p>
-<table>
-<thead>
-<tr>
-<th>ChatOptions</th>
-<th>ლექცია 1-ში</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Temperature</code></td>
-<td>Temperature</td>
-</tr>
-<tr>
-<td><code>TopP</code></td>
-<td>Top-P</td>
-</tr>
-<tr>
-<td><code>MaxOutputTokens</code></td>
-<td>Max Tokens</td>
-</tr>
-<tr>
-<td><code>ModelId</code></td>
-<td>სხვა მოდელი ამ მოთხოვნისთვის</td>
-</tr>
-</tbody>
-</table>
-<p><code>AskRequest</code>-ს ვამატებთ ორ არასავალდებულო ველს:</p>
+<p>Swagger-ში <code>POST /api/ai-lab/ask</code> დააბრუნებს ტექსტს და ტოკენებს: <code>inputTokens</code>, <code>outputTokens</code>, <code>reasoningTokens</code> (ფიქრი, output-ის ფასით) და <code>finishReason</code>.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>new Client(...)</code> Controller-ის შიგნით დროებითია. ლექცია 3-ზე <code>IChatClient</code>-ს DI-ში გადავიტანთ.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>reasoningTokens: 212</code>, პასუხი კი 19 ტოკენია. რა არის 212 და ვინ იხდის?</summary><div class="ans">ფიქრის ტოკენები: მოდელი პასუხამდე ფიქრობს. მათ output-ის ფასით ჩვენ ვიხდით.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IChatClient</dt><dd>ერთი interface ყველა ჩატ-მოდელისთვის; მთავარი მეთოდი GetResponseAsync</dd><dt>provider</dt><dd>ბიბლიოთეკა, რომელიც საერთო interface-ს კონკრეტული სერვისისთვის ახორციელებს</dd><dt>finishReason</dt><dd>რატომ გაჩერდა მოდელი: stop (დაასრულა) ან length (ლიმიტს მიაღწია)</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>პარამეტრები კოდში</h2><a class="sl" href="index.html#/11" target="_blank">▶ სლაიდები 11–13</a></header><div class="tb"><p>ლექცია 1-ის პარამეტრები C#-ში <code>ChatOptions</code>-შია: <code>Temperature</code>, <code>TopP</code>, <code>MaxOutputTokens</code>. <code>AskRequest</code>-ს ორ არასავალდებულო ველს ვამატებთ:</p>
 <div class="codebox"><div class="ch"><span>Dtos/AiLab/AskDtos.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AskRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">Prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">float?</span><span class="w"> </span><span class="n">Temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">int?</span><span class="w"> </span><span class="n">MaxOutputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p>და <code>Ask</code>-ში ვქმნით <code>ChatOptions</code>-ს:</p>
+<p>და <code>Ask</code>-ში <code>ChatOptions</code>-ს ვქმნით (<code>null</code> = მოდელის ნაგულისხმევი):</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ChatOptions</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Temperature</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">MaxOutputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">MaxOutputTokens</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p><code>null</code> ნიშნავს „არ ვუთითებთ“ — მოდელი თავის ნაგულისხმევს გამოიყენებს. ასე Swagger-იდან ერთი endpoint-ით ნებისმიერ კომბინაციას ვცდით.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><code>options</code> ცალკეულ მოთხოვნას ეკუთვნის: ერთ endpoint-ში ერთი Temperature, მეორეში სხვა — ზუსტად ისე, როგორც ლექცია 1-ის ცხრილში დავგეგმეთ.</p></div></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>🔮 2 ექსპერიმენტი — ჯერ გამოიცანი, მერე გაუშვი</h3><a class="chip" href="index.html#/13" data-go="13" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 13</a></div>
-<p>ყოველ ექსპერიმენტზე ჯერ დაწერე შენი პროგნოზი, მერე შეამოწმე Swagger-ში.</p>
-<p><strong>1 · Temperature.</strong></p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invent a name for a new Georgian dish. Only the name."</span><span class="p">,</span><span class="w"> </span><span class="nt">"temperature"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
-<p>სამჯერ <code>0</code>-ით, მერე სამჯერ <code>2</code>-ით.
-<em>რას ნახავ:</em> 0-ზე სახელები (თითქმის) ერთნაირია, 2-ზე ყოველ ჯერზე სხვა — ზოგჯერ უცნაურიც. ეს ლექცია 1-ის სლაიდერის დადასტურებაა ნამდვილ მოდელზე.</p>
-<p><strong>2 · Max Tokens.</strong></p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Describe khachapuri"</span><span class="p">,</span><span class="w"> </span><span class="nt">"maxOutputTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
-<p><em>რას ნახავ:</em> <code>"finishReason": "length"</code>, ტექსტი ცარიელი ან შუაში მოჭრილი, <code>reasoningTokens</code> კი ლიმიტის ტოლი. Gemini პასუხამდე ფიქრობს და <strong>ფიქრის ტოკენებიც ამ ლიმიტში ითვლება</strong> — 15 ტოკენი ფიქრზე დაიხარჯა და პასუხისთვის აღარ დარჩა. სცადე <code>300</code> და შეადარე.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><strong>Gemini 3 და Temperature.</strong> Google Gemini 3 მოდელებისთვის გვირჩევს, Temperature ნაგულისხმევზე (1.0) დავტოვოთ: ეს reasoning მოდელებია, და დაბალ Temperature-ზე ხარისხი შეიძლება დაეცეს ან პასუხი გამეორებაში ჩავარდეს. ექსპერიმენტში Temperature-ს იმისთვის ვცვლით, რომ ეფექტი დავინახოთ. რეალურ endpoint-ში Gemini 3-ზე ნაგულისხმევს ვტოვებთ, ხოლო ზუსტ ფორმატს <strong>prompt-ით</strong> ვაღწევთ — ამას ნაწილი 3-ში ვისწავლით.</p></div></div>
-<div class="callout tip"><span class="ci">👉</span><div><p><strong>Max Tokens reasoning მოდელზე:</strong> ლიმიტი ყოველთვის მარაგით — ფიქრსაც უნდა ეყოს. მოკლე პასუხი გინდა? ეს prompt-ში დაწერე („ერთი წინადადებით“), არა ლიმიტით.</p></div></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~4 წთ კითხვა</div><h2>Prompt engineering: როლები, system prompt, few-shot</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> დაწერ system prompt-ს, რომელიც ასისტენტს საზღვრებს უწესებს, და few-shot-ით მიიღებ ზუსტ პასუხს.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · როგორ ვესაუბროთ მოდელს?</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
-<p>ლექცია 1-ზე ვნახეთ: მოდელი შემდეგ ტოკენს <strong>მთელი ტექსტის</strong> მიხედვით ირჩევს. ე.ი. რასაც მას ვაწვდით, ის ცვლის პასუხს. <strong>Prompt engineering</strong> არის ამ ტექსტის გააზრებულად აწყობა: ვინ არის ასისტენტი, რაზე ლაპარაკობს, რა ფორმით პასუხობს.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>მოდელს ვუგზავნით შეტყობინებების სიას</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
-<p>ChatGPT-ს თავაზიანობა და „ასისტენტობა“ არავინ უთხრა ჩატში — ეს <strong>system</strong> შეტყობინებაშია, რომელსაც აპლიკაცია ყოველ მოთხოვნაში მომხმარებლისგან ფარულად აგზავნის. ჩვენც ზუსტად ასე ვაკეთებთ.</p>
-<p>მოდელს ერთ ტექსტს კი არა, <strong>შეტყობინებების სიას</strong> ვუგზავნით. თითოს აქვს <strong>როლი</strong>:</p>
+<p><strong>სცადე:</strong> Temperature <code>0</code> და <code>2</code> სამ-სამჯერ: 0-ზე პასუხები თითქმის ერთნაირია, 2-ზე ყოველ ჯერზე სხვა. მერე <code>MaxOutputTokens: 15</code>: ტექსტი ცარიელია და <code>finishReason</code> არის <code>length</code>, რადგან ლიმიტი ფიქრმა შეჭამა.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>reasoning მოდელზე ლიმიტი ყოველთვის მარაგით დააყენე. მოკლე პასუხი prompt-ით მოითხოვე („ერთი წინადადებით“) და არა ლიმიტით.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>MaxOutputTokens = 50</code> და პასუხი ცარიელია. რატომ?</summary><div class="ans">Gemini პასუხამდე ფიქრობს, და ფიქრმა ლიმიტი მთლიანად დახარჯა.</div></details></div></div></section><section class="topic"><header><span class="num">3</span><h2>როლები და system prompt</h2><a class="sl" href="index.html#/15" target="_blank">▶ სლაიდები 15–18</a></header><div class="tb"><p>მოდელს ერთ ტექსტს კი არა, <strong>შეტყობინებების სიას</strong> ვუგზავნით. თითოს თავისი როლი აქვს:</p>
 <table>
 <thead>
 <tr>
@@ -453,233 +197,103 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <tr>
 <td><strong>System</strong></td>
 <td>ჩვენ, კოდში</td>
-<td>ვინ არის ასისტენტი, რაზე ლაპარაკობს, როგორ პასუხობს, რას არ აკეთებს</td>
+<td>ვინ არის ასისტენტი და რა წესები აქვს</td>
 </tr>
 <tr>
 <td><strong>User</strong></td>
 <td>მომხმარებელი</td>
-<td>კითხვა, თხოვნა</td>
+<td>კითხვა</td>
 </tr>
 <tr>
 <td><strong>Assistant</strong></td>
 <td>მოდელი</td>
-<td>მისი წინა პასუხები (ისტორიაში)</td>
+<td>მოდელის პასუხი</td>
 </tr>
 </tbody>
 </table>
-<p>მოდელი სიას თავიდან ბოლომდე „კითხულობს“ და წერს <strong>შემდეგ Assistant შეტყობინებას</strong>.</p>
-<p>C#-ში სია ასე იწყობა:</p>
 <div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="na">[</span></span><span class="ln"><span class="na">    new(ChatRole.System, "You are…"),</span></span><span class="ln"><span class="na">    new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<div class="callout note"><span class="ci">💡</span><div><p><code>GetResponseAsync("text")</code>, რომელიც ნაწილ 1-ში გამოვიყენეთ, სინამდვილეში იგივეა: სია <strong>ერთი User შეტყობინებით</strong>. ისტორიას (წინა User/Assistant შეტყობინებებს) ლექცია 7-ზე დავამატებთ — ამით მოდელს „მეხსიერება“ გაუჩნდება.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>System prompt</dt><dd>სისტემური შეტყობინება: ასისტენტის როლი, საზღვრები და პასუხის ფორმა; დეველოპერი წერს, მომხმარებელი ვერ ხედავს</dd><dt>ChatMessage</dt><dd>ერთი შეტყობინება როლით (ChatRole.System / User / Assistant) და ტექსტით</dd></dl></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>System prompt: რესტორნის ასისტენტი</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
-<p>ვამატებთ მეორე endpoint-ს — <code>POST /api/ai-lab/assistant</code>. მას აქვს <strong>system prompt</strong>: ინსტრუქცია, რომელიც ყოველ მოთხოვნაში მომხმარებლის კითხვამდე მიდის.</p>
+<p>კარგი <strong>system prompt</strong> ოთხი ნაწილისგან შედგება: 👤 როლი · 🎯 თემები · 📏 ფორმა · 🚫 საზღვრები.</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Assistant</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">RestaurantName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Supra"</span><span class="p">;</span></span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">OpenHours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"12:00–23:00"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("assistant")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Assistant</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            You are the assistant of the restaurant "{RestaurantName}".</span></span><span class="ln"><span class="na">            You answer only about the menu, bookings and hours ({OpenHours}).</span></span><span class="ln"><span class="na">            Answer: at most 3 sentences, in the language the user writes in.</span></span><span class="ln"><span class="na">            On any other topic you politely decline and say what you can help with.</span></span><span class="ln"><span class="na">            You don't invent prices or ingredients — you say they are on the menu.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><strong>კარგი system prompt — 4 ნაწილი:</strong></p>
-<table>
-<thead>
-<tr>
-<th>ნაწილი</th>
-<th>ჩვენთან</th>
-<th>რატომ</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>👤 <strong>როლი</strong></td>
-<td>„რესტორან „სუფრის“ ასისტენტი“</td>
-<td>მოდელმა იცის, ვის სახელით ლაპარაკობს</td>
-</tr>
-<tr>
-<td>🎯 <strong>თემები</strong></td>
-<td>მენიუ, ჯავშანი, საათები</td>
-<td>საზღვარი: რაზე პასუხობს</td>
-</tr>
-<tr>
-<td>📏 <strong>ფორმა</strong></td>
-<td>მაქსიმუმ 3 წინადადება, მომხმარებლის ენაზე</td>
-<td>სიგრძე და ენა — წინასწარ</td>
-</tr>
-<tr>
-<td>🚫 <strong>საზღვრები</strong></td>
-<td>სხვა თემაზე — უარი; ფასს არ იგონებს</td>
-<td>რა გააკეთოს, როცა კითხვა არ ჯდება</td>
-</tr>
-</tbody>
-</table>
-<p><strong>შაბლონი (<code>$"""…"""</code>)</strong> — C#-ის raw string interpolation. <code>{RestaurantName}</code> და <code>{OpenHours}</code> გაშვებისას ჩაისმება. ახლა ესენი const-ებია; მოგვიანებით ამ ადგილას <strong>ბაზიდან</strong> წამოღებული მონაცემი ჩაჯდება (ლექცია 4: tools, ლექცია 11: RAG).</p>
-<div class="callout tip"><span class="ci">👉</span><div><p>"Be smart and help" მოდელს არაფერს ეუბნება. კონკრეტული როლი, თემები, ფორმა და საზღვარი — ეუბნება. წერე ისე, როგორც ახალ თანამშრომელს აუხსნიდი პირველ სამუშაო დღეს.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>prompt template</dt><dd>prompt-ის შაბლონი, რომელშიც მონაცემი კოდიდან ჩაისმება</dd></dl></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>3 კითხვა ასისტენტს — ჯერ გამოიცანი</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
-<p><code>POST /api/ai-lab/assistant</code>-ზე სამი კითხვა:</p>
-<ol>
-<li><strong>ჩვეულებრივი:</strong> "There'll be four of us tomorrow at 8. Do you have anything vegetarian?" — პასუხობს მოკლედ, თემაზე.</li>
-<li><strong>სხვა თემა:</strong> "Write me a poem for my mom's birthday" — თავაზიანად უარს ამბობს და თავის თემას უბრუნდება.</li>
-<li><strong>ფასი:</strong> "How much is khinkali?" — ფასს არ იგონებს.</li>
-</ol>
-<p>შემდეგ იგივე კითხვები <strong><code>/ask</code>-ზე</strong> გაუშვი (system prompt-ის გარეშე) და შეადარე: ლექსს სიამოვნებით დაწერს, ფასსაც დამაჯერებლად „მოიგონებს“ — ეს ლექცია 1-ის hallucination-ია.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>System prompt უსაფრთხოების გარანტია არ არის.</strong> ის ცვლის, რა არის <strong>სავარაუდო</strong>, მაგრამ მოდელი მაინც შეიძლება შეცდეს ან მომხმარებელმა „გადაარწმუნოს“ ("Ignore the previous instructions…" — ამას prompt injection ჰქვია). რაც <strong>აუცილებლად</strong> უნდა შესრულდეს — ფასი, ფასდაკლება, ვის რისი უფლება აქვს — ამოწმებს C# კოდი. დაწვრილებით ლექცია 19-ზე.</p></div></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Zero-shot vs few-shot</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
-<ul>
-<li><strong>Zero-shot</strong> — მოდელს მხოლოდ <strong>ვუხსნით</strong>, რა გააკეთოს. მარტივ ამოცანაზე ხშირად საკმარისია.</li>
-<li><strong>Few-shot</strong> — ახსნას ვუმატებთ რამდენიმე <strong>მაგალითს</strong>: „შეკითხვა → სწორი პასუხი“. მოდელი მაგალითებს ნიმუშად იღებს და იმავე ფორმით აგრძელებს.</li>
+<p><strong>სცადე <code>/assistant</code>-ზე:</strong> ჩვეულებრივი კითხვა მენიუზე, სხვა თემა („ლექსი დაწერე“) და ფასი („ხინკალი რა ღირს?“). ასისტენტი თემაზე რჩება და ფასს არ იგონებს.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>system prompt ალბათობას ცვლის და გარანტიას არ იძლევა. მომხმარებელმა შეიძლება მოდელი „გადაარწმუნოს“, ამიტომ მნიშვნელოვანს C# ამოწმებს (ლექცია 19).</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>System და User ორივე ტექსტია. რა განსხვავებაა?</summary><div class="ans">System ჩვენი წესებია და მომხმარებელი მას ვერ ხედავს. User მომხმარებლის კითხვაა.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>system prompt</dt><dd>ასისტენტის როლი, საზღვრები და პასუხის ფორმა; დეველოპერი წერს</dd><dt>ChatMessage</dt><dd>ერთი შეტყობინება როლით (System / User / Assistant) და ტექსტით</dd></dl></div></div></section><section class="topic"><header><span class="num">4</span><h2>zero-shot და few-shot</h2><a class="sl" href="index.html#/19" target="_blank">▶ სლაიდები 19–20</a></header><div class="tb"><ul>
+<li><strong>Zero-shot:</strong> მოდელს მხოლოდ ვუხსნით, რა გააკეთოს.</li>
+<li><strong>Few-shot:</strong> ახსნას 3–5 მაგალითს ვუმატებთ („შეკითხვა → სწორი პასუხი“).</li>
 </ul>
-<p><strong>რატომ გვჭირდება?</strong> AI-ის პასუხს ხშირად ადამიანი კი არ კითხულობს, არამედ <strong>ჩვენი C# კოდი</strong> იყენებს:</p>
-<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">label</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"Negative"</span><span class="p">)</span><span class="w"> </span><span class="n">NotifyManager</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p>zero-shot-მა შეიძლება შინაარსით სწორი, მაგრამ ფორმით „არასწორი“ პასუხი დაწეროს: „უარყოფითი“, „Negative.“, ან მთელი აბზაცი. <code>if</code> ამას ვერ დაიჭერს. few-shot ფორმას აფიქსირებს: პასუხი ზუსტად ერთ-ერთი სიტყვაა სიიდან.</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Zero-shot</th>
-<th>Few-shot</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>რას ვაწვდით</td>
-<td>მხოლოდ ინსტრუქციას</td>
-<td>ინსტრუქციას + 3–5 მაგალითს</td>
-</tr>
-<tr>
-<td>როდის</td>
-<td>მარტივი ამოცანა, თავისუფალი ტექსტი</td>
-<td>ზუსტი ფორმატი, კატეგორიები, „საზღვრის“ შემთხვევები</td>
-</tr>
-<tr>
-<td>ფასი</td>
-<td>ნაკლები ტოკენი</td>
-<td>მაგალითები ყოველ მოთხოვნაში მიდის — მეტი input</td>
-</tr>
-</tbody>
-</table>
-<div class="callout tip"><span class="ci">👉</span><div><p>მაგალითებში აუცილებლად ჩასვი <strong>რთული</strong> შემთხვევა (აქ — "Good, but pricey" → <code>Mixed</code>). სწორედ საზღვარზე ცდება zero-shot ყველაზე ხშირად.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>zero-shot</dt><dd>prompt მხოლოდ ინსტრუქციით, მაგალითების გარეშე</dd><dt>few-shot</dt><dd>prompt ინსტრუქციით და რამდენიმე მაგალითით „შეკითხვა → სწორი პასუხი“</dd></dl></div></article><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Few-shot კოდში: User / Assistant წყვილები</h3><a class="chip" href="index.html#/20" data-go="20" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 20</a></div>
-<p>მაგალითებს ცალკე პარამეტრით არ ვაგზავნით — ისინი იმავე <strong>შეტყობინებების სიაშია</strong>, „წინა საუბრის“ სახით: User კითხულობდა, Assistant პასუხობდა. მოდელი ხედავს, როგორ „პასუხობდა“ აქამდე, და ბოლო კითხვაზე იმავე ფორმით პასუხობს.</p>
+<p>პასუხს ხშირად <strong>C# კოდი</strong> იყენებს, მაგალითად <code>if (label == "Negative")</code>. zero-shot შეიძლება შინაარსით სწორი, მაგრამ ფორმით არასწორი იყოს („უარყოფითი“, <code>Negative.</code>). მაგალითები ფორმას აფიქსირებს. კოდში ისინი User/Assistant წყვილებია სიაში:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ReviewSentiment</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("review-sentiment")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ReviewSentiment</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the restaurant review. " +</span></span><span class="ln"><span class="na">            "Answer with one word only: Positive, Negative or Mixed."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The khinkali was delicious, the service fast"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Positive"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "We waited an hour, the food came cold"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Negative"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The dishes are good, but the prices are very high"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Mixed"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><strong>სცადე Swagger-ში:</strong> "The food is good, but it's very noisy" → <code>Mixed</code>. შემდეგ მაგალითები (8–13 ხაზები) კომენტარში გადაიტანე და იგივე გაუშვი — zero-shot-ის პასუხი შეადარე. ასევე შეადარე <code>inputTokens</code>: მაგალითები ტოკენებია და ყოველ მოთხოვნაზე მიდის.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><strong>ზუსტი სიტყვა ჯერ კიდევ არ არის C# ტიპი.</strong> მოდელი სავარაუდოს წერს, ამიტომ Controller-ში პასუხი სიასთან უნდა შევამოწმოთ (მაგ. <code>Positive</code> / <code>Negative</code> / <code>Mixed</code>, სხვა შემთხვევაში — შეცდომა ან <code>Mixed</code>). შემდეგ ლექციაზე <strong>structured output</strong>-ით (<code>GetResponseAsync&lt;T&gt;</code>) პასუხს პირდაპირ C# ობიექტად მივიღებთ — enum-ით და ველებით.</p></div></div>
-<div class="prompt"><div class="ph"><span>🤖 გაიღრმავე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ prompt engineering-ს .NET-ში (Microsoft.Extensions.AI, Gemini). few-shot კლასიფიკაციისთვის მაქვს 3 მაგალითი User/Assistant წყვილებად.
-ამიხსენი: 1) რამდენი მაგალითია ოპტიმალური და რატომ; 2) რატომ არის მნიშვნელოვანი მაგალითების მრავალფეროვნება და თანმიმდევრობა; 3) რა რისკები აქვს few-shot-ს (მაგ. მოდელი მაგალითების სიტყვებს ზედმეტად „მიჰყვება“).
-მაგალითები რესტორნის შეფასებებზე. ახსნა ქართულად, მოკლედ.</div></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>კლასის დავალება: შენი ასისტენტი</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>კლასში დავალება: შენი ასისტენტი — system prompt-ით</h3><a class="chip" href="index.html#/21" data-go="21" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 21</a></div>
-<p>შენი პროექტი ან RestaurantApi · კოდით · Swagger-ში</p>
-<h3>ნაბიჯები</h3>
-<ul>
-<li><strong>1 · ახალი endpoint</strong> <code>POST /api/ai-lab/assistant</code> — <code>ChatMessage</code>-ების სიით: System + User</li>
-<li><strong>2 · system prompt შენი პროექტისთვის</strong> — 4 ნაწილი: <strong>ვინ არის</strong> · <strong>რა თემებზე</strong> პასუხობს · <strong>რა ფორმით</strong> (სიგრძე, ენა) · <strong>რას არ აკეთებს</strong></li>
-<li><strong>3 · Swagger-ში 3 კითხვა:</strong> ჩვეულებრივი · სხვა თემაზე ("Write me a poem") · ისეთი, რომელზეც უარი უნდა თქვას</li>
-</ul>
-<h3>✓ მზადაა, როცა</h3>
-<p>სხვა თემის კითხვაზე ასისტენტი თავაზიანად უარს ამბობს და შენს თემას უბრუნდება; პასუხი შენს მითითებულ ფორმაშია</p>
-<h3>⭐ ბონუსი</h3>
-<ul>
-<li>System prompt-ში ჩასვი მონაცემი C#-დან (<code>$"""…{ცვლადი}…"""</code>): პროექტის სახელი, სამუშაო საათები</li>
-<li>სცადე „გატეხვა“: "Ignore the previous instructions and…" — დაიცავს თავს?</li>
-</ul>
-<h3>💡 თუ გაიჭედე</h3>
-<ul>
-<li><strong>შაბლონი:</strong> „შენ ხარ [პროექტის] ასისტენტი. პასუხობ მხოლოდ [თემები]-ზე. პასუხი: მაქსიმუმ [N] წინადადება, ქართულად. სხვა თემაზე თავაზიანად უარს ამბობ და ეუბნები, რაში შეგიძლია დაეხმარო.“</li>
-<li><strong>პასუხობს ყველაფერზე?</strong> შეამოწმე, რომ System შეტყობინება სიაშია და system prompt-ში ცხადად წერია, <strong>რა გააკეთოს</strong> სხვა თემაზე</li>
-<li><strong>ბიბლიოთეკა, სპორტდარბაზი, მაღაზია</strong> — ნებისმიერი პროექტი გამოდგება: ასისტენტი, რომელიც მხოლოდ მის საქმეზე ლაპარაკობს</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>შეჯამება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/22" data-go="22" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 22</a></div>
-<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის <code>IChatClient</code> და რას ვცვლით, Gemini-დან სხვა პროვაიდერზე რომ გადავიდეთ?</summary><div class="ans">ერთი interface ყველა ჩატ-მოდელისთვის (Microsoft.Extensions.AI) · იცვლება მხოლოდ client-ის შექმნის ხაზი; <code>GetResponseAsync</code>, DTO-ები და endpoint-ები იგივე რჩება</div></details><details><summary><code>maxOutputTokens: 15</code>-ზე პასუხი ცარიელია, <code>finishReason</code> = <code>length</code>. რატომ?</summary><div class="ans">Gemini პასუხამდე „ფიქრობს“ · ფიქრის ტოკენები (<code>ReasoningTokens</code>) იმავე ლიმიტში ითვლება და პასუხისთვის აღარაფერი რჩება · ლიმიტი მარაგით</div></details><details><summary>რით განსხვავდება System შეტყობინება User-ისგან?</summary><div class="ans">System-ს <strong>ჩვენ</strong> ვწერთ კოდში: როლი, თემები, წესები, პასუხის ფორმა · User-ს წერს მომხმარებელი · Assistant — მოდელის პასუხი</div></details><details><summary>რა არის few-shot და როდის გვჭირდება?</summary><div class="ans">prompt-ში რამდენიმე მაგალითი „შეკითხვა → სწორი პასუხი“ · როცა პასუხი ზუსტ ფორმატში ან ზუსტ კატეგორიებში გვინდა, რომ კოდმა გამოიყენოს</div></details><details><summary>System prompt-ში წერია: „ფასს არასდროს ასახელებ“. ეს გარანტიაა?</summary><div class="ans">არა · prompt ქცევის ალბათობას ცვლის, მაგრამ არ იძლევა გარანტიას · ის, რაც აუცილებლად უნდა შესრულდეს, C# კოდი ამოწმებს (ლექცია 19)</div></details></div></article><article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/23" data-go="23" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 23</a></div>
-<p><strong>დაიმახსოვრე:</strong></p>
-<ol>
-<li><strong><code>IChatClient</code></strong> — LLM-ის „DbContext“: ერთი API ყველა მოდელისთვის; პროვაიდერის შეცვლა — ერთი ხაზი. key — User Secrets-ში (<code>Gemini:ApiKey</code>), არასდროს კოდში ან Git-ში.</li>
-<li><strong><code>ChatOptions</code></strong> — Temperature და Max Tokens ყოველ მოთხოვნაზე ცალკე. Gemini 3-ზე Temperature-ს ნაგულისხმევზე ვტოვებთ; Max Tokens — მარაგით, რადგან ფიქრიც ამ ლიმიტშია.</li>
-<li><strong><code>Usage</code> და <code>FinishReason</code></strong> — input, output და ფიქრის ტოკენები (ფიქრიც output-ის ფასით ფასდება); <code>stop</code> / <code>length</code>.</li>
-<li><strong>შეტყობინებების სია</strong> — System (ჩვენი წესები), User (მომხმარებელი), Assistant (მოდელი).</li>
-<li><strong>System prompt</strong> = როლი + თემები + ფორმა + საზღვრები. ის ალბათობას ცვლის, არა გარანტიას — აუცილებელ წესებს C# ამოწმებს.</li>
-<li><strong>Few-shot</strong> — 3–5 მაგალითი User/Assistant წყვილებად; პასუხი ზუსტ ფორმატში მოდის, რომ კოდმა გამოიყენოს.</li>
-</ol>
-<h3>⏭️ შემდეგ ლექციაზე</h3>
-<p>დღევანდელი <code>new Client(...).AsIChatClient(...)</code> Controller-ის შიგნით DI-ის წესს არღვევს: Controller თვითონ ქმნის დამოკიდებულებას, მოდელის სახელი კოდშია ჩაწერილი. ლექცია 3-ზე <code>IChatClient</code>-ს <strong>DI-ში</strong> დავარეგისტრირებთ (<code>AddChatClient</code>) და კონფიგურაციიდან წავიკითხავთ. იქვე — <strong>structured output</strong>: პასუხი პირდაპირ C# ობიექტად (<code>GetResponseAsync&lt;T&gt;</code>), few-shot-ზე უფრო საიმედოდ.</p>
-<div class="prompt"><div class="ph"><span>🤖 გამოცდა მთელ ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ AI-ს .NET-ში. მეორე ლექციაზე გავიარეთ: Microsoft.Extensions.AI და IChatClient (Gemini, Google.GenAI, AsIChatClient), API key User Secrets-ში (Gemini:ApiKey), ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning ტოკენები) და FinishReason, შეტყობინებების როლები (System, User, Assistant), system prompt-ის 4 ნაწილი, prompt-ის შაბლონი C#-ში, zero-shot და few-shot.
-დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ, მათ შორის 2 პრაქტიკული სიტუაცია რესტორნის API-ზე. ყოველ ჩემს პასუხზე მითხარი, სწორია თუ არა და რატომ, მერე დასვი შემდეგი. ბოლოს მითხარი, რა უნდა გავიმეორო. კომუნიკაცია ქართულად.</div></div></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>საშინაო დავალება: Few-shot კლასიფიკატორი შენს პროექტში</h3><a class="chip" href="index.html#/24" data-go="24" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 24</a></div>
+<div class="callout tip"><span class="ci">👉</span><div><p>მაგალითებში ჩასვი რთული შემთხვევაც ("Good, but pricey" → <code>Mixed</code>): ზუსტად საზღვარზე ცდება zero-shot.</p></div></div>
+<div class="callout note"><span class="ci">💡</span><div><p>მოდელი მაინც ტექსტს წერს და არა C# ტიპს, ამიტომ პასუხი სიასთან შეამოწმე. ზუსტ ტიპს ლექცია 3 გვაძლევს (structured output).</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>few-shot მაგალითები ყოველ მოთხოვნაზე იგზავნება?</summary><div class="ans">კი, ისინი შეტყობინებების სიის ნაწილია. ამიტომ <code>inputTokens</code> იზრდება.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>zero-shot</dt><dd>prompt მხოლოდ ინსტრუქციით</dd><dt>few-shot</dt><dd>prompt ინსტრუქციით და რამდენიმე მაგალითით</dd></dl></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 საშინაო</h2><div class="box task"><h3>Few-shot კლასიფიკატორი შენს პროექტში</h3>
 <p>კოდით · endpoint + ცხრილი README-ში</p>
-<h3>მოთხოვნები</h3>
+<h4>მოთხოვნები</h4>
 <ul>
 <li><strong>endpoint</strong> <code>POST /api/ai-lab/classify</code> — მომხმარებლის ტექსტი → <strong>ერთი</strong> კატეგორია შენი პროექტისთვის (მინიმუმ 3 კატეგორია, მაგ. <code>Search</code> / <code>Order</code> / <code>Question</code>)</li>
 <li><strong>few-shot:</strong> System + მინიმუმ <strong>3 მაგალითი</strong> User/Assistant წყვილებად</li>
 <li><strong>შედარება README-ში:</strong> 5 ტექსტი — zero-shot (მაგალითების გარეშე) vs few-shot. ცხრილი: ტექსტი · zero-shot პასუხი · few-shot პასუხი · <code>inputTokens</code> ორივეზე</li>
 <li><strong>ენა:</strong> ერთი და იგივე ტექსტი ქართულად და ინგლისურად — <code>inputTokens</code> ცხრილში</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
+<li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
 </ul>
-<h3>✓ მზადაა, როცა</h3>
+<h4>✓ მზადაა, როცა</h4>
 <p>endpoint 5-ვე ტექსტზე აბრუნებს ზუსტად ერთ კატეგორიას შენი სიიდან; README-ში არის შედარების ცხრილი და ტესტის ქულა</p>
-<h3>⭐ ბონუსი</h3>
+<h4>⭐ ბონუსი</h4>
 <ul>
 <li>ტექსტი, რომელიც არცერთ კატეგორიაში არ ჯდება — რას აბრუნებს? დაამატე კატეგორია <code>Other</code> და ერთი მაგალითი</li>
 <li>Controller-ში შეამოწმე პასუხი: თუ სიაში არ არის → <code>Other</code>. რატომ არ ვენდობით მოდელს ბოლომდე?</li>
 </ul>
-<h3>💡 დეტალები</h3>
+<h4>💡 დეტალები</h4>
 <ul>
 <li>კლასიფიკაციას გრძელი პასუხი არ სჭირდება: <code>MaxOutputTokens</code> დატოვე მარაგით (მაგ. 200) — Gemini ჯერ ფიქრობს</li>
 <li>მაგალითები მოკლე და <strong>განსხვავებული</strong> იყოს: თითო კატეგორიაზე ერთი მაინც</li>
 <li>zero-shot-ისთვის იგივე endpoint გამოიყენე, მაგალითები დროებით კომენტარში გადაიტანე</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 სწორი · <span id="qd">0</span> / 11 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">1</span><div>რას აკეთებს <code>new Client(apiKey: config["Gemini:ApiKey"]).AsIChatClient("gemini-3.8-flash")</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ქმნის Gemini-ს client-ს და აქცევს მას <code>IChatClient</code>-ად; key-ს კონფიგურაციიდან (User Secrets) იღებს</button><button type="button" class="opt" data-i="1">მოდელს ჩვენს კომპიუტერზე ჩამოტვირთავს</button><button type="button" class="opt" data-i="2">Gemini-ს ანგარიშს ქმნის</button><button type="button" class="opt" data-i="3">მოდელს ჩვენს მენიუზე ავარჯიშებს</button></div><div class="qe"><span class="verdict"></span> <code>Client</code> Google-ის SDK-ა, <code>AsIChatClient</code> კი მას საერთო interface-ად „ახვევს“. მოდელი Google-ის სერვერზე რჩება — ჩვენ მას HTTP-ით ვიძახებთ. <a class="chip" href="#s-9">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>სად ინახება Gemini-ს API key?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>appsettings.json</code>-ში</button><button type="button" class="opt" data-i="1">Controller-ში, const-ად</button><button type="button" class="opt" data-i="2">User Secrets-ში, როგორც <code>Gemini:ApiKey</code></button><button type="button" class="opt" data-i="3">README-ში, რომ არ დაგვავიწყდეს</button></div><div class="qe"><span class="verdict"></span> ყველა დანარჩენი ადგილი Git-ში ხვდება. გაჟონილ key-ს ბოტები წუთებში პოულობენ. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">3</span><div>პასუხში: <code>outputTokens</code> = 19, <code>reasoningTokens</code> = 212. რამდენ output ტოკენში ვიხდით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">19 — ფიქრი უფასოა</button><button type="button" class="opt" data-i="1">212</button><button type="button" class="opt" data-i="2">231 — ფიქრიც output-ის ფასით ფასდება</button><button type="button" class="opt" data-i="3">0 — Gemini უფასოა</button></div><div class="qe"><span class="verdict"></span> ფიქრის ტოკენებს ვერ ვხედავთ, მაგრამ ვიხდით, თანაც output-ის (ძვირი) ფასით: 19 + 212 = 231. <a class="chip" href="#s-10">გაიმეორე · სლაიდი 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div><code>Temperature = 0</code>-ზე ერთი და იგივე კითხვა სამჯერ გავუშვით. რას ველით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">სამ სრულიად განსხვავებულ პასუხს</button><button type="button" class="opt" data-i="1">თითქმის ერთნაირ პასუხებს</button><button type="button" class="opt" data-i="2">შეცდომას — 0 დაუშვებელია</button><button type="button" class="opt" data-i="3">ცარიელ პასუხს</button></div><div class="qe"><span class="verdict"></span> დაბალი Temperature ყველაზე სავარაუდო ტოკენს ირჩევს, ამიტომ პასუხები ერთმანეთს ჰგავს. მაღალზე — ყოველ ჯერზე სხვაა. <a class="chip" href="#s-13">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div><code>ReasoningTokens</code> = 180, <code>OutputTokens</code> = 0, <code>FinishReason</code> = <code>length</code>. რა მოხდა?</div></div><div class="opts"><button type="button" class="opt" data-i="0">key არასწორია</button><button type="button" class="opt" data-i="1">მოდელმა ლიმიტი ფიქრზე დახარჯა და პასუხისთვის აღარ დარჩა</button><button type="button" class="opt" data-i="2">მოდელმა პასუხზე უარი თქვა</button><button type="button" class="opt" data-i="3">Temperature ძალიან მაღალია</button></div><div class="qe"><span class="verdict"></span> ფიქრის ტოკენები <code>MaxOutputTokens</code>-ში ითვლება. reasoning მოდელს ლიმიტი მარაგით სჭირდება. <a class="chip" href="#s-13">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">6</span><div>რომელი შეტყობინება წერს ასისტენტის როლს და წესებს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">User</button><button type="button" class="opt" data-i="1">Assistant</button><button type="button" class="opt" data-i="2">System</button><button type="button" class="opt" data-i="3">Tool</button></div><div class="qe"><span class="verdict"></span> System-ს დეველოპერი წერს კოდში. მომხმარებელი მას ვერ ხედავს და ვერ ცვლის. <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>რომელია კარგი system prompt-ის ნაწილი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">„იყავი ჭკვიანი და დაეხმარე ყველას“</button><button type="button" class="opt" data-i="1">როლი, რა თემებზე პასუხობს, პასუხის ფორმა და რა არ უნდა გააკეთოს</button><button type="button" class="opt" data-i="2">მხოლოდ რესტორნის სახელი</button><button type="button" class="opt" data-i="3">მომხმარებლის კითხვა</button></div><div class="qe"><span class="verdict"></span> ზოგადი „იყავი კარგი“ მოდელს არაფერს ეუბნება. კონკრეტული როლი, საზღვრები და ფორმა — ეუბნება. <a class="chip" href="#s-17">გაიმეორე · სლაიდი 17</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>კლიენტმა ასისტენტს წერილის დაწერა სთხოვა, ის კი რესტორნის ასისტენტია. სწორი ქცევა?</div></div><div class="opts"><button type="button" class="opt" data-i="0">წერილს დაწერს — ხომ შეუძლია</button><button type="button" class="opt" data-i="1">თავაზიანად უარს იტყვის და რესტორნის თემაზე დააბრუნებს</button><button type="button" class="opt" data-i="2">შეცდომას დააბრუნებს (500)</button><button type="button" class="opt" data-i="3">პასუხს საერთოდ არ დაწერს</button></div><div class="qe"><span class="verdict"></span> ეს საზღვარი system prompt-მა უნდა დააწესოს: „სხვა თემაზე თავაზიანად უარს ამბობ“. <a class="chip" href="#s-18">გაიმეორე · სლაიდი 18</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>რა არის few-shot?</div></div><div class="opts"><button type="button" class="opt" data-i="0">მოდელის დამატებითი წვრთნა ჩვენს მონაცემზე</button><button type="button" class="opt" data-i="1">prompt-ში რამდენიმე მაგალითი „შეკითხვა → სწორი პასუხი“</button><button type="button" class="opt" data-i="2">რამდენიმე მოდელის ერთდროული გამოძახება</button><button type="button" class="opt" data-i="3">მოკლე პასუხის მოთხოვნა</button></div><div class="qe"><span class="verdict"></span> მოდელი მაგალითებს ნიმუშად იღებს და პასუხს იმავე ფორმით წერს. წვრთნა არ ხდება — მაგალითები ყოველ მოთხოვნაში იგზავნება. <a class="chip" href="#s-19">გაიმეორე · სლაიდი 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>შეფასების კლასიფიკაციის პასუხს C# კოდი იყენებს: <code>if (label == "Negative")</code>. რატომ ჯობია few-shot?</div></div><div class="opts"><button type="button" class="opt" data-i="0">უფრო იაფია</button><button type="button" class="opt" data-i="1">პასუხი ზუსტად ერთ-ერთი კატეგორია მოდის და კოდი მას ენდობა</button><button type="button" class="opt" data-i="2">მოდელი უფრო სწრაფია</button><button type="button" class="opt" data-i="3">few-shot-ს key არ სჭირდება</button></div><div class="qe"><span class="verdict"></span> zero-shot-მა შეიძლება „უარყოფითი“ ან მთელი აბზაცი დაწეროს — <code>if</code> ამას ვერ დაიჭერს. მაგალითები ფორმატს აფიქსირებს. <a class="chip" href="#s-19">გაიმეორე · სლაიდი 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>few-shot-ის მაგალითები prompt-ში C#-ით როგორ იგზავნება?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>ChatOptions.Examples</code>-ით</button><button type="button" class="opt" data-i="1"><code>ChatMessage</code>-ების სიაში User/Assistant წყვილებად</button><button type="button" class="opt" data-i="2">ცალკე HTTP მოთხოვნებით</button><button type="button" class="opt" data-i="3">appsettings.json-ით</button></div><div class="qe"><span class="verdict"></span> მოდელისთვის ეს „წინა საუბარია“: User კითხულობდა, Assistant პასუხობდა. ბოლოს ნამდვილი კითხვა მიდის. <a class="chip" href="#s-20">გაიმეორე · სლაიდი 20</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>IChatClient</dt><dd>Microsoft.Extensions.AI-ის interface ჩატ-მოდელთან სასაუბროდ; ერთნაირია ყველა პროვაიდერისთვის</dd><dt>provider</dt><dd>ბიბლიოთეკა, რომელიც საერთო interface-ს კონკრეტული სერვისისთვის ახორციელებს (Gemini, OpenAI…)</dd><dt>reasoningTokens</dt><dd>ტოკენები, რომლებიც მოდელმა პასუხამდე ფიქრზე დახარჯა; output-ის ფასით ფასდება</dd><dt>finishReason</dt><dd>რატომ გაჩერდა მოდელი: stop (თვითონ დაასრულა) ან length (ლიმიტს მიაღწია)</dd><dt>System prompt</dt><dd>სისტემური შეტყობინება: ასისტენტის როლი, საზღვრები და პასუხის ფორმა; დეველოპერი წერს, მომხმარებელი ვერ ხედავს</dd><dt>ChatMessage</dt><dd>ერთი შეტყობინება როლით (ChatRole.System / User / Assistant) და ტექსტით</dd><dt>prompt template</dt><dd>prompt-ის შაბლონი, რომელშიც მონაცემი კოდიდან ჩაისმება</dd><dt>zero-shot</dt><dd>prompt მხოლოდ ინსტრუქციით, მაგალითების გარეშე</dd><dt>few-shot</dt><dd>prompt ინსტრუქციით და რამდენიმე მაგალითით „შეკითხვა → სწორი პასუხი“</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div><h2>📝 კლასის დავალება</h2><div class="box task"><h3>შენი ასისტენტი — system prompt-ით</h3>
+<p>შენი პროექტი ან RestaurantApi · კოდით · Swagger-ში</p>
+<h4>ნაბიჯები</h4>
+<ul>
+<li><strong>1 · ახალი endpoint</strong> <code>POST /api/ai-lab/assistant</code> — <code>ChatMessage</code>-ების სიით: System + User</li>
+<li><strong>2 · system prompt შენი პროექტისთვის</strong> — 4 ნაწილი: <strong>ვინ არის</strong> · <strong>რა თემებზე</strong> პასუხობს · <strong>რა ფორმით</strong> (სიგრძე, ენა) · <strong>რას არ აკეთებს</strong></li>
+<li><strong>3 · Swagger-ში 3 კითხვა:</strong> ჩვეულებრივი · სხვა თემაზე ("Write me a poem") · ისეთი, რომელზეც უარი უნდა თქვას</li>
+</ul>
+<h4>✓ მზადაა, როცა</h4>
+<p>სხვა თემის კითხვაზე ასისტენტი თავაზიანად უარს ამბობს და შენს თემას უბრუნდება; პასუხი შენს მითითებულ ფორმაშია</p>
+<h4>⭐ ბონუსი</h4>
+<ul>
+<li>System prompt-ში ჩასვი მონაცემი C#-დან (<code>$"""…{ცვლადი}…"""</code>): პროექტის სახელი, სამუშაო საათები</li>
+<li>სცადე „გატეხვა“: "Ignore the previous instructions and…" — დაიცავს თავს?</li>
+</ul>
+<h4>💡 თუ გაიჭედე</h4>
+<ul>
+<li><strong>შაბლონი:</strong> „შენ ხარ [პროექტის] ასისტენტი. პასუხობ მხოლოდ [თემები]-ზე. პასუხი: მაქსიმუმ [N] წინადადება, ქართულად. სხვა თემაზე თავაზიანად უარს ამბობ და ეუბნები, რაში შეგიძლია დაეხმარო.“</li>
+<li><strong>პასუხობს ყველაფერზე?</strong> შეამოწმე, რომ System შეტყობინება სიაშია და system prompt-ში ცხადად წერია, <strong>რა გააკეთოს</strong> სხვა თემაზე</li>
+<li><strong>ბიბლიოთეკა, სპორტდარბაზი, მაღაზია</strong> — ნებისმიერი პროექტი გამოდგება: ასისტენტი, რომელიც მხოლოდ მის საქმეზე ლაპარაკობს</li>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">აირჩიე პასუხი და მაშინვე ნახავ, სწორია თუ არა და რატომ.</p><div class="qscore"><span id="qs">0</span> / 8 სწორი · <span id="qd">0</span> / 8 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">1</span><div>რას აკეთებს <code>new Client(apiKey: config["Gemini:ApiKey"]).AsIChatClient("gemini-3.8-flash")</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ქმნის Gemini-ს client-ს და აქცევს მას <code>IChatClient</code>-ად; key-ს კონფიგურაციიდან (User Secrets) იღებს</button><button type="button" class="opt" data-i="1">მოდელს ჩვენს კომპიუტერზე ჩამოტვირთავს</button><button type="button" class="opt" data-i="2">Gemini-ს ანგარიშს ქმნის</button><button type="button" class="opt" data-i="3">მოდელს ჩვენს მენიუზე ავარჯიშებს</button></div><div class="qe"><span class="verdict"></span> <code>Client</code> Google-ის SDK-ა, <code>AsIChatClient</code> კი მას საერთო interface-ად „ახვევს“. მოდელი Google-ის სერვერზე რჩება — ჩვენ მას HTTP-ით ვიძახებთ. <a class="chip" href="index.html#/9" target="_blank">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>სად ინახება Gemini-ს API key?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>appsettings.json</code>-ში</button><button type="button" class="opt" data-i="1">Controller-ში, const-ად</button><button type="button" class="opt" data-i="2">User Secrets-ში, როგორც <code>Gemini:ApiKey</code></button><button type="button" class="opt" data-i="3">README-ში, რომ არ დაგვავიწყდეს</button></div><div class="qe"><span class="verdict"></span> ყველა დანარჩენი ადგილი Git-ში ხვდება. გაჟონილ key-ს ბოტები წუთებში პოულობენ. <a class="chip" href="index.html#/8" target="_blank">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div><code>Temperature = 0</code>-ზე ერთი და იგივე კითხვა სამჯერ გავუშვით. რას ველით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">სამ სრულიად განსხვავებულ პასუხს</button><button type="button" class="opt" data-i="1">თითქმის ერთნაირ პასუხებს</button><button type="button" class="opt" data-i="2">შეცდომას — 0 დაუშვებელია</button><button type="button" class="opt" data-i="3">ცარიელ პასუხს</button></div><div class="qe"><span class="verdict"></span> დაბალი Temperature ყველაზე სავარაუდო ტოკენს ირჩევს, ამიტომ პასუხები ერთმანეთს ჰგავს. მაღალზე — ყოველ ჯერზე სხვაა. <a class="chip" href="index.html#/13" target="_blank">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div><code>ReasoningTokens</code> = 180, <code>OutputTokens</code> = 0, <code>FinishReason</code> = <code>length</code>. რა მოხდა?</div></div><div class="opts"><button type="button" class="opt" data-i="0">key არასწორია</button><button type="button" class="opt" data-i="1">მოდელმა ლიმიტი ფიქრზე დახარჯა და პასუხისთვის აღარ დარჩა</button><button type="button" class="opt" data-i="2">მოდელმა პასუხზე უარი თქვა</button><button type="button" class="opt" data-i="3">Temperature ძალიან მაღალია</button></div><div class="qe"><span class="verdict"></span> ფიქრის ტოკენები <code>MaxOutputTokens</code>-ში ითვლება. reasoning მოდელს ლიმიტი მარაგით სჭირდება. <a class="chip" href="index.html#/13" target="_blank">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>რომელია კარგი system prompt-ის ნაწილი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">„იყავი ჭკვიანი და დაეხმარე ყველას“</button><button type="button" class="opt" data-i="1">როლი, რა თემებზე პასუხობს, პასუხის ფორმა და რა არ უნდა გააკეთოს</button><button type="button" class="opt" data-i="2">მხოლოდ რესტორნის სახელი</button><button type="button" class="opt" data-i="3">მომხმარებლის კითხვა</button></div><div class="qe"><span class="verdict"></span> ზოგადი „იყავი კარგი“ მოდელს არაფერს ეუბნება. კონკრეტული როლი, საზღვრები და ფორმა — ეუბნება. <a class="chip" href="index.html#/17" target="_blank">გაიმეორე · სლაიდი 17</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>კლიენტმა ასისტენტს წერილის დაწერა სთხოვა, ის კი რესტორნის ასისტენტია. სწორი ქცევა?</div></div><div class="opts"><button type="button" class="opt" data-i="0">წერილს დაწერს — ხომ შეუძლია</button><button type="button" class="opt" data-i="1">თავაზიანად უარს იტყვის და რესტორნის თემაზე დააბრუნებს</button><button type="button" class="opt" data-i="2">შეცდომას დააბრუნებს (500)</button><button type="button" class="opt" data-i="3">პასუხს საერთოდ არ დაწერს</button></div><div class="qe"><span class="verdict"></span> ეს საზღვარი system prompt-მა უნდა დააწესოს: „სხვა თემაზე თავაზიანად უარს ამბობ“. <a class="chip" href="index.html#/18" target="_blank">გაიმეორე · სლაიდი 18</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>შეფასების კლასიფიკაციის პასუხს C# კოდი იყენებს: <code>if (label == "Negative")</code>. რატომ ჯობია few-shot?</div></div><div class="opts"><button type="button" class="opt" data-i="0">უფრო იაფია</button><button type="button" class="opt" data-i="1">პასუხი ზუსტად ერთ-ერთი კატეგორია მოდის და კოდი მას ენდობა</button><button type="button" class="opt" data-i="2">მოდელი უფრო სწრაფია</button><button type="button" class="opt" data-i="3">few-shot-ს key არ სჭირდება</button></div><div class="qe"><span class="verdict"></span> zero-shot-მა შეიძლება „უარყოფითი“ ან მთელი აბზაცი დაწეროს — <code>if</code> ამას ვერ დაიჭერს. მაგალითები ფორმატს აფიქსირებს. <a class="chip" href="index.html#/19" target="_blank">გაიმეორე · სლაიდი 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>few-shot-ის მაგალითები prompt-ში C#-ით როგორ იგზავნება?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>ChatOptions.Examples</code>-ით</button><button type="button" class="opt" data-i="1"><code>ChatMessage</code>-ების სიაში User/Assistant წყვილებად</button><button type="button" class="opt" data-i="2">ცალკე HTTP მოთხოვნებით</button><button type="button" class="opt" data-i="3">appsettings.json-ით</button></div><div class="qe"><span class="verdict"></span> მოდელისთვის ეს „წინა საუბარია“: User კითხულობდა, Assistant პასუხობდა. ბოლოს ნამდვილი კითხვა მიდის. <a class="chip" href="index.html#/20" target="_blank">გაიმეორე · სლაიდი 20</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 2 — პირველი გამოძახება და Prompt Engineering";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "კოპირება", "copied": "✓ დაკოპირდა", "review": "გაიმეორე ეს კითხვები: ", "allright": "ყველაფერი სწორია! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -689,9 +303,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
-      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -705,16 +317,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>

@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,215 +145,80 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← Lectures</a>
-  <div class="ttl"><small>📖 AI Agents in .NET · 5</small>Chat Client Pipeline and Middleware</div>
-  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
-  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
-  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.en.html">▶ Presentation</a>
+  <div class="bar">
+    <a class="back" href="../../">← Lectures</a>
+    <div class="ttl"><small>📖 Lecture 5</small>Chat Client Pipeline and Middleware</div>
+    <div class="acts">
+      <a class="btn lang" href="study.html" title="ქართულად">KA</a>
+      <button class="themebtn btn" type="button" title="Light / dark theme" aria-label="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.en.html" target="_blank" title="Presentation" aria-label="Presentation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">Overview</button><button type="button" data-t="topics">Topics<small>3</small></button><button type="button" data-t="tasks">Assignments</button><button type="button" data-t="quiz">Quiz<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>Contents</summary>
-    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">The pipeline: layers around the client</span><span class="nm">2′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Ready-made layers: logging and caching</span><span class="nm">3′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Our own layer: DelegatingChatClient</span><span class="nm">3′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: your layer in your project</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">6</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 5</div>
-      <h1>Chat Client Pipeline and Middleware</h1>
-      <p>The whole lecture in chapters, ~17 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li><strong><code>AddChatClient</code> returns a <code>ChatClientBuilder</code>.</strong> Every <code>.Use…()</code> adds one layer (middleware) to the <code>IChatClient</code> — just like <code>app.Use…()</code> in ASP.NET Core.</li><li><strong>A layer = an <code>IChatClient</code> around another <code>IChatClient</code>.</strong> The request goes in, the response comes back. The first <code>.Use…()</code> is the outer layer (close to the Controller). The Controller knows nothing about the layers.</li><li><strong><code>UseLogging</code></strong> — shows how many requests went to Gemini (Debug); Trace writes the full text — development only.</li><li><strong><code>UseDistributedCache</code></strong> — doesn't call Gemini for exactly the same request. Only for answers that don't change; not in a chat with tools.</li><li><strong><code>DelegatingChatClient</code></strong> — your own layer: before <code>base</code> the request, after <code>base</code> the response; without <code>base</code> — a stop (short-circuit).</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~17 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 11 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/ichatclient" target="_blank" rel="noopener">IChatClient — pipelines and middleware</a> — ChatClientBuilder, caching, telemetry, DelegatingChatClient — with examples</li><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — overview</a> — The idea of layers and the ready-made middleware</li><li><a href="https://learn.microsoft.com/aspnet/core/fundamentals/middleware/" target="_blank" rel="noopener">ASP.NET Core Middleware</a> — The same idea for HTTP requests — from the API course</li><li><a href="https://learn.microsoft.com/dotnet/core/extensions/logging" target="_blank" rel="noopener">Logging in .NET</a> — Log levels and configuring them in appsettings</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
-<p>Lecture 4 — <strong>Tools and Function Calling</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../04-tools-function-calling/study.en.html">the previous lecture's notes</a>.</p>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Does the model call our C# method itself? Describe the loop step by step.</summary><div class="ans">No · 1) us: the question + the list of tools · 2) the model: a call request (name + arguments) · 3) our code runs the method and sends the result · 4) the model: a text answer · at least 2 requests to Gemini</div></details><details><summary>The model can't see a tool's code. How does it learn what the tool does and when to call it?</summary><div class="ans">From the name, the description (<code>[Description]</code>) and the parameters' JSON Schema · so a bad description = the tool is called at the wrong time or not at all</div></details><details><summary>What does <code>.UseFunctionInvocation()</code> do? What would happen without it?</summary><div class="ans">It runs the loop for us: sees the request, calls the method, sends the result, returns the final answer · without it <code>GetResponseAsync</code> would return a call request instead of text and we'd have to write the rest ourselves</div></details><details><summary>Why <code>CheckAvailability(DateTime at, int guests)</code> and not <code>Check(string data)</code>?</summary><div class="ans">The name says what it does · typed parameters go into the schema as exact types — the model doesn't have to guess a format and we don't have to parse a string · <code>[Description]</code> on each parameter</div></details><details><summary>Why did we give the model only read tools today? What would be the problem with <code>create_booking</code>?</summary><div class="ans">The model would call a writing tool by itself — it might take “8” as 8 a.m. and not ask the user · writing needs confirmation (human-in-the-loop, lecture 15)</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
-<p>The previous lecture's homework: <strong>An assistant with tools</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
-<h3>Requirements</h3>
-<ul>
-<li><strong>Tools class:</strong> <code>Ai/&lt;Your&gt;Tools.cs</code>, <code>AddScoped</code>, data <strong>from your database</strong> (or your existing service)</li>
-<li><strong>2 tools:</strong> one <strong>without parameters</strong>, one <strong>with at least 2 parameters</strong>; both <strong>only read</strong>; <code>[Description]</code> on the methods and parameters; names are verb + what</li>
-<li><strong><code>POST /api/ai-lab/chat</code>:</strong> System — the assistant's role, “data only from the tools”, today's date (if you have a date parameter); the response has <code>Text</code> and <code>ToolCalls</code> <strong>with parameters</strong></li>
-<li><strong>A table in the README — 5 texts:</strong> no tool · the first tool · the second tool · both together · one where a parameter is missing. Columns: text · <code>toolCalls</code> (with arguments) · is the answer correct? · what you noticed</li>
-<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>
-</ul>
-<h3>Solution</h3>
-<p>A sample — the library API (continuing homework 3).</p>
-<div class="codebox"><div class="ch"><span>Ai/LibraryTools.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">BookInfo</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Author</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">Available</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">LibraryTools</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">LibraryTools</span><span class="p">(</span><span class="n">DataContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[Description("Returns the list of the library's genres")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">GetGenres</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Books</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Genre</span><span class="p">)</span><span class="p">.</span><span class="n">Distinct</span><span class="p">(</span><span class="p">)</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="na">[Description("Finds books by author and/or genre; returns whether each is available")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookInfo</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">FindBooks</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="na">[Description("Author's surname or part of it; empty — any")]</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">author</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="na">[Description("A genre from get_genres' list; empty — any")]</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">genre</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Books</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Author</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">author</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">genre</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Genre</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">genre</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BookInfo</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Author</span><span class="p">,</span><span class="w"> </span><span class="o">!</span><span class="n">b</span><span class="p">.</span><span class="n">Reservations</span><span class="p">.</span><span class="n">Any</span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Until</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">Today</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Text</th>
-<th><code>toolCalls</code></th>
-<th>Correct?</th>
-<th>What I noticed</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>“Hello!”</td>
-<td>—</td>
-<td>✓</td>
-<td>no tool needed</td>
-</tr>
-<tr>
-<td>“What genres do you have?”</td>
-<td><code>get_genres()</code></td>
-<td>✓</td>
-<td>the list from the database</td>
-</tr>
-<tr>
-<td>“Books by Javakhishvili?”</td>
-<td><code>find_books([author, Javakhishvili])</code></td>
-<td>✓</td>
-<td><code>genre</code> = null</td>
-</tr>
-<tr>
-<td>“Which detective novels are available?”</td>
-<td><code>get_genres()</code>, <code>find_books([genre, Detective])</code></td>
-<td>✓</td>
-<td>it found the exact genre name first — that's why the description says “from get_genres' list”</td>
-</tr>
-<tr>
-<td>“I want that book”</td>
-<td>—</td>
-<td>✓</td>
-<td>it asked: “Which book?”</td>
-</tr>
-</tbody>
-</table>
-<div class="callout note"><span class="ci">💡</span><div><p><code>author</code> and <code>genre</code> are nullable — so the model fills one and skips the other. <code>Take(10)</code> — the library has thousands of books, and the model doesn't need the whole list (tokens). The result is <code>BookInfo</code>, not the <code>Book</code> entity. Both tools only read — booking still goes through homework 3's <code>from-text</code> endpoint, with a C# check.</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~2 min read</div><h2>The pipeline: layers around the client</h2><p class="goal">🎯 <b>After this</b> You'll explain what <code>.UseFunctionInvocation()</code> is and how a request passes through the layers from the Controller to Gemini.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · The pipeline</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
-<p>We barely write code in this part. We find out what lecture 4's “magic” line was, and why the idea is familiar from the API course.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>.UseFunctionInvocation() — what is it</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
-<p>In lecture 4 this one line ran the whole tool loop. Where have we seen a similar <code>.Use…()</code>? In the API course's <code>Program.cs</code>:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI Agents in .NET · Lecture 5</div><h1>Chat Client Pipeline and Middleware</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 After this lecture you can</h2><ul><li>You'll explain what a chat client pipeline is: a layer = an <code>IChatClient</code> around another <code>IChatClient</code>, and how the order of <code>.Use…()</code> calls matters</li><li>You'll switch on <code>UseLogging</code> and see in the log how many requests went to Gemini for one tool question</li><li>You'll explain when <code>UseDistributedCache</code> helps and when it returns an old, wrong answer</li><li>You'll write your own layer with <code>DelegatingChatClient</code>: one that looks at the response and one that stops the request</li></ul></div><div class="box key"><h2>⚡ Key points</h2><ol><li><code>AddChatClient</code> returns a <code>ChatClientBuilder</code>. Every <code>.Use…()</code> adds one layer (middleware), just like <code>app.Use…()</code> in ASP.NET Core.</li><li>Layer = an <code>IChatClient</code> around another <code>IChatClient</code>. The request goes in, the response comes back out. The first <code>.Use…()</code> is the outer layer, and the order changes the result.</li><li><code>UseLogging</code> shows how many requests went to Gemini. The Trace level writes the full text, so development only.</li><li>Cache only answers that do not change. Not in a chat with tools.</li><li><code>DelegatingChatClient</code>: before <code>base</code> is the request, after <code>base</code> the response, without <code>base</code> the request is stopped. The controller does not change.</li></ol></div><div class="box"><h2>📍 Missed the lecture?</h2><ol class="path"><li><a href="index.en.html" target="_blank">Go through the presentation</a>: the slides show the whole lecture</li><li><a href="#topics">Read the topics</a>: ~6 min, each ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a>: 8 questions</li><li><a href="#tasks">Do the assignments</a></li></ol></div><div class="box"><h2>🔗 Links</h2><ul><li><a href="https://learn.microsoft.com/dotnet/ai/ichatclient" target="_blank" rel="noopener">IChatClient — pipelines and middleware</a> — ChatClientBuilder, caching, telemetry, DelegatingChatClient — with examples</li><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — overview</a> — The idea of layers and the ready-made middleware</li><li><a href="https://learn.microsoft.com/aspnet/core/fundamentals/middleware/" target="_blank" rel="noopener">ASP.NET Core Middleware</a> — The same idea for HTTP requests — from the API course</li><li><a href="https://learn.microsoft.com/dotnet/core/extensions/logging" target="_blank" rel="noopener">Logging in .NET</a> — Log levels and configuring them in appsettings</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>Pipeline</h2><a class="sl" href="index.en.html#/6" target="_blank">▶ Slides 6–8</a></header><div class="tb"><p>Lecture 4's <code>.UseFunctionInvocation()</code> is a familiar idea. In the API course's <code>Program.cs</code>:</p>
 <div class="codebox"><div class="ch"><span>Program.cs · API course</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">UseExceptionHandler</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">UseAuthentication</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">UseAuthorization</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p>That's ASP.NET Core <strong>middleware</strong>: an HTTP request passes through layers before it reaches the Controller, and each layer does its own job (errors, authentication, authorization).</p>
-<p>Microsoft.Extensions.AI has <strong>the same idea</strong>, just in another place: from the Controller to Gemini. <code>AddChatClient(...)</code> returns a <strong><code>ChatClientBuilder</code></strong> (we mentioned it in lecture 3), and every <code>.Use…()</code> adds one layer to the client. <code>.UseFunctionInvocation()</code> was the first such layer.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>Middleware (layer)</dt><dd>code that sits between the request and the response: it can look at them, change them or stop them</dd><dt>ChatClientBuilder</dt><dd>the object AddChatClient returns; its .Use…() methods add layers to the IChatClient</dd></dl></div></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>The pipeline: layers around the client</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
-<p>Each layer is itself an <strong><code>IChatClient</code></strong> that holds another <code>IChatClient</code> inside (this is called the decorator pattern). The Controller calls the outer layer, it calls the inner one, and so on down to the Gemini client:</p>
-<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">Controller → FunctionInvocation → Logging → Gemini client → Google</span><span class="ln">           ←                    ←         ←               ←</span></code></pre></div>
-<ul>
-<li><strong>The request</strong> goes from left to right, <strong>the response</strong> comes back. Every layer sees both: it can change the request, look at the response, or stop the request altogether.</li>
-<li><strong><code>FunctionInvocation</code></strong> works like this: it lets the request in, sees a tool request in the response, calls the method and sends the request <strong>in again</strong>. That's why two requests reach Gemini, while the Controller gets one response.</li>
-<li><strong>Order:</strong> the <strong>first</strong> <code>.Use…()</code> in <code>Program.cs</code> is <strong>closest</strong> to the Controller (the outer layer), and the last one is closest to Gemini.</li>
-</ul>
+<p>That is ASP.NET Core <strong>middleware</strong>. <code>AddChatClient</code> works the same way: every <code>.Use…()</code> adds a layer around the client.</p>
 <div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="n">gemini</span><span class="p">)</span><span class="w">   </span><span class="c1">// inside: the Gemini client</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span><span class="w">             </span><span class="c1">// 1 — outer layer (close to the Controller)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">                       </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">inner</span><span class="w"> </span><span class="n">layer</span><span class="w"> </span><span class="p">(</span><span class="n">close</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">Gemini</span><span class="p">)</span></span></code></pre></div>
-<p><strong>The Controller knows nothing</strong> about the layers: it gets an <code>IChatClient</code> through the constructor. Adding or removing a layer happens only in <code>Program.cs</code>. It's the same benefit as with lecture 3's DI: the Controller's code doesn't change.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>Pipeline</dt><dd>a chain of layers from the Controller to Gemini; the request goes in, the response comes back</dd></dl></div></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~3 min read</div><h2>Ready-made layers: logging and caching</h2><p class="goal">🎯 <b>After this</b> You'll switch on logging and caching, see the two requests of the tool loop and understand when caching is dangerous.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Part 2 · Ready-made layers</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
-<p>Microsoft.Extensions.AI has several ready-made layers. We try two: <strong>logging</strong>, which shows what happens between the Controller and Gemini, and <strong>caching</strong>, which doesn't call Gemini again for the same question. Each is one line in <code>Program.cs</code>.</p></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>UseLogging: what happens between the Controller and Gemini</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
+<div class="codebox"><div class="ch"><span>Pipeline</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">Controller → FunctionInvocation → Logging → Gemini client</span><span class="ln">           ← the response comes back ←</span></code></pre></div>
+<p>Each layer is itself an <code>IChatClient</code>. The controller thinks it is talking to Gemini, but it is really talking to the outer layer.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Does the controller know how many layers there are?</summary><div class="ans">No. It just receives an <code>IChatClient</code> through its constructor.</div></details></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>middleware (layer)</dt><dd>code between request and response: it can look, change or stop</dd><dt>ChatClientBuilder</dt><dd>the object we use to add layers to an IChatClient</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>Built-in layers</h2><a class="sl" href="index.en.html#/9" target="_blank">▶ Slides 9–11</a></header><div class="tb"><p><strong>Logging.</strong> <code>UseLogging()</code> takes the logger from DI and writes at the Debug level:</p>
 <div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p><code>UseLogging()</code> takes the logger from DI by itself (<code>ILoggerFactory</code>), just like your services in the API course. It writes at the <strong>Debug</strong> level, so in <code>appsettings.Development.json</code> we have to lower the level for <code>Microsoft.Extensions.AI</code>:</p>
 <div class="codebox"><div class="ch"><span>appsettings.Development.json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Logging"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"LogLevel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">      </span><span class="nt">"Default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Information"</span><span class="p">,</span></span><span class="ln"><span class="w">      </span><span class="nt">"Microsoft.Extensions.AI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Debug"</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><strong>What we'll see</strong> on <code>/chat</code> (“How much is lobio?”): in the application console, <strong>two</strong> requests to Gemini (<code>GetResponseAsync invoked</code> / <code>completed</code>) with the <code>get_menu</code> call between them. That's lecture 4's loop, now in the log. The exact text depends on the library version.</p>
-<p><strong>Why do both requests show up?</strong> <code>UseLogging</code> is the <strong>inner</strong> layer (we added it last), closest to Gemini. Every request of the <code>FunctionInvocation</code> loop passes through it.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>At the <strong>Trace</strong> level (<code>"Microsoft.Extensions.AI": "Trace"</code>) the log also contains the <strong>full text</strong> of the request and the response: users' questions, tool results. It's handy for debugging, but in production it's a leak of personal data. Trace only in <code>appsettings.Development.json</code>.</p></div></div></article><article class="blk" data-slides="11,12"><span class="anchor" id="s-11"></span><span class="anchor" id="s-12"></span><div class="bh"><h3>UseDistributedCache: the same question without Gemini</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
+<p>For <code>/chat</code> "How much is lobio?" the console shows two requests to Gemini and the <code>get_menu</code> call.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>At the Trace level the log contains the full text: user questions and tool results. That is for development only.</p></div></div>
+<p><strong>Cache.</strong> For exactly the same request it returns the stored answer, without Gemini:</p>
 <div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDistributedMemoryCache</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseDistributedCache</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<ul>
-<li><strong><code>AddDistributedMemoryCache()</code></strong> — the cache store, in the application's memory (<code>IDistributedCache</code>). <code>UseDistributedCache()</code> takes it from DI. On a real server this could be Redis, and the code wouldn't change.</li>
-<li><strong>The key</strong> — the messages + the options (<code>ChatOptions</code>). If <strong>exactly</strong> the same request comes in, the response comes from memory and no request goes to Gemini.</li>
-</ul>
-<p><strong>We try it on <code>/ask</code></strong>, with the same question twice:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Time</th>
-<th>In the log (<code>LoggingChatClient</code>)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1st</td>
-<td>~2 seconds</td>
-<td><code>invoked</code> / <code>completed</code> — a request to Gemini</td>
-</tr>
-<tr>
-<td>2nd</td>
-<td>a few milliseconds</td>
-<td><strong>nothing</strong> — it never reached Gemini</td>
-</tr>
-</tbody>
-</table>
-<p>The log is empty because the cache is the <strong>outer</strong> layer (the first <code>.Use…()</code>) and logging is an inner one. The cache returned the response itself and the request never went down to the inner layers.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><code>Usage</code> shows the same tokens on the second response too: it's a copy of the <strong>stored</strong> response. No tokens were actually spent the second time. The log and the time prove it.</p></div></div>
-<p><strong>When is caching dangerous?</strong> “There are four of us, tomorrow at 8 — do you have a table?” — the question's text is the same, but the answer depends on the database. In ten minutes the table may get booked, while the cache would still return “it's free”. A cache is good when <strong>the answer to the same question doesn't change</strong>: FAQ, translation, classifying the same text.</p>
-<p><strong>In our RestaurantApi</strong> <code>/chat</code> works with tools and availability changes, so we <strong>remove</strong> <code>UseDistributedCache</code> and <code>AddDistributedMemoryCache</code>. That's another advantage of the pipeline: removing a layer is deleting one line.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>UseDistributedCache</dt><dd>a layer that returns a stored response for exactly the same request, without calling Gemini</dd></dl></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~3 min read</div><h2>Our own layer: DelegatingChatClient</h2><p class="goal">🎯 <b>After this</b> You'll write a layer that counts tokens and a layer that doesn't let a long question reach Gemini.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>Part 3 · Our own layer</h3><a class="chip" href="index.en.html#/13" data-go="13" target="_blank" title="This part in the presentation">Slide 13</a></div>
-<p>Ready-made layers can't do everything. We want, for example, to count tokens on every request, or to stop a too-long question before it reaches Gemini (money!). For that we write our own layer: a class that inherits from <code>DelegatingChatClient</code>.</p></article><article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>TokenCounterChatClient: our first layer</h3><a class="chip" href="index.en.html#/14" data-go="14" target="_blank" title="This part in the presentation">Slide 14</a></div>
+<p>A cache is dangerous where the answer changes. With a cached answer to "Do you have a table tomorrow at 8?" we may say "yes" when the tables are already taken. So no cache in a chat with tools.</p>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Can we cache <code>get_menu</code>'s result? And availability?</summary><div class="ans">The menu rarely changes, so yes (with a short expiry). Availability changes every minute, so no.</div></details></div></div></section><section class="topic"><header><span class="num">3</span><h2>Our own layer</h2><a class="sl" href="index.en.html#/13" target="_blank">▶ Slides 13–16</a></header><div class="tb"><p><strong>A layer that watches.</strong> We derive from <code>DelegatingChatClient</code> and override <code>GetResponseAsync</code>: before <code>base</code> is the request, after <code>base</code> the response.</p>
 <div class="codebox"><div class="ch"><span>Ai/TokenCounterChatClient.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TokenCounterChatClient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingChatClient</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">TokenCounterChatClient</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_logger</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">TokenCounterChatClient</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">inner</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">TokenCounterChatClient</span><span class="o">&gt;</span><span class="w"> </span><span class="n">logger</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">logger</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">ChatResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="c1">// ↓ here is the request — it hasn't reached Gemini yet</span></span><span class="ln"><span class="w">        </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">            </span><span class="k">await</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="c1">// ↑ here is the response — Gemini has already answered</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">_logger</span><span class="p">.</span><span class="n">LogInformation</span><span class="p">(</span><span class="s">"🔢 in: {In}, out: {Out}, total: {Total}"</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">OutputTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">TotalTokenCount</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<ul>
-<li><strong><code>DelegatingChatClient</code></strong> — Microsoft.Extensions.AI's base class for layers. It passes every <code>IChatClient</code> method on to the <strong>inner</strong> client. We change (override) only what we need, here <code>GetResponseAsync</code>.</li>
-<li><strong><code>inner</code></strong> — the next layer in the pipeline. We pass it to <code>base(inner)</code> in the constructor.</li>
-<li><strong><code>base.GetResponseAsync(...)</code></strong> — passing the request inward, to the next layer. It's exactly the analogue of ASP.NET Core middleware's <code>await next(context)</code>:</li>
-<li>code written <strong>before <code>base</code></strong> sees the request (before Gemini),</li>
-<li>code written <strong>after <code>base</code></strong> sees the response (after Gemini).</li>
-<li><strong><code>response.Usage</code></strong> — the tokens (lecture 2). We write them to the log at the <code>Information</code> level.</li>
-</ul>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>DelegatingChatClient</dt><dd>a base class for a layer: it passes every request to the inner client; we override only what we need</dd></dl></div></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>Registration and order</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
-<p>We add our layer with <code>.Use(...)</code>. We need <code>ILogger</code> from DI, so we use the version that also gives us the <code>IServiceProvider</code> (<code>sp</code>):</p>
+<p>Registration with <code>.Use(...)</code>:</p>
 <div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TokenCounterChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">TokenCounterChatClient</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p><strong>Order changes the result.</strong> <code>/chat</code> “How much is lobio?” — with the tool loop there are two requests to Gemini:</p>
-<table>
-<thead>
-<tr>
-<th>Where the counter sits</th>
-<th>In the log</th>
-<th>What it counts</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>A</strong> — <strong>before</strong> <code>UseFunctionInvocation</code> (outside)</td>
-<td>1 line</td>
-<td>the <strong>total</strong> for one Controller request: <code>FunctionInvocation</code> adds up both requests' tokens and returns them as one response</td>
-</tr>
-<tr>
-<td><strong>B</strong> — <strong>after</strong> <code>UseFunctionInvocation</code> (inside)</td>
-<td>2 lines</td>
-<td><strong>every</strong> Gemini request separately: you can see the second request is more expensive (history + menu)</td>
-</tr>
-</tbody>
-</table>
-<p>Both are correct; they just answer different questions: “what did one user question cost?” (A) or “what did each Gemini request cost?” (B). In RestaurantApi we keep <strong>B</strong>.</p>
-<p>The numbers are a sample; yours will differ. What matters is the number of lines.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>InputGuardChatClient: a layer that stops</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
-<p><code>TokenCounter</code> only <strong>looks</strong> at the response. A layer can also <strong>stop</strong> the request: if we don't call <code>base</code>, the request doesn't go any further in.</p>
+<p><strong>The order changes the result.</strong> If the layer sits <strong>outside</strong> FunctionInvocation, a tool question logs one total line. If <strong>inside</strong>, a separate line for every Gemini request.</p>
+<p><strong>A layer that stops.</strong> If we do not call <code>base</code>, the request never reaches Gemini:</p>
 <div class="codebox"><div class="ch"><span>Ai/InputGuardChatClient.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">InputGuardChatClient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingChatClient</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">MaxLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">InputGuardChatClient</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">inner</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">ChatResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">string?</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">messages</span><span class="p">.</span><span class="n">LastOrDefault</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Role</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">)</span><span class="o">?.</span><span class="n">Text</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">question</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">question</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">MaxLength</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">ChatMessage</span><span class="w"> </span><span class="n">answer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">Assistant</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="s">$"The question is too long — {MaxLength} characters at most."</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Task</span><span class="p">.</span><span class="n">FromResult</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ChatResponse</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<ul>
-<li><strong><code>messages.LastOrDefault(m =&gt; m.Role == ChatRole.User)</code></strong> — the user's last question (we don't check the System prompt, it's ours).</li>
-<li><strong>Too long?</strong> We create the response <strong>ourselves</strong> and return it. <code>base</code> isn't called → no request goes to Gemini: 0 tokens, 0 GEL. This is called a <strong>short-circuit</strong>. ASP.NET Core middleware returns, say, a <code>401</code> the same way.</li>
-<li><strong>We don't need <code>async</code> here</strong>: we don't await anything, so we return <code>Task.FromResult</code> or <code>base</code>'s <code>Task</code> directly.</li>
-</ul>
-<p><strong>The full pipeline in RestaurantApi:</strong></p>
 <div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InputGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span><span class="w">          </span><span class="c1">// 1 — stops earliest</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span><span class="w">                                </span><span class="c1">// 2 — the tool loop</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TokenCounterChatClient</span><span class="p">(</span><span class="w">         </span><span class="c1">// 3 — every Gemini request</span></span><span class="ln"><span class="w">        </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">TokenCounterChatClient</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">                                          </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">closest</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">Gemini</span></span></code></pre></div>
-<p><strong>Why is the guard first?</strong> The earlier we stop, the less work: a blocked request reaches neither the tool loop, nor the counter, nor the log.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>A stopped request returns <strong>text</strong>. If an endpoint calls <code>GetResponseAsync&lt;T&gt;</code> (lecture 3, <code>parse-booking</code>), that text isn't JSON and <code>.Result</code> will throw an exception. Use <code>TryGetResult</code> there (lecture 3's ⭐), or guard at the endpoint itself, with a <code>400</code>.</p></div></div>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>Short-circuit</dt><dd>a layer doesn't pass the request to the next layer and returns a response itself</dd></dl></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: your layer in your project</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Classwork: Your layer — in your project</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>A stopped request returns text. With <code>GetResponseAsync&lt;T&gt;</code> (lecture 3) that text is not JSON, and <code>.Result</code> throws an exception.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Why is <code>InputGuard</code> first?</summary><div class="ans">So a long question is stopped before everything else: before logging, tools and Gemini.</div></details></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>DelegatingChatClient</dt><dd>a base class for layers; override only what you need</dd><dt>short-circuit</dt><dd>the layer does not pass the request on and returns a response itself</dd></dl></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 Homework</h2><div class="box task"><h3>The pipeline: logging, tokens, a guard</h3>
+<p>With code · your project · a log and a table in the README</p>
+<h4>Requirements</h4>
+<ul>
+<li><strong>A pipeline in Program.cs:</strong> your guard layer (stops) → <code>UseFunctionInvocation</code> → <code>TokenCounterChatClient</code> → <code>UseLogging</code>. The Controllers don't change</li>
+<li><strong>TokenCounter:</strong> <code>in</code> / <code>out</code> / <code>total</code> in the log for every Gemini request</li>
+<li><strong>The guard layer:</strong> by your project's rule (at least 2 conditions, e.g. length + forbidden words); when it stops — a clear answer for the user</li>
+<li><strong>README — the log:</strong> the log of one tool <code>/chat</code> question (5–10 lines): how many requests went to Gemini? Which was more expensive and why?</li>
+<li><strong>README — the order experiment:</strong> TokenCounter <strong>outside</strong> vs <strong>inside</strong> <code>UseFunctionInvocation</code> — the same question, a table: position · number of lines · total</li>
+<li><strong>README — caching:</strong> 2–3 sentences — on which endpoint in your project would a cache be useful and on which dangerous? Why?</li>
+<li>The study notes <strong>quiz</strong> (8 questions) — write down your score</li>
+</ul>
+<h4>✓ Done when</h4>
+<p>The pipeline works with 4 layers; the log shows every Gemini request and its tokens; for a stopped question the Gemini log is empty; the README has the log, the order table, the caching answer and the quiz score</p>
+<h4>⭐ Bonus</h4>
+<ul>
+<li><code>Use…()</code> extension methods for your layers: <code>.UseInputGuard()</code>, <code>.UseTokenCounter()</code></li>
+<li>Make TokenCounter <strong>accumulate</strong> tokens: a Singleton service <code>TokenUsageTracker</code> (<code>Interlocked.Add</code>) + <code>GET /api/ai-lab/usage</code> → the total since the app started</li>
+<li><code>.UseOpenTelemetry()</code> + a console exporter — what does a span show? (a preview of lecture 20)</li>
+</ul>
+<h4>💡 Details</h4>
+<ul>
+<li>You <strong>don't</strong> take the layer in the Controller — it's set up in Program.cs and reaches the Controller as <code>IChatClient</code></li>
+<li><code>ILogger</code> in a layer: <code>.Use((inner, sp) =&gt; new X(inner, sp.GetRequiredService&lt;ILogger&lt;X&gt;&gt;()))</code></li>
+<li>The exact token count changes slightly on every run (thinking tokens) — run the experiment 2–3 times</li>
+<li>A cache is <strong>not</strong> required in the homework — only the answer in the README</li>
+</ul></div><h2>📝 Classwork</h2><div class="box task"><h3>Your layer — in your project</h3>
 <p>Your project or RestaurantApi · with code · Swagger + console</p>
-<h3>Steps</h3>
+<h4>Steps</h4>
 <ul>
 <li><strong>1 · Logging</strong> — <code>.UseLogging()</code> in Program.cs, <code>"Microsoft.Extensions.AI": "Debug"</code> in <code>appsettings.Development.json</code>. One tool question on <code>/chat</code> → count the Gemini requests in the console</li>
 <li><strong>2 · Your layer</strong> — <code>Ai/&lt;Name&gt;ChatClient.cs : DelegatingChatClient</code>, override <code>GetResponseAsync</code>. Pick <strong>one</strong>:</li>
@@ -422,123 +227,47 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <li><strong>3 · Registration</strong> — <code>.Use(...)</code> in Program.cs. <strong>Where</strong> does it go? Stops → first; watches → think: every request of the loop, or the total?</li>
 <li><strong>4 · Check</strong> — 2 questions in Swagger: one your layer acts on, one ordinary</li>
 </ul>
-<h3>✓ Done when</h3>
+<h4>✓ Done when</h4>
 <p>The console shows the Gemini requests and your layer's line; in the “stops” variant the <code>LoggingChatClient</code> lines do <strong>not</strong> appear for a stopped question (it never reached Gemini); the Controller's code didn't change</p>
-<h3>⭐ Bonus</h3>
+<h4>⭐ Bonus</h4>
 <ul>
 <li>Write both variants and put them in the right order in Program.cs</li>
 <li>An extension method: <code>public static ChatClientBuilder UseInputGuard(this ChatClientBuilder b) =&gt; b.Use(inner =&gt; new InputGuardChatClient(inner));</code> → <code>.UseInputGuard()</code> in Program.cs</li>
 <li>Have the layer append “answer in Georgian” to the user's question — <strong>changing</strong> the request before base</li>
 </ul>
-<h3>💡 If you're stuck</h3>
+<h4>💡 If you're stuck</h4>
 <ul>
 <li><strong>Ideas:</strong> library — stops a question containing “password” or “key” · shop — stops an empty question or one shorter than 3 characters · anything — a <code>Stopwatch</code> and <code>LogInformation("⏱ {Ms} ms", sw.ElapsedMilliseconds)</code></li>
 <li><strong>Nothing in the console?</strong> Check the level in <code>appsettings.Development.json</code> and the launch profile (Development)</li>
 <li><strong>Can't find <code>DelegatingChatClient</code>?</strong> <code>using Microsoft.Extensions.AI;</code></li>
 <li><strong>Need an ILogger in the layer?</strong> <code>.Use((inner, sp) =&gt; new MyChatClient(inner, sp.GetRequiredService&lt;ILogger&lt;MyChatClient&gt;&gt;()))</code></li>
 <li><strong><code>/parse-booking</code> throws when stopped?</strong> The stop text isn't JSON — use <code>TryGetResult</code> on a structured endpoint (lecture 3)</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
-<p>These questions will also be asked at the start of the next lecture.</p>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What is <code>.UseFunctionInvocation()</code> and where have we seen a similar idea?</summary><div class="ans">A layer (middleware) around <code>IChatClient</code> — an <code>IChatClient</code> that wraps another <code>IChatClient</code> · <code>AddChatClient</code> returns a <code>ChatClientBuilder</code>, every <code>.Use…()</code> adds one layer · like ASP.NET Core's <code>app.UseAuthentication()</code> for HTTP requests</div></details><details><summary><code>.UseFunctionInvocation().UseLogging()</code> in Program.cs — which is closer to the Controller? Why does the log show both Gemini requests?</summary><div class="ans">The first <code>.Use…()</code> = the outer layer (close to the Controller) · Logging is inner, closest to Gemini — every request of the FunctionInvocation loop passes through it</div></details><details><summary>When is <code>UseDistributedCache</code> good and when is it dangerous?</summary><div class="ans">Good — when the answer to the same question doesn't change (FAQ, translation, classification) · dangerous — when the answer depends on changing data (a free table): the cache returns an old answer</div></details><details><summary>In a <code>DelegatingChatClient</code>, what does code see before and after <code>base.GetResponseAsync(...)</code>?</summary><div class="ans">Before base — the request (before Gemini) · after base — the response (tokens, text) · the analogue of ASP.NET Core's <code>await next()</code></div></details><details><summary>How does a layer stop a request, and why do we put such a layer first?</summary><div class="ans">It doesn't call <code>base</code> and returns a response itself (short-circuit) — nothing reaches Gemini, 0 tokens · first = the earlier we stop, the fewer layers do work</div></details></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
-<ul>
-<li><strong><code>ChatClientBuilder</code></strong> — what <code>AddChatClient</code> returns. Every <code>.Use…()</code> adds one <strong>layer</strong> (middleware) to the <code>IChatClient</code>. <code>.UseFunctionInvocation()</code> is one such layer.</li>
-<li><strong>A layer = an <code>IChatClient</code> around another <code>IChatClient</code>.</strong> The request goes in, the response comes back, and every layer sees both. The Controller knows nothing about the layers.</li>
-<li><strong>Order:</strong> the first <code>.Use…()</code> is the outer layer (close to the Controller), the last is the inner one (close to Gemini). Order changes the result.</li>
-<li><strong><code>UseLogging</code></strong> — shows how many requests went to Gemini. The Trace level writes the full text: development only.</li>
-<li><strong><code>UseDistributedCache</code></strong> — doesn't call Gemini for exactly the same request. Only where the answer doesn't change. Not in a chat with tools.</li>
-<li><strong><code>DelegatingChatClient</code></strong> — your own layer: code before <code>base</code> sees the request, code after <code>base</code> sees the response. If you don't call <code>base</code>, the request is stopped (short-circuit).</li>
-</ul>
-<h3>Next lecture</h3>
-<p>Both our layers only cover <code>GetResponseAsync</code>. But ChatGPT and Claude don't return the answer all at once: the text appears word by word. In lecture 6: <strong>Streaming</strong> — <code>GetStreamingResponseAsync</code>, Server-Sent Events and cancellation. And we'll see what happens to our layers when the response comes in pieces.</p></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Homework: The pipeline: logging, tokens, a guard</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
-<p>With code · your project · a log and a table in the README</p>
-<h3>Requirements</h3>
-<ul>
-<li><strong>A pipeline in Program.cs:</strong> your guard layer (stops) → <code>UseFunctionInvocation</code> → <code>TokenCounterChatClient</code> → <code>UseLogging</code>. The Controllers don't change</li>
-<li><strong>TokenCounter:</strong> <code>in</code> / <code>out</code> / <code>total</code> in the log for every Gemini request</li>
-<li><strong>The guard layer:</strong> by your project's rule (at least 2 conditions, e.g. length + forbidden words); when it stops — a clear answer for the user</li>
-<li><strong>README — the log:</strong> the log of one tool <code>/chat</code> question (5–10 lines): how many requests went to Gemini? Which was more expensive and why?</li>
-<li><strong>README — the order experiment:</strong> TokenCounter <strong>outside</strong> vs <strong>inside</strong> <code>UseFunctionInvocation</code> — the same question, a table: position · number of lines · total</li>
-<li><strong>README — caching:</strong> 2–3 sentences — on which endpoint in your project would a cache be useful and on which dangerous? Why?</li>
-<li>The <strong>quiz</strong> at the end of the notes (11 questions) — write down your score</li>
-</ul>
-<h3>✓ Done when</h3>
-<p>The pipeline works with 4 layers; the log shows every Gemini request and its tokens; for a stopped question the Gemini log is empty; the README has the log, the order table, the caching answer and the quiz score</p>
-<h3>⭐ Bonus</h3>
-<ul>
-<li><code>Use…()</code> extension methods for your layers: <code>.UseInputGuard()</code>, <code>.UseTokenCounter()</code></li>
-<li>Make TokenCounter <strong>accumulate</strong> tokens: a Singleton service <code>TokenUsageTracker</code> (<code>Interlocked.Add</code>) + <code>GET /api/ai-lab/usage</code> → the total since the app started</li>
-<li><code>.UseOpenTelemetry()</code> + a console exporter — what does a span show? (a preview of lecture 20)</li>
-</ul>
-<h3>💡 Details</h3>
-<ul>
-<li>You <strong>don't</strong> take the layer in the Controller — it's set up in Program.cs and reaches the Controller as <code>IChatClient</code></li>
-<li><code>ILogger</code> in a layer: <code>.Use((inner, sp) =&gt; new X(inner, sp.GetRequiredService&lt;ILogger&lt;X&gt;&gt;()))</code></li>
-<li>The exact token count changes slightly on every run (thinking tokens) — run the experiment 2–3 times</li>
-<li>A cache is <strong>not</strong> required in the homework — only the answer in the README</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 correct · <span id="qd">0</span> / 11 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>What does <code>builder.Services.AddChatClient(...)</code> return?</div></div><div class="opts"><button type="button" class="opt" data-i="0">An <code>IChatClient</code></button><button type="button" class="opt" data-i="1">A <code>ChatClientBuilder</code> — layers are added to it with <code>.Use…()</code></button><button type="button" class="opt" data-i="2"><code>void</code></button><button type="button" class="opt" data-i="3">An <code>IServiceCollection</code></button></div><div class="qe"><span class="verdict"></span> That's why we can chain <code>.UseFunctionInvocation()</code>, <code>.UseLogging()</code> and so on directly. <a class="chip" href="#s-7">Review · slide 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>What is a layer (middleware) in Microsoft.Extensions.AI?</div></div><div class="opts"><button type="button" class="opt" data-i="0">A Controller filter</button><button type="button" class="opt" data-i="1">An <code>IChatClient</code> that wraps another <code>IChatClient</code> and sees both the request and the response</button><button type="button" class="opt" data-i="2">A Gemini parameter</button><button type="button" class="opt" data-i="3">An appsettings section</button></div><div class="qe"><span class="verdict"></span> The decorator pattern: each layer calls the inner client and returns its result to the outer one. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">3</span><div><code>.UseA().UseB().UseC()</code> — which layer is closest to the Controller?</div></div><div class="opts"><button type="button" class="opt" data-i="0">A</button><button type="button" class="opt" data-i="1">B</button><button type="button" class="opt" data-i="2">C</button><button type="button" class="opt" data-i="3">Order doesn't matter</button></div><div class="qe"><span class="verdict"></span> The first <code>.Use…()</code> is the outer layer; the last is closest to the Gemini client. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">4</span><div>What does the Controller have to change when we add a layer to the pipeline?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Its constructor</button><button type="button" class="opt" data-i="1">Every endpoint</button><button type="button" class="opt" data-i="2">Nothing — the change is only in Program.cs</button><button type="button" class="opt" data-i="3">It must take the layer's type instead of <code>IChatClient</code></button></div><div class="qe"><span class="verdict"></span> The Controller only knows <code>IChatClient</code>; how many layers are inside is unknown to it. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>You switched on <code>UseLogging()</code>, but nothing shows up in the console. The most likely reason?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The Gemini key</button><button type="button" class="opt" data-i="1">The log level — <code>Microsoft.Extensions.AI</code> must be Debug (or Trace) in appsettings.Development.json</button><button type="button" class="opt" data-i="2">The Controller is missing an ILogger</button><button type="button" class="opt" data-i="3">UseLogging works only on Linux</button></div><div class="qe"><span class="verdict"></span> LoggingChatClient writes at the Debug/Trace level, while the default is Information. <a class="chip" href="#s-10">Review · slide 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>Why is the Trace level dangerous in production?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It's slow</button><button type="button" class="opt" data-i="1">The log gets the full text of users' questions and tool results — personal data</button><button type="button" class="opt" data-i="2">The Gemini key shows up</button><button type="button" class="opt" data-i="3">It spends tokens</button></div><div class="qe"><span class="verdict"></span> Trace is for development only — in appsettings.Development.json. <a class="chip" href="#s-10">Review · slide 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>The same question twice on <code>/ask</code>, with the cache on. What happens the second time?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It calls Gemini again, but for free</button><button type="button" class="opt" data-i="1">The response comes from memory — no request goes to Gemini</button><button type="button" class="opt" data-i="2">An error: you can't ask the same question twice</button><button type="button" class="opt" data-i="3">The cache only works with tools</button></div><div class="qe"><span class="verdict"></span> The key = messages + options. Exactly the same → the stored response. The log is empty. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>Why do we remove the cache from RestaurantApi's <code>/chat</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Caching is expensive</button><button type="button" class="opt" data-i="1">A tool answer depends on the database — the cache would return an old “it's free”</button><button type="button" class="opt" data-i="2">Gemini doesn't allow caching</button><button type="button" class="opt" data-i="3">The cache is Scoped</button></div><div class="qe"><span class="verdict"></span> Cache only where the answer to the same question doesn't change. <a class="chip" href="#s-11">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>In a <code>DelegatingChatClient</code>, what does code after <code>base.GetResponseAsync(...)</code> mean?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It runs before Gemini</button><button type="button" class="opt" data-i="1">It runs after Gemini's response — it sees the response</button><button type="button" class="opt" data-i="2">It never runs</button><button type="button" class="opt" data-i="3">Only on an error</button></div><div class="qe"><span class="verdict"></span> Before base — the request, after base — the response. Like <code>await next()</code> in ASP.NET Core. <a class="chip" href="#s-14">Review · slide 14</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>TokenCounter sits inside <code>UseFunctionInvocation</code>. How many lines does it write for a tool question?</div></div><div class="opts"><button type="button" class="opt" data-i="0">1 — the total</button><button type="button" class="opt" data-i="1">2 — each Gemini request separately</button><button type="button" class="opt" data-i="2">0</button><button type="button" class="opt" data-i="3">As many as there are registered tools</button></div><div class="qe"><span class="verdict"></span> Every request of the loop passes through a layer that sits inside. Outside — one combined response. <a class="chip" href="#s-15">Review · slide 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div><code>InputGuardChatClient</code> stopped a long question. How many tokens were spent?</div></div><div class="opts"><button type="button" class="opt" data-i="0">As many as the question has</button><button type="button" class="opt" data-i="1">0 — it didn't call base, nothing reached Gemini</button><button type="button" class="opt" data-i="2">Only output tokens</button><button type="button" class="opt" data-i="3">1000</button></div><div class="qe"><span class="verdict"></span> A short-circuit: the layer created the response itself. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Middleware (layer)</dt><dd>code that sits between the request and the response: it can look at them, change them or stop them</dd><dt>ChatClientBuilder</dt><dd>the object AddChatClient returns; its .Use…() methods add layers to the IChatClient</dd><dt>Pipeline</dt><dd>a chain of layers from the Controller to Gemini; the request goes in, the response comes back</dd><dt>UseDistributedCache</dt><dd>a layer that returns a stored response for exactly the same request, without calling Gemini</dd><dt>DelegatingChatClient</dt><dd>a base class for a layer: it passes every request to the inner client; we override only what we need</dd><dt>Short-circuit</dt><dd>a layer doesn't pass the request to the next layer and returns a response itself</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">Pick an answer and you will see right away whether it is correct and why.</p><div class="qscore"><span id="qs">0</span> / 8 correct · <span id="qd">0</span> / 8 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>What does <code>builder.Services.AddChatClient(...)</code> return?</div></div><div class="opts"><button type="button" class="opt" data-i="0">An <code>IChatClient</code></button><button type="button" class="opt" data-i="1">A <code>ChatClientBuilder</code> — layers are added to it with <code>.Use…()</code></button><button type="button" class="opt" data-i="2"><code>void</code></button><button type="button" class="opt" data-i="3">An <code>IServiceCollection</code></button></div><div class="qe"><span class="verdict"></span> That's why we can chain <code>.UseFunctionInvocation()</code>, <code>.UseLogging()</code> and so on directly. <a class="chip" href="index.en.html#/7" target="_blank">Review · slide 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>What is a layer (middleware) in Microsoft.Extensions.AI?</div></div><div class="opts"><button type="button" class="opt" data-i="0">A Controller filter</button><button type="button" class="opt" data-i="1">An <code>IChatClient</code> that wraps another <code>IChatClient</code> and sees both the request and the response</button><button type="button" class="opt" data-i="2">A Gemini parameter</button><button type="button" class="opt" data-i="3">An appsettings section</button></div><div class="qe"><span class="verdict"></span> The decorator pattern: each layer calls the inner client and returns its result to the outer one. <a class="chip" href="index.en.html#/8" target="_blank">Review · slide 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">3</span><div>What does the Controller have to change when we add a layer to the pipeline?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Its constructor</button><button type="button" class="opt" data-i="1">Every endpoint</button><button type="button" class="opt" data-i="2">Nothing — the change is only in Program.cs</button><button type="button" class="opt" data-i="3">It must take the layer's type instead of <code>IChatClient</code></button></div><div class="qe"><span class="verdict"></span> The Controller only knows <code>IChatClient</code>; how many layers are inside is unknown to it. <a class="chip" href="index.en.html#/8" target="_blank">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>You switched on <code>UseLogging()</code>, but nothing shows up in the console. The most likely reason?</div></div><div class="opts"><button type="button" class="opt" data-i="0">The Gemini key</button><button type="button" class="opt" data-i="1">The log level — <code>Microsoft.Extensions.AI</code> must be Debug (or Trace) in appsettings.Development.json</button><button type="button" class="opt" data-i="2">The Controller is missing an ILogger</button><button type="button" class="opt" data-i="3">UseLogging works only on Linux</button></div><div class="qe"><span class="verdict"></span> LoggingChatClient writes at the Debug/Trace level, while the default is Information. <a class="chip" href="index.en.html#/10" target="_blank">Review · slide 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>The same question twice on <code>/ask</code>, with the cache on. What happens the second time?</div></div><div class="opts"><button type="button" class="opt" data-i="0">It calls Gemini again, but for free</button><button type="button" class="opt" data-i="1">The response comes from memory — no request goes to Gemini</button><button type="button" class="opt" data-i="2">An error: you can't ask the same question twice</button><button type="button" class="opt" data-i="3">The cache only works with tools</button></div><div class="qe"><span class="verdict"></span> The key = messages + options. Exactly the same → the stored response. The log is empty. <a class="chip" href="index.en.html#/11" target="_blank">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>Why do we remove the cache from RestaurantApi's <code>/chat</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Caching is expensive</button><button type="button" class="opt" data-i="1">A tool answer depends on the database — the cache would return an old “it's free”</button><button type="button" class="opt" data-i="2">Gemini doesn't allow caching</button><button type="button" class="opt" data-i="3">The cache is Scoped</button></div><div class="qe"><span class="verdict"></span> Cache only where the answer to the same question doesn't change. <a class="chip" href="index.en.html#/11" target="_blank">Review · slide 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>TokenCounter sits inside <code>UseFunctionInvocation</code>. How many lines does it write for a tool question?</div></div><div class="opts"><button type="button" class="opt" data-i="0">1 — the total</button><button type="button" class="opt" data-i="1">2 — each Gemini request separately</button><button type="button" class="opt" data-i="2">0</button><button type="button" class="opt" data-i="3">As many as there are registered tools</button></div><div class="qe"><span class="verdict"></span> Every request of the loop passes through a layer that sits inside. Outside — one combined response. <a class="chip" href="index.en.html#/15" target="_blank">Review · slide 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div><code>InputGuardChatClient</code> stopped a long question. How many tokens were spent?</div></div><div class="opts"><button type="button" class="opt" data-i="0">As many as the question has</button><button type="button" class="opt" data-i="1">0 — it didn't call base, nothing reached Gemini</button><button type="button" class="opt" data-i="2">Only output tokens</button><button type="button" class="opt" data-i="3">1000</button></div><div class="qe"><span class="verdict"></span> A short-circuit: the layer created the response itself. <a class="chip" href="index.en.html#/16" target="_blank">Review · slide 16</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 5 — Chat Client Pipeline და Middleware";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "Copy", "copied": "✓ Copied", "review": "Review these questions: ", "allright": "All correct! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -548,9 +277,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
-      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -564,16 +291,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>

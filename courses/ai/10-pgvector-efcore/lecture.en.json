@@ -22,32 +22,85 @@
     {"title": "Vector databases in .NET (VectorData)", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/vector-databases", "note": "Microsoft.Extensions.VectorData — when we need it"}
   ],
   "quiz": [
-    {"q": "Lecture 9's search vectors are in the `MenuIndex` Singleton. What happens after a deploy?", "options": ["Nothing — the Singleton stays", "The vectors disappear and the whole menu has to be sent to the embedding model again", "The vectors move to the database", "Gemini stores them"], "explain": "Memory belongs to the app's process — on restart everything is calculated again."},
-    {"q": "Why do we use pgvector instead of a separate vector database (Qdrant)?", "options": ["Qdrant can't store vectors", "We already have PostgreSQL: the vector next to the dish, in the same table — one transaction, one backup, WHERE and JOIN", "pgvector is always faster", "EF Core can't see Qdrant"], "explain": "A separate vector database makes sense at large scale or when the data isn't in PostgreSQL."},
-    {"q": "You try to write a 3072-long vector into the `Embedding vector(768)` column. What happens?", "options": ["It's trimmed automatically", "The database returns an error — the size is in the column type", "It's written, the search works", "It's padded with zeros"], "explain": "“One model — one map” is checked at the database level."},
-    {"q": "In lecture 9 the score was 0.71. What will pgvector's `<=>` return?", "options": ["0.71", "0.29 — cosine distance = 1 − similarity", "71", "−0.71"], "explain": "A small distance = close, so ORDER BY is ascending."},
-    {"q": "What do we need `UseVector()` in `UseNpgsql` for?", "options": ["To create the index", "So that Npgsql knows pgvector's `vector` type and maps it to C#'s `Vector`", "To connect to Gemini", "To run the migration"], "explain": "HasPostgresExtension(\"vector\") creates the CREATE EXTENSION in the migration."},
-    {"q": "You called `/menu/index` a second time and got `Indexed: 0`. Why?", "options": ["It's an error", "Indexing only calculates what has no vector or has one from another model — everything already has one", "The database is empty", "Gemini refused"], "explain": "The vectors are in the database — no more money is spent."},
-    {"q": "`OrderBy(p => p.Embedding!.CosineDistance(query)).Take(3)` — where does the sorting happen?", "options": ["In C#, after loading every dish", "In the database: in SQL, ORDER BY \"Embedding\" <=> @query LIMIT 3 — only 3 rows come to C#", "In Gemini", "When the index is created"], "explain": "LINQ is translated to SQL."},
-    {"q": "Why is the HNSW index “approximate”?", "options": ["It rounds the vectors", "It doesn't compare every vector — it moves through a graph by “floors”; it's very fast, but can occasionally miss a correct one", "It uses only 2 dimensions", "It picks at random"], "explain": "This is measured by recall; the quality is controlled by hnsw.ef_search."},
-    {"q": "The index uses `vector_l2_ops`, the search uses `CosineDistance`. What happens?", "options": ["An error", "The search works, but the index isn't used — it will be slow", "The index changes automatically", "The results will be wrong"], "explain": "The index operator must match the search function: vector_cosine_ops ↔ CosineDistance."},
-    {"q": "The dish and the price are in PostgreSQL, and we want a filter “up to 20 lari”. Which way is better?", "options": ["Microsoft.Extensions.VectorData + Qdrant", "EF Core + pgvector: WHERE Price <= 20 and ORDER BY distance — one query", "Two databases and merging the results in C#", "A filter is impossible"], "explain": "We need VectorData when the vectors are in a separate store or it may change."}
-  ],
-  "study": {
-    "summary": [
-      "**pgvector** adds a `vector(768)` column and distance operators to PostgreSQL; in Docker, `pgvector/pgvector` of the same version.",
-      "**`<=>` — cosine distance** = 1 − similarity: small = close, `ORDER BY distance` ascending.",
-      "**EF Core:** `Pgvector.EntityFrameworkCore`, `UseVector()`, `HasPostgresExtension(\"vector\")`, `Vector? Embedding` + `EmbeddingModel`, a migration.",
-      "**Indexing** calculates only what needs recalculating; **search:** `OrderBy(CosineDistance).Take(3)` — the sorting happens in the database.",
-      "**HNSW** — an approximate (ANN), fast index; the operator (`vector_cosine_ops`) must match the search function; it's checked with `EXPLAIN`. In one PostgreSQL — EF Core, on a separate store — VectorData."
-    ],
-    "chapters": {
-      "1 · ბაზაში": {"title": "A vector in the database: pgvector", "goal": "You'll explain what a vector database is, and use pgvector's type and operators in SQL."},
-      "2 · EF Core": {"title": "EF Core and the vector", "goal": "You'll add a vector column with EF Core, write the vectors and search with LINQ."},
-      "3 · ინდექსი": {"title": "The HNSW index and VectorData", "goal": "You'll create an HNSW index, check it with EXPLAIN and choose between EF Core and VectorData."},
-      "პრაქტიკა": {"title": "Classwork: search on the database"},
-      "შეჯამება": {"title": "Summary"},
-      "საშინაო": {"title": "Homework"}
+    {
+      "q": "Lecture 9's search vectors are in the `MenuIndex` Singleton. What happens after a deploy?",
+      "options": [
+        "Nothing — the Singleton stays",
+        "The vectors disappear and the whole menu has to be sent to the embedding model again",
+        "The vectors move to the database",
+        "Gemini stores them"
+      ],
+      "explain": "Memory belongs to the app's process — on restart everything is calculated again."
+    },
+    {
+      "q": "Why do we use pgvector instead of a separate vector database (Qdrant)?",
+      "options": [
+        "Qdrant can't store vectors",
+        "We already have PostgreSQL: the vector next to the dish, in the same table — one transaction, one backup, WHERE and JOIN",
+        "pgvector is always faster",
+        "EF Core can't see Qdrant"
+      ],
+      "explain": "A separate vector database makes sense at large scale or when the data isn't in PostgreSQL."
+    },
+    {
+      "q": "In lecture 9 the score was 0.71. What will pgvector's `<=>` return?",
+      "options": [
+        "0.71",
+        "0.29 — cosine distance = 1 − similarity",
+        "71",
+        "−0.71"
+      ],
+      "explain": "A small distance = close, so ORDER BY is ascending."
+    },
+    {
+      "q": "What do we need `UseVector()` in `UseNpgsql` for?",
+      "options": [
+        "To create the index",
+        "So that Npgsql knows pgvector's `vector` type and maps it to C#'s `Vector`",
+        "To connect to Gemini",
+        "To run the migration"
+      ],
+      "explain": "HasPostgresExtension(\"vector\") creates the CREATE EXTENSION in the migration."
+    },
+    {
+      "q": "You called `/menu/index` a second time and got `Indexed: 0`. Why?",
+      "options": [
+        "It's an error",
+        "Indexing only calculates what has no vector or has one from another model — everything already has one",
+        "The database is empty",
+        "Gemini refused"
+      ],
+      "explain": "The vectors are in the database — no more money is spent."
+    },
+    {
+      "q": "`OrderBy(p => p.Embedding!.CosineDistance(query)).Take(3)` — where does the sorting happen?",
+      "options": [
+        "In C#, after loading every dish",
+        "In the database: in SQL, ORDER BY \"Embedding\" <=> @query LIMIT 3 — only 3 rows come to C#",
+        "In Gemini",
+        "When the index is created"
+      ],
+      "explain": "LINQ is translated to SQL."
+    },
+    {
+      "q": "The index uses `vector_l2_ops`, the search uses `CosineDistance`. What happens?",
+      "options": [
+        "An error",
+        "The search works, but the index isn't used — it will be slow",
+        "The index changes automatically",
+        "The results will be wrong"
+      ],
+      "explain": "The index operator must match the search function: vector_cosine_ops ↔ CosineDistance."
+    },
+    {
+      "q": "The dish and the price are in PostgreSQL, and we want a filter “up to 20 lari”. Which way is better?",
+      "options": [
+        "Microsoft.Extensions.VectorData + Qdrant",
+        "EF Core + pgvector: WHERE Price <= 20 and ORDER BY distance — one query",
+        "Two databases and merging the results in C#",
+        "A filter is impossible"
+      ],
+      "explain": "We need VectorData when the vectors are in a separate store or it may change."
     }
-  }
+  ]
 }

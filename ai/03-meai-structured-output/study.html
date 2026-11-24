@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,357 +145,119 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 3</small>Microsoft.Extensions.AI: DI და Structured Output</div>
-  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
-  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
-  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+  <div class="bar">
+    <a class="back" href="../../">← ლექციები</a>
+    <div class="ttl"><small>📖 ლექცია 3</small>Microsoft.Extensions.AI: DI და Structured Output</div>
+    <div class="acts">
+      <a class="btn lang" href="study.en.html" title="English">EN</a>
+      <button class="themebtn btn" type="button" title="ღია / მუქი თემა" aria-label="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.html" target="_blank" title="პრეზენტაცია" aria-label="პრეზენტაცია"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">მთავარი</button><button type="button" data-t="topics">თემები<small>3</small></button><button type="button" data-t="tasks">დავალებები</button><button type="button" data-t="quiz">ტესტი<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
-    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">1′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">IChatClient DI-ში: AddChatClient და კონფიგურაცია</span><span class="nm">3′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Structured output: ტექსტის ნაცვლად C# ტიპი</span><span class="nm">3′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">ტექსტი → ობიექტი: record რამდენიმე ველით</span><span class="nm">2′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: ტექსტიდან ობიექტი შენს პროექტში</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება</span><span class="nm">1′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">5</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 3</div>
-      <h1>Microsoft.Extensions.AI: DI და Structured Output</h1>
-      <p>ლექციის სრული მასალა თავებად, ~15 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li><strong><code>AddChatClient</code></strong> — <code>IChatClient</code> ერთხელ იქმნება <code>Program.cs</code>-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას <strong>constructor-ით</strong> იღებს — როგორც <code>DbContext</code>-ს API კურსზე.</li><li><strong>key</strong> — User Secrets-ში (<code>dotnet user-secrets set "Gemini:ApiKey" "..."</code>), <strong>მოდელი</strong> — <code>appsettings.json</code>-ში. სხვა მოდელი = მხოლოდ კონფიგურაცია, სხვა პროვაიდერი = მხოლოდ <code>Program.cs</code>.</li><li><strong><code>GetResponseAsync&lt;T&gt;</code></strong> — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს. <code>response.Result</code> უკვე <code>T</code>-ია.</li><li><strong>enum</strong> — ერთი მნიშვნელობა სიიდან (კლასიფიკაცია); <strong>record</strong> — რამდენიმე ველი ტექსტიდან (ამოღება). nullable ველები და „დატოვე null“ — რომ არ მოიგონოს; დღევანდელი თარიღი — prompt-ში.</li><li><strong>ფორმა გარანტირებულია, შინაარსი — არა.</strong> მიღებულ ობიექტს ბაზამდე C# ამოწმებს.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~15 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 11 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — მიმოხილვა</a> — IChatClient, DI-ში რეგისტრაცია, ChatClientBuilder</li><li><a href="https://learn.microsoft.com/dotnet/ai/quickstarts/structured-output" target="_blank" rel="noopener">Structured output — .NET quickstart</a> — GetResponseAsync<T> enum-ით და record-ით</li><li><a href="https://ai.google.dev/gemini-api/docs/structured-output" target="_blank" rel="noopener">Gemini — Structured output</a> — როგორ მუშაობს JSON Schema Gemini-ზე, რჩევები</li><li><a href="https://learn.microsoft.com/aspnet/core/security/app-secrets" target="_blank" rel="noopener">ASP.NET Core — User Secrets</a> — საიდუმლოებების უსაფრთხოდ შენახვა დეველოპმენტში</li><li><a href="https://googleapis.github.io/dotnet-genai/" target="_blank" rel="noopener">Google Gen AI .NET SDK</a> — Client(apiKey) და AsIChatClient</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
-<p>ლექცია 2 — <strong>პირველი გამოძახება და Prompt Engineering</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../02-prompt-engineering/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის <code>IChatClient</code> და რას ვცვლით, Gemini-დან სხვა პროვაიდერზე რომ გადავიდეთ?</summary><div class="ans">ერთი interface ყველა ჩატ-მოდელისთვის (Microsoft.Extensions.AI) · იცვლება მხოლოდ client-ის შექმნის ხაზი; <code>GetResponseAsync</code>, DTO-ები და endpoint-ები იგივე რჩება</div></details><details><summary><code>maxOutputTokens: 15</code>-ზე პასუხი ცარიელია, <code>finishReason</code> = <code>length</code>. რატომ?</summary><div class="ans">Gemini პასუხამდე „ფიქრობს“ · ფიქრის ტოკენები (<code>ReasoningTokens</code>) იმავე ლიმიტში ითვლება და პასუხისთვის აღარაფერი რჩება · ლიმიტი მარაგით</div></details><details><summary>რით განსხვავდება System შეტყობინება User-ისგან?</summary><div class="ans">System-ს <strong>ჩვენ</strong> ვწერთ კოდში: როლი, თემები, წესები, პასუხის ფორმა · User-ს წერს მომხმარებელი · Assistant — მოდელის პასუხი</div></details><details><summary>რა არის few-shot და როდის გვჭირდება?</summary><div class="ans">prompt-ში რამდენიმე მაგალითი „შეკითხვა → სწორი პასუხი“ · როცა პასუხი ზუსტ ფორმატში ან ზუსტ კატეგორიებში გვინდა, რომ კოდმა გამოიყენოს</div></details><details><summary>System prompt-ში წერია: „ფასს არასდროს ასახელებ“. ეს გარანტიაა?</summary><div class="ans">არა · prompt ქცევის ალბათობას ცვლის, მაგრამ არ იძლევა გარანტიას · ის, რაც აუცილებლად უნდა შესრულდეს, C# კოდი ამოწმებს (ლექცია 19)</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
-<p>წინა ლექციის საშინაო: <strong>Few-shot კლასიფიკატორი შენს პროექტში</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
-<h3>მოთხოვნები</h3>
-<ul>
-<li><strong>endpoint</strong> <code>POST /api/ai-lab/classify</code> — მომხმარებლის ტექსტი → <strong>ერთი</strong> კატეგორია შენი პროექტისთვის (მინიმუმ 3 კატეგორია, მაგ. <code>Search</code> / <code>Order</code> / <code>Question</code>)</li>
-<li><strong>few-shot:</strong> System + მინიმუმ <strong>3 მაგალითი</strong> User/Assistant წყვილებად</li>
-<li><strong>შედარება README-ში:</strong> 5 ტექსტი — zero-shot (მაგალითების გარეშე) vs few-shot. ცხრილი: ტექსტი · zero-shot პასუხი · few-shot პასუხი · <code>inputTokens</code> ორივეზე</li>
-<li><strong>ენა:</strong> ერთი და იგივე ტექსტი ქართულად და ინგლისურად — <code>inputTokens</code> ცხრილში</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
-</ul>
-<h3>ამოხსნა</h3>
-<p>ნიმუში — ბიბლიოთეკის API (ლექცია 1-ის საშინაოდან: „მოთხოვნის ტიპი“).</p>
-<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Classify</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("classify")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Classify</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the library request. " +</span></span><span class="ln"><span class="na">            "Answer with one word only: Search, Reserve or Question."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "Do you have anything by Haruki Murakami?"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Search"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "Please hold “Jaqo's Dispossessed” for me until tomorrow"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Reserve"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "Until what time are you open on Saturday?"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Question"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>ტექსტი</th>
-<th>zero-shot</th>
-<th>few-shot</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>"Where are your detective novels?"</td>
-<td>"This is a search request, because…"</td>
-<td><code>Search</code></td>
-</tr>
-<tr>
-<td>"Hold this book for me until Monday"</td>
-<td>„დაჯავშნა“</td>
-<td><code>Reserve</code></td>
-</tr>
-<tr>
-<td>"How much does replacing a library card cost?"</td>
-<td>„Question / ინფორმაცია“</td>
-<td><code>Question</code></td>
-</tr>
-</tbody>
-</table>
-<div class="callout note"><span class="ci">💡</span><div><p>zero-shot-ის პასუხი ხშირად სწორია <strong>შინაარსით</strong>, მაგრამ არა <strong>ფორმით</strong>: „დაჯავშნა“ ან მთელი წინადადება <code>if (label == "Reserve")</code>-ს ვერ გაივლის. few-shot ფორმას აფიქსირებს. მაინც, Controller-ში პასუხი სიასთან უნდა შევამოწმოთ — მოდელი სავარაუდოს წერს. ლექცია 3-ზე structured output-ით ამას C# ტიპი (enum) დაიცავს.</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~3 წთ კითხვა</div><h2>IChatClient DI-ში: AddChatClient და კონფიგურაცია</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> <code>IChatClient</code>-ს <code>Program.cs</code>-ში დაარეგისტრირებ, key-ს User Secrets-ში შეინახავ, მოდელს — <code>appsettings.json</code>-ში, Controller კი მას constructor-ით მიიღებს.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · IChatClient DI-ში</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
-<p>ამ ნაწილში ახალი არაფერია — API კურსზე ზუსტად ასე დაარეგისტრირე <code>DbContext</code> და შენი სერვისები. ვიყენებთ იმავე ნიმუშს <code>IChatClient</code>-ზე: ერთხელ ვქმნით <code>Program.cs</code>-ში, Controller კი მას constructor-ით იღებს.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>რა არის ცუდი ლექცია 2-ის კოდში</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
-<p>ლექცია 2-ზე <code>IChatClient</code> პირდაპირ Controller-ში შევქმენით, რომ ყურადღება მოდელზე ყოფილიყო:</p>
-<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ლექცია 2</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">AiLabController</span><span class="p">(</span><span class="n">IConfiguration</span><span class="w"> </span><span class="n">config</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>ეს მუშაობს, მაგრამ სამი პრობლემა აქვს:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>პრობლემა</th>
-<th>რატომ ცუდია</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>♻️</td>
-<td><strong>ყოველ request-ზე ახალი client</strong></td>
-<td>ASP.NET Core Controller-ს ყოველ მოთხოვნაზე ახლიდან ქმნის. ველი <code>_chat</code> მასთან ერთად იქმნება — ყოველ ჯერზე ახალი client და ახალი HTTP კავშირი. სერვერზე ეს რესურსის ფლანგვაა</td>
-</tr>
-<tr>
-<td>📌</td>
-<td><strong>მოდელის სახელი კოდშია</strong></td>
-<td>სხვა მოდელზე გადასასვლელად კოდი უნდა შეცვალო და ხელახლა გამოაქვეყნო</td>
-</tr>
-<tr>
-<td>🧪</td>
-<td><strong>ტესტირება შეუძლებელია</strong></td>
-<td>Controller თვითონ ქმნის Gemini-ს client-ს. ტესტში ყალბ client-ს ვერ ჩავუსვამთ — ყოველი ტესტი ნამდვილ Gemini-ს დაუძახებს და ფულს დახარჯავს</td>
-</tr>
-</tbody>
-</table>
-<p>API კურსიდან ეს უკვე იცი: <code>DbContext</code>-ს Controller-ში <code>new</code>-ით არ ვქმნით — <strong>ვარეგისტრირებთ DI-ში და constructor-ით ვიღებთ</strong>. <code>IChatClient</code>-ზეც იგივე წესი მოქმედებს.</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Program.cs: AddChatClient</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
-<p><code>IChatClient</code>-ს ერთხელ ვქმნით, აპლიკაციის გაშვებისას, და DI-ში ვარეგისტრირებთ:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI აგენტები .NET-ში · ლექცია 3</div><h1>Microsoft.Extensions.AI: DI და Structured Output</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 ამ ლექციის შემდეგ შეძლებ</h2><ul><li><code>IChatClient</code>-ის რეგისტრაცია DI-ში <code>AddChatClient</code>-ით: key — User Secrets-ში, მოდელი — <code>appsettings.json</code>-ში</li><li><code>GetResponseAsync&lt;T&gt;</code>-ით enum-ის მიღება და ახსნა, რატომ არის ეს few-shot-ზე საიმედო</li><li>ტექსტიდან ობიექტის ამოღება <code>record</code>-ით: nullable ველები, <code>Description</code>, დღევანდელი თარიღი prompt-ში</li><li>ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში</li></ul></div><div class="box key"><h2>⚡ მთავარი</h2><ol><li><code>IChatClient</code> ერთხელ იქმნება <code>Program.cs</code>-ში (<code>AddChatClient</code>) და DI-ში Singleton-ად რეგისტრირდება. Controller მას <strong>constructor-ით</strong> იღებს, როგორც <code>DbContext</code>-ს.</li><li>key User Secrets-შია, მოდელის სახელი <code>appsettings.json</code>-ში. მოდელის შეცვლა კონფიგურაციის შეცვლაა.</li><li><code>GetResponseAsync&lt;T&gt;</code> → <code>ChatResponse&lt;T&gt;</code> → <code>.Result</code> უკვე C# ტიპია.</li><li>few-shot ფორმას <strong>სთხოვს</strong>, structured output კი <strong>აიძულებს</strong>: სქემა მოთხოვნასთან ერთად მიდის.</li><li>nullable ველები და „დატოვე null“, რომ მოდელმა არ მოიგონოს. <strong>ფორმა გარანტირებულია, შინაარსი არა</strong>: ობიექტს ბაზაში ჩაწერამდე C# ამოწმებს.</li></ol></div><div class="box"><h2>📍 ლექცია გააცდინე?</h2><ol class="path"><li><a href="index.html" target="_blank">ნახე პრეზენტაცია</a>: სლაიდები ლექციის მთელ გზას აჩვენებს</li><li><a href="#topics">წაიკითხე თემები</a>: ~6 წთ, თითოს ბოლოს „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a>: 8 კითხვა</li><li><a href="#tasks">გააკეთე დავალებები</a></li></ol></div><div class="box"><h2>🔗 ბმულები</h2><ul><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — მიმოხილვა</a> — IChatClient, DI-ში რეგისტრაცია, ChatClientBuilder</li><li><a href="https://learn.microsoft.com/dotnet/ai/quickstarts/structured-output" target="_blank" rel="noopener">Structured output — .NET quickstart</a> — GetResponseAsync<T> enum-ით და record-ით</li><li><a href="https://ai.google.dev/gemini-api/docs/structured-output" target="_blank" rel="noopener">Gemini — Structured output</a> — როგორ მუშაობს JSON Schema Gemini-ზე, რჩევები</li><li><a href="https://learn.microsoft.com/aspnet/core/security/app-secrets" target="_blank" rel="noopener">ASP.NET Core — User Secrets</a> — საიდუმლოებების უსაფრთხოდ შენახვა დეველოპმენტში</li><li><a href="https://googleapis.github.io/dotnet-genai/" target="_blank" rel="noopener">Google Gen AI .NET SDK</a> — Client(apiKey) და AsIChatClient</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>IChatClient DI-ში</h2><a class="sl" href="index.html#/6" target="_blank">▶ სლაიდები 6–9</a></header><div class="tb"><p>ლექცია 2-ზე <code>IChatClient</code> Controller-ში <code>new</code>-ით შევქმენით. ამას სამი პრობლემა აქვს: ყოველ მოთხოვნაზე ახალი client იქმნება, მოდელის სახელი კოდშია, და Controller-ი თვითონ ქმნის თავის დამოკიდებულებას. ვიყენებთ იმავე ნიმუშს, რაც API კურსზე <code>DbContext</code>-ისთვის:</p>
 <div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Google.GenAI</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">apiKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="o">??</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InvalidOperationException</span><span class="p">(</span><span class="s">"Gemini:ApiKey is missing"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:Model"</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="o">??</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InvalidOperationException</span><span class="p">(</span><span class="s">"Gemini:Model is missing"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">rest</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">was</span></span></code></pre></div>
-<ul>
-<li><strong><code>AddChatClient(...)</code></strong> — <code>Microsoft.Extensions.AI</code>-ის extension. <code>IChatClient</code>-ს არეგისტრირებს <strong>Singleton</strong>-ად: მთელ აპლიკაციაზე ერთი client, ერთი HTTP კავშირების pool. Gemini-ს client thread-safe-ია, ამიტომ ერთდროულ მოთხოვნებს უპრობლემოდ ემსახურება.</li>
-<li><strong><code>new Client(apiKey: apiKey)</code></strong> — იგივე ხაზი, რაც ლექცია 2-ის Controller-ში იყო, ოღონდ ახლა ერთხელ სრულდება, აპლიკაციის გაშვებისას.</li>
-<li><strong><code>?? throw</code></strong> — თუ key ან მოდელი არ წერია, აპლიკაცია <strong>გაშვებისთანავე</strong> ჩავარდება გასაგები შეცდომით, და არა პირველ მოთხოვნაზე, უცნაური 401-ით.</li>
-</ul>
-<p><strong>მოდელის სახელი</strong> — <code>appsettings.json</code>-ში. ეს საიდუმლო არ არის, Git-შიც მიდის:</p>
 <div class="codebox"><div class="ch"><span>appsettings.json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Gemini"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"Model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gemini-3.8-flash"</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><strong>key</strong> უკვე <strong>User Secrets</strong>-შია — ლექცია 2-ზე ჩავწერეთ, როგორც <code>Gemini:ApiKey</code>. <code>secrets.json</code>-ში ასე ჩანს (VS → პროექტზე მარჯვენა ღილაკი → <strong>Manage User Secrets</strong>):</p>
-<div class="codebox"><div class="ch"><span>secrets.json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Gemini"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"ApiKey"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AIza..."</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>ორივე ფაილში ერთი სექციაა — <code>Gemini</code>: <code>appsettings.json</code>-ში <code>Model</code> (საიდუმლო არ არის, Git-ში მიდის), <code>secrets.json</code>-ში <code>ApiKey</code> (საიდუმლოა, პროექტის გარეთ ინახება). <code>IConfiguration</code> ორივეს ერთ სექციად აერთიანებს.</p>
-<p>თუ key ჯერ არ ჩაგიწერია — ტერმინალში, პროექტის საქაღალდეში:</p>
-<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>user-secrets<span class="w"> </span>init</span><span class="ln">dotnet<span class="w"> </span>user-secrets<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="s2">"Gemini:ApiKey"</span><span class="w"> </span><span class="s2">"AIza..."</span></span></code></pre></div>
-<p><code>builder.Configuration["Gemini:ApiKey"]</code> ორივე ადგილიდან ერთნაირად კითხულობს — კოდმა არ იცის, სად წერია მნიშვნელობა.</p>
-<div class="callout note"><span class="ci">💡</span><div><p>სერვერზე User Secrets არ არსებობს — იქ იგივე მნიშვნელობა გარემოს ცვლადით მიდის: <code>Gemini__ApiKey</code> (ორი ქვედა ტირე = <code>:</code>). კოდი არ იცვლება. ამას DevOps-ში, deploy-ზე ვნახავთ.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>AddChatClient</dt><dd>Microsoft.Extensions.AI-ის მეთოდი, რომელიც IChatClient-ს DI-ში არეგისტრირებს (ნაგულისხმევად Singleton)</dd><dt>User Secrets</dt><dd>დეველოპერის კომპიუტერზე, პროექტის გარეთ შენახული კონფიგურაცია საიდუმლოებისთვის; Git-ში არ ხვდება</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Controller: constructor injection</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
-<p><code>AiLabController</code>-ში იცვლება მხოლოდ client-ის მიღება: constructor-ში <code>IConfiguration</code>-ის ნაცვლად პირდაპირ <code>IChatClient</code> შემოდის. ველის სახელი იგივე რჩება — <code>_chat</code>, ამიტომ ლექცია 2-ის endpoint-ებს (<code>ask</code>, <code>assistant</code>, <code>review-sentiment</code>) არ ვეხებით:</p>
+<p>Controller client-ს constructor-ით იღებს. ველის სახელი იგივეა (<code>_chat</code>), ამიტომ დანარჩენი კოდი არ იცვლება:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/ai-lab")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AiLabController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">AiLabController</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">chat</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chat</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// ask, assistant, review-sentiment — unchanged</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>using Google.GenAI;</code> Controller-ში აღარ გვჭირდება — Controller-მა აღარ იცის, რომ Gemini-სთან მუშაობს. მან იცის მხოლოდ <code>IChatClient</code>.</p>
-<p><strong>შეამოწმე:</strong> Swagger → <code>POST /api/ai-lab/ask</code> → პასუხი ისევ მოდის.</p>
-<p><strong>რა სად იცვლება ახლა:</strong></p>
-<table>
-<thead>
-<tr>
-<th>მინდა</th>
-<th>ვცვლი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>სხვა Gemini მოდელი</td>
-<td>მხოლოდ <code>appsettings.json</code> — <code>"Model"</code></td>
-</tr>
-<tr>
-<td>სხვა პროვაიდერი (OpenAI, Ollama…)</td>
-<td>მხოლოდ <code>Program.cs</code> — client-ის შექმნის ხაზი (და შესაბამისი package)</td>
-</tr>
-<tr>
-<td>ტესტში ყალბი client</td>
-<td>ტესტი თვითონ გადასცემს Controller-ს თავის <code>IChatClient</code>-ს</td>
-</tr>
-</tbody>
-</table>
-<p>Controller-ს ამ სამიდან არცერთი არ ეხება.</p></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~3 წთ კითხვა</div><h2>Structured output: ტექსტის ნაცვლად C# ტიპი</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> <code>GetResponseAsync&lt;T&gt;</code>-ით მოდელისგან enum-ს მიიღებ და გაიგებ, რატომ არის ეს few-shot-ზე საიმედო.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · Structured output</h3><a class="chip" href="index.html#/10" data-go="10" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 10</a></div>
-<p>ლექცია 2-ზე few-shot-ით მივაღწიეთ, რომ მოდელი თითქმის ყოველთვის ზუსტ სიტყვას აბრუნებდა. „თითქმის“ კოდისთვის საკმარისი არ არის. <strong>Structured output</strong> მოდელს სთხოვს არა "Answer in one word", არამედ — "Answer in exactly the shape of this C# type".</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>few-shot: „თითქმის“ ყოველთვის</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
-<p>საშინაოში <code>classify</code> endpoint few-shot-ით დაწერე. უმეტესად ზუსტ სიტყვას აბრუნებს, მაგრამ ხანდახან — <code>Search.</code>, <code>search</code> ან მთელ წინადადებას. ეს ყველაფერი <code>string</code>-ია, და <code>if (label == "Search")</code> მათზე ჩავარდება.</p>
-<p>few-shot მოდელს <strong>სთხოვს</strong> ფორმას: მაგალითებით ვაჩვენებთ, მოდელი კი ალბათობით იმეორებს. ალბათობა ≠ გარანტია (ლექცია 1).</p>
-<p><strong>იდეა:</strong> რა იქნება, თუ პასუხი <code>string</code> კი არა, C# <strong>enum</strong> იქნება?</p>
-<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">RequestType</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Search</span><span class="p">,</span><span class="w"> </span><span class="n">Reserve</span><span class="p">,</span><span class="w"> </span><span class="n">Question</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
-<p><code>RequestType</code> ტიპის ცვლადში <code>"Search."</code> ვერ მოხვდება — მხოლოდ სამი მნიშვნელობიდან ერთი. ზუსტად ამას აკეთებს <strong>structured output</strong>: მოდელს ფორმას <strong>აიძულებს</strong>, და არა სთხოვს.</p></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>GetResponseAsync&lt;T&gt;: enum</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
-<p>ლექცია 2-ის <code>ReviewSentiment</code> few-shot-ით მუშაობდა. ახლა იმავე endpoint-ს enum-ით ვწერთ:</p>
+<div class="callout note"><span class="ci">💡</span><div><p>სერვერზე User Secrets არ არსებობს: იქ იგივე მნიშვნელობა გარემოს ცვლადით მიდის, <code>Gemini__ApiKey</code> (ორი ქვედა ტირე = <code>:</code>). კოდი არ იცვლება.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>Gemini-ს ნაცვლად OpenAI რომ გვინდოდეს, რომელ ფაილს შევცვლიდით?</summary><div class="ans">მხოლოდ <code>Program.cs</code>-ს (client-ის შექმნა და package). სხვა Gemini მოდელზე გადასვლისთვის კი მხოლოდ <code>appsettings.json</code>-ს.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>AddChatClient</dt><dd>IChatClient-ს DI-ში არეგისტრირებს (ნაგულისხმევად Singleton)</dd><dt>User Secrets</dt><dd>დეველოპერის კომპიუტერზე, პროექტის გარეთ შენახული საიდუმლო პარამეტრები</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>Structured output: enum</h2><a class="sl" href="index.html#/10" target="_blank">▶ სლაიდები 10–13</a></header><div class="tb"><p>few-shot „თითქმის“ ყოველთვის აბრუნებს ზუსტ სიტყვას, მაგრამ ხანდახან მოდის <code>Search.</code> ან <code>search</code>, და <code>if</code> ჩავარდება. „თითქმის“ კოდისთვის საკმარისი არ არის.</p>
+<p><strong>Structured output:</strong> პასუხის ტიპს C#-ში ვწერთ, და მოდელი მის გარეთ ვერაფერს დაწერს:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ReviewSentiment</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">Sentiment</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Positive</span><span class="p">,</span><span class="w"> </span><span class="n">Negative</span><span class="p">,</span><span class="w"> </span><span class="n">Mixed</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("review-sentiment")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ReviewSentiment</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the restaurant review."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">Sentiment</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">Sentiment</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Sentiment</span><span class="w"> </span><span class="n">sentiment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sentiment</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Sentiment</span><span class="p">.</span><span class="n">Negative</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* notify the manager */</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">sentiment</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>ხაზ-ხაზ:</p>
-<ul>
-<li><strong><code>enum Sentiment</code></strong> — დასაშვები პასუხების სია. მოდელი ამის გარეთ ვერაფერს დააბრუნებს. enum შეგიძლია ცალკე ფაილში გაიტანო.</li>
-<li><strong>System prompt მოკლდება.</strong> "Answer with one word only: Positive, Negative or Mixed" და few-shot მაგალითები <strong>ფორმისთვის</strong> აღარ გვჭირდება — ფორმას ტიპი განსაზღვრავს. ნაკლები ტექსტი = ნაკლები input ტოკენი.</li>
-<li><strong><code>GetResponseAsync&lt;Sentiment&gt;(messages)</code></strong> — იგივე <code>GetResponseAsync</code>, ოღონდ ტიპით. აბრუნებს <strong><code>ChatResponse&lt;Sentiment&gt;</code></strong>-ს: ჩვეულებრივ <code>ChatResponse</code>-ს (<code>Text</code>, <code>Usage</code>, <code>FinishReason</code>) პლუს <code>Result</code>.</li>
-<li><strong><code>response.Result</code></strong> — უკვე <code>Sentiment</code>, არა <code>string</code>. <code>if (sentiment == Sentiment.Negative)</code> ყოველთვის სწორად მუშაობს.</li>
-<li><strong><code>sentiment.ToString()</code></strong> — ASP.NET Core enum-ს JSON-ში ნაგულისხმევად <strong>რიცხვად</strong> აბრუნებს (<code>Mixed</code> → <code>2</code>). <code>ToString()</code> სახელს გვიბრუნებს.</li>
-</ul>
-<div class="callout tip"><span class="ci">👉</span><div><p>few-shot მაგალითები <strong>შინაარსისთვის</strong> კვლავ სასარგებლოა: მაგალითად, თუ გინდა მოდელმა ზუსტად შენებურად გაიგოს, რა არის <code>Mixed</code>. <strong>ფორმისთვის</strong> კი აღარ გჭირდება — ფორმას ტიპი იცავს.</p></div></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>რა ხდება GetResponseAsync&lt;T&gt;-ის შიგნით</h3><a class="chip" href="index.html#/13" data-go="13" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 13</a></div>
-<p>ერთ ხაზში ოთხი ნაბიჯია:</p>
-<ol>
-<li><strong>C# ტიპი → JSON Schema.</strong> Microsoft.Extensions.AI ტიპიდან (<code>Sentiment</code>) აგენერირებს JSON Schema-ს — ფორმის აღწერას: „პასუხი ობიექტია ერთი ველით, რომლის მნიშვნელობა ამ სამიდან ერთია“.</li>
-<li><strong>სქემა მოთხოვნაში.</strong> სქემა <code>ChatOptions.ResponseFormat</code>-ში ჯდება და Gemini-ს მოთხოვნასთან ერთად მიდის. prompt-ში ამას ჩვენ არ ვწერთ.</li>
-<li><strong>მოდელი სქემას მისდევს.</strong> Gemini პასუხს წერს ისე, რომ ის სქემას ემთხვეოდეს: ყოველ ნაბიჯზე მხოლოდ იმ ტოკენებს შორის ირჩევს, რომლებიც სქემას არ არღვევს. ამიტომ <code>"Search."</code> ან აბზაცი უბრალოდ ვერ გაჩნდება.</li>
-<li><strong>JSON → C#.</strong> პასუხი (<code>{"data":"Mixed"}</code>) <code>System.Text.Json</code>-ით C# ობიექტად იქცევა — <code>response.Result</code>.</li>
-</ol>
-<div class="callout note"><span class="ci">💡</span><div><p><strong>რატომ <code>"data"</code>?</strong> მოდელები JSON-ში ზედა დონეზე მხოლოდ ობიექტს აბრუნებენ. enum, რიცხვი ან სია ობიექტი არ არის — ამიტომ Microsoft.Extensions.AI მას ავტომატურად <code>{"data": …}</code>-ში „ახვევს“ და მერე თვითონვე ხსნის. ობიექტზე (მაგ. <code>record</code>) ეს არ ხდება.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>structured output</dt><dd>მოდელის პასუხი წინასწარ განსაზღვრული ფორმით (JSON Schema), რომელსაც კოდი C# ტიპად კითხულობს</dd><dt>JSON Schema</dt><dd>JSON-ის ფორმის აღწერა: რა ველებია, რა ტიპის, რა მნიშვნელობებია დასაშვები</dd><dt>ChatResponse<T></dt><dd>GetResponseAsync<T>-ის პასუხი: ჩვეულებრივი ChatResponse + Result (T ტიპის ობიექტი)</dd></dl></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~2 წთ კითხვა</div><h2>ტექსტი → ობიექტი: record რამდენიმე ველით</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> მომხმარებლის ტექსტიდან ამოიღებ ობიექტს რამდენიმე ველით და შეამოწმებ, რომ მნიშვნელობები სწორია.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · ტექსტი → ობიექტი</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
-<p>enum ერთი მნიშვნელობაა. რეალურ ამოცანებში ტექსტიდან <strong>რამდენიმე</strong> მონაცემი გვჭირდება: თარიღი, რაოდენობა, სახელი. structured output ამასაც აკეთებს — <code>T</code> შეიძლება იყოს <code>record</code> რამდენიმე ველით. ასე მომხმარებლის თავისუფალი ტექსტი ჩვენს არსებულ ლოგიკამდე მიდის.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>BookingRequest: ობიექტი რამდენიმე ველით</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
-<p>მომხმარებელი წერს: "There are four of us, tomorrow at 8". ჯავშნის ლოგიკას კი სჭირდება <code>DateTime</code> და <code>int</code>. structured output ამ ორს შორის ხიდია:</p>
+<p>შიგნით ოთხი ნაბიჯია: C# ტიპი → JSON Schema → სქემა მიდის Gemini-სთან მოთხოვნასთან ერთად → პასუხი C# ობიექტად იკითხება (<code>.Result</code>).</p>
+<div class="callout note"><span class="ci">💡</span><div><p>enum, რიცხვი ან სია JSON ობიექტი არ არის, ამიტომ პასუხი wrapper-შია: <code>{"data": "Positive"}</code>. <code>.Result</code> მას თვითონ ამოიღებს.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>სქემა რას ცვლის მოდელის მიერ ტოკენის არჩევაში?</summary><div class="ans">ზღუდავს: სქემის გარეთ ტოკენები აღარ ირჩევა. მნიშვნელობის სისწორე კი ისევ ალბათობაზეა დამოკიდებული.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>structured output</dt><dd>მოდელის პასუხი წინასწარ განსაზღვრული ფორმით (JSON Schema), რომელსაც კოდი C# ტიპად კითხულობს</dd><dt>JSON Schema</dt><dd>JSON-ის ფორმის აღწერა: რა ველებია და რა ტიპის</dd></dl></div></div></section><section class="topic"><header><span class="num">3</span><h2>ტექსტი → ობიექტი</h2><a class="sl" href="index.html#/15" target="_blank">▶ სლაიდები 15–17</a></header><div class="tb"><p>მომხმარებელი წერს "There are four of us, tomorrow at 8", ჯავშანს კი <code>DateTime</code> და <code>int</code> სჭირდება. structured output ამ ორს შორის ხიდია:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ParseBooking</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">BookingRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Booking date and time")]</span><span class="w"> </span><span class="n">DateTime</span><span class="o">?</span><span class="w"> </span><span class="n">At</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Number of guests")]</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">Guests</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("parse-booking")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ParseBooking</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            Extract the booking details from the user's text.</span></span><span class="ln"><span class="na">            Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">            Leave null whatever is not in the text.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">BookingRequest</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">BookingRequest</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>Description</code>-ისთვის ფაილის თავში: <code>using System.ComponentModel;</code></p>
-<p><strong>სამი მნიშვნელოვანი დეტალი:</strong></p>
-<ol>
-<li><strong>დღევანდელი თარიღი prompt-ში.</strong> მოდელმა არ იცის, დღეს რა რიცხვია: ის stateless-ია და მისი ცოდნა ვარჯიშის დღეზე ჩერდება (ლექცია 1). „ხვალ“ რომ გაიგოს, თარიღს ჩვენ ვაწვდით — ლექცია 2-ის prompt შაბლონით (<code>$"""…{…}…"""</code>).</li>
-<li><strong>Nullable ველები (<code>DateTime?</code>, <code>int?</code>).</strong> <code>?</code> მოდელს ეუბნება: "you may not know this". <code>?</code>-ის გარეშე მოდელი <strong>იძულებულია</strong> რაიმე დაწეროს — და მოიგონებს. prompt-ის ხაზი "Leave null whatever is not in the text" იგივეს ამყარებს.</li>
-<li><strong><code>[property: Description(...)]</code></strong> — აღწერა სქემაში ჯდება და მოდელს ველის მნიშვნელობას უხსნის. <code>property:</code> საჭიროა, რადგან <code>record</code>-ის პარამეტრზე ატრიბუტი თვისებას (property) უნდა მიეწეროს.</li>
-</ol>
-<div class="callout tip"><span class="ci">👉</span><div><p>Google-ის რეკომენდაცია: სქემა prompt-ში <strong>არ გაიმეორო</strong> (მაგ. "Return JSON with the fields at and guests") — ის ისედაც მოთხოვნასთან მიდის, და გამეორება ხარისხს აუარესებს. prompt-ში წერე <strong>რა</strong> ამოიღოს და <strong>რა წესით</strong>.</p></div></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ფორმა გარანტირებულია, შინაარსი — არა</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
-<p>ერთი და იგივე endpoint, სამი ტექსტი. ყოველ ჯერზე ბრუნდება <code>BookingRequest</code> — <strong>ფორმა ყოველთვის სწორია</strong>. შინაარსი კი სხვა საკითხია:</p>
-<table>
-<thead>
-<tr>
-<th>ტექსტი</th>
-<th>შედეგი</th>
-<th>რა უნდა შენიშნო</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>"There are four of us, tomorrow at 8"</td>
-<td><code>at: …T08:00</code>, <code>guests: 4</code></td>
-<td>„8“ ორაზროვანია. მოდელმა შეიძლება დილის 8 აირჩიოს, რესტორანი კი 12:00-დან მუშაობს</td>
-</tr>
-<tr>
-<td>"I'd like a table on Saturday evening"</td>
-<td><code>at: …T19:00</code>, <code>guests: null</code></td>
-<td>სტუმრების რაოდენობა არ წერია → <code>null</code> (არ მოიგონა). „საღამო“ → 19:00 კი <strong>მოდელის ვარაუდია</strong></td>
-</tr>
-<tr>
-<td>"How much is khinkali?"</td>
-<td><code>at: null</code>, <code>guests: null</code></td>
-<td>ჯავშანი არ არის — ფორმა მაინც სწორია, ყველაფერი <code>null</code></td>
-</tr>
-</tbody>
-</table>
-<p>ზუსტი შედეგი შენთან შეიძლება განსხვავდებოდეს — მოდელი ალბათობით მუშაობს.</p>
-<p><strong>დასკვნა:</strong> structured output იძლევა გარანტიას, რომ პასუხი <strong>ჩვენი ტიპისაა</strong>. ის არ იძლევა გარანტიას, რომ მნიშვნელობები <strong>სწორია</strong>. ამიტომ, სანამ ობიექტი ჩვენს ლოგიკაში (ბაზაში) წავა, <strong>C# ამოწმებს</strong>:</p>
+<ul>
+<li><strong>nullable ველები</strong> (<code>?</code>): თუ ტექსტში არ წერია, მოდელი <code>null</code>-ს დატოვებს და არ მოიგონებს.</li>
+<li><strong>დღევანდელი თარიღი prompt-ში:</strong> მოდელმა არ იცის, დღეს რა რიცხვია, ამიტომ „ხვალ“ ვერ გამოითვლის.</li>
+<li><strong><code>Description</code></strong> მოდელს ველის მნიშვნელობას უხსნის.</li>
+</ul>
+<p><strong>ფორმა გარანტირებულია, შინაარსი არა.</strong> „8-ზე“ შეიძლება 08:00 გახდეს, „ხინკალი“-ზე კი ყველა ველი null იქნება. ამიტომ C# ამოწმებს:</p>
 <div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">BookingRequest</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"Which day and what time?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">Guests</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="s">"How many of you?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">Hour</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">At</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">Hour</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">23</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"We're open 12:00–23:00"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">here</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">your</span><span class="w"> </span><span class="n">existing</span><span class="w"> </span><span class="n">booking</span><span class="w"> </span><span class="n">logic</span></span></code></pre></div>
-<p>ეს იგივე წესია, რაც ლექცია 2-ზე: <strong>prompt და მოდელი ალბათობას ცვლის, აუცილებელს კი C# ამოწმებს.</strong></p></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>კლასის დავალება: ტექსტიდან ობიექტი შენს პროექტში</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>კლასში დავალება: ტექსტიდან ობიექტი — შენს პროექტში</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ <code>int? Guests</code> და არა <code>int</code>?</summary><div class="ans"><code>int</code> ცარიელი ვერ იქნება, და თუ ტექსტში რაოდენობა არ წერია, მოდელი რაიმე რიცხვს მოიგონებს. <code>null</code> ნიშნავს „არ თქვა“.</div></details><details><summary>მივიღეთ <code>BookingRequest</code>. შეიძლება პირდაპირ ბაზაში ჩავწეროთ?</summary><div class="ans">არა. ჯერ C#-ში ვამოწმებთ (null, წარსული თარიღი, ზომა), რადგან შინაარსი შეიძლება არასწორი იყოს.</div></details></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 საშინაო</h2><div class="box task"><h3>ტიპიზებული კლასიფიკატორი და ტექსტიდან ჩანაწერი</h3>
+<p>კოდით · შენი პროექტი · README-ში ცხრილი</p>
+<h4>მოთხოვნები</h4>
+<ul>
+<li><strong>DI:</strong> Controller-ებში <code>new Client(...)</code> არსად — <code>IChatClient</code> მხოლოდ <code>AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code>appsettings.json</code>-ში</li>
+<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code>POST /api/ai-lab/classify</code> გადაწერე <code>GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>
+<li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · <code>inputTokens</code> ორივეზე</li>
+<li><strong>ტექსტიდან ჩანაწერი:</strong> ერთი endpoint შენი პროექტის <strong>ნამდვილ</strong> Controller-ში (არა ai-lab): ტექსტი → <code>record</code> → C# შემოწმება (სავალდებულო ველი <code>null</code> → <code>400</code> კითხვით) → შენი არსებული ლოგიკით <strong>ბაზაში</strong> ჩაწერა</li>
+<li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
+</ul>
+<h4>✓ მზადაა, როცა</h4>
+<p><code>classify</code> 5-ვე ტექსტზე აბრუნებს enum-ის მნიშვნელობას; ტექსტიდან შექმნილი ჩანაწერი ბაზაში ჩანს; არასრულ ტექსტზე endpoint ჩანაწერს არ ქმნის და აბრუნებს <code>400</code>-ს კითხვით; README-ში არის ცხრილი და ტესტის ქულა</p>
+<h4>⭐ ბონუსი</h4>
+<ul>
+<li><code>Program.cs</code>-ში <code>JsonStringEnumConverter</code> — რომ API enum-ს სახელით აბრუნებდეს და არა რიცხვით</li>
+<li><code>response.Result</code>-ის ნაცვლად <code>response.TryGetResult(out var x)</code> — რა დააბრუნებს endpoint, თუ მოდელმა სქემის შესაბამისი JSON ვერ დაწერა?</li>
+</ul>
+<h4>💡 დეტალები</h4>
+<ul>
+<li>enum-ის მნიშვნელობები ინგლისურად დაწერე (<code>Search</code>, <code>Reserve</code>…) — prompt-ში ახსნა შეიძლება ქართულად</li>
+<li>თარიღიან ველზე System prompt-ში დღევანდელი თარიღი არ დაგავიწყდეს</li>
+<li><code>MaxOutputTokens</code> არ დააყენო მცირე რიცხვზე — Gemini ჯერ ფიქრობს</li>
+<li>ტექსტიდან ჩანაწერისთვის ახალი სერვისი არ დაწერო — გამოიყენე ის მეთოდი, რომლითაც ჩანაწერს უკვე ქმნი (API კურსიდან)</li>
+</ul></div><h2>📝 კლასის დავალება</h2><div class="box task"><h3>ტექსტიდან ობიექტი — შენს პროექტში</h3>
 <p>შენი პროექტი ან RestaurantApi · კოდით · Swagger-ში</p>
-<h3>ნაბიჯები</h3>
+<h4>ნაბიჯები</h4>
 <ul>
 <li><strong>1 · DI</strong> — თუ ჯერ არ გაგიკეთებია: <code>AddChatClient</code> <code>Program.cs</code>-ში, key — User Secrets-ში, <code>AiLabController</code> — constructor-ით</li>
 <li><strong>2 · შენი ტიპი</strong> — <code>record</code> <strong>მინიმუმ 3 ველით</strong> შენი პროექტის ტექსტისთვის; ერთი ველი — <strong>enum</strong>, არასავალდებულო ველები — <strong>nullable</strong> (<code>?</code>)</li>
 <li><strong>3 · endpoint</strong> <code>POST /api/ai-lab/extract</code> — System: <strong>რა</strong> ამოიღოს და "Leave null whatever is not in the text" → <code>GetResponseAsync&lt;შენი ტიპი&gt;</code> → <code>Ok(response.Result)</code></li>
 <li><strong>4 · Swagger-ში 3 ტექსტი:</strong> სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე</li>
 </ul>
-<h3>✓ მზადაა, როცა</h3>
+<h4>✓ მზადაა, როცა</h4>
 <p>სამივე ტექსტზე ბრუნდება შენი ტიპი; რაც ტექსტში არ წერია, <code>null</code>-ია და არა მოგონილი; enum-ის ველში მხოლოდ შენი სიის მნიშვნელობაა</p>
-<h3>⭐ ბონუსი</h3>
+<h4>⭐ ბონუსი</h4>
 <ul>
 <li>ველებს დაუმატე <code>[property: Description("...")]</code> — შეიცვალა შედეგი ორაზროვან ტექსტზე?</li>
 <li>endpoint-ში შეამოწმე შედეგი C#-ით: სავალდებულო ველი <code>null</code> → <code>BadRequest</code> კითხვით („რომელ დღეს?“)</li>
 </ul>
-<h3>💡 თუ გაიჭედე</h3>
+<h4>💡 თუ გაიჭედე</h4>
 <ul>
 <li><strong>იდეები:</strong> ბიბლიოთეკა — "Hold Jaqo's Dispossessed for me until Monday" → <code>{ Title, Until, Action: Reserve }</code> · სპორტდარბაზი — "Two of us are coming to yoga tomorrow at 7" → <code>{ Class, At, People }</code> · მაღაზია — "A red T-shirt, size M, two of them" → <code>{ Product, Size, Color, Quantity }</code></li>
 <li><strong>თარიღი გაქვს ველებში?</strong> System prompt-ში დაამატე <code>Today is {DateTime.Now:yyyy-MM-dd, dddd}.</code> — თორემ „ხვალ“ ვერ გაიგოს</li>
 <li><strong>enum Swagger-ში რიცხვად ჩანს?</strong> ნორმალურია — ASP.NET Core enum-ს რიცხვად აბრუნებს. სახელისთვის: <code>Program.cs</code>-ში <code>AddControllers().AddJsonOptions(o =&gt; o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))</code></li>
 <li><strong><code>InvalidOperationException</code> <code>.Result</code>-ზე?</strong> შეამოწმე, <code>MaxOutputTokens</code> ხომ არ გაქვს დაყენებული მცირე რიცხვზე — ფიქრი ლიმიტს ჭამს (ლექცია 2)</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>შეჯამება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
-<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის ცუდი <code>new Client(...).AsIChatClient(...)</code>-ში Controller-ის შიგნით და როგორ ვასწორებთ?</summary><div class="ans">ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → <code>AddChatClient</code> <code>Program.cs</code>-ში (Singleton) + Controller-ში constructor injection</div></details><details><summary>სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?</summary><div class="ans">key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — <code>appsettings.json</code>-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)</div></details><details><summary>რით განსხვავდება few-shot structured output-ისგან?</summary><div class="ans">few-shot ფორმას <strong>სთხოვს</strong> მაგალითებით — ალბათობით · structured output <strong>აიძულებს</strong>: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, <code>.Result</code> უკვე C# ტიპია</div></details><details><summary><code>BookingRequest</code>-ში რატომ <code>int? Guests</code> და არა <code>int</code>? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?</summary><div class="ans"><code>?</code> მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); <code>int</code>-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით</div></details><details><summary>structured output-ით მივიღეთ <code>BookingRequest</code>. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?</summary><div class="ans">არა · ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ → 08:00, აკლია სტუმრები (null) · ბაზამდე C# ამოწმებს ველებს</div></details></div></article><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/20" data-go="20" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 20</a></div>
-<ul>
-<li><strong><code>AddChatClient</code></strong> — <code>IChatClient</code> ერთხელ იქმნება <code>Program.cs</code>-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას constructor-ით იღებს. key — User Secrets-ში, მოდელის სახელი — <code>appsettings.json</code>-ში.</li>
-<li><strong>პროვაიდერის შეცვლა</strong> — მხოლოდ <code>Program.cs</code>; <strong>მოდელის შეცვლა</strong> — მხოლოდ <code>appsettings.json</code>. Controller-ს არცერთი არ ეხება.</li>
-<li><strong><code>GetResponseAsync&lt;T&gt;</code></strong> — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემას მისდევს, პასუხი <code>response.Result</code>-ში უკვე <code>T</code> ტიპისაა.</li>
-<li><strong>enum</strong> — ერთი მნიშვნელობა დასაშვები სიიდან (კლასიფიკაცია). <strong>record</strong> — რამდენიმე ველი ტექსტიდან (ამოღება).</li>
-<li><strong>nullable ველები</strong> (<code>DateTime?</code>, <code>int?</code>) და prompt-ში "Leave null whatever is not in the text" — მოდელს ნებას აძლევს, არ მოიგონოს.</li>
-<li><strong>ფორმა გარანტირებულია, შინაარსი — არა.</strong> ობიექტს ბაზამდე C# ამოწმებს.</li>
-</ul>
-<h3>შემდეგ ლექციაზე</h3>
-<p>მოდელმა ჯავშანი ამოიღო, მაგრამ არ იცის, ხვალ 20:00-ზე მაგიდა თავისუფალია თუ არა — ჩვენს ბაზას ვერ ხედავს. ლექცია 4-ზე — <strong>Tools / Function Calling</strong>: მოდელი თვითონ გადაწყვეტს, როდის გამოიძახოს ჩვენი C# მეთოდი (მაგ. <code>CheckAvailability</code> ან <code>GetMenu</code>).</p></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>საშინაო დავალება: ტიპიზებული კლასიფიკატორი და ტექსტიდან ჩანაწერი</h3><a class="chip" href="index.html#/21" data-go="21" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 21</a></div>
-<p>კოდით · შენი პროექტი · README-ში ცხრილი</p>
-<h3>მოთხოვნები</h3>
-<ul>
-<li><strong>DI:</strong> Controller-ებში <code>new Client(...)</code> არსად — <code>IChatClient</code> მხოლოდ <code>AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code>appsettings.json</code>-ში</li>
-<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code>POST /api/ai-lab/classify</code> გადაწერე <code>GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>
-<li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · <code>inputTokens</code> ორივეზე</li>
-<li><strong>ტექსტიდან ჩანაწერი:</strong> ერთი endpoint შენი პროექტის <strong>ნამდვილ</strong> Controller-ში (არა ai-lab): ტექსტი → <code>record</code> → C# შემოწმება (სავალდებულო ველი <code>null</code> → <code>400</code> კითხვით) → შენი არსებული ლოგიკით <strong>ბაზაში</strong> ჩაწერა</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
-</ul>
-<h3>✓ მზადაა, როცა</h3>
-<p><code>classify</code> 5-ვე ტექსტზე აბრუნებს enum-ის მნიშვნელობას; ტექსტიდან შექმნილი ჩანაწერი ბაზაში ჩანს; არასრულ ტექსტზე endpoint ჩანაწერს არ ქმნის და აბრუნებს <code>400</code>-ს კითხვით; README-ში არის ცხრილი და ტესტის ქულა</p>
-<h3>⭐ ბონუსი</h3>
-<ul>
-<li><code>Program.cs</code>-ში <code>JsonStringEnumConverter</code> — რომ API enum-ს სახელით აბრუნებდეს და არა რიცხვით</li>
-<li><code>response.Result</code>-ის ნაცვლად <code>response.TryGetResult(out var x)</code> — რა დააბრუნებს endpoint, თუ მოდელმა სქემის შესაბამისი JSON ვერ დაწერა?</li>
-</ul>
-<h3>💡 დეტალები</h3>
-<ul>
-<li>enum-ის მნიშვნელობები ინგლისურად დაწერე (<code>Search</code>, <code>Reserve</code>…) — prompt-ში ახსნა შეიძლება ქართულად</li>
-<li>თარიღიან ველზე System prompt-ში დღევანდელი თარიღი არ დაგავიწყდეს</li>
-<li><code>MaxOutputTokens</code> არ დააყენო მცირე რიცხვზე — Gemini ჯერ ფიქრობს</li>
-<li>ტექსტიდან ჩანაწერისთვის ახალი სერვისი არ დაწერო — გამოიყენე ის მეთოდი, რომლითაც ჩანაწერს უკვე ქმნი (API კურსიდან)</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 სწორი · <span id="qd">0</span> / 11 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">1</span><div>რატომ არის ცუდი <code>IChatClient</code>-ის შექმნა Controller-ის ველში <code>new</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Controller ყოველ request-ზე იქმნება — მასთან ერთად ახალი client და HTTP კავშირიც</button><button type="button" class="opt" data-i="1"><code>new</code>-ით შექმნილი client Gemini-ს ვერ იძახებს</button><button type="button" class="opt" data-i="2">Controller-ში ველები აკრძალულია</button><button type="button" class="opt" data-i="3">key ასე უფრო ძვირი ჯდება</button></div><div class="qe"><span class="verdict"></span> ASP.NET Core Controller-ს ყოველ მოთხოვნაზე ახლიდან ქმნის. გარდა ამისა, მოდელის სახელი კოდშია და ტესტში ყალბ client-ს ვერ ჩავსვამთ. <a class="chip" href="#s-7">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>რა lifetime-ით არეგისტრირებს <code>AddChatClient</code> <code>IChatClient</code>-ს ნაგულისხმევად?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Transient — ყოველ ჯერზე ახალი</button><button type="button" class="opt" data-i="1">Scoped — ყოველ request-ზე ერთი</button><button type="button" class="opt" data-i="2">Singleton — ერთი მთელ აპლიკაციაზე</button><button type="button" class="opt" data-i="3">არცერთით — ხელით უნდა მივუთითოთ</button></div><div class="qe"><span class="verdict"></span> client-ს შიგნით HTTP კავშირები აქვს და thread-safe-ია, ამიტომ ერთი საკმარისია მთელ აპლიკაციას. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>სად ვინახავთ Gemini-ს API key-ს დეველოპმენტში?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>appsettings.json</code>-ში — <code>Gemini:ApiKey</code></button><button type="button" class="opt" data-i="1">User Secrets-ში — <code>dotnet user-secrets set "Gemini:ApiKey" "..."</code></button><button type="button" class="opt" data-i="2">Controller-ში const-ად</button><button type="button" class="opt" data-i="3"><code>launchSettings.json</code>-ში</button></div><div class="qe"><span class="verdict"></span> User Secrets პროექტის გარეთ ინახება და Git-ში არ ხვდება. <code>appsettings.json</code> და <code>launchSettings.json</code> Git-ში მიდის. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">4</span><div>Gemini-ს ნაცვლად OpenAI გვინდა. რომელი ფაილი იცვლება?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ყველა Controller</button><button type="button" class="opt" data-i="1">მხოლოდ <code>appsettings.json</code></button><button type="button" class="opt" data-i="2">მხოლოდ <code>Program.cs</code> — client-ის შექმნის ხაზი (და package)</button><button type="button" class="opt" data-i="3">DTO-ები</button></div><div class="qe"><span class="verdict"></span> Controller-ები მხოლოდ <code>IChatClient</code>-ს იცნობენ. პროვაიდერი ერთ ადგილას იქმნება — <code>Program.cs</code>-ში. სხვა Gemini მოდელზე გადასვლა კი მხოლოდ <code>appsettings.json</code>-ია. <a class="chip" href="#s-9">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>few-shot classify ზოგჯერ აბრუნებს <code>Search.</code>-ს. რატომ არ ხდება ეს <code>GetResponseAsync&lt;RequestType&gt;</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini enum-ებს უკეთ ხვდება</button><button type="button" class="opt" data-i="1">JSON Schema მოთხოვნასთან მიდის და მოდელი სქემის გარეთ ტოკენს ვერ ირჩევს</button><button type="button" class="opt" data-i="2">C# <code>Search.</code>-ს ავტომატურად ასწორებს</button><button type="button" class="opt" data-i="3">Temperature ავტომატურად 0 ხდება</button></div><div class="qe"><span class="verdict"></span> few-shot ფორმას სთხოვს, structured output — აიძულებს. დასაშვები მნიშვნელობები სქემაშია, და მოდელი მხოლოდ მათ შორის ირჩევს. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">6</span><div>რას აბრუნებს <code>await _chat.GetResponseAsync&lt;Sentiment&gt;(messages)</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>Sentiment</code>-ს პირდაპირ</button><button type="button" class="opt" data-i="1"><code>string</code>-ს, რომელიც ხელით უნდა გადავაქციოთ</button><button type="button" class="opt" data-i="2"><code>ChatResponse&lt;Sentiment&gt;</code>-ს — <code>Result</code>-ში <code>Sentiment</code>, პლუს <code>Usage</code>, <code>FinishReason</code></button><button type="button" class="opt" data-i="3">JSON Schema-ს</button></div><div class="qe"><span class="verdict"></span> <code>ChatResponse&lt;T&gt;</code> ჩვეულებრივი <code>ChatResponse</code>-ია (ტოკენებით და finish reason-ით) და დამატებით <code>Result</code>. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>endpoint აბრუნებს <code>Ok(response.Result)</code>-ს, სადაც <code>Result</code> = <code>Sentiment.Mixed</code>. Swagger-ში რას ვხედავთ?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>"Mixed"</code></button><button type="button" class="opt" data-i="1"><code>2</code> — ASP.NET Core enum-ს ნაგულისხმევად რიცხვად აბრუნებს</button><button type="button" class="opt" data-i="2">შეცდომას</button><button type="button" class="opt" data-i="3"><code>{"data":"Mixed"}</code></button></div><div class="qe"><span class="verdict"></span> ამიტომ სლაიდზე <code>sentiment.ToString()</code>-ს ვაბრუნებთ. ალტერნატივა — <code>JsonStringEnumConverter</code> <code>Program.cs</code>-ში. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>„ოთხნი ვართ, ხვალ 8-ზე“ — რატომ ვწერთ System prompt-ში <code>დღეს არის {DateTime.Now:…}</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე პასუხი უფრო სწრაფია</button><button type="button" class="opt" data-i="1">მოდელმა დღევანდელი თარიღი არ იცის — „ხვალ“-ის გამოსათვლელად ჩვენ ვაწვდით</button><button type="button" class="opt" data-i="2">Gemini თარიღის გარეშე შეცდომას აბრუნებს</button><button type="button" class="opt" data-i="3">ეს JSON Schema-ს ნაწილია</button></div><div class="qe"><span class="verdict"></span> მოდელი stateless-ია და მისი ცოდნა ვარჯიშის თარიღზე ჩერდება. დღევანდელი თარიღი კონტექსტია, რომელსაც ჩვენ ვაწვდით — ლექცია 2-ის prompt შაბლონით. <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">9</span><div><code>BookingRequest</code>-ში <code>int Guests</code> (<code>?</code>-ის გარეშე) რომ ყოფილიყო და ტექსტში რაოდენობა არ ეწერა, რა მოხდებოდა სავარაუდოდ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">მოდელი შეცდომას დააბრუნებდა</button><button type="button" class="opt" data-i="1"><code>Guests</code> = null</button><button type="button" class="opt" data-i="2">მოდელი რაიმე რიცხვს მოიგონებდა (მაგ. 2) — სქემა მას რიცხვს აიძულებს</button><button type="button" class="opt" data-i="3">endpoint 400-ს დააბრუნებდა</button></div><div class="qe"><span class="verdict"></span> სქემა ამბობს „აქ რიცხვია“, და მოდელი იძულებულია რიცხვი დაწეროს. <code>int?</code> სქემაში null-საც უშვებს — „არ ვიცი“. <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>structured output-მა <code>BookingRequest</code> დააბრუნა. რა არის გარანტირებული?</div></div><div class="opts"><button type="button" class="opt" data-i="0">რომ ყველა მნიშვნელობა სწორია</button><button type="button" class="opt" data-i="1">რომ პასუხი <code>BookingRequest</code>-ის ფორმისაა; მნიშვნელობები C#-მა უნდა შეამოწმოს</button><button type="button" class="opt" data-i="2">რომ <code>At</code> ყოველთვის სამუშაო საათებშია</button><button type="button" class="opt" data-i="3">არაფერი</button></div><div class="qe"><span class="verdict"></span> ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ შეიძლება 08:00 გახდეს, ველი შეიძლება null იყოს. ბაზამდე C# ამოწმებს. <a class="chip" href="#s-17">გაიმეორე · სლაიდი 17</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>structured output-ის prompt-ში ჯობია დავწეროთ „დააბრუნე JSON ველებით at და guests“?</div></div><div class="opts"><button type="button" class="opt" data-i="0">კი — ასე უფრო ზუსტია</button><button type="button" class="opt" data-i="1">არა — სქემა ისედაც მოთხოვნასთან მიდის; prompt-ში ვწერთ, რა ამოიღოს და რა წესით</button><button type="button" class="opt" data-i="2">კი, თორემ მოდელი JSON-ს ვერ დაწერს</button><button type="button" class="opt" data-i="3">მხოლოდ ინგლისურად</button></div><div class="qe"><span class="verdict"></span> Google-ის რეკომენდაციაა სქემა prompt-ში არ გავიმეოროთ — ეს ხარისხს აუარესებს. ფორმას სქემა აწესებს, prompt — წესებს (მაგ. „რაც არ წერია, დატოვე null“). <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>AddChatClient</dt><dd>Microsoft.Extensions.AI-ის მეთოდი, რომელიც IChatClient-ს DI-ში არეგისტრირებს (ნაგულისხმევად Singleton)</dd><dt>User Secrets</dt><dd>დეველოპერის კომპიუტერზე, პროექტის გარეთ შენახული კონფიგურაცია საიდუმლოებისთვის; Git-ში არ ხვდება</dd><dt>structured output</dt><dd>მოდელის პასუხი წინასწარ განსაზღვრული ფორმით (JSON Schema), რომელსაც კოდი C# ტიპად კითხულობს</dd><dt>JSON Schema</dt><dd>JSON-ის ფორმის აღწერა: რა ველებია, რა ტიპის, რა მნიშვნელობებია დასაშვები</dd><dt>ChatResponse<T></dt><dd>GetResponseAsync<T>-ის პასუხი: ჩვეულებრივი ChatResponse + Result (T ტიპის ობიექტი)</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">აირჩიე პასუხი და მაშინვე ნახავ, სწორია თუ არა და რატომ.</p><div class="qscore"><span id="qs">0</span> / 8 სწორი · <span id="qd">0</span> / 8 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">1</span><div>რატომ არის ცუდი <code>IChatClient</code>-ის შექმნა Controller-ის ველში <code>new</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Controller ყოველ request-ზე იქმნება — მასთან ერთად ახალი client და HTTP კავშირიც</button><button type="button" class="opt" data-i="1"><code>new</code>-ით შექმნილი client Gemini-ს ვერ იძახებს</button><button type="button" class="opt" data-i="2">Controller-ში ველები აკრძალულია</button><button type="button" class="opt" data-i="3">key ასე უფრო ძვირი ჯდება</button></div><div class="qe"><span class="verdict"></span> ASP.NET Core Controller-ს ყოველ მოთხოვნაზე ახლიდან ქმნის. გარდა ამისა, მოდელის სახელი კოდშია და ტესტში ყალბ client-ს ვერ ჩავსვამთ. <a class="chip" href="index.html#/7" target="_blank">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>რა lifetime-ით არეგისტრირებს <code>AddChatClient</code> <code>IChatClient</code>-ს ნაგულისხმევად?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Transient — ყოველ ჯერზე ახალი</button><button type="button" class="opt" data-i="1">Scoped — ყოველ request-ზე ერთი</button><button type="button" class="opt" data-i="2">Singleton — ერთი მთელ აპლიკაციაზე</button><button type="button" class="opt" data-i="3">არცერთით — ხელით უნდა მივუთითოთ</button></div><div class="qe"><span class="verdict"></span> client-ს შიგნით HTTP კავშირები აქვს და thread-safe-ია, ამიტომ ერთი საკმარისია მთელ აპლიკაციას. <a class="chip" href="index.html#/8" target="_blank">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">3</span><div>Gemini-ს ნაცვლად OpenAI გვინდა. რომელი ფაილი იცვლება?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ყველა Controller</button><button type="button" class="opt" data-i="1">მხოლოდ <code>appsettings.json</code></button><button type="button" class="opt" data-i="2">მხოლოდ <code>Program.cs</code> — client-ის შექმნის ხაზი (და package)</button><button type="button" class="opt" data-i="3">DTO-ები</button></div><div class="qe"><span class="verdict"></span> Controller-ები მხოლოდ <code>IChatClient</code>-ს იცნობენ. პროვაიდერი ერთ ადგილას იქმნება — <code>Program.cs</code>-ში. სხვა Gemini მოდელზე გადასვლა კი მხოლოდ <code>appsettings.json</code>-ია. <a class="chip" href="index.html#/9" target="_blank">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>few-shot classify ზოგჯერ აბრუნებს <code>Search.</code>-ს. რატომ არ ხდება ეს <code>GetResponseAsync&lt;RequestType&gt;</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini enum-ებს უკეთ ხვდება</button><button type="button" class="opt" data-i="1">JSON Schema მოთხოვნასთან მიდის და მოდელი სქემის გარეთ ტოკენს ვერ ირჩევს</button><button type="button" class="opt" data-i="2">C# <code>Search.</code>-ს ავტომატურად ასწორებს</button><button type="button" class="opt" data-i="3">Temperature ავტომატურად 0 ხდება</button></div><div class="qe"><span class="verdict"></span> few-shot ფორმას სთხოვს, structured output — აიძულებს. დასაშვები მნიშვნელობები სქემაშია, და მოდელი მხოლოდ მათ შორის ირჩევს. <a class="chip" href="index.html#/11" target="_blank">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>endpoint აბრუნებს <code>Ok(response.Result)</code>-ს, სადაც <code>Result</code> = <code>Sentiment.Mixed</code>. Swagger-ში რას ვხედავთ?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>"Mixed"</code></button><button type="button" class="opt" data-i="1"><code>2</code> — ASP.NET Core enum-ს ნაგულისხმევად რიცხვად აბრუნებს</button><button type="button" class="opt" data-i="2">შეცდომას</button><button type="button" class="opt" data-i="3"><code>{"data":"Mixed"}</code></button></div><div class="qe"><span class="verdict"></span> ამიტომ სლაიდზე <code>sentiment.ToString()</code>-ს ვაბრუნებთ. ალტერნატივა — <code>JsonStringEnumConverter</code> <code>Program.cs</code>-ში. <a class="chip" href="index.html#/12" target="_blank">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>„ოთხნი ვართ, ხვალ 8-ზე“ — რატომ ვწერთ System prompt-ში <code>დღეს არის {DateTime.Now:…}</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე პასუხი უფრო სწრაფია</button><button type="button" class="opt" data-i="1">მოდელმა დღევანდელი თარიღი არ იცის — „ხვალ“-ის გამოსათვლელად ჩვენ ვაწვდით</button><button type="button" class="opt" data-i="2">Gemini თარიღის გარეშე შეცდომას აბრუნებს</button><button type="button" class="opt" data-i="3">ეს JSON Schema-ს ნაწილია</button></div><div class="qe"><span class="verdict"></span> მოდელი stateless-ია და მისი ცოდნა ვარჯიშის თარიღზე ჩერდება. დღევანდელი თარიღი კონტექსტია, რომელსაც ჩვენ ვაწვდით — ლექცია 2-ის prompt შაბლონით. <a class="chip" href="index.html#/16" target="_blank">გაიმეორე · სლაიდი 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>structured output-მა <code>BookingRequest</code> დააბრუნა. რა არის გარანტირებული?</div></div><div class="opts"><button type="button" class="opt" data-i="0">რომ ყველა მნიშვნელობა სწორია</button><button type="button" class="opt" data-i="1">რომ პასუხი <code>BookingRequest</code>-ის ფორმისაა; მნიშვნელობები C#-მა უნდა შეამოწმოს</button><button type="button" class="opt" data-i="2">რომ <code>At</code> ყოველთვის სამუშაო საათებშია</button><button type="button" class="opt" data-i="3">არაფერი</button></div><div class="qe"><span class="verdict"></span> ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ შეიძლება 08:00 გახდეს, ველი შეიძლება null იყოს. ბაზამდე C# ამოწმებს. <a class="chip" href="index.html#/17" target="_blank">გაიმეორე · სლაიდი 17</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>structured output-ის prompt-ში ჯობია დავწეროთ „დააბრუნე JSON ველებით at და guests“?</div></div><div class="opts"><button type="button" class="opt" data-i="0">კი — ასე უფრო ზუსტია</button><button type="button" class="opt" data-i="1">არა — სქემა ისედაც მოთხოვნასთან მიდის; prompt-ში ვწერთ, რა ამოიღოს და რა წესით</button><button type="button" class="opt" data-i="2">კი, თორემ მოდელი JSON-ს ვერ დაწერს</button><button type="button" class="opt" data-i="3">მხოლოდ ინგლისურად</button></div><div class="qe"><span class="verdict"></span> Google-ის რეკომენდაციაა სქემა prompt-ში არ გავიმეოროთ — ეს ხარისხს აუარესებს. ფორმას სქემა აწესებს, prompt — წესებს (მაგ. „რაც არ წერია, დატოვე null“). <a class="chip" href="index.html#/16" target="_blank">გაიმეორე · სლაიდი 16</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 3 — Microsoft.Extensions.AI: DI და Structured Output";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "კოპირება", "copied": "✓ დაკოპირდა", "review": "გაიმეორე ეს კითხვები: ", "allright": "ყველაფერი სწორია! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -565,9 +267,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
-      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -581,16 +281,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>

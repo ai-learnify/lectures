@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,351 +145,55 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 12</small>RAG ოპტიმიზაცია და შეფასება</div>
-  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
-  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
-  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+  <div class="bar">
+    <a class="back" href="../../">← ლექციები</a>
+    <div class="ttl"><small>📖 ლექცია 12</small>RAG ოპტიმიზაცია და შეფასება</div>
+    <div class="acts">
+      <a class="btn lang" href="study.en.html" title="English">EN</a>
+      <button class="themebtn btn" type="button" title="ღია / მუქი თემა" aria-label="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.html" target="_blank" title="პრეზენტაცია" aria-label="პრეზენტაცია"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">მთავარი</button><button type="button" data-t="topics">თემები<small>3</small></button><button type="button" data-t="tasks">დავალებები</button><button type="button" data-t="quiz">ტესტი<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
-    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">RAG-ის გაზომვა: golden set, hit@k, MRR</span><span class="nm">3′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Hybrid search და metadata filtering</span><span class="nm">5′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Chunking, reranking და groundedness</span><span class="nm">5′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: შენი golden set</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება და ნაწილი 1-ის ბოლო</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">24</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 12</div>
-      <h1>RAG ოპტიმიზაცია და შეფასება</h1>
-      <p>ლექციის სრული მასალა თავებად, ~22 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li>RAG <strong>ორ ადგილას</strong> ცდება: <strong>retrieval</strong> (ყველაზე ხშირი) და <strong>generation</strong> — „თვალით“ არ ვამოწმებთ, <strong>ვზომავთ</strong>.</li><li><strong>Golden set</strong> — შეკითხვა + ფრაზა (არა Id); <strong>hit@3</strong>, <strong>MRR</strong>, <strong>misses</strong>; <code>/rag/eval</code> LLM-ს არ იძახებს.</li><li><strong>Hybrid search:</strong> ვექტორი + <code>tsvector</code> (<code>'english'</code> — stemmer და stop-word-ები), <strong>RRF</strong>: Σ 1/(60 + რიგი); „ან“-ით შეკითხვა.</li><li><strong>Metadata filtering</strong> SQL-ში, მოდელამდე — ხარისხი და უსაფრთხოება (tenant, უფლებები).</li><li><strong>Chunking:</strong> სათაური prefix-ში; პატარა ≠ უკეთესი — გაზომე. <strong>Reranker:</strong> 20 → 5. <strong>Groundedness:</strong> <code>GroundednessEvaluator</code>, 1–5, LLM-as-judge.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~22 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 10 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/evaluation/libraries" target="_blank" rel="noopener">Microsoft.Extensions.AI.Evaluation</a> — Quality evaluators: Groundedness, Relevance, Retrieval, Completeness</li><li><a href="https://www.postgresql.org/docs/current/textsearch.html" target="_blank" rel="noopener">PostgreSQL — Full Text Search</a> — tsvector, tsquery, ts_rank, GIN</li><li><a href="https://www.npgsql.org/efcore/mapping/full-text-search.html" target="_blank" rel="noopener">Npgsql EF Core — Full Text Search</a> — HasGeneratedTsVectorColumn, Matches, Rank</li><li><a href="https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf" target="_blank" rel="noopener">Reciprocal Rank Fusion (Cormack et al., 2009)</a> — RRF-ის ორიგინალი სტატია: k = 60</li><li><a href="https://github.com/pgvector/pgvector#hybrid-search" target="_blank" rel="noopener">pgvector — Hybrid Search</a> — pgvector + full-text ერთად</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
-<p>ლექცია 11 — <strong>Simple RAG: პასუხი დოკუმენტებიდან</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../11-simple-rag/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ ვდებთ მთელ PDF-ს კონტექსტში და რატომ არ ვავარჯიშებთ მოდელს (fine-tuning)?</summary><div class="ans">მთელი PDF — ყოველ შეკითხვაზე ათასობით ტოკენი, ნელი, დიდი დოკუმენტი არ ეტევა, „lost in the middle“ · fine-tuning — ძვირი, ყოველ ცვლილებაზე თავიდან, ფაქტებს ცუდად იმახსოვრებს და წყაროს ვერ ასახელებს</div></details><details><summary>რა არის RAG-ის ორი pipeline და როდის სრულდება თითოეული?</summary><div class="ans">ingestion — ერთხელ, ატვირთვისას: PDF → ტექსტი → ნაწილები → ვექტორები → ბაზა · query — ყოველ შეკითხვაზე: ვექტორი → top 5 → prompt → პასუხი წყაროთი</div></details><details><summary>რატომ ვჭრით დოკუმენტს ნაწილებად და რისთვის გვჭირდება overlap?</summary><div class="ans">მთელი დოკუმენტის ვექტორი ყველაფრის „საშუალოა“ — ბუნდოვანი; ნაწილი = ერთი აზრი, ზუსტი ვექტორი და იაფი კონტექსტი · overlap — ბოლო წინადადება შემდეგშიც, რომ აზრი საზღვარზე არ გაწყდეს</div></details><details><summary>რატომ გვჭირდება ზღვარი RAG-ის ძებნაში?</summary><div class="ans">ძებნა ყოველთვის რაღაცას პოულობს · ზღვრის გარეშე „ბორშის რეცეპტი“-ზე მოდელი 5 უაზრო ნაწილს მიიღებდა და შეიძლება რამე მოეგონა · ზღვრით — 0 ნაწილი და „ინფორმაცია არ მაქვს“</div></details><details><summary>ჩატის ისტორიაში რატომ ვინახავთ ორიგინალ შეკითხვას და არა წყაროებიან (augmented) შეტყობინებას?</summary><div class="ans">წყაროები მხოლოდ ამ მოთხოვნისთვისაა — შემდეგზე სხვა მოიძებნება · ისტორიაში შენახვა ყოველ შეტყობინებას 5 ნაწილით გაბერავდა (ბიუჯეტი, ლექცია 7)</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
-<p>წინა ლექციის საშინაო: <strong>RAG შენს პროექტში</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
-<h3>მოთხოვნები</h3>
+<main>
+  <header class="hero"><div class="k">📖 AI აგენტები .NET-ში · ლექცია 12</div><h1>RAG ოპტიმიზაცია და შეფასება</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 ამ ლექციის შემდეგ შეძლებ</h2><ul><li>ახსნი, სად ცდება RAG (retrieval vs generation), შეადგენ golden set-ს და <code>/rag/eval</code>-ით hit@3-სა და MRR-ს გამოთვლი</li><li>hybrid search-ს ააწყობ: ვექტორი + PostgreSQL full-text (<code>tsvector</code>, <code>'english'</code>), შერწყმული RRF-ით, და გაუმჯობესებას ციფრით დაამტკიცებ</li><li>metadata filtering-ს SQL-ში დაამატებ და ახსნი, რატომ არის ის უსაფრთხოების საკითხიც</li><li>chunking-ის სტრატეგიებს და reranking-ს შეადარებ, და პასუხის groundedness-ს <code>GroundednessEvaluator</code>-ით შეაფასებ</li></ul></div><div class="box key"><h2>⚡ მთავარი</h2><ol><li>RAG <strong>ორ ადგილას</strong> ცდება: <strong>ძებნაში</strong> (ყველაზე ხშირად) და <strong>პასუხში</strong>. ცვლილებას „თვალით“ არ ვამოწმებთ, <strong>ვზომავთ</strong>.</li><li><strong>golden set</strong> = შეკითხვები და ფრაზა, რომელიც უნდა მოიძებნოს. <strong>hit@3</strong> და <strong>MRR</strong> გვეუბნება, რამდენად კარგია ძებნა.</li><li><strong>hybrid search</strong> = ვექტორი (მნიშვნელობა) + full-text (ზუსტი სიტყვა), გაერთიანებული <strong>RRF</strong>-ით.</li><li>ფილტრი (კატეგორია, ფილიალი, უფლებები) SQL-შია, მოდელამდე. ეს უსაფრთხოების საკითხია.</li><li><strong>groundedness</strong> ამოწმებს, ეყრდნობა თუ არა პასუხი წყაროებს (LLM-as-judge). მსაჯსაც ვამოწმებთ.</li></ol></div><div class="box"><h2>📍 ლექცია გააცდინე?</h2><ol class="path"><li><a href="index.html" target="_blank">ნახე პრეზენტაცია</a>: სლაიდები ლექციის მთელ გზას აჩვენებს</li><li><a href="#topics">წაიკითხე თემები</a>: ~9 წთ, თითოს ბოლოს „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a>: 8 კითხვა</li><li><a href="#tasks">გააკეთე დავალებები</a></li></ol></div><div class="box"><h2>🔗 ბმულები</h2><ul><li><a href="https://learn.microsoft.com/dotnet/ai/evaluation/libraries" target="_blank" rel="noopener">Microsoft.Extensions.AI.Evaluation</a> — Quality evaluators: Groundedness, Relevance, Retrieval, Completeness</li><li><a href="https://www.postgresql.org/docs/current/textsearch.html" target="_blank" rel="noopener">PostgreSQL — Full Text Search</a> — tsvector, tsquery, ts_rank, GIN</li><li><a href="https://www.npgsql.org/efcore/mapping/full-text-search.html" target="_blank" rel="noopener">Npgsql EF Core — Full Text Search</a> — HasGeneratedTsVectorColumn, Matches, Rank</li><li><a href="https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf" target="_blank" rel="noopener">Reciprocal Rank Fusion (Cormack et al., 2009)</a> — RRF-ის ორიგინალი სტატია: k = 60</li><li><a href="https://github.com/pgvector/pgvector#hybrid-search" target="_blank" rel="noopener">pgvector — Hybrid Search</a> — pgvector + full-text ერთად</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>გაზომვა</h2><a class="sl" href="index.html#/6" target="_blank">▶ სლაიდები 6–9</a></header><div class="tb"><p>„ზოგჯერ არასწორს პოულობს“ ციფრი არ არის. ჩანქის ზომა 800-დან 400-მდე შევამცირეთ: უკეთესი გახდა? ამის გასაგებად გაზომვა გვჭირდება.</p>
+<p><strong>golden set:</strong> შეკითხვები, რომლებზეც ვიცით, რა უნდა მოიძებნოს. სწორ ნაწილს <strong>ფრაზით</strong> ვნიშნავთ და არა Id-ით, რადგან chunking-ის შეცვლისას Id-ები იცვლება.</p>
 <ul>
-<li><strong>Ingestion:</strong> <code>Document</code> + <code>DocumentChunk</code> (<code>vector(768)</code>, <code>Page</code>, HNSW ინდექსი), <code>POST .../documents</code> — PdfPig, <code>TextChunker</code> (800 / overlap 1), <code>Chunk(100)</code></li>
-<li><strong>Query:</strong> <code>SearchChunksAsync</code> (top 5, ზღვარი <code>appsettings.json</code>-ში), <code>BuildContext</code> — <code>[N] (file, p. P)</code></li>
-<li><strong>ჩატში:</strong> შენი ლექცია 7-ის <code>/chat</code> — augmented შეტყობინება, ისტორიაში ორიგინალი შეკითხვა, response-ში <code>sources</code>; system prompt-ში წესები: მხოლოდ წყაროებიდან, ნომრით, ზუსტი ფრაზა "I don't have information on this"</li>
-<li><strong>README — ტესტის ცხრილი:</strong> 8 შეკითხვა შენს PDF-ზე (2 — რაც PDF-ში არ არის, 1 — ორ სხვადასხვა გვერდზე პასუხით, 1 — ზუსტი რიცხვით/სახელით). სვეტები: შეკითხვა · სწორი გვერდი · ნაპოვნი წყაროები · პასუხი სწორია? · წყარო სწორია?</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (10 კითხვა) — ქულა ჩაწერე</li>
+<li><strong>hit@3:</strong> რა წილ შეკითხვაზე მოხვდა სწორი ნაწილი პირველ სამში</li>
+<li><strong>MRR:</strong> რამდენად მაღლა: 1-ლი ადგილი = 1, მე-2 = ½, მე-3 = ⅓, ვერ იპოვა = 0, და საშუალო</li>
 </ul>
-<h3>ამოხსნა</h3>
-<p>ნიმუში — ბიბლიოთეკის API (წესები: წიგნის გატანა, ჯარიმები, დარბაზები).</p>
-<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat (RAG)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">FoundChunk</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">SearchChunksAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">ChatMessage</span><span class="w"> </span><span class="n">augmented</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="s">$"""</span></span><span class="ln"><span class="s">    Sources:</span></span><span class="ln"><span class="s">    {BuildContext(sources)}</span></span><span class="ln"> </span><span class="ln"><span class="s">    Question: {request.Prompt}</span></span><span class="ln"><span class="s">    """</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">SystemPrompt</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">recent</span><span class="p">,</span><span class="w"> </span><span class="n">augmented</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">AppendAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">cited</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sources</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">File</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Page</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="s">$"[{s.N}]"</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span><span class="w"> </span><span class="n">Sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cited</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<div class="codebox"><div class="ch"><span>System prompt · წესები</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Answer about the library's rules only from the given sources and give the number for every fact: [1], [2].</span><span class="ln">If the answer isn't in the sources, say: “I don't have information on this” — and make nothing up.</span><span class="ln">Searching for books and their availability — only from the tools.</span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>შეკითხვა</th>
-<th>სწორი გვერდი</th>
-<th>ნაპოვნი</th>
-<th>პასუხი</th>
-<th>წყარო</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>"For how many days can I borrow a book?"</td>
-<td>2</td>
-<td>[1] გვ. 2 · [2] გვ. 3</td>
-<td>✓ 14 დღე</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>"What's the fine for being late?"</td>
-<td>3</td>
-<td>[1] გვ. 3</td>
-<td>✓</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>"The reading room on Saturday?"</td>
-<td>4</td>
-<td>[1] გვ. 5 · [2] გვ. 4</td>
-<td>✓</td>
-<td>~ პირველი არასწორი</td>
-</tr>
-<tr>
-<td>"Where is room B-12?"</td>
-<td>5</td>
-<td>[1] გვ. 1 · [2] გვ. 4</td>
-<td>✗</td>
-<td>✗ კოდი ვერ იპოვა</td>
-</tr>
-<tr>
-<td>"Are children allowed?" (სინონიმი: „არასრულწლოვანი“)</td>
-<td>4</td>
-<td>[1] გვ. 4</td>
-<td>✓</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>"Returning a book and borrowing a new one at the same time?"</td>
-<td>2, 3</td>
-<td>[1] გვ. 2 · [2] გვ. 3</td>
-<td>✓</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>"The Wi-Fi password?" (არ არის)</td>
-<td>—</td>
-<td>[]</td>
-<td>✓ „ინფორმაცია არ მაქვს“</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>"a borscht recipe" (არ არის)</td>
-<td>—</td>
-<td>[]</td>
-<td>✓ „ინფორმაცია არ მაქვს“</td>
-<td>✓</td>
-</tr>
-</tbody>
-</table>
-<div class="callout note"><span class="ci">💡</span><div><p>8-დან 6 სრულად სწორია. ორი პრობლემა ტიპურია: <strong>„B-12“</strong> — ზუსტი კოდი, რომელსაც embedding კარგად ვერ „ხედავს“ (ლექცია 12 — hybrid search), და <strong>„შაბათს“</strong> — პირველი ნაწილი სხვა გვერდიდანაა, რადგან ორივე გვერდზე სამუშაო საათებია (ლექცია 12 — chunking და metadata). <code>Sources</code>-ში მხოლოდ ციტირებული წყაროებია — UI-ში ზედმეტი ბმული არ ჩანს.</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~3 წთ კითხვა</div><h2>RAG-ის გაზომვა: golden set, hit@k, MRR</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> შეადგენ golden set-ს და ძებნის ხარისხს ციფრით გაზომავ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · ციფრი „მგონის“ ნაცვლად</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
-<p>ჯერ ვხედავთ, სად შეიძლება RAG-მა შეცდომა დაუშვას. მერე — golden set და ორი ციფრი, რომლებიც ძებნის ხარისხს ზომავს. ბოლოს ამ ციფრებს კოდით ვითვლით.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>პრობლემა: „ზოგჯერ“ ციფრი არ არის</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
-<p>ლექცია 11-ის საშინაოში ცხრილი გავაკეთეთ: „8-დან 6 სწორია“. ეს უკვე ციფრია — და ზუსტად ეს გვჭირდება სისტემატურად. RAG <strong>ორ ადგილას</strong> ცდება:</p>
-<table>
-<thead>
-<tr>
-<th>სად</th>
-<th>რა ხდება</th>
-<th>მაგალითი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Retrieval</strong> (ძებნა)</td>
-<td>სწორი ნაწილი top 5-ში არ მოხვდა</td>
-<td>"Hall B-2?" — ვექტორმა ზოგადად „დარბაზებზე“ ნაწილები იპოვა, B-2-ის გვერდი — არა</td>
-</tr>
-<tr>
-<td><strong>Generation</strong> (პასუხი)</td>
-<td>ნაწილი სწორია, მოდელმა კი რაღაც დაამატა</td>
-<td>წყაროში: "Cake — 15 GEL"; პასუხში: "Cake — 15 GEL, candles are free"</td>
-</tr>
-</tbody>
-</table>
-<p>პრაქტიკაში <strong>retrieval-ის შეცდომა ყველაზე ხშირია</strong>: თუ სწორი ნაწილი არ მოიძებნა, საუკეთესო მოდელიც ვერ უპასუხებს. ამიტომ ჯერ ძებნას ვზომავთ.</p>
-<p><strong>რატომ არ ვამოწმებთ „თვალით“?</strong> chunk-ის ზომას ვცვლით 800-დან 400-ზე. ორ შეკითხვაზე უკეთესი გახდა, ერთზე — უარესი. რვა შეკითხვაზე? ორმოცზე? ცვლილება — prompt, chunk-ის ზომა, ძებნის მეთოდი — ყოველთვის რაღაცას აუმჯობესებს და რაღაცას აფუჭებს. მხოლოდ ციფრი გვეუბნება, ჯამში რა მოხდა. ასე მუშაობენ რეალური გუნდებიც: <strong>ჯერ ვზომავთ, მერე ვცვლით, მერე ისევ ვზომავთ</strong>.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Retrieval</dt><dd>ძებნის ნაწილი: შეკითხვაზე რელევანტური ნაწილების პოვნა</dd><dt>Generation</dt><dd>პასუხის ნაწილი: მოდელი ნაპოვნი ნაწილებით წერს პასუხს</dd><dt>Evaluation (შეფასება, evals)</dt><dd>სისტემის ხარისხის გაზომვა წინასწარ მომზადებულ მაგალითებზე</dd></dl></div></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Golden set და ორი ციფრი: hit@k და MRR</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
-<p><strong>Golden set</strong> — შეკითხვების ნაკრები, რომლებზეც <strong>ჩვენ ვიცით</strong>, რა უნდა მოიძებნოს. ხელით ვადგენთ, ერთხელ, და ყოველი ცვლილების შემდეგ ვუშვებთ. კარგი golden set რეალურ შეკითხვებს ჰგავს: ჩვეულებრივი, სინონიმით, ზუსტი რიცხვით/სახელით, ორ ადგილას პასუხით და ისეთიც, რაც დოკუმენტში არ არის. ლექცია 11-ის საშინაოს ცხრილი — მისი პირველი ვერსიაა.</p>
-<p>თითოეულ შეკითხვაზე ვწერთ <strong>ფრაზას, რომელიც სწორ ნაწილში უნდა წერდეს</strong> ("24 hours before", „B-2“). რატომ ფრაზა და არა chunk-ის Id? როცა chunking-ს შევცვლით, ნაწილები თავიდან იჭრება და Id-ები იცვლება — golden set კი უნდა დარჩეს. ფრაზა chunking-ის ნებისმიერ სტრატეგიაზე მუშაობს.</p>
-<p><strong>hit@k</strong> — რა წილ შეკითხვაზე იყო სწორი ნაწილი პირველ k-ში. ცხრილში: 6-დან 4-ზე პირველ სამშია → <strong>hit@3 = 0.67</strong>. RAG-ისთვის ეს მთავარი ციფრია: თუ სწორი ნაწილი კონტექსტში არ მოხვდა, მოდელი ვერ უპასუხებს.</p>
-<p><strong>MRR (Mean Reciprocal Rank)</strong> — საშუალო <code>1 / რიგი</code> (თუ ვერ იპოვა — 0). პირველ ადგილზე — 1, მეორეზე — ½, მესამეზე — ⅓. ზომავს, რამდენად <strong>მაღლაა</strong> სწორი ნაწილი:</p>
-<p>(1 + 1 + ½ + 0 + ⅓ + ⅕) / 6 = 3.03 / 6 ≈ <strong>0.51</strong></p>
-<p>შენი ციფრი შენს მონაცემზეა დამოკიდებული. ორი სისტემა შეიძლება ერთნაირი hit@3-ით, მაგრამ სხვადასხვა MRR-ით იყოს: ერთში სწორი ყოველთვის პირველია, მეორეში — მესამე.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Golden set</dt><dd>შეკითხვების ნაკრები ცნობილი სწორი პასუხით; ხარისხის გასაზომად</dd><dt>hit@k</dt><dd>რა წილ შეკითხვაზე მოხვდა სწორი შედეგი პირველ k-ში</dd><dt>MRR (Mean Reciprocal Rank)</dt><dd>სწორი შედეგის 1/რიგის საშუალო; რამდენად მაღლაა სწორი</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Evaluation კოდში: /rag/eval</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
-<p>golden set — JSON ფაილი პროექტში (<code>golden.json</code>, „Copy to Output Directory“ ან პროექტის საქაღალდეში):</p>
 <div class="codebox"><div class="ch"><span>golden.json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">[</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"How do I cancel a booking?"</span><span class="p">,</span><span class="w">   </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"24 hours before"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"I'm allergic to nuts"</span><span class="p">,</span><span class="w">         </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"walnut"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Can I bring a dog?"</span><span class="p">,</span><span class="w">           </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"terrace"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Where is hall B-2?"</span><span class="p">,</span><span class="w">           </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B-2"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Can I bring my own cake?"</span><span class="p">,</span><span class="w">     </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15 GEL"</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Service charge for 6 people?"</span><span class="p">,</span><span class="w"> </span><span class="nt">"mustContain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12%"</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">]</span></span></code></pre></div>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · EvalRag</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">GoldenItem</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Question</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">MustContain</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("rag/eval")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">EvalRag</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">IO</span><span class="p">.</span><span class="n">File</span><span class="p">.</span><span class="n">ReadAllTextAsync</span><span class="p">(</span><span class="s">"golden.json"</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// ControllerBase.File is something else</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">golden</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonSerializer</span><span class="p">.</span><span class="n">Deserialize</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">GoldenItem</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">json</span><span class="p">,</span><span class="w"> </span><span class="n">JsonSerializerOptions</span><span class="p">.</span><span class="n">Web</span><span class="p">)</span><span class="o">!</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">hits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">rr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">misses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">GoldenItem</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">golden</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">FoundChunk</span><span class="o">&gt;</span><span class="w"> </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">SearchChunksAsync</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">Question</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span><span class="w">         </span><span class="c1">// lecture 11's search</span></span><span class="ln"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">found</span><span class="p">.</span><span class="n">FindIndex</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Content</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">MustContain</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">   </span><span class="c1">// 1, 2, 3… or 0</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">hits</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">misses</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">Question</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">rr</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rank</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">HitAt3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">hits</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">golden</span><span class="p">.</span><span class="n">Count</span><span class="p">,</span></span><span class="ln"><span class="w">                    </span><span class="n">Mrr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rr</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">golden</span><span class="p">.</span><span class="n">Count</span><span class="p">,</span><span class="w"> </span><span class="n">Misses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">misses</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<ul>
-<li><strong><code>System.IO.File</code></strong> — controller-ში <code>File(...)</code> ფაილის დაბრუნების მეთოდია, ამიტომ namespace სრულად.</li>
-<li><strong><code>JsonSerializerOptions.Web</code></strong> — camelCase და რეგისტრის მიმართ შემწყნარებელი (<code>question</code> ↔ <code>Question</code>).</li>
-<li><strong><code>FindIndex(...) + 1</code></strong> — რიგი 1-დან; თუ ვერ იპოვა, <code>-1 + 1 = 0</code>.</li>
-<li><strong><code>misses</code></strong> — რომელ შეკითხვებზე ვერ იპოვა. ეს ციფრზე მნიშვნელოვანია: miss-ები გვიჩვენებს, <strong>რა</strong> უნდა გამოსწორდეს.</li>
-</ul>
-<p>ჩვენს მაგალითში ორივე miss <strong>ზუსტი სიტყვაა</strong>: „B-2“ და „12%“. ვექტორი მნიშვნელობას ეძებს — „დარბაზი“, „მომსახურება“ — და კოდს ან რიცხვს „ვერ ხედავს“. ეს ნაწილი 2-ის თემაა.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><code>/rag/eval</code> LLM-ს არ იძახებს — მხოლოდ embedding-ს (შეკითხვის ვექტორს). იაფია და სწრაფი: ყოველ ცვლილებაზე შეგიძლია გაუშვა. ლექცია 22-ში იგივე შეფასება <strong>ტესტად</strong> იქცევა: თუ hit@3 ზღვარს ქვემოთ ჩამოვიდა, build ჩავარდება.</p></div></div></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~5 წთ კითხვა</div><h2>Hybrid search და metadata filtering</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> ვექტორს full-text-ს დაუმატებ, RRF-ით გააერთიანებ და ძებნას metadata-ით გაფილტრავ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · მნიშვნელობა + ზუსტი სიტყვა</h3><a class="chip" href="index.html#/10" data-go="10" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 10</a></div>
-<p>ვექტორს ზუსტი სიტყვები უჭირს. PostgreSQL-ს აქვს full-text search, რომელიც ზუსტად სიტყვებს ეძებს. ორივე სიას <strong>RRF</strong>-ით ვაერთიანებთ — ესაა <strong>hybrid search</strong>. მერე — metadata filtering: ძებნა მხოლოდ იმ დოკუმენტებში, რომლებიც ამ შეკითხვას ეხება.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>Hybrid search: ვექტორი + full-text</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
-<p><strong>ვექტორი</strong> მნიშვნელობას პოულობს: "without meat" → ლობიო. მაგრამ ზუსტი სიტყვები — კოდები, ნომრები, სახელები („B-2“, „12%“, „SKU-1234“) — ვექტორში „იხსნება“: embedding აზრს ინახავს, არა ზუსტ ასოებს. <strong>სიტყვებით ძებნა</strong> პირიქით მუშაობს: „B-2“-ს ზუსტად პოულობს, "without meat"-ს — ვერა. ლექცია 9-ში ვთქვით: „LIKE-ს არ ვაგდებთ — ვავსებთ“. <strong>Hybrid search</strong> ორივე ძებნას ერთად უშვებს და შედეგებს აერთიანებს.</p>
-<p><strong>PostgreSQL-ის full-text search</strong> — LIKE-ზე ბევრად ძლიერი:</p>
-<ul>
-<li><strong><code>tsvector</code></strong> — ტექსტი, დაშლილი სიტყვებად (lexeme-ებად): <code>to_tsvector('english', 'Hall B-2 seats 20+ guests')</code> → <code>'hall' 'b-2' 'b' '2' 'seat' '20' 'guest'</code>.</li>
-<li><strong><code>tsquery</code></strong> — შეკითხვა: <code>'b-2' | 'hall'</code> (<code>|</code> — ან, <code>&amp;</code> — და).</li>
-<li><strong><code>@@</code></strong> — ემთხვევა თუ არა; <strong><code>ts_rank</code></strong> — რამდენად კარგად (რამდენი სიტყვა, რამდენჯერ).</li>
-<li><strong>GIN ინდექსი</strong> — სწრაფი ძებნა სიტყვებით.</li>
-</ul>
-<p><strong>კონფიგურაცია: <code>'english'</code>.</strong> ჩვენი დოკუმენტები ინგლისურადაა, და PostgreSQL-ს ინგლისურისთვის აქვს ლექსიკონი და stemmer: <code>'english'</code> "guests"-ს "guest"-ად აქცევს, "rooms"-ს — "room"-ად, და stop-word-ებს (is, the, where…) აგდებს. შეკითხვაც <strong>იმავე</strong> კონფიგით უნდა დამუშავდეს (<code>ToTsQuery("english", …)</code>), თორემ "guests" ≠ "guest". <strong>ქართულისთვის</strong> ასეთი ლექსიკონი არ არის — ქართულ ტექსტზე <code>'simple'</code> გამოიყენება: სიტყვა იწერება ისე, როგორც არის, და ბრუნვებს („დარბაზი“ / „დარბაზში“) ვექტორი ფარავს.</p>
-<p><strong>RRF (Reciprocal Rank Fusion)</strong> — ორი სიის გაერთიანება <strong>რიგით</strong>:</p>
-<p><code>score(chunk) = Σ 1 / (60 + რიგი)</code> — თითოეულ სიაში, სადაც ნაწილი მოიძებნა.</p>
-<p>ნაწილი, რომელიც <strong>ორივე</strong> სიაში მაღლაა, პირველი ხდება. რატომ რიგი და არა score-ები? ვექტორის score (0.3–0.8) და <code>ts_rank</code> (0.01–0.1) სხვადასხვა „ერთეულშია“ — მათი შეკრება აზრს არ იძლევა. რიგი ყველგან ერთნაირია: 1, 2, 3. 60 — სტანდარტული მუდმივაა (RRF-ის ორიგინალი კვლევიდან): პირველ ადგილებს შორის სხვაობას არბილებს.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Hybrid search</dt><dd>ძებნა მნიშვნელობით (ვექტორი) და სიტყვებით (full-text) ერთად, შედეგების გაერთიანებით</dd><dt>tsvector / tsquery</dt><dd>PostgreSQL-ის full-text: ტექსტი სიტყვებად / შეკითხვა სიტყვებით</dd><dt>'english' / 'simple'</dt><dd>full-text-ის კონფიგურაცია: ინგლისური ლექსიკონით და stemmer-ით / ლექსიკონის გარეშე (სიტყვა ისე, როგორც არის)</dd><dt>RRF (Reciprocal Rank Fusion)</dt><dd>რამდენიმე სიის გაერთიანება რიგით: Σ 1/(60 + რიგი)</dd></dl></div></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Hybrid search კოდში</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
-<p><strong>1. full-text სვეტი.</strong> <code>DocumentChunk</code>-ს ემატება <code>tsvector</code> სვეტი, რომელსაც PostgreSQL <strong>თვითონ</strong> ითვლის <code>Content</code>-იდან (generated column), და GIN ინდექსი:</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>/rag/eval</code> LLM-ს არ იძახებს, მხოლოდ embedding-ს. იაფია და სწრაფი, ამიტომ ყოველ ცვლილებაზე გაუშვი.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>golden set-ში რატომ ფრაზა და არა chunk-ის Id?</summary><div class="ans">chunking-ის შეცვლისას Id-ები იცვლება. ფრაზა ტექსტში რჩება, და golden set ძალაში რჩება.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>golden set</dt><dd>შეკითხვების ნაკრები ცნობილი სწორი პასუხით</dd><dt>hit@k</dt><dd>რა წილ შეკითხვაზე მოხვდა სწორი ნაწილი პირველ k-ში</dd><dt>MRR</dt><dd>სწორი ნაწილის რიგის საშუალო შებრუნებული მნიშვნელობა (1, ½, ⅓…)</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>უკეთესი ძებნა</h2><a class="sl" href="index.html#/10" target="_blank">▶ სლაიდები 10–13</a></header><div class="tb"><p>ვექტორი მნიშვნელობას პოულობს ("without meat" → ლობიო), მაგრამ ზუსტ სიტყვებს უჭირს: „B-2“, "15 GEL", „12%“. PostgreSQL-ის <strong>full-text search</strong> ზუსტად სიტყვებს ეძებს. ორივეს ვიყენებთ და შედეგს <strong>RRF</strong>-ით ვაერთიანებთ (რიგით, რადგან score-ები სხვადასხვა მასშტაბისაა).</p>
+<p>full-text სვეტს PostgreSQL თვითონ ითვლის:</p>
 <div class="codebox"><div class="ch"><span>Data/DocumentChunk.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">NpgsqlTypes</span><span class="p">;</span></span><span class="ln"><span class="c1">// ...</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">NpgsqlTsVector</span><span class="w"> </span><span class="n">SearchVector</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span></code></pre></div>
 <div class="codebox"><div class="ch"><span>Data/DataContext.cs · OnModelCreating</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">modelBuilder</span><span class="p">.</span><span class="n">Entity</span><span class="o">&lt;</span><span class="n">DocumentChunk</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasGeneratedTsVectorColumn</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">,</span><span class="w"> </span><span class="s">"english"</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Content</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasIndex</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">HasMethod</span><span class="p">(</span><span class="s">"GIN"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p>migration-ის შემდეგ ძველ ნაწილებსაც უჩნდებათ <code>SearchVector</code> — generated column ყველა ხაზზე ითვლება. ხელახალი ატვირთვა არ გვჭირდება.</p>
-<p><strong>2. შეკითხვა სიტყვებით.</strong> <code>plainto_tsquery</code> სიტყვებს <strong>„და“-თი</strong> აერთებს: "Where is hall B-2" მხოლოდ იმ ნაწილს იპოვის, სადაც ყველა სიტყვაა — ბუნებრივ შეკითხვაზე ხშირად 0 შედეგი. ჩვენ „ან“-ით ვაერთებთ, და <code>ts_rank</code> მეტი დამთხვევის მქონეს მაღლა აყენებს:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · OrQuery</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">OrQuery</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">words</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Regex</span><span class="p">.</span><span class="n">Matches</span><span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="s">@"[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*"</span><span class="p">)</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Value</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Join</span><span class="p">(</span><span class="s">" | "</span><span class="p">,</span><span class="w"> </span><span class="n">words</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// "Where is hall B-2?" → "Where | is | hall | B-2"</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>regex სიტყვებს და რიცხვებს იღებს, დეფისიანს ერთად ტოვებს („B-2“), პუნქტუაციას — აგდებს (თორემ <code>to_tsquery</code> სინტაქსის შეცდომას დააბრუნებდა).</p>
-<p><strong>3. ორი სია და RRF:</strong></p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · HybridSearchAsync</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">FoundChunk</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">HybridSearchAsync</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">minScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_config</span><span class="p">.</span><span class="n">GetValue</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"Rag:MinScore"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Vector</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Query</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">words</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EF</span><span class="p">.</span><span class="n">Functions</span><span class="p">.</span><span class="n">ToTsQuery</span><span class="p">(</span><span class="s">"english"</span><span class="p">,</span><span class="w"> </span><span class="n">OrQuery</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">byMeaning</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span><span class="w">                    </span><span class="c1">// by vector, with a threshold</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">minScore</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">byWords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span><span class="w">                      </span><span class="c1">// by words</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">.</span><span class="n">Matches</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">SearchVector</span><span class="p">.</span><span class="n">Rank</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Rrf</span><span class="p">(</span><span class="n">byMeaning</span><span class="p">,</span><span class="w"> </span><span class="n">byWords</span><span class="p">)</span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">chunks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Document</span><span class="p">.</span><span class="n">FileName</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Page</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Content</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToDictionaryAsync</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">top</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FoundChunk</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="p">.</span><span class="n">FileName</span><span class="p">,</span><span class="w"> </span><span class="n">chunks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="p">.</span><span class="n">Page</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">chunks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="p">.</span><span class="n">Content</span><span class="p">,</span><span class="w"> </span><span class="n">Score</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">        </span><span class="c1">// Score — here simply by rank</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Rrf</span><span class="p">(</span><span class="k">params</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">lists</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">lists</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">SelectMany</span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">60</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">GroupBy</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">s</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Key</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<ul>
-<li><strong>ზღვარი</strong> მხოლოდ ვექტორის სიაზეა: full-text-ის დამთხვევა თვითონ არის „მტკიცებულება“ (სიტყვა მართლა წერია). ორივე ცარიელია → 0 ნაწილი → „ინფორმაცია არ მაქვს“, როგორც ლექცია 11-ში.</li>
-<li><strong>20 + 20 → 5.</strong> თითო სიიდან მეტ კანდიდატს ვიღებთ, RRF-ის შემდეგ — 5-ს კონტექსტისთვის.</li>
-<li><strong>ბოლო მოთხოვნა</strong> ნაწილებს Id-ებით ტვირთავს; <code>top</code>-ის რიგს ვინარჩუნებთ (<code>WHERE IN</code> რიგს არ იცავს).</li>
-<li><code>SearchChunksAsync</code>-ის ნაცვლად <code>/chat</code>-ში და <code>/rag/eval</code>-ში — <code>HybridSearchAsync</code>. <strong>ისევ გაზომე.</strong></li>
-</ul>
-<p><strong>შედეგი (ნიმუში):</strong> hit@3 0.67 → <strong>0.83</strong>, MRR 0.51 → <strong>0.72</strong>. „B-2“ გამოსწორდა. "Service charge for 6 people?" — ისევ miss: დოკუმენტში წერია "5+ people — 12%". არც სიტყვა („6“), არც მნიშვნელობა ზუსტად არ ემთხვევა — ეს ძებნის საზღვარია. ასეთ შეკითხვას სჯობს reranking ან tool, რომელიც წესს კოდით ითვლის.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Generated column</dt><dd>სვეტი, რომელსაც PostgreSQL თვითონ ითვლის სხვა სვეტებიდან</dd><dt>GIN ინდექსი</dt><dd>PostgreSQL-ის ინდექსი სიტყვებისთვის (და მასივებისთვის, jsonb-სთვის)</dd></dl></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>Metadata filtering: ძებნა მხოლოდ საჭირო დოკუმენტებში</h3><a class="chip" href="index.html#/13" data-go="13" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 13</a></div>
-<p><strong>Metadata</strong> — ინფორმაცია დოკუმენტზე, არა მის ტექსტში: კატეგორია, ფილიალი, ენა, მოქმედების თარიღი, ვის შეუძლია ნახვა. <code>Document</code>-ს ემატება სვეტი (მაგ. <code>Category</code>), ატვირთვისას ივსება, და ძებნა <strong>ჯერ ფილტრავს</strong>, მერე ეძებს:</p>
+<p><strong>ფილტრი</strong> (მაგ. კატეგორია) SQL-ში, ძებნამდე:</p>
 <div class="codebox"><div class="ch"><span>Data/Document.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"rules"</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="s">"rules"</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">"menu"</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s">"events"</span></span></code></pre></div>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · HybridSearchAsync(q, category)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">IQueryable</span><span class="o">&lt;</span><span class="n">DocumentChunk</span><span class="o">&gt;</span><span class="w"> </span><span class="n">chunks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">DocumentChunks</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">category</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">chunks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chunks</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Document</span><span class="p">.</span><span class="n">Category</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">category</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="c1">// byMeaning and byWords — from chunks:</span></span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">byMeaning</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">chunks</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Embedding</span><span class="o">!</span><span class="p">.</span><span class="n">CosineDistance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">minScore</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">before</span></span></code></pre></div>
-<p>ლექცია 10-ის საშინაოს „ფილტრი + მნიშვნელობა ერთ SQL-ში“ — ზუსტად ეს არის.</p>
-<p><strong>ორი მიზეზი:</strong></p>
-<ol>
-<li><strong>ხარისხი.</strong> „ფასები“ — მენიუს ძველ PDF-შიც წერია და ღონისძიებების ფასებშიც. თუ შეკითხვა ღონისძიებას ეხება, სხვა კატეგორია მხოლოდ ხმაურია.</li>
-<li><strong>უსაფრთხოება.</strong> სისტემაში, სადაც ბევრი კლიენტის (tenant-ის) დოკუმენტია, ფილტრი <code>TenantId</code>-ით <strong>აუცილებელია</strong>. prompt-ში „სხვის დოკუმენტს ნუ აჩვენებ“ არ კმარა — მოდელი prompt-ს ყოველთვის არ ემორჩილება, და თუ სხვისი ნაწილი კონტექსტში მოხვდა, ის უკვე „გაჟონა“. <strong>ფილტრი ყოველთვის SQL-ში</strong>, მოდელამდე.</li>
-</ol>
-<p><strong>კატეგორია საიდან?</strong> მარტივად — მომხმარებლის ინტერფეისიდან (ჩატის „თემა“) ან endpoint-ის პარამეტრით. ჭკვიანურად — მოდელი კლასიფიცირებს შეკითხვას (structured output, ლექცია 2) ან აგენტი ირჩევს (ლექცია 15).</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>ლექცია 10-ის 🔬: HNSW + <code>WHERE</code> დიდ ცხრილზე შეიძლება „overfiltering“-ით ნაკლები შედეგი დააბრუნოს. pgvector 0.8+-ში: <code>SET hnsw.iterative_scan = relaxed_order;</code>. ჩვენს მასშტაბზე პლანერი seq scan-ს ირჩევს და ეს არ ჩანს.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Metadata</dt><dd>დოკუმენტის შესახებ მონაცემი (კატეგორია, tenant, ენა, თარიღი, უფლებები), არა მისი ტექსტი</dd><dt>Metadata filtering</dt><dd>ძებნამდე ნაწილების გაფილტვრა metadata-ით</dd><dt>Tenant</dt><dd>ერთი კლიენტი (კომპანია) სისტემაში, რომელსაც ბევრი კლიენტი იყენებს</dd></dl></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~5 წთ კითხვა</div><h2>Chunking, reranking და groundedness</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> chunking-ის სტრატეგიებს შეადარებ, reranking-ს ახსნი და პასუხის groundedness-ს შეაფასებ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · დაჭრა და პასუხი</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
-<p>chunking-ის ოთხი სტრატეგია და როგორ ავირჩიოთ (გაზომვით). reranking — ძებნის მეორე, ზუსტი ფენა. და პასუხის შეფასება: groundedness — დაეყრდნო თუ არა მოდელი მხოლოდ წყაროებს.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>Chunking-ის სტრატეგიები</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
-<table>
-<thead>
-<tr>
-<th>სტრატეგია</th>
-<th>როგორ</th>
-<th>პლიუსი</th>
-<th>მინუსი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>ზომით</strong> (fixed)</td>
-<td>ყოველ N სიმბოლოზე/ტოკენზე, overlap-ით</td>
-<td>უმარტივესი</td>
-<td>წინადადებას და აზრს შუაზე ჭრის</td>
-</tr>
-<tr>
-<td><strong>წინადადებით / recursive</strong></td>
-<td>ჯერ აბზაცით, მერე წინადადებით, მერე სიტყვით — სანამ ზომაში არ ჩაეტევა</td>
-<td>ბუნებრივი საზღვრები; ლექცია 11-ის ჩვენი ვერსია</td>
-<td>თემის საზღვარს არ ხედავს</td>
-</tr>
-<tr>
-<td><strong>სათაურებით</strong> (heading-aware / structure-aware)</td>
-<td>ნაწილი = სექცია; სათაური ნაწილს ერთვის</td>
-<td>თემა არ ირევა; სათაური — ძლიერი კონტექსტი</td>
-<td>სტრუქტურა სჭირდება (Word-ის სტილები, Markdown); PDF-ში სათაურის ამოცნობა რთულია</td>
-</tr>
-<tr>
-<td><strong>მნიშვნელობით</strong> (semantic)</td>
-<td>მომდევნო წინადადებების ვექტორებს ადარებს და ჭრის, სადაც მსგავსება ეცემა</td>
-<td>თემის საზღვარს თვითონ პოულობს</td>
-<td>ყოველ წინადადებაზე embedding — ძვირი; კვლევებით ყოველთვის არ სჯობს მარტივს</td>
-</tr>
-</tbody>
-</table>
-<p><strong>სათაური prefix-ში.</strong> ლექცია 9-ის დოკუმენტის ფორმატი: <code>title: … | text: …</code>. ლექცია 11-ში სათაურად ფაილის სახელი ჩავწერეთ. სათაურებით დაჭრისას — <strong>სექციის სათაური</strong>: <code>title: Cancelling a booking | text: …</code>. ნაწილის ვექტორი ახლა თემასაც „იცის“, თუნდაც ტექსტში სიტყვა „ჯავშანი“ არ ეწეროს. ეს ერთ-ერთი ყველაზე იაფი და ეფექტური გაუმჯობესებაა.</p>
-<p><strong>როგორ ავირჩიოთ — მხოლოდ გაზომვით.</strong> ცვლილება → დოკუმენტების თავიდან ატვირთვა (ვექტორები ახალ ნაწილებზე) → <code>/rag/eval</code>. ნიმუშზე: სათაურებით 0.92; 300-სიმბოლოიანი ნაწილები — <strong>უარესი</strong> (0.75): ნაწილები ზედმეტად პატარაა და კონტექსტს კარგავს. „უფრო პატარა = უფრო ზუსტი“ ყოველთვის არ მუშაობს — ამიტომ ვზომავთ.</p>
-<p><strong>golden set chunking-ის შეცვლას უძლებს</strong>, რადგან ფრაზით ამოწმებს ("24 hours before"), არა Id-ით — ნაწილი 1-ის გადაწყვეტილება აქ ამართლებს.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Recursive chunking</dt><dd>ჯერ დიდი საზღვრით (აბზაცი), მერე პატარით (წინადადება, სიტყვა), სანამ ნაწილი ზომაში არ ჩაეტევა</dd><dt>Heading-aware chunking</dt><dd>დაჭრა დოკუმენტის სექციებით; სათაური ნაწილს ერთვის</dd><dt>Semantic chunking</dt><dd>დაჭრა იქ, სადაც მომდევნო წინადადებების მნიშვნელობა იცვლება</dd></dl></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>Reranking: ძებნის მეორე, ზუსტი ფენა</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
-<p>ჩვენი ძებნა (ვექტორი და full-text) <strong>სწრაფია</strong>, მაგრამ „უხეში“: embedding მოდელი შეკითხვას და ნაწილს <strong>ცალ-ცალკე</strong> ხედავს. ნაწილის ვექტორი ingestion-ისას დაითვალა — შეკითხვის შესახებ არაფერი იცოდა. ასეთ მოდელს <strong>bi-encoder</strong> ჰქვია.</p>
-<p><strong>Reranker</strong> (ჩვეულებრივ <strong>cross-encoder</strong>) შეკითხვას და ნაწილს <strong>ერთად</strong> კითხულობს და ერთ ციფრს აბრუნებს: რამდენად პასუხობს ეს ნაწილი ამ შეკითხვას. ეს ბევრად ზუსტია — "Service charge for 6 people?" ↔ "5+ people — 12%" reranker-ისთვის აშკარა წყვილია. მაგრამ წინასწარ ვერაფერს დაითვლი: ყოველ შეკითხვაზე ყოველ წყვილს ცალკე გამოთვლა სჭირდება.</p>
-<p><strong>ამიტომ ორი ფენა:</strong> სწრაფი ძებნა ირჩევს 20–50 კანდიდატს → reranker ზუსტად ალაგებს და 5 მიდის კონტექსტში. მილიონ ნაწილზე reranker-ს ვერ გაუშვებ — 20-ზე კი შეგიძლია.</p>
-<p><strong>რა ვარიანტებია:</strong></p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>როგორ</th>
-<th>ფასი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Rerank API</strong> — Cohere Rerank, Voyage, Jina</td>
-<td>HTTP: შეკითხვა + 20 ტექსტი → 20 score</td>
-<td>ცალკე key და ანგარიში; ფასი მოთხოვნაზე; +100–300 მწ</td>
-</tr>
-<tr>
-<td><strong>LLM როგორც reranker</strong></td>
-<td>Gemini-ს ვთხოვთ: "Sort these 20 parts by relevance" — structured output (ლექცია 2)</td>
-<td>ჩატის მოდელის ფასი — ძვირი; ნელი (წამები)</td>
-</tr>
-<tr>
-<td><strong>ლოკალური cross-encoder</strong></td>
-<td>ღია მოდელი (მაგ. bge-reranker) საკუთარ სერვერზე</td>
-<td>GPU/CPU, ინფრასტრუქტურა</td>
-</tr>
-</tbody>
-</table>
-<p>Gemini API-ს ცალკე rerank მოდელი არ აქვს. ჩვენ Gemini-ზე ვართ, ამიტომ reranking-ს ლექციაზე ვხსნით, კოდი კი ⭐-შია (LLM-rerank). რეალურ სისტემებში reranking ხშირად ყველაზე დიდ ნახტომს იძლევა hit@3-ში — ფასის და დაყოვნების ფასად. და ისევ: <strong>გაზომე</strong>, ღირს თუ არა.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Bi-encoder</dt><dd>მოდელი, რომელიც შეკითხვას და დოკუმენტს ცალ-ცალკე აქცევს ვექტორად (embedding)</dd><dt>Cross-encoder (reranker)</dt><dd>მოდელი, რომელიც შეკითხვას და დოკუმენტს ერთად კითხულობს და რელევანტურობის ციფრს აბრუნებს</dd><dt>Reranking</dt><dd>ძებნის კანდიდატების ხელახალი, ზუსტი დალაგება</dd></dl></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Groundedness: პასუხი წყაროებს ეყრდნობა?</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
-<p>ნაწილი 1-ში ძებნას ვზომავდით. მეორე ადგილი, სადაც RAG ცდება — <strong>პასუხი</strong>: ნაწილი სწორია, მოდელმა კი რაღაც დაამატა. <strong>Groundedness</strong> — რამდენად ეყრდნობა პასუხი <strong>მხოლოდ</strong> მოცემულ წყაროებს.</p>
-<p>ამის გაზომვა <code>Contains</code>-ით შეუძლებელია: "15 GEL" შეიძლება "fifteen lari"-ც იყოს. ამიტომ <strong>LLM-as-judge</strong>: სხვა (ან იგივე) მოდელს ვაძლევთ შეკითხვას, წყაროებს და პასუხს და ვეკითხებით: "Is everything in the answer from the sources?"</p>
-<p><strong><code>Microsoft.Extensions.AI.Evaluation.Quality</code></strong> — მზა evaluator-ები Microsoft.Extensions.AI-ზე: <code>GroundednessEvaluator</code>, <code>RelevanceEvaluator</code>, <code>CompletenessEvaluator</code>, <code>RetrievalEvaluator</code> და სხვ. მსაჯი — ნებისმიერი <code>IChatClient</code> (ჩვენთან Gemini):</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ფილტრი prompt-ში („უპასუხე მხოლოდ ამ ფილიალზე“) დაცვა არ არის: რაც მოდელამდე მივიდა, შეიძლება გაჟონოს. ფილტრი SQL-ში უნდა იყოს.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ორივე miss-ში ზუსტი სიტყვა იყო („B-2“, „12%“). რა დაგვეხმარება?</summary><div class="ans">hybrid search: full-text ზუსტ სიტყვას იპოვის, ვექტორი კი მნიშვნელობას.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>hybrid search</dt><dd>ძებნა მნიშვნელობით და სიტყვებით ერთად, შედეგების გაერთიანებით</dd><dt>RRF (reciprocal rank fusion)</dt><dd>რამდენიმე სიის გაერთიანება რიგის მიხედვით</dd><dt>metadata</dt><dd>ინფორმაცია დოკუმენტზე (კატეგორია, ენა, უფლებები) და არა მისი ტექსტი</dd></dl></div></div></section><section class="topic"><header><span class="num">3</span><h2>დაჭრა და პასუხი</h2><a class="sl" href="index.html#/15" target="_blank">▶ სლაიდები 15–18</a></header><div class="tb"><p><strong>Chunking.</strong> ზომით (უმარტივესი), აბზაცით/სათაურით (თემა არ წყდება), რეკურსიულად ან მნიშვნელობით. ყველაზე ხშირად სათაურით ჭრა და სათაურის ნაწილზე მიწერა შველის. რომელი ჯობია, მხოლოდ გაზომვა იტყვის: 300 სიმბოლო „უფრო ზუსტი“ არ არის, ხშირად კონტექსტს კარგავს.</p>
+<p><strong>Reranking.</strong> ძებნა სწრაფია, მაგრამ უხეში: შეკითხვას და ნაწილს ცალ-ცალკე აფასებს. <strong>reranker</strong> კანდიდატებს (მაგ. 20) შეკითხვასთან ერთად კითხულობს და ზუსტად ალაგებს. ის ნელია, ამიტომ მხოლოდ კანდიდატებზე.</p>
+<p><strong>Groundedness.</strong> ნაწილი სწორია, მაგრამ მოდელმა რამე მოიგონა? მეორე მოდელი (<strong>მსაჯი</strong>) ამოწმებს, ეყრდნობა თუ არა პასუხი წყაროებს:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · CheckGroundedness</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI.Evaluation</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI.Evaluation.Quality</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">IEvaluator</span><span class="w"> </span><span class="n">evaluator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">GroundednessEvaluator</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">EvaluationResult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">evaluator</span><span class="p">.</span><span class="n">EvaluateAsync</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[new ChatMessage(ChatRole.User, question)]</span><span class="p">,</span><span class="w">                       </span><span class="c1">// what was asked</span></span><span class="ln"><span class="w">    </span><span class="n">response</span><span class="p">,</span><span class="w">                                                          </span><span class="c1">// what our RAG answered (ChatResponse)</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">ChatConfiguration</span><span class="p">(</span><span class="n">_judge</span><span class="p">)</span><span class="p">,</span><span class="w">                                     </span><span class="c1">// the judge — an IChatClient</span></span><span class="ln"><span class="w">    </span><span class="na">[new GroundednessEvaluatorContext(BuildContext(sources))]</span><span class="p">,</span><span class="w">         </span><span class="c1">// the sources the model received</span></span><span class="ln"><span class="w">    </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">NumericMetric</span><span class="w"> </span><span class="n">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">Get</span><span class="o">&lt;</span><span class="n">NumericMetric</span><span class="o">&gt;</span><span class="p">(</span><span class="n">GroundednessEvaluator</span><span class="p">.</span><span class="n">GroundednessMetricName</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Value</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Reason</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">judge</span><span class="err">'</span><span class="n">s</span><span class="w"> </span><span class="n">explanation</span></span></code></pre></div>
-<ul>
-<li><strong><code>_judge</code></strong> — <code>IChatClient</code> მსაჯისთვის. ჩატის pipeline-ის client tool-ებით და middleware-ით (ლექცია 4–5, 8) მსაჯს არ სჭირდება — სჯობს ცალკე, მარტივი client (keyed service, ⭐ ლექცია 8) ან უფრო ძლიერი მოდელი.</li>
-<li><strong>ციფრი 1–5:</strong> 5 — ყველაფერი წყაროშია; 1 — პასუხი წყაროებს არ ეყრდნობა. <code>Reason</code>-ში მსაჯი წერს, <strong>რა</strong> დაამატა მოდელმა.</li>
-</ul>
-<p><strong>მსაჯსაც ვამოწმებთ.</strong> LLM-as-judge თვითონ მოდელია: შეიძლება შეცდეს, და „საკუთარ“ პასუხებს (იგივე მოდელი) ზოგჯერ უფრო რბილად აფასებს. ამიტომ: (1) მსაჯად — იგივე ან უფრო ძლიერი მოდელი; (2) ციფრს ბევრ მაგალითზე ვუყურებთ, არა ერთზე; (3) დროდადრო მსაჯის შეფასებას ხელით ვადარებთ.</p>
-<p><strong>ფასი.</strong> ყოველი შეფასება — ერთი LLM-გამოძახება. hit@k (ნაწილი 1) — უფასოა და ყოველ ცვლილებაზე ეშვება; groundedness — golden set-ის პასუხებზე, დროდადრო.</p>
-<p><strong>ლექცია 12 და 20.</strong> დღეს — RAG-ის შეფასება: retrieval (hit@k, MRR) და groundedness. ლექცია 20-ში — აგენტების შეფასება, რეპორტები და ისტორია (<code>Microsoft.Extensions.AI.Evaluation.Reporting</code>); ლექცია 22-ში — evals როგორც ტესტები.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Groundedness</dt><dd>რამდენად ეყრდნობა პასუხი მხოლოდ მოცემულ წყაროებს</dd><dt>LLM-as-judge</dt><dd>მოდელი, რომელიც სხვა მოდელის პასუხს აფასებს</dd><dt>Microsoft.Extensions.AI.Evaluation</dt><dd>.NET-ის ბიბლიოთეკები AI-ის პასუხების ხარისხის შესაფასებლად</dd></dl></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>კლასის დავალება: შენი golden set</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>კლასში დავალება: შენი golden set — და პირველი ციფრი</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
-<p>შენი პროექტი (ლექცია 11-ის საშინაო) · კოდით · golden.json და Swagger</p>
-<h3>ნაბიჯები</h3>
-<ul>
-<li><strong>1 · golden set</strong> — <code>golden.json</code>: 6 შეკითხვა შენს PDF-ზე (ლექცია 11-ის საშინაოს ცხრილიდან) და თითოეულზე <strong>ფრაზა</strong>, რომელიც სწორ ნაწილში წერია. ერთი — ზუსტი კოდით/რიცხვით/სახელით, ერთი — სინონიმით</li>
-<li><strong>2 · ჯერ გამოიცანი</strong> — რვეულში: რომელი 1–2 შეკითხვა <strong>ჩავარდება</strong> და რატომ (სიტყვა თუ მნიშვნელობა)?</li>
-<li><strong>3 · endpoint</strong> — <code>POST /api/ai-lab/rag/eval</code>: თითოეულ შეკითხვაზე შენი ძებნა → პირველი ნაწილის რიგი, რომელიც ფრაზას შეიცავს → <code>HitAt3</code>, <code>Mrr</code>, <code>Misses</code></li>
-<li><strong>4 · გაზომე</strong> — Swagger. პროგნოზი გამართლდა? ციფრი რვეულში — ეს შენი <strong>საწყისი წერტილია</strong></li>
-</ul>
-<h3>✓ მზადაა, როცა</h3>
-<p><code>/rag/eval</code> სამ ველს აბრუნებს; golden set-ში 6 შეკითხვა, მათ შორის ზუსტი სიტყვით და სინონიმით; რვეულში პროგნოზი და რეალური miss-ები</p>
-<h3>⭐ ბონუსი</h3>
-<ul>
-<li><strong>ყველა რიგი:</strong> response-ში თითოეული შეკითხვის <code>rank</code> (1, 2, 3… ან 0) — სადაა სწორი, როცა top 3-ში არ არის?</li>
-<li><strong>ზღვრის გავლენა:</strong> <code>Rag:MinScore</code> 0-ზე და შენს მნიშვნელობაზე — hit@3 შეიცვალა? რომელმა შეკითხვამ „გაიარა“?</li>
-<li><strong>hybrid:</strong> <code>tsvector</code> სვეტი + <code>HybridSearchAsync</code> — და ისევ <code>/rag/eval</code>. რამდენით გაიზარდა?</li>
-</ul>
-<h3>💡 თუ გაიჭედე</h3>
-<ul>
-<li><strong>ყველაფერი 0-ია?</strong> ფრაზა ნაწილის ტექსტს ზუსტად უნდა ემთხვეოდეს — დააკოპირე ბაზიდან: <code>SELECT "Content" FROM "DocumentChunks" WHERE "Content" LIKE '%...%'</code></li>
-<li><strong><code>File.ReadAllTextAsync</code> controller-ში შეცდომას აგდებს?</strong> <code>System.IO.File.ReadAllTextAsync</code> — <code>ControllerBase.File</code> სხვა მეთოდია</li>
-<li><strong>golden.json ვერ პოულობს?</strong> ფაილი პროექტის საქაღალდეში (გაშვების საქაღალდეში), ან <code>.csproj</code>-ში <code>CopyToOutputDirectory</code></li>
-<li><strong>რიგი:</strong> <code>found.FindIndex(c =&gt; c.Content.Contains(item.MustContain)) + 1</code> — 0, თუ ვერ იპოვა</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>შეჯამება და ნაწილი 1-ის ბოლო</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/20" data-go="20" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 20</a></div>
-<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>RAG რომელ ორ ადგილას ცდება და რომელია უფრო ხშირი?</summary><div class="ans">retrieval — სწორი ნაწილი top k-ში არ მოხვდა (ყველაზე ხშირი; მაშინ საუკეთესო მოდელიც ვერ უპასუხებს) · generation — ნაწილი სწორია, მოდელმა კი წყაროში არარსებული დაამატა</div></details><details><summary>რა არის hit@3 და MRR? რატომ ვწერთ golden set-ში ფრაზას და არა chunk-ის Id-ს?</summary><div class="ans">hit@3 — რა წილ შეკითხვაზე იყო სწორი ნაწილი პირველ სამში · MRR — საშუალო 1/რიგი, რამდენად მაღლაა · chunking-ის შეცვლისას Id-ები იცვლება, ფრაზა — არა</div></details><details><summary>რატომ გვჭირდება hybrid search და რატომ ვაერთიანებთ სიებს რიგით (RRF) და არა score-ებით?</summary><div class="ans">ვექტორი ზუსტ სიტყვებს (კოდი, რიცხვი, სახელი) ცუდად პოულობს, full-text — ზუსტად · score-ები სხვადასხვა „ერთეულშია“, რიგი — ერთნაირი: Σ 1/(60 + რიგი)</div></details><details><summary>metadata filtering რატომ უნდა იყოს SQL-ში და არა prompt-ში?</summary><div class="ans">prompt-ს მოდელი ყოველთვის არ ემორჩილება; სხვისი ნაწილი კონტექსტში თუ მოხვდა — უკვე გაჟონა · tenant/უფლებების ფილტრი — უსაფრთხოებაა, მოდელამდე</div></details><details><summary>რა არის groundedness და როგორ ვზომავთ? რატომ არ ვენდობით მსაჯს ბოლომდე?</summary><div class="ans">პასუხი მხოლოდ წყაროებს ეყრდნობა? · LLM-as-judge: GroundednessEvaluator, 1–5 და ახსნა · მსაჯიც მოდელია — ცდება, საკუთარ პასუხებს რბილად აფასებს; ბევრ მაგალითზე და დროდადრო ხელით</div></details></div></article><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/21" data-go="21" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 21</a></div>
-<ul>
-<li>RAG <strong>ორ ადგილას</strong> ცდება: <strong>ძებნაში</strong> (სწორი ნაწილი ვერ მოიძებნა — ყველაზე ხშირი) და <strong>პასუხში</strong> (მოდელმა დაამატა). „თვალით“ ვერ ვიტყვით, გაუმჯობესდა თუ არა — ვზომავთ.</li>
-<li><strong>Golden set</strong> — შეკითხვები ფრაზით, რომელიც სწორ ნაწილში უნდა წერდეს (არა Id-ით — chunking-ს უძლებს). <strong>hit@3</strong> — რა წილზე იყო სწორი პირველ სამში; <strong>MRR</strong> — საშუალო 1/რიგი; <strong>misses</strong> — რა გამოვასწოროთ. <code>/rag/eval</code> LLM-ს არ იძახებს — იაფია.</li>
-<li><strong>Hybrid search:</strong> ვექტორი (მნიშვნელობა) + PostgreSQL full-text (<code>tsvector</code>, <code>'english'</code> — stemmer და stop-word-ები; ზუსტი სიტყვები, კოდები, რიცხვები), შერწყმა <strong>RRF</strong>-ით: Σ 1/(60 + რიგი).</li>
-<li><strong>Metadata filtering:</strong> კატეგორია, tenant, ენა, თარიღი, უფლებები — <strong>SQL-ში, მოდელამდე</strong>. ხარისხიც და უსაფრთხოებაც.</li>
-<li><strong>Chunking:</strong> ზომით / წინადადებით / სათაურებით / მნიშვნელობით. სათაური prefix-ში — იაფი და ეფექტური. პატარა ნაწილი ყოველთვის არ სჯობს — <strong>გაზომე</strong>.</li>
-<li><strong>Reranking:</strong> სწრაფი ძებნა 20 კანდიდატს ირჩევს, cross-encoder ზუსტად ალაგებს და 5 მიდის კონტექსტში. ფასი და დაყოვნება — გაზომე, ღირს თუ არა.</li>
-<li><strong>Groundedness:</strong> <code>GroundednessEvaluator</code> (<code>Microsoft.Extensions.AI.Evaluation.Quality</code>) — LLM-as-judge, 1–5 და ახსნა. მსაჯსაც ვამოწმებთ.</li>
-</ul>
-<h3>ნაწილი 1 დასრულდა</h3>
-<p>12 ლექციაში: LLM და prompt engineering, <code>IChatClient</code> და DI, structured output, tools, pipeline და middleware, streaming, context engineering, resilience და ხარჯი, embeddings, pgvector და <strong>RAG</strong> — გაზომვით. ეს ყველაფერი ერთ RestaurantApi-ში მუშაობს.</p>
-<h3>შემდეგ ლექციაზე</h3>
-<p>ჩვენი ჩატი ძებნას <strong>ყოველ</strong> შეკითხვაზე აკეთებს და tool-ებს მოდელი იძახებს — მაგრამ ციკლს ჩვენ ვმართავთ. რა მოხდება, თუ მოდელი თვითონ გადაწყვეტს, რა მოძებნოს, რომელი tool გამოიძახოს და რამდენჯერ? ლექცია 13-ზე: <strong>Agentic Systems</strong> — chatbot vs RAG vs workflow vs აგენტი, ReAct, და როდის <strong>არ</strong> გვჭირდება აგენტი.</p></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>საშინაო დავალება: RAG — გაზომილი და გაუმჯობესებული</h3><a class="chip" href="index.html#/22" data-go="22" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 22</a></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>მსაჯს ბოლომდე რატომ არ ვენდობით?</summary><div class="ans">ისიც მოდელია და შეიძლება შეცდეს. მის შეფასებას რამდენიმე ცნობილ კარგ და ცუდ პასუხზე ვამოწმებთ.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>reranker (cross-encoder)</dt><dd>მოდელი, რომელიც შეკითხვას და ნაწილს ერთად აფასებს; ზუსტია, მაგრამ ნელი</dd><dt>groundedness</dt><dd>რამდენად ეყრდნობა პასუხი მხოლოდ მოცემულ წყაროებს</dd><dt>LLM-as-judge</dt><dd>მოდელი, რომელიც სხვა მოდელის პასუხს აფასებს</dd></dl></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 საშინაო</h2><div class="box task"><h3>RAG — გაზომილი და გაუმჯობესებული</h3>
 <p>კოდით · შენი პროექტი · README-ში შედეგების ცხრილი და დასკვნა</p>
-<h3>მოთხოვნები</h3>
+<h4>მოთხოვნები</h4>
 <ul>
 <li><strong>golden set</strong> — 10 შეკითხვა (2 ზუსტი სიტყვით/კოდით/რიცხვით, 2 სინონიმით, 1 ორ ადგილას პასუხით); <code>/rag/eval</code> — <code>HitAt3</code>, <code>Mrr</code>, <code>Misses</code></li>
 <li><strong>hybrid search</strong> — <code>tsvector</code> generated column (<code>'english'</code>) + GIN ინდექსი, <code>OrQuery</code>, ვექტორი + full-text → RRF → top 5; <code>/chat</code> და <code>/rag/eval</code> hybrid-ს იყენებს</li>
@@ -557,84 +201,71 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <li><strong>ერთი chunking-ის ექსპერიმენტი</strong> — ზომა (მაგ. 400 ან 1500) <strong>ან</strong> სათაური prefix-ში; თავიდან ატვირთვა და გაზომვა</li>
 <li><strong>groundedness</strong> — 3 პასუხზე <code>GroundednessEvaluator</code>: ციფრი და <code>Reason</code></li>
 <li><strong>README — ცხრილი და დასკვნა:</strong> ვერსია · hitAt3 · MRR · misses (vector-only, hybrid, hybrid + chunking-ის ექსპერიმენტი), groundedness-ის 3 შედეგი, და 3–4 წინადადება: რა გაუმჯობესდა, რა — არა, რას აირჩევდი production-ში</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (10 კითხვა) — ქულა ჩაწერე</li>
+<li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
 </ul>
-<h3>✓ მზადაა, როცა</h3>
+<h4>✓ მზადაა, როცა</h4>
 <p>ცხრილში სამი ვერსია ციფრებით და hybrid ზუსტ სიტყვებზე ჩანს; ფილტრიანი ძებნა ერთი SQL-ია; groundedness-ის 3 შეფასება ახსნით; დასკვნა ციფრებს ეყრდნობა</p>
-<h3>⭐ ბონუსი</h3>
+<h4>⭐ ბონუსი</h4>
 <ul>
 <li><strong>LLM-rerank:</strong> hybrid-ის 20 კანდიდატი → Gemini (<code>GetResponseAsync&lt;RankResult&gt;</code>) → 5. hit@3 და დრო — ღირს?</li>
 <li><strong>pg_trgm:</strong> <code>CREATE EXTENSION pg_trgm</code> და <code>similarity()</code> — ბეჭდვის შეცდომებზე ("cancelation" / "cancellation") უშველა?</li>
 <li><strong>eval ტესტად:</strong> xUnit ტესტი, რომელიც <code>/rag/eval</code>-ს უშვებს და ჩავარდება, თუ <code>HitAt3 &lt; 0.8</code> (ლექცია 22-ის წინასწარი ვერსია)</li>
 </ul>
-<h3>💡 დეტალები</h3>
+<h4>💡 დეტალები</h4>
 <ul>
 <li>chunking-ის ექსპერიმენტამდე <strong>ძველი ნაწილები წაშალე</strong> (ან ახალი ბაზა), თორემ ორივე ვერსია ერთად იძებნება</li>
 <li>სათაური prefix-ში: <code>EmbeddingText.Document(sectionTitle, chunk)</code> — Word/Markdown-ში სათაურები მზაა; PDF-ში — ხაზი, რომელიც მოკლეა და წერტილით არ მთავრდება (მარტივი ევრისტიკა)</li>
 <li><code>GroundednessEvaluator</code> — NuGet <code>Microsoft.Extensions.AI.Evaluation.Quality</code>; მსაჯად ცალკე <code>IChatClient</code> (tool-ების გარეშე)</li>
 <li>ცარიელი <code>OrQuery</code> (შეკითხვა მხოლოდ სიმბოლოებით) — full-text გამოტოვე</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 სწორი · <span id="qd">0</span> / 10 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>chunk-ის ზომა 800-დან 400-ზე შევცვალეთ. ორ შეკითხვაზე უკეთესი გახდა. სწორი დასკვნა:</div></div><div class="opts"><button type="button" class="opt" data-i="0">400 სჯობს</button><button type="button" class="opt" data-i="1">ჯერ ვერაფერს ვიტყვით — golden set-ზე უნდა გავზომოთ: ცვლილება ზოგს აუმჯობესებს და ზოგს აფუჭებს</button><button type="button" class="opt" data-i="2">ორივე ერთნაირია</button><button type="button" class="opt" data-i="3">800 სჯობს</button></div><div class="qe"><span class="verdict"></span> ჯერ ვზომავთ, მერე ვცვლით, მერე ისევ ვზომავთ. <a class="chip" href="#s-7">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>RAG-ის ყველაზე ხშირი შეცდომა:</div></div><div class="opts"><button type="button" class="opt" data-i="0">მოდელი ქართულს ვერ წერს</button><button type="button" class="opt" data-i="1">retrieval — სწორი ნაწილი top k-ში არ მოხვდა, და მოდელს უპასუხოდ არაფერი აქვს</button><button type="button" class="opt" data-i="2">streaming ჩერდება</button><button type="button" class="opt" data-i="3">ისტორია იკარგება</button></div><div class="qe"><span class="verdict"></span> ამიტომ ძებნას ვზომავთ პირველად. <a class="chip" href="#s-7">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>6 შეკითხვიდან სწორი ნაწილი პირველ სამში 4-ზეა. hit@3 =</div></div><div class="opts"><button type="button" class="opt" data-i="0">4</button><button type="button" class="opt" data-i="1">0.67</button><button type="button" class="opt" data-i="2">0.4</button><button type="button" class="opt" data-i="3">1</button></div><div class="qe"><span class="verdict"></span> 4 / 6 ≈ 0.67. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>golden set-ში რატომ ვწერთ „ნაწილში უნდა წერდეს“ ფრაზას და არა chunk-ის Id-ს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Id საიდუმლოა</button><button type="button" class="opt" data-i="1">chunking-ის შეცვლისას ნაწილები თავიდან იჭრება და Id-ები იცვლება — ფრაზა ნებისმიერ სტრატეგიაზე მუშაობს</button><button type="button" class="opt" data-i="2">ფრაზა უფრო მოკლეა</button><button type="button" class="opt" data-i="3">EF Core Id-ს ვერ კითხულობს</button></div><div class="qe"><span class="verdict"></span> golden set ცვლილებებს უნდა გაუძლოს. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div><code>/rag/eval</code> miss-ებში "Where is hall B-2?" და "12%" ჩანს. რა აქვთ საერთო?</div></div><div class="opts"><button type="button" class="opt" data-i="0">გრძელი შეკითხვებია</button><button type="button" class="opt" data-i="1">ზუსტი სიტყვები — კოდი და რიცხვი, რომელსაც ვექტორი ცუდად „ხედავს“</button><button type="button" class="opt" data-i="2">ძალიან მოკლეა</button><button type="button" class="opt" data-i="3">ზღვარი დაბალია</button></div><div class="qe"><span class="verdict"></span> ამას hybrid search აგვარებს. <a class="chip" href="#s-9">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div><code>to_tsvector('english', 'Hall B-2 seats 20+ guests')</code>-ში "guests" რად იქცევა და რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">რჩება "guests"</button><button type="button" class="opt" data-i="1">"guest" — 'english' კონფიგს stemmer აქვს; შეკითხვაც იმავე კონფიგით უნდა დამუშავდეს</button><button type="button" class="opt" data-i="2">იშლება — stop-word-ია</button><button type="button" class="opt" data-i="3">ვექტორად</button></div><div class="qe"><span class="verdict"></span> ქართულ ტექსტზე ლექსიკონი არ არის — იქ 'simple'. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>RRF ორ სიას რატომ რიგით აერთიანებს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე უფრო სწრაფია</button><button type="button" class="opt" data-i="1">ვექტორის score და ts_rank სხვადასხვა „ერთეულშია“ — შეკრება აზრს არ იძლევა; რიგი ყველგან ერთნაირია</button><button type="button" class="opt" data-i="2">score-ები უარყოფითია</button><button type="button" class="opt" data-i="3">PostgreSQL score-ს არ აბრუნებს</button></div><div class="qe"><span class="verdict"></span> Σ 1/(60 + რიგი): ორივე სიაში მაღლა მყოფი — პირველია. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div><code>plainto_tsquery</code>-ის ნაცვლად „ან“-ით (<code>|</code>) რატომ ვაერთებთ სიტყვებს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე ნაკლები შედეგია</button><button type="button" class="opt" data-i="1">plainto_tsquery „და“-ს იყენებს — ბუნებრივ შეკითხვაზე ყველა სიტყვა იშვიათად წერია ერთ ნაწილში, და შედეგი 0-ია; „ან“ + ts_rank მეტ დამთხვევას მაღლა აყენებს</button><button type="button" class="opt" data-i="2">„და“ სინტაქსის შეცდომაა</button><button type="button" class="opt" data-i="3">Gemini ასე ითხოვს</button></div><div class="qe"><span class="verdict"></span> OrQuery პუნქტუაციასაც აგდებს — to_tsquery-ის შეცდომის თავიდან ასაცილებლად. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>მრავალ-კლიენტიან სისტემაში სხვა კლიენტის დოკუმენტის დამალვა სად უნდა მოხდეს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">system prompt-ში: „სხვისას ნუ აჩვენებ“</button><button type="button" class="opt" data-i="1">SQL-ში, ძებნამდე — ფილტრი TenantId-ით; მოდელამდე არაფერი უნდა მივიდეს</button><button type="button" class="opt" data-i="2">პასუხის შემდეგ</button><button type="button" class="opt" data-i="3">UI-ში</button></div><div class="qe"><span class="verdict"></span> კონტექსტში მოხვედრა უკვე გაჟონვაა. <a class="chip" href="#s-13">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>reranker-ს რატომ ვუშვებთ მხოლოდ 20 კანდიდატზე და არა ყველა ნაწილზე?</div></div><div class="opts"><button type="button" class="opt" data-i="0">20-ზე მეტს ვერ იღებს</button><button type="button" class="opt" data-i="1">cross-encoder შეკითხვას და ნაწილს ერთად კითხულობს — ზუსტია, მაგრამ წინასწარ ვერაფერს დაითვლი; ყველა ნაწილზე ძალიან ნელი და ძვირია. სწრაფი ძებნა ირჩევს, reranker ალაგებს</button><button type="button" class="opt" data-i="2">ასე ითხოვს Gemini</button><button type="button" class="opt" data-i="3">სხვანაირად hit@3 ეცემა</button></div><div class="qe"><span class="verdict"></span> ორი ფენა: სწრაფი (bi-encoder) → ზუსტი (cross-encoder). <a class="chip" href="#s-17">გაიმეორე · სლაიდი 17</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Retrieval</dt><dd>ძებნის ნაწილი: შეკითხვაზე რელევანტური ნაწილების პოვნა</dd><dt>Generation</dt><dd>პასუხის ნაწილი: მოდელი ნაპოვნი ნაწილებით წერს პასუხს</dd><dt>Evaluation (შეფასება, evals)</dt><dd>სისტემის ხარისხის გაზომვა წინასწარ მომზადებულ მაგალითებზე</dd><dt>Golden set</dt><dd>შეკითხვების ნაკრები ცნობილი სწორი პასუხით; ხარისხის გასაზომად</dd><dt>hit@k</dt><dd>რა წილ შეკითხვაზე მოხვდა სწორი შედეგი პირველ k-ში</dd><dt>MRR (Mean Reciprocal Rank)</dt><dd>სწორი შედეგის 1/რიგის საშუალო; რამდენად მაღლაა სწორი</dd><dt>Hybrid search</dt><dd>ძებნა მნიშვნელობით (ვექტორი) და სიტყვებით (full-text) ერთად, შედეგების გაერთიანებით</dd><dt>tsvector / tsquery</dt><dd>PostgreSQL-ის full-text: ტექსტი სიტყვებად / შეკითხვა სიტყვებით</dd><dt>'english' / 'simple'</dt><dd>full-text-ის კონფიგურაცია: ინგლისური ლექსიკონით და stemmer-ით / ლექსიკონის გარეშე (სიტყვა ისე, როგორც არის)</dd><dt>RRF (Reciprocal Rank Fusion)</dt><dd>რამდენიმე სიის გაერთიანება რიგით: Σ 1/(60 + რიგი)</dd><dt>Generated column</dt><dd>სვეტი, რომელსაც PostgreSQL თვითონ ითვლის სხვა სვეტებიდან</dd><dt>GIN ინდექსი</dt><dd>PostgreSQL-ის ინდექსი სიტყვებისთვის (და მასივებისთვის, jsonb-სთვის)</dd><dt>Metadata</dt><dd>დოკუმენტის შესახებ მონაცემი (კატეგორია, tenant, ენა, თარიღი, უფლებები), არა მისი ტექსტი</dd><dt>Metadata filtering</dt><dd>ძებნამდე ნაწილების გაფილტვრა metadata-ით</dd><dt>Tenant</dt><dd>ერთი კლიენტი (კომპანია) სისტემაში, რომელსაც ბევრი კლიენტი იყენებს</dd><dt>Recursive chunking</dt><dd>ჯერ დიდი საზღვრით (აბზაცი), მერე პატარით (წინადადება, სიტყვა), სანამ ნაწილი ზომაში არ ჩაეტევა</dd><dt>Heading-aware chunking</dt><dd>დაჭრა დოკუმენტის სექციებით; სათაური ნაწილს ერთვის</dd><dt>Semantic chunking</dt><dd>დაჭრა იქ, სადაც მომდევნო წინადადებების მნიშვნელობა იცვლება</dd><dt>Bi-encoder</dt><dd>მოდელი, რომელიც შეკითხვას და დოკუმენტს ცალ-ცალკე აქცევს ვექტორად (embedding)</dd><dt>Cross-encoder (reranker)</dt><dd>მოდელი, რომელიც შეკითხვას და დოკუმენტს ერთად კითხულობს და რელევანტურობის ციფრს აბრუნებს</dd><dt>Reranking</dt><dd>ძებნის კანდიდატების ხელახალი, ზუსტი დალაგება</dd><dt>Groundedness</dt><dd>რამდენად ეყრდნობა პასუხი მხოლოდ მოცემულ წყაროებს</dd><dt>LLM-as-judge</dt><dd>მოდელი, რომელიც სხვა მოდელის პასუხს აფასებს</dd><dt>Microsoft.Extensions.AI.Evaluation</dt><dd>.NET-ის ბიბლიოთეკები AI-ის პასუხების ხარისხის შესაფასებლად</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div><h2>📝 კლასის დავალება</h2><div class="box task"><h3>შენი golden set — და პირველი ციფრი</h3>
+<p>შენი პროექტი (ლექცია 11-ის საშინაო) · კოდით · golden.json და Swagger</p>
+<h4>ნაბიჯები</h4>
+<ul>
+<li><strong>1 · golden set</strong> — <code>golden.json</code>: 6 შეკითხვა შენს PDF-ზე (ლექცია 11-ის საშინაოს ცხრილიდან) და თითოეულზე <strong>ფრაზა</strong>, რომელიც სწორ ნაწილში წერია. ერთი — ზუსტი კოდით/რიცხვით/სახელით, ერთი — სინონიმით</li>
+<li><strong>2 · ჯერ გამოიცანი</strong> — რვეულში: რომელი 1–2 შეკითხვა <strong>ჩავარდება</strong> და რატომ (სიტყვა თუ მნიშვნელობა)?</li>
+<li><strong>3 · endpoint</strong> — <code>POST /api/ai-lab/rag/eval</code>: თითოეულ შეკითხვაზე შენი ძებნა → პირველი ნაწილის რიგი, რომელიც ფრაზას შეიცავს → <code>HitAt3</code>, <code>Mrr</code>, <code>Misses</code></li>
+<li><strong>4 · გაზომე</strong> — Swagger. პროგნოზი გამართლდა? ციფრი რვეულში — ეს შენი <strong>საწყისი წერტილია</strong></li>
+</ul>
+<h4>✓ მზადაა, როცა</h4>
+<p><code>/rag/eval</code> სამ ველს აბრუნებს; golden set-ში 6 შეკითხვა, მათ შორის ზუსტი სიტყვით და სინონიმით; რვეულში პროგნოზი და რეალური miss-ები</p>
+<h4>⭐ ბონუსი</h4>
+<ul>
+<li><strong>ყველა რიგი:</strong> response-ში თითოეული შეკითხვის <code>rank</code> (1, 2, 3… ან 0) — სადაა სწორი, როცა top 3-ში არ არის?</li>
+<li><strong>ზღვრის გავლენა:</strong> <code>Rag:MinScore</code> 0-ზე და შენს მნიშვნელობაზე — hit@3 შეიცვალა? რომელმა შეკითხვამ „გაიარა“?</li>
+<li><strong>hybrid:</strong> <code>tsvector</code> სვეტი + <code>HybridSearchAsync</code> — და ისევ <code>/rag/eval</code>. რამდენით გაიზარდა?</li>
+</ul>
+<h4>💡 თუ გაიჭედე</h4>
+<ul>
+<li><strong>ყველაფერი 0-ია?</strong> ფრაზა ნაწილის ტექსტს ზუსტად უნდა ემთხვეოდეს — დააკოპირე ბაზიდან: <code>SELECT "Content" FROM "DocumentChunks" WHERE "Content" LIKE '%...%'</code></li>
+<li><strong><code>File.ReadAllTextAsync</code> controller-ში შეცდომას აგდებს?</strong> <code>System.IO.File.ReadAllTextAsync</code> — <code>ControllerBase.File</code> სხვა მეთოდია</li>
+<li><strong>golden.json ვერ პოულობს?</strong> ფაილი პროექტის საქაღალდეში (გაშვების საქაღალდეში), ან <code>.csproj</code>-ში <code>CopyToOutputDirectory</code></li>
+<li><strong>რიგი:</strong> <code>found.FindIndex(c =&gt; c.Content.Contains(item.MustContain)) + 1</code> — 0, თუ ვერ იპოვა</li>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">აირჩიე პასუხი და მაშინვე ნახავ, სწორია თუ არა და რატომ.</p><div class="qscore"><span id="qs">0</span> / 8 სწორი · <span id="qd">0</span> / 8 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>chunk-ის ზომა 800-დან 400-ზე შევცვალეთ. ორ შეკითხვაზე უკეთესი გახდა. სწორი დასკვნა:</div></div><div class="opts"><button type="button" class="opt" data-i="0">400 სჯობს</button><button type="button" class="opt" data-i="1">ჯერ ვერაფერს ვიტყვით — golden set-ზე უნდა გავზომოთ: ცვლილება ზოგს აუმჯობესებს და ზოგს აფუჭებს</button><button type="button" class="opt" data-i="2">ორივე ერთნაირია</button><button type="button" class="opt" data-i="3">800 სჯობს</button></div><div class="qe"><span class="verdict"></span> ჯერ ვზომავთ, მერე ვცვლით, მერე ისევ ვზომავთ. <a class="chip" href="index.html#/7" target="_blank">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>RAG-ის ყველაზე ხშირი შეცდომა:</div></div><div class="opts"><button type="button" class="opt" data-i="0">მოდელი ქართულს ვერ წერს</button><button type="button" class="opt" data-i="1">retrieval — სწორი ნაწილი top k-ში არ მოხვდა, და მოდელს უპასუხოდ არაფერი აქვს</button><button type="button" class="opt" data-i="2">streaming ჩერდება</button><button type="button" class="opt" data-i="3">ისტორია იკარგება</button></div><div class="qe"><span class="verdict"></span> ამიტომ ძებნას ვზომავთ პირველად. <a class="chip" href="index.html#/7" target="_blank">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>golden set-ში რატომ ვწერთ „ნაწილში უნდა წერდეს“ ფრაზას და არა chunk-ის Id-ს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Id საიდუმლოა</button><button type="button" class="opt" data-i="1">chunking-ის შეცვლისას ნაწილები თავიდან იჭრება და Id-ები იცვლება — ფრაზა ნებისმიერ სტრატეგიაზე მუშაობს</button><button type="button" class="opt" data-i="2">ფრაზა უფრო მოკლეა</button><button type="button" class="opt" data-i="3">EF Core Id-ს ვერ კითხულობს</button></div><div class="qe"><span class="verdict"></span> golden set ცვლილებებს უნდა გაუძლოს. <a class="chip" href="index.html#/8" target="_blank">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div><code>/rag/eval</code> miss-ებში "Where is hall B-2?" და "12%" ჩანს. რა აქვთ საერთო?</div></div><div class="opts"><button type="button" class="opt" data-i="0">გრძელი შეკითხვებია</button><button type="button" class="opt" data-i="1">ზუსტი სიტყვები — კოდი და რიცხვი, რომელსაც ვექტორი ცუდად „ხედავს“</button><button type="button" class="opt" data-i="2">ძალიან მოკლეა</button><button type="button" class="opt" data-i="3">ზღვარი დაბალია</button></div><div class="qe"><span class="verdict"></span> ამას hybrid search აგვარებს. <a class="chip" href="index.html#/9" target="_blank">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div><code>to_tsvector('english', 'Hall B-2 seats 20+ guests')</code>-ში "guests" რად იქცევა და რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">რჩება "guests"</button><button type="button" class="opt" data-i="1">"guest" — 'english' კონფიგს stemmer აქვს; შეკითხვაც იმავე კონფიგით უნდა დამუშავდეს</button><button type="button" class="opt" data-i="2">იშლება — stop-word-ია</button><button type="button" class="opt" data-i="3">ვექტორად</button></div><div class="qe"><span class="verdict"></span> ქართულ ტექსტზე ლექსიკონი არ არის — იქ 'simple'. <a class="chip" href="index.html#/11" target="_blank">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>RRF ორ სიას რატომ რიგით აერთიანებს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე უფრო სწრაფია</button><button type="button" class="opt" data-i="1">ვექტორის score და ts_rank სხვადასხვა „ერთეულშია“ — შეკრება აზრს არ იძლევა; რიგი ყველგან ერთნაირია</button><button type="button" class="opt" data-i="2">score-ები უარყოფითია</button><button type="button" class="opt" data-i="3">PostgreSQL score-ს არ აბრუნებს</button></div><div class="qe"><span class="verdict"></span> Σ 1/(60 + რიგი): ორივე სიაში მაღლა მყოფი — პირველია. <a class="chip" href="index.html#/11" target="_blank">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>მრავალ-კლიენტიან სისტემაში სხვა კლიენტის დოკუმენტის დამალვა სად უნდა მოხდეს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">system prompt-ში: „სხვისას ნუ აჩვენებ“</button><button type="button" class="opt" data-i="1">SQL-ში, ძებნამდე — ფილტრი TenantId-ით; მოდელამდე არაფერი უნდა მივიდეს</button><button type="button" class="opt" data-i="2">პასუხის შემდეგ</button><button type="button" class="opt" data-i="3">UI-ში</button></div><div class="qe"><span class="verdict"></span> კონტექსტში მოხვედრა უკვე გაჟონვაა. <a class="chip" href="index.html#/13" target="_blank">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>reranker-ს რატომ ვუშვებთ მხოლოდ 20 კანდიდატზე და არა ყველა ნაწილზე?</div></div><div class="opts"><button type="button" class="opt" data-i="0">20-ზე მეტს ვერ იღებს</button><button type="button" class="opt" data-i="1">cross-encoder შეკითხვას და ნაწილს ერთად კითხულობს — ზუსტია, მაგრამ წინასწარ ვერაფერს დაითვლი; ყველა ნაწილზე ძალიან ნელი და ძვირია. სწრაფი ძებნა ირჩევს, reranker ალაგებს</button><button type="button" class="opt" data-i="2">ასე ითხოვს Gemini</button><button type="button" class="opt" data-i="3">სხვანაირად hit@3 ეცემა</button></div><div class="qe"><span class="verdict"></span> ორი ფენა: სწრაფი (bi-encoder) → ზუსტი (cross-encoder). <a class="chip" href="index.html#/17" target="_blank">გაიმეორე · სლაიდი 17</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 12 — RAG ოპტიმიზაცია და შეფასება";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "კოპირება", "copied": "✓ დაკოპირდა", "review": "გაიმეორე ეს კითხვები: ", "allright": "ყველაფერი სწორია! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -644,9 +275,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
-      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -660,16 +289,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>

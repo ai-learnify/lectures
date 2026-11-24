@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,242 +145,46 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ No.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← Lectures</a>
-  <div class="ttl"><small>📖 AI Agents in .NET · 2</small>The first call and Prompt Engineering</div>
-  <button class="live" id="live" type="button" title="On: the text follows the presentation"><span class="dot"></span><span class="lt">Following the slides</span></button>
-  <a class="btn langbtn" href="study.html" title="ქართულად">KA</a>
-  <button class="themebtn btn" type="button" title="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.en.html">▶ Presentation</a>
+  <div class="bar">
+    <a class="back" href="../../">← Lectures</a>
+    <div class="ttl"><small>📖 Lecture 2</small>The first call and Prompt Engineering</div>
+    <div class="acts">
+      <a class="btn lang" href="study.html" title="ქართულად">KA</a>
+      <button class="themebtn btn" type="button" title="Light / dark theme" aria-label="Light / dark theme"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.en.html" target="_blank" title="Presentation" aria-label="Presentation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">Overview</button><button type="button" data-t="topics">Topics<small>4</small></button><button type="button" data-t="tasks">Assignments</button><button type="button" data-t="quiz">Quiz<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>Contents</summary>
-    <div class="prog"><div class="pl"><span>Read</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">Review</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">Homework review</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">The first call: Gemini from our API</span><span class="nm">5′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Parameters in code: ChatOptions and Usage</span><span class="nm">2′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Prompt engineering: roles, system prompt, few-shot</span><span class="nm">5′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">Classwork: your assistant</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">Summary</span><span class="nm">2′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">Homework</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">Test yourself</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">Terms</span><span class="nm">9</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 Study notes · AI Agents in .NET · Lecture 2</div>
-      <h1>The first call and Prompt Engineering</h1>
-      <p>The whole lecture in chapters, ~21 minutes of reading. Your progress is saved in the browser.<span class="livehint"> This page follows the presentation: when the slide changes, the matching part is highlighted.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ In 5 minutes</h2><p class="qs">If this is all you remember, you know the core of the lecture:</p><ol class="take"><li><code>IChatClient</code> is the “DbContext” of LLMs: the code calls <code>GetResponseAsync</code>, and a provider talks to Gemini. Switching providers — one line.</li><li>The API key lives in <strong>User Secrets</strong> (<code>Gemini:ApiKey</code>), never in code or Git.</li><li><code>ChatOptions</code> is set per request. In the response, <strong><code>Usage</code></strong> (input, output, thinking tokens) and <strong><code>FinishReason</code></strong> (<code>stop</code> / <code>length</code>) tell us what it cost and why it stopped.</li><li>We send the model a <strong>list of <code>ChatMessage</code>s</strong>: <strong>System</strong> (our rules), <strong>User</strong> (the user), <strong>Assistant</strong> (the model's answer).</li><li>A good <strong>system prompt</strong> = role + topics + format + what it must not do. <strong>Few-shot</strong> examples fix the answer to an exact format so C# code can use it.</li></ol></div><div class="qp"><h3>📍 Missed the lecture?</h3><ol class="path"><li><a href="#c-1">Read the chapters</a> — ~21 min in total. Each chapter ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a> — 11 questions, scored</li><li><a href="#classwork">Do the classwork</a> at home</li><li><a href="#homework">Homework</a> — we review it at the next lecture</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 Useful links</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — overview</a> — IChatClient, ChatOptions, ChatMessage — official documentation</li><li><a href="https://googleapis.github.io/dotnet-genai/" target="_blank" rel="noopener">Google Gen AI .NET SDK</a> — the Google.GenAI package and AsIChatClient</li><li><a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Gemini — model list</a> — current model names</li><li><a href="https://ai.google.dev/gemini-api/docs/prompting-strategies" target="_blank" rel="noopener">Gemini — Prompt design strategies</a> — Google's advice: instructions, few-shot, format</li><li><a href="https://aistudio.google.com" target="_blank" rel="noopener">Google AI Studio</a> — the key and quick prompt experiments in the browser</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 min read</div><h2>Review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>Let&#x27;s recall the previous lecture</h3><a class="chip" href="index.en.html#/2" data-go="2" target="_blank" title="This part in the presentation">Slide 2</a></div>
-<p>Lecture 1 — <strong>Introduction to Generative AI and LLM APIs</strong>. Before the new topic we check what stuck. Answer on your own first, then open the answer. If one was hard, look back at <a href="../01-genai-llm-intro/study.en.html">the previous lecture's notes</a>.</p>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What is a token and why do we care about it in the backend?</summary><div class="ans">a piece of text the model reads and writes in · price, the context window limit and speed are counted in tokens; Georgian — more tokens</div></details><details><summary>How does an LLM write an answer?</summary><div class="ans">next-token prediction: computes probabilities for the next token → picks one → appends it → repeats until it finishes or hits the limit</div></details><details><summary>The model named the price of our dish. Why don't we trust it?</summary><div class="ans">it has never seen our menu; it writes what's likely, not what's true — hallucination · prices always come from the database</div></details><details><summary>Why doesn't the model “remember” the previous request?</summary><div class="ans">stateless: every request is independent · we have to send the history every time</div></details><details><summary>Which Temperature do we set to detect the order type, and what does <code>finish_reason = length</code> mean?</summary><div class="ans">0 — one correct answer, the same every time (on Gemini 3 — the default, lecture 2) · length — it hit Max Tokens, the answer was cut off</div></details><details><summary>The restaurant chat has 300 conversations a day. What increases the cost the most?</summary><div class="ans">an expensive model (prices differ tenfold) · a growing history that is sent again every time · Georgian text — more tokens</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework review</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>Homework review</h3><a class="chip" href="index.en.html#/3" data-go="3" target="_blank" title="This part in the presentation">Slide 3</a></div>
-<p>The previous lecture's homework: <strong>An AI plan for your project — and getting ready for code</strong>. Below is one correct solution. Your code may be written differently — what matters is that the requirements are met.</p>
-<h3>Requirements</h3>
-<ul>
-<li><strong>3 AI features</strong> in your project — as a table (in / out / from the database / Temperature · Max Tokens / tokens)</li>
-<li>Tokens — <strong>with <a href="https://tiktokenizer.vercel.app/">Tiktokenizer</a></strong> (model gpt-4o), using Georgian text</li>
-<li>For one feature, the <strong>monthly cost</strong>: with Gemini's <strong>real</strong> price, using the formula</li>
-<li>The <strong>quiz</strong> at the end of the study notes (12 questions) — write down your score</li>
-<li>Get a <strong>Gemini API key</strong> and keep it — next lecture we put it in User Secrets (<code>Gemini:ApiKey</code>) and write code</li>
-</ul>
-<h3>Solution</h3>
-<p>Example — a library API.</p>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>In</th>
-<th>Out</th>
-<th>From the database</th>
-<th>Temperature · Max Tokens</th>
-<th>Tokens (Georgian)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Book recommendation</td>
-<td>“Something mystical, short”</td>
-<td>3 books + explanation</td>
-<td>books, author, pages, availability</td>
-<td>0.6 · 250</td>
-<td>input ~400 (instructions + book list), output ~150</td>
-</tr>
-<tr>
-<td>Request type</td>
-<td>the user's text</td>
-<td><code>Search</code> / <code>Reserve</code> / <code>Question</code></td>
-<td>—</td>
-<td>0 · 10</td>
-<td>input ~60, output ~2</td>
-</tr>
-<tr>
-<td>Short book description</td>
-<td>the book's data</td>
-<td>2 sentences</td>
-<td>title, author, genre</td>
-<td>0.9 · 120</td>
-<td>input ~80, output ~80</td>
-</tr>
-</tbody>
-</table>
-<p>Cost — “book recommendation”, 200 requests a day, 30 days:</p>
-<div class="codebox"><div class="ch"><span>text</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">input:  200 × 400 × 30 = 2 400 000 = 2.4M</span><span class="ln">output: 200 × 150 × 30 =   900 000 = 0.9M</span><span class="ln">cost = 2.4 × [input price per 1M] + 0.9 × [output price per 1M]</span></code></pre></div>
-<div class="callout note"><span class="ci">💡</span><div><p>The biggest hallucination risk is in the recommendation: the model may invent a book the library doesn't have. The fix — give the model only the list fetched from the database (RAG, lecture 11) or search with a tool (lecture 4).</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">Chapter 1 · ~5 min read</div><h2>The first call: Gemini from our API</h2><p class="goal">🎯 <b>After this</b> your API will have an endpoint that calls Gemini and returns the tokens and finish reason along with the text.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>Part 1 · Gemini from our API</h3><a class="chip" href="index.en.html#/6" data-go="6" target="_blank" title="This part in the presentation">Slide 6</a></div>
-<p>In lecture 1 we saw that for us an LLM is <strong>just another HTTP API</strong>. We won't build the HTTP request by hand: .NET has a common layer for this — <strong>Microsoft.Extensions.AI</strong>. In this part we create the first endpoint in RestaurantApi that calls Gemini.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>IChatClient — the “DbContext” of LLMs</h3><a class="chip" href="index.en.html#/7" data-go="7" target="_blank" title="This part in the presentation">Slide 7</a></div>
-<p>You already know this idea from EF Core: you write code with <code>DbContext</code> and LINQ, and a <strong>provider</strong> talks to the database (<code>SqlServer</code>, <code>Npgsql</code>). Changing the database = changing the provider; LINQ stays the same.</p>
-<p><strong>Microsoft.Extensions.AI</strong> does exactly this for language models:</p>
-<ul>
-<li><code>IChatClient</code> — one interface for every chat model. The main method: <code>GetResponseAsync</code>.</li>
-<li>providers implement this interface: <strong>Google.GenAI</strong> (Gemini), <strong>Microsoft.Extensions.AI.OpenAI</strong> (OpenAI and OpenAI-compatible services), <strong>OllamaSharp</strong> (local models).</li>
-</ul>
-<p>Our code knows only <code>IChatClient</code>. Switching to another provider = changing <strong>one line</strong> where the client is created.</p>
-<div class="callout note"><span class="ci">💡</span><div><p>Microsoft.Extensions.AI is the official “AI layer” of .NET — just like <code>ILogger</code> is for logging. Microsoft Agent Framework is built on it too (lecture 14). DI registration and configuration — in lecture 3.</p></div></div>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>IChatClient</dt><dd>the Microsoft.Extensions.AI interface for talking to a chat model; the same for every provider</dd><dt>provider</dt><dd>a library that implements the common interface for a specific service (Gemini, OpenAI…)</dd></dl></div></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Setup: the key and two NuGet packages</h3><a class="chip" href="index.en.html#/8" data-go="8" target="_blank" title="This part in the presentation">Slide 8</a></div>
-<p><strong>1. The key → User Secrets.</strong> You got a Gemini API key in the homework (<a href="https://aistudio.google.com">aistudio.google.com</a> → <strong>Get API key</strong>). Now we store it in <strong>User Secrets</strong> — .NET's built-in store for development. In the terminal, in the project folder:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI Agents in .NET · Lecture 2</div><h1>The first call and Prompt Engineering</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 After this lecture you can</h2><ul><li>call Gemini from your own API with <code>IChatClient</code> and keep the key safe</li><li>set <code>ChatOptions</code> and read the tokens (<code>Usage</code>) and <code>FinishReason</code> from the response</li><li>write a system prompt that sets the assistant's role, topics and answer format</li><li>tell zero-shot from few-shot and get an exact answer with few-shot</li></ul></div><div class="box key"><h2>⚡ Key points</h2><ol><li><code>IChatClient</code> is the "DbContext" of LLMs: your code calls <code>GetResponseAsync</code>, and a provider talks to Gemini. Switching providers is one line.</li><li>The API key lives in <strong>User Secrets</strong> (<code>Gemini:ApiKey</code>), never in code or Git.</li><li><code>ChatOptions</code> apply to a single request. In the response, <strong><code>Usage</code></strong> (tokens, including thinking tokens) and <strong><code>FinishReason</code></strong> (<code>stop</code> / <code>length</code>) tell you what it cost and why it stopped.</li><li>We send the model <strong>a list of messages</strong>: <strong>System</strong> (our rules), <strong>User</strong>, <strong>Assistant</strong>.</li><li>A good <strong>system prompt</strong> = role + topics + format + boundaries. <strong>Few-shot</strong> examples pin the answer to an exact format so C# code can use it.</li></ol></div><div class="box"><h2>📍 Missed the lecture?</h2><ol class="path"><li><a href="index.en.html" target="_blank">Go through the presentation</a>: the slides show the whole lecture</li><li><a href="#topics">Read the topics</a>: ~9 min, each ends with “Check yourself”</li><li><a href="#quiz">Take the quiz</a>: 8 questions</li><li><a href="#tasks">Do the assignments</a></li></ol></div><div class="box"><h2>🔗 Links</h2><ul><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — overview</a> — IChatClient, ChatOptions, ChatMessage — official documentation</li><li><a href="https://googleapis.github.io/dotnet-genai/" target="_blank" rel="noopener">Google Gen AI .NET SDK</a> — the Google.GenAI package and AsIChatClient</li><li><a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Gemini — model list</a> — current model names</li><li><a href="https://ai.google.dev/gemini-api/docs/prompting-strategies" target="_blank" rel="noopener">Gemini — Prompt design strategies</a> — Google's advice: instructions, few-shot, format</li><li><a href="https://aistudio.google.com" target="_blank" rel="noopener">Google AI Studio</a> — the key and quick prompt experiments in the browser</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>First call</h2><a class="sl" href="index.en.html#/6" target="_blank">▶ Slides 6–10</a></header><div class="tb"><p><strong>Microsoft.Extensions.AI</strong> is to language models what EF Core is to databases: you write code against one interface (<code>IChatClient</code>), and a <strong>provider</strong> talks to the actual service (<code>Google.GenAI</code> for Gemini).</p>
+<p><strong>1. key → User Secrets.</strong> Get the key at <a href="https://aistudio.google.com">aistudio.google.com</a>, then in the project folder:</p>
 <div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>user-secrets<span class="w"> </span>init</span><span class="ln">dotnet<span class="w"> </span>user-secrets<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="s2">"Gemini:ApiKey"</span><span class="w"> </span><span class="s2">"AIza..."</span></span></code></pre></div>
-<p>Or in Visual Studio: right-click the project → <strong>Manage User Secrets</strong> → <code>secrets.json</code> opens:</p>
-<div class="codebox"><div class="ch"><span>secrets.json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Gemini"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"ApiKey"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AIza..."</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>Gemini:ApiKey</code> is a .NET configuration key: <code>:</code> means a nested section (<code>Gemini</code> → <code>ApiKey</code>). In code we read it as <code>config["Gemini:ApiKey"]</code>. <code>secrets.json</code> lives outside the project (in your user folder), so it can't end up in Git.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>An API key = a password.</strong> Never put it in code, <code>appsettings.json</code> or <code>launchSettings.json</code> — they go to Git, and bots find a key leaked on GitHub within minutes.</p></div></div>
-<p><strong>2. Two packages</strong> in RestaurantApi (or your project):</p>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>What for</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Microsoft.Extensions.AI</strong></td>
-<td><code>IChatClient</code>, <code>ChatOptions</code>, <code>ChatMessage</code>, <code>ChatResponse</code> — one API for every model</td>
-</tr>
-<tr>
-<td><strong>Google.GenAI</strong></td>
-<td>Google's official .NET SDK. Its <code>AsIChatClient()</code> method gives us an <code>IChatClient</code></td>
-</tr>
-</tbody>
-</table>
-<p>In Visual Studio: right-click the project → <strong>Manage NuGet Packages</strong> → <strong>Browse</strong>. Or from the terminal:</p>
-<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.Extensions.AI</span><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Google.GenAI</span></code></pre></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>The first endpoint: POST /api/ai-lab/ask</h3><a class="chip" href="index.en.html#/9" data-go="9" target="_blank" title="This part in the presentation">Slide 9</a></div>
-<p>In RestaurantApi we create a “lab” — a separate Controller for experiments. It isn't for customers: we use it to study how the model behaves.</p>
-<p><strong>DTOs — ready-made, copy them</strong> (<code>Dtos/AiLab/AskDtos.cs</code>):</p>
+<p><strong>2. Two NuGet packages:</strong></p>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.Extensions.AI</span><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Google.GenAI</span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>An API key is a password. Never put it in code, <code>appsettings.json</code> or Git: bots find leaked keys on GitHub within minutes.</p></div></div>
+<p><strong>3. The first endpoint.</strong> The DTOs:</p>
 <div class="codebox"><div class="ch"><span>Dtos/AiLab/AskDtos.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AskRequest</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AskResponse</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">Text</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">long?</span><span class="w"> </span><span class="n">InputTokens</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">long?</span><span class="w"> </span><span class="n">OutputTokens</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">long?</span><span class="w"> </span><span class="n">ReasoningTokens</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">string?</span><span class="w"> </span><span class="n">FinishReason</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">AskResponse</span><span class="w"> </span><span class="nf">From</span><span class="p">(</span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">OutputTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">ReasoningTokenCount</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">response</span><span class="p">.</span><span class="n">FinishReason</span><span class="o">?.</span><span class="n">Value</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>From</code> is a small static method that turns a <code>ChatResponse</code> into our DTO. We'll use it in every endpoint today.</p>
-<p><strong>The Controller — we write it together:</strong></p>
+<p>The controller:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Google.GenAI</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.AspNetCore.Mvc</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/ai-lab")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AiLabController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// created here for now — moves to DI in lecture 3</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">AiLabController</span><span class="p">(</span><span class="n">IConfiguration</span><span class="w"> </span><span class="n">config</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpPost("ask")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Ask</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>Line by line:</p>
-<ul>
-<li><strong><code>IConfiguration config</code></strong> — .NET configuration (appsettings.json + User Secrets + …); DI hands it to the constructor.</li>
-<li><strong><code>new Client(apiKey: config["Gemini:ApiKey"])</code></strong> — the Google SDK client; we pass it the key from User Secrets.</li>
-<li><strong><code>.AsIChatClient("gemini-3.8-flash")</code></strong> — turns the client into the common <code>IChatClient</code>; the parameter is the model name (<a href="https://ai.google.dev/gemini-api/docs/models">model list</a>). The variable's type is the interface, the object is Gemini's.</li>
-<li><strong><code>GetResponseAsync(request.Prompt)</code></strong> — sends the HTTP request and waits for the answer. <code>async</code>, because it's a network operation.</li>
-<li><strong><code>ChatResponse</code></strong> — the answer: <code>Text</code>, <code>Usage</code> (tokens), <code>FinishReason</code>.</li>
-<li><strong><code>?.</code></strong> — <code>Usage</code> and <code>FinishReason</code> can be <code>null</code> (not every provider always returns them).</li>
-</ul>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><code>new Client(...).AsIChatClient(...)</code> inside the Controller is exactly what we <strong>avoided</strong> in the DI lecture: the Controller creates its own dependency. Today it's on purpose, so the focus stays on the model. In lecture 3 we register <code>IChatClient</code> in DI.</p></div></div></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>The first answer in Swagger</h3><a class="chip" href="index.en.html#/10" data-go="10" target="_blank" title="This part in the presentation">Slide 10</a></div>
-<p>Run the project (F5), open <code>POST /api/ai-lab/ask</code> in Swagger → <strong>Try it out</strong>:</p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Suggest one light vegetarian dish. One sentence."</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
-<p>The response will look roughly like this (the text and numbers will differ for you):</p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Try grilled eggplant with walnuts…"</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"inputTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"outputTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"reasoningTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">212</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"finishReason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stop"</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>What it means</th>
-<th>From lecture 1</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>inputTokens</code></td>
-<td>how many tokens we sent</td>
-<td>tokens, input price</td>
-</tr>
-<tr>
-<td><code>outputTokens</code></td>
-<td>how many tokens the answer has</td>
-<td>output price (expensive)</td>
-</tr>
-<tr>
-<td><code>reasoningTokens</code></td>
-<td>how many tokens it spent thinking</td>
-<td>reasoning models</td>
-</tr>
-<tr>
-<td><code>finishReason</code></td>
-<td>why it stopped: <code>stop</code> — on its own, <code>length</code> — at the limit</td>
-<td>Max Tokens</td>
-</tr>
-</tbody>
-</table>
-<p><strong>What is <code>reasoningTokens</code>?</strong> Gemini 3.8 Flash is a reasoning model: it “thinks” before writing the answer. We can't see the thinking text, but we pay for its tokens <strong>at the output price</strong>. In this example 212 thinking tokens were spent on a 19-token answer — so we pay for 231 output tokens.</p>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>reasoningTokens</dt><dd>tokens the model spent thinking before the answer; billed at the output price</dd><dt>finishReason</dt><dd>why the model stopped: stop (finished on its own) or length (hit the limit)</dd></dl></div></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">Chapter 2 · ~2 min read</div><h2>Parameters in code: ChatOptions and Usage</h2><p class="goal">🎯 <b>After this</b> you'll set Temperature and Max Tokens from code and see in the response what was spent.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>Part 2 · Lecture 1 theory in our code</h3><a class="chip" href="index.en.html#/11" data-go="11" target="_blank" title="This part in the presentation">Slide 11</a></div>
-<p>In lecture 1 we saw the Temperature slider and Max Tokens on a slide. Now we set them <strong>from code</strong> and check the result on a real model.</p></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Parameters from code — ChatOptions</h3><a class="chip" href="index.en.html#/12" data-go="12" target="_blank" title="This part in the presentation">Slide 12</a></div>
-<p>In C# the parameters from lecture 1 live in the <code>ChatOptions</code> class:</p>
-<table>
-<thead>
-<tr>
-<th>ChatOptions</th>
-<th>In lecture 1</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Temperature</code></td>
-<td>Temperature</td>
-</tr>
-<tr>
-<td><code>TopP</code></td>
-<td>Top-P</td>
-</tr>
-<tr>
-<td><code>MaxOutputTokens</code></td>
-<td>Max Tokens</td>
-</tr>
-<tr>
-<td><code>ModelId</code></td>
-<td>a different model for this request</td>
-</tr>
-</tbody>
-</table>
-<p>We add two optional fields to <code>AskRequest</code>:</p>
+<p>In Swagger, <code>POST /api/ai-lab/ask</code> returns the text and the tokens: <code>inputTokens</code>, <code>outputTokens</code>, <code>reasoningTokens</code> (thinking, billed as output) and <code>finishReason</code>.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>new Client(...)</code> inside the controller is temporary. In lecture 3 we move <code>IChatClient</code> into DI.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary><code>reasoningTokens: 212</code>, while the answer is 19 tokens. What is 212 and who pays for it?</summary><div class="ans">Thinking tokens: the model thinks before answering. We pay for them at the output price.</div></details></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>IChatClient</dt><dd>one interface for all chat models; the main method is GetResponseAsync</dd><dt>provider</dt><dd>a library that implements the common interface for a specific service</dd><dt>finishReason</dt><dd>why the model stopped: stop (finished) or length (hit the limit)</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>Parameters in code</h2><a class="sl" href="index.en.html#/11" target="_blank">▶ Slides 11–13</a></header><div class="tb"><p>Lecture 1's parameters live in <code>ChatOptions</code> in C#: <code>Temperature</code>, <code>TopP</code>, <code>MaxOutputTokens</code>. We add two optional fields to <code>AskRequest</code>:</p>
 <div class="codebox"><div class="ch"><span>Dtos/AiLab/AskDtos.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">AskRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">Prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">float?</span><span class="w"> </span><span class="n">Temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">int?</span><span class="w"> </span><span class="n">MaxOutputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p>and in <code>Ask</code> we create <code>ChatOptions</code>:</p>
+<p>and create <code>ChatOptions</code> in <code>Ask</code> (<code>null</code> = the model's default):</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ChatOptions</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Temperature</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">MaxOutputTokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">MaxOutputTokens</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p><code>null</code> means “not specified” — the model uses its default. This way we can try any combination from Swagger with one endpoint.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><code>options</code> belongs to a single request: one Temperature in one endpoint, another in a different one — exactly as we planned in the lecture 1 table.</p></div></div></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>🔮 2 experiments — guess first, then run</h3><a class="chip" href="index.en.html#/13" data-go="13" target="_blank" title="This part in the presentation">Slide 13</a></div>
-<p>For each experiment, first write down your prediction, then check it in Swagger.</p>
-<p><strong>1 · Temperature.</strong></p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invent a name for a new Georgian dish. Only the name."</span><span class="p">,</span><span class="w"> </span><span class="nt">"temperature"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
-<p>Three times with <code>0</code>, then three times with <code>2</code>.
-<em>What you'll see:</em> at 0 the names are (almost) the same, at 2 they're different every time — sometimes strange. This confirms the lecture 1 slider on a real model.</p>
-<p><strong>2 · Max Tokens.</strong></p>
-<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Describe khachapuri"</span><span class="p">,</span><span class="w"> </span><span class="nt">"maxOutputTokens"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
-<p><em>What you'll see:</em> <code>"finishReason": "length"</code>, the text is empty or cut in the middle, and <code>reasoningTokens</code> equals the limit. Gemini thinks before answering and <strong>the thinking tokens count toward the same limit</strong> — the 15 tokens were spent on thinking and nothing was left for the answer. Try <code>300</code> and compare.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><strong>Gemini 3 and Temperature.</strong> For Gemini 3 models Google recommends leaving Temperature at the default (1.0): these are reasoning models, and at a low Temperature quality may drop or the answer may fall into repetition. In the experiment we change Temperature to see the effect. In a real endpoint on Gemini 3 we keep the default and get an exact format <strong>with the prompt</strong> — we learn that in part 3.</p></div></div>
-<div class="callout tip"><span class="ci">👉</span><div><p><strong>Max Tokens on a reasoning model:</strong> always set the limit with room to spare — the thinking needs it too. Want a short answer? Say it in the prompt (“in one sentence”), not with the limit.</p></div></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">Chapter 3 · ~5 min read</div><h2>Prompt engineering: roles, system prompt, few-shot</h2><p class="goal">🎯 <b>After this</b> you'll write a system prompt that sets boundaries for the assistant, and get an exact answer with few-shot.</p></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>Part 3 · How do we talk to the model?</h3><a class="chip" href="index.en.html#/15" data-go="15" target="_blank" title="This part in the presentation">Slide 15</a></div>
-<p>In lecture 1 we saw that the model picks the next token based on <strong>the whole text</strong>. So what we give it changes the answer. <strong>Prompt engineering</strong> means building this text deliberately: who the assistant is, what it talks about, in what form it answers.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>We send the model a list of messages</h3><a class="chip" href="index.en.html#/16" data-go="16" target="_blank" title="This part in the presentation">Slide 16</a></div>
-<p>Nobody told ChatGPT in the chat to be polite and act as an “assistant” — that's in the <strong>system</strong> message, which the app sends with every request, hidden from the user. We do exactly the same.</p>
-<p>We send the model not one text but a <strong>list of messages</strong>. Each has a <strong>role</strong>:</p>
+<p><strong>Try it:</strong> Temperature <code>0</code> and <code>2</code>, three times each: at 0 the answers are almost the same, at 2 they differ every time. Then <code>MaxOutputTokens: 15</code>: the text is empty and <code>finishReason</code> is <code>length</code>, because thinking used up the limit.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>On a reasoning model always set the limit with room to spare. Ask for a short answer in the prompt ("in one sentence"), not with the limit.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary><code>MaxOutputTokens = 50</code> and the answer is empty. Why?</summary><div class="ans">Gemini thinks before answering, and thinking used up the whole limit.</div></details></div></div></section><section class="topic"><header><span class="num">3</span><h2>Roles and the system prompt</h2><a class="sl" href="index.en.html#/15" target="_blank">▶ Slides 15–18</a></header><div class="tb"><p>We send the model not one text but <strong>a list of messages</strong>. Each has its own role:</p>
 <table>
 <thead>
 <tr>
@@ -452,234 +196,104 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <tbody>
 <tr>
 <td><strong>System</strong></td>
-<td>we, in code</td>
-<td>who the assistant is, what it talks about, how it answers, what it doesn't do</td>
+<td>us, in code</td>
+<td>who the assistant is and its rules</td>
 </tr>
 <tr>
 <td><strong>User</strong></td>
 <td>the user</td>
-<td>a question, a request</td>
+<td>the question</td>
 </tr>
 <tr>
 <td><strong>Assistant</strong></td>
 <td>the model</td>
-<td>its previous answers (in the history)</td>
+<td>the model's answer</td>
 </tr>
 </tbody>
 </table>
-<p>The model “reads” the list from top to bottom and writes <strong>the next Assistant message</strong>.</p>
-<p>In C# the list is built like this:</p>
 <div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="na">[</span></span><span class="ln"><span class="na">    new(ChatRole.System, "You are…"),</span></span><span class="ln"><span class="na">    new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<div class="callout note"><span class="ci">💡</span><div><p><code>GetResponseAsync("text")</code>, which we used in part 1, is actually the same thing: a list with <strong>one User message</strong>. We'll add the history (previous User/Assistant messages) in lecture 7 — that gives the model a “memory”.</p></div></div>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>System prompt</dt><dd>the system message: the assistant's role, boundaries and answer format; the developer writes it, the user can't see it</dd><dt>ChatMessage</dt><dd>one message with a role (ChatRole.System / User / Assistant) and text</dd></dl></div></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>System prompt: the restaurant assistant</h3><a class="chip" href="index.en.html#/17" data-go="17" target="_blank" title="This part in the presentation">Slide 17</a></div>
-<p>We add a second endpoint — <code>POST /api/ai-lab/assistant</code>. It has a <strong>system prompt</strong>: an instruction that goes before the user's question in every request.</p>
+<p>A good <strong>system prompt</strong> has four parts: 👤 role · 🎯 topics · 📏 format · 🚫 boundaries.</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Assistant</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">RestaurantName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Supra"</span><span class="p">;</span></span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">OpenHours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"12:00–23:00"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("assistant")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Assistant</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            You are the assistant of the restaurant "{RestaurantName}".</span></span><span class="ln"><span class="na">            You answer only about the menu, bookings and hours ({OpenHours}).</span></span><span class="ln"><span class="na">            Answer: at most 3 sentences, in the language the user writes in.</span></span><span class="ln"><span class="na">            On any other topic you politely decline and say what you can help with.</span></span><span class="ln"><span class="na">            You don't invent prices or ingredients — you say they are on the menu.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><strong>A good system prompt — 4 parts:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Part</th>
-<th>Ours</th>
-<th>Why</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>👤 <strong>Role</strong></td>
-<td>“the assistant of the restaurant Supra”</td>
-<td>the model knows on whose behalf it speaks</td>
-</tr>
-<tr>
-<td>🎯 <strong>Topics</strong></td>
-<td>menu, reservations, hours</td>
-<td>a boundary: what it answers about</td>
-</tr>
-<tr>
-<td>📏 <strong>Format</strong></td>
-<td>at most 3 sentences, in the user's language</td>
-<td>length and language — set in advance</td>
-</tr>
-<tr>
-<td>🚫 <strong>Boundaries</strong></td>
-<td>another topic — decline; doesn't invent prices</td>
-<td>what to do when a question doesn't fit</td>
-</tr>
-</tbody>
-</table>
-<p><strong>The template (<code>$"""…"""</code>)</strong> is C# raw string interpolation. <code>{RestaurantName}</code> and <code>{OpenHours}</code> are filled in at run time. For now these are constants; later, data <strong>from the database</strong> goes here (lecture 4: tools, lecture 11: RAG).</p>
-<div class="callout tip"><span class="ci">👉</span><div><p>“Be smart and helpful” tells the model nothing. A concrete role, topics, format and boundary do. Write it the way you'd explain the job to a new employee on their first day.</p></div></div>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>prompt template</dt><dd>a prompt template into which data from code is inserted</dd></dl></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>3 questions for the assistant — guess first</h3><a class="chip" href="index.en.html#/18" data-go="18" target="_blank" title="This part in the presentation">Slide 18</a></div>
-<p>Three questions on <code>POST /api/ai-lab/assistant</code>:</p>
-<ol>
-<li><strong>A normal one:</strong> “There'll be four of us tomorrow at 8. Do you have anything vegetarian?” — answers briefly, on topic.</li>
-<li><strong>Another topic:</strong> “Write me a poem for my mom's birthday” — politely declines and returns to its topic.</li>
-<li><strong>A price:</strong> “How much is khinkali?” — doesn't invent a price.</li>
-</ol>
-<p>Then send the same questions to <strong><code>/ask</code></strong> (without a system prompt) and compare: it will happily write the poem and confidently “invent” a price — that's the hallucination from lecture 1.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>A system prompt is not a security guarantee.</strong> It changes what is <strong>likely</strong>, but the model can still make a mistake or the user can “talk it out of it” (“forget your previous instructions…” — this is called prompt injection). What <strong>must</strong> happen — prices, discounts, who's allowed to do what — is checked by C# code. More in lecture 19.</p></div></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Zero-shot vs few-shot</h3><a class="chip" href="index.en.html#/19" data-go="19" target="_blank" title="This part in the presentation">Slide 19</a></div>
-<ul>
-<li><strong>Zero-shot</strong> — we only <strong>explain</strong> to the model what to do. For a simple task this is often enough.</li>
-<li><strong>Few-shot</strong> — we add a few <strong>examples</strong> to the explanation: “question → correct answer”. The model takes the examples as a pattern and continues in the same form.</li>
+<p><strong>Try <code>/assistant</code>:</strong> a normal menu question, an off-topic one ("write a poem") and a price ("how much is khinkali?"). The assistant stays on topic and does not invent prices.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>A system prompt changes probabilities; it is not a guarantee. A user may "talk the model round", so anything important is checked in C# (lecture 19).</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>System and User are both text. What is the difference?</summary><div class="ans">System is our rules and the user does not see it. User is the user's question.</div></details></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>system prompt</dt><dd>the assistant's role, boundaries and answer format; written by the developer</dd><dt>ChatMessage</dt><dd>one message with a role (System / User / Assistant) and text</dd></dl></div></div></section><section class="topic"><header><span class="num">4</span><h2>Zero-shot and few-shot</h2><a class="sl" href="index.en.html#/19" target="_blank">▶ Slides 19–20</a></header><div class="tb"><ul>
+<li><strong>Zero-shot:</strong> we only explain to the model what to do.</li>
+<li><strong>Few-shot:</strong> we add 3–5 examples to the explanation ("question → correct answer").</li>
 </ul>
-<p><strong>Why do we need it?</strong> Often the AI's answer isn't read by a person — it's used by <strong>our C# code</strong>:</p>
-<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">label</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"Negative"</span><span class="p">)</span><span class="w"> </span><span class="n">NotifyManager</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p>Zero-shot may write an answer that's right in content but “wrong” in form: “negative”, “Negative.”, or a whole paragraph. The <code>if</code> won't catch that. Few-shot fixes the form: the answer is exactly one word from the list.</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Zero-shot</th>
-<th>Few-shot</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>What we give</td>
-<td>only the instruction</td>
-<td>the instruction + 3–5 examples</td>
-</tr>
-<tr>
-<td>When</td>
-<td>a simple task, free text</td>
-<td>an exact format, categories, “borderline” cases</td>
-</tr>
-<tr>
-<td>Cost</td>
-<td>fewer tokens</td>
-<td>the examples go with every request — more input</td>
-</tr>
-</tbody>
-</table>
-<div class="callout tip"><span class="ci">👉</span><div><p>Always include a <strong>hard</strong> case in the examples (here — “good, but expensive” → <code>Mixed</code>). Zero-shot fails most often right at the border.</p></div></div>
-<div class="terms"><div class="th">📘 Terms</div><dl><dt>zero-shot</dt><dd>a prompt with only an instruction, no examples</dd><dt>few-shot</dt><dd>a prompt with an instruction and a few “question → correct answer” examples</dd></dl></div></article><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Few-shot in code: User / Assistant pairs</h3><a class="chip" href="index.en.html#/20" data-go="20" target="_blank" title="This part in the presentation">Slide 20</a></div>
-<p>We don't send the examples as a separate parameter — they are in the same <strong>message list</strong>, as a “previous conversation”: the User asked, the Assistant answered. The model sees how it “answered” before and answers the last question in the same form.</p>
+<p>The answer is often used by <strong>C# code</strong>, for example <code>if (label == "Negative")</code>. Zero-shot may be right in content but wrong in form ("negative", <code>Negative.</code>). Examples pin down the form. In code they are User/Assistant pairs in the list:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ReviewSentiment</span><button class="copy" type="button">Copy</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("review-sentiment")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ReviewSentiment</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the restaurant review. " +</span></span><span class="ln"><span class="na">            "Answer with one word only: Positive, Negative or Mixed."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The khinkali was delicious, the service fast"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Positive"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "We waited an hour, the food came cold"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Negative"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The dishes are good, but the prices are very high"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Mixed"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">AskResponse</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><strong>Try it in Swagger:</strong> “The dishes are good, but it's very noisy” → <code>Mixed</code>. Then comment out the examples (lines 8–13) and run the same — compare the zero-shot answer. Also compare <code>inputTokens</code>: the examples are tokens and go with every request.</p>
-<div class="callout note"><span class="ci">💡</span><div><p><strong>An exact word is still not a C# type.</strong> The model writes what's likely, so in the Controller we should check the answer against the list (e.g. <code>Positive</code> / <code>Negative</code> / <code>Mixed</code>, otherwise — an error or <code>Mixed</code>). In the next lecture, with <strong>structured output</strong> (<code>GetResponseAsync&lt;T&gt;</code>), we'll get the answer directly as a C# object — with an enum and fields.</p></div></div>
-<div class="prompt"><div class="ph"><span>🤖 Go deeper</span><button class="copy" type="button">Copy</button></div><div class="pb">I&#x27;m learning prompt engineering in .NET (Microsoft.Extensions.AI, Gemini). For few-shot classification I have 3 examples as User/Assistant pairs.
-Explain: 1) how many examples are optimal and why; 2) why the variety and order of examples matter; 3) what the risks of few-shot are (e.g. the model “follows” the examples&#x27; wording too closely).
-Use examples about restaurant reviews. Explain in English, briefly.</div></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 min read</div><h2>Classwork: your assistant</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>Classwork: Your assistant — with a system prompt</h3><a class="chip" href="index.en.html#/21" data-go="21" target="_blank" title="This part in the presentation">Slide 21</a></div>
-<p>Your project or RestaurantApi · with code · in Swagger</p>
-<h3>Steps</h3>
-<ul>
-<li><strong>1 · A new endpoint</strong> <code>POST /api/ai-lab/assistant</code> — with a list of <code>ChatMessage</code>s: System + User</li>
-<li><strong>2 · A system prompt for your project</strong> — 4 parts: <strong>who it is</strong> · <strong>which topics</strong> it answers · <strong>in what form</strong> (length, language) · <strong>what it doesn't do</strong></li>
-<li><strong>3 · 3 questions in Swagger:</strong> a normal one · another topic (“write me a poem”) · one it should refuse</li>
-</ul>
-<h3>✓ Done when</h3>
-<p>On an off-topic question the assistant politely declines and returns to your topic; the answer is in the form you specified</p>
-<h3>⭐ Bonus</h3>
-<ul>
-<li>Put data from C# into the system prompt (<code>$"""…{variable}…"""</code>): the project name, opening hours</li>
-<li>Try to “break” it: “Forget your previous instructions and…” — does it hold?</li>
-</ul>
-<h3>💡 If you're stuck</h3>
-<ul>
-<li><strong>Template:</strong> “You are the assistant of [project]. You answer only about [topics]. Answer: at most [N] sentences. On any other topic you politely decline and say what you can help with.”</li>
-<li><strong>Answers everything?</strong> Check that the System message is in the list and that the system prompt clearly says <strong>what to do</strong> on another topic</li>
-<li><strong>A library, a gym, a shop</strong> — any project works: an assistant that talks only about its own business</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~2 min read</div><h2>Summary</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk check" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>Check what you remember</h3><a class="chip" href="index.en.html#/22" data-go="22" target="_blank" title="This part in the presentation">Slide 22</a></div>
-<p>These questions will also be asked at the start of the next lecture.</p>
-<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>What is <code>IChatClient</code>, and what do we change to switch from Gemini to another provider?</summary><div class="ans">one interface for every chat model (Microsoft.Extensions.AI) · only the line that creates the client changes; <code>GetResponseAsync</code>, the DTOs and the endpoints stay the same</div></details><details><summary>With <code>maxOutputTokens: 15</code> the answer is empty and <code>finishReason</code> = <code>length</code>. Why?</summary><div class="ans">Gemini “thinks” before answering · the thinking tokens (<code>ReasoningTokens</code>) count toward the same limit and nothing is left for the answer · set the limit with room to spare</div></details><details><summary>How is a System message different from a User message?</summary><div class="ans"><strong>we</strong> write the System message in code: role, topics, rules, answer format · the User message is written by the user · Assistant — the model's answer</div></details><details><summary>What is few-shot and when do we need it?</summary><div class="ans">a few “question → correct answer” examples in the prompt · when we want the answer in an exact format or exact categories so the code can use it</div></details><details><summary>The system prompt says: “You never name a price”. Is that a guarantee?</summary><div class="ans">no · a prompt changes the probability of a behaviour but gives no guarantee · what must hold is checked by C# code (lecture 19)</div></details></div></article><article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>Summary</h3><a class="chip" href="index.en.html#/23" data-go="23" target="_blank" title="This part in the presentation">Slide 23</a></div>
-<p><strong>Remember:</strong></p>
-<ol>
-<li><strong><code>IChatClient</code></strong> — the “DbContext” of LLMs: one API for every model; switching providers is one line. The key — in User Secrets (<code>Gemini:ApiKey</code>), never in code or Git.</li>
-<li><strong><code>ChatOptions</code></strong> — Temperature and Max Tokens per request. On Gemini 3 we leave Temperature at the default; Max Tokens — with room to spare, because thinking is inside that limit too.</li>
-<li><strong><code>Usage</code> and <code>FinishReason</code></strong> — input, output and thinking tokens (thinking is billed at the output price too); <code>stop</code> / <code>length</code>.</li>
-<li><strong>A list of messages</strong> — System (our rules), User (the user), Assistant (the model).</li>
-<li><strong>System prompt</strong> = role + topics + format + boundaries. It changes probabilities, not guarantees — C# checks the rules that must hold.</li>
-<li><strong>Few-shot</strong> — 3–5 examples as User/Assistant pairs; the answer comes in an exact format so the code can use it.</li>
-</ol>
-<h3>⏭️ Next lecture</h3>
-<p>Today's <code>new Client(...).AsIChatClient(...)</code> inside the Controller breaks the DI rule: the Controller creates its own dependency, and the model name is hard-coded. In lecture 3 we register <code>IChatClient</code> <strong>in DI</strong> (<code>AddChatClient</code>) and read it from configuration. Also — <strong>structured output</strong>: the answer directly as a C# object (<code>GetResponseAsync&lt;T&gt;</code>), more reliable than few-shot.</p>
-<div class="prompt"><div class="ph"><span>🤖 Test yourself on the whole lecture</span><button class="copy" type="button">Copy</button></div><div class="pb">I&#x27;m learning AI in .NET. In the second lecture we covered: Microsoft.Extensions.AI and IChatClient (Gemini, Google.GenAI, AsIChatClient), the API key in User Secrets (Gemini:ApiKey), ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning tokens) and FinishReason, message roles (System, User, Assistant), the 4 parts of a system prompt, a prompt template in C#, zero-shot and few-shot.
-Ask me 8 questions one at a time, from easy to hard, including 2 practical situations about a restaurant API. After each of my answers tell me whether it&#x27;s right and why, then ask the next one. At the end tell me what I should review. Communicate in English.</div></div></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 min read</div><h2>Homework</h2></div><button type="button" class="read">☐ Mark as read</button></header><div class="cbody"><article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>Homework: A few-shot classifier in your project</h3><a class="chip" href="index.en.html#/24" data-go="24" target="_blank" title="This part in the presentation">Slide 24</a></div>
+<div class="callout tip"><span class="ci">👉</span><div><p>Include a hard case among the examples ("Good, but pricey" → <code>Mixed</code>): that boundary is exactly where zero-shot fails.</p></div></div>
+<div class="callout note"><span class="ci">💡</span><div><p>The model still writes text, not a C# type, so check the answer against the list. Lecture 3 gives us an exact type (structured output).</p></div></div>
+<div class="selfcheck"><div class="sh">✅ Check yourself <small>think first, then open the answer</small></div><details><summary>Are few-shot examples sent with every request?</summary><div class="ans">Yes, they are part of the message list. That is why <code>inputTokens</code> grows.</div></details></div>
+<div class="terms"><div class="th">📘 Terms</div><dl><dt>zero-shot</dt><dd>a prompt with instructions only</dd><dt>few-shot</dt><dd>a prompt with instructions and a few examples</dd></dl></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 Homework</h2><div class="box task"><h3>A few-shot classifier in your project</h3>
 <p>With code · an endpoint + a table in the README</p>
-<h3>Requirements</h3>
+<h4>Requirements</h4>
 <ul>
 <li><strong>An endpoint</strong> <code>POST /api/ai-lab/classify</code> — the user's text → <strong>one</strong> category for your project (at least 3 categories, e.g. <code>Search</code> / <code>Order</code> / <code>Question</code>)</li>
 <li><strong>Few-shot:</strong> System + at least <strong>3 examples</strong> as User/Assistant pairs</li>
 <li><strong>A comparison in the README:</strong> 5 texts — zero-shot (without examples) vs few-shot. Table: text · zero-shot answer · few-shot answer · <code>inputTokens</code> for both</li>
 <li><strong>Language:</strong> the same text in Georgian and in English — <code>inputTokens</code> in the table</li>
-<li>The <strong>quiz</strong> at the end of the study notes (11 questions) — write down your score</li>
+<li>The study notes <strong>quiz</strong> (8 questions) — write down your score</li>
 </ul>
-<h3>✓ Done when</h3>
+<h4>✓ Done when</h4>
 <p>The endpoint returns exactly one category from your list for all 5 texts; the README has the comparison table and the quiz score</p>
-<h3>⭐ Bonus</h3>
+<h4>⭐ Bonus</h4>
 <ul>
 <li>A text that fits no category — what does it return? Add an <code>Other</code> category and one example</li>
 <li>Check the answer in the Controller: if it's not in the list → <code>Other</code>. Why don't we trust the model completely?</li>
 </ul>
-<h3>💡 Details</h3>
+<h4>💡 Details</h4>
 <ul>
 <li>Classification doesn't need a long answer, but keep <code>MaxOutputTokens</code> with room to spare (e.g. 200) — Gemini thinks first</li>
 <li>Keep the examples short and <strong>different</strong>: at least one per category</li>
 <li>For zero-shot use the same endpoint, temporarily commenting out the examples</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">Quiz · scored</div><h2 id="quiz">Test yourself</h2><p class="goal">Pick an answer — you will see right away whether it is correct and why. At the end you will know what to review.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 correct · <span id="qd">0</span> / 11 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">1</span><div>What does <code>new Client(apiKey: config["Gemini:ApiKey"]).AsIChatClient("gemini-3.8-flash")</code> do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">creates a Gemini client and turns it into an <code>IChatClient</code>; takes the key from configuration (User Secrets)</button><button type="button" class="opt" data-i="1">downloads the model to our computer</button><button type="button" class="opt" data-i="2">creates a Gemini account</button><button type="button" class="opt" data-i="3">trains the model on our menu</button></div><div class="qe"><span class="verdict"></span> <code>Client</code> is Google's SDK, and <code>AsIChatClient</code> wraps it in the common interface. The model stays on Google's server — we call it over HTTP. <a class="chip" href="#s-9">Review · slide 9</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>Where is the Gemini API key stored?</div></div><div class="opts"><button type="button" class="opt" data-i="0">in <code>appsettings.json</code></button><button type="button" class="opt" data-i="1">in the Controller, as a const</button><button type="button" class="opt" data-i="2">in User Secrets, as <code>Gemini:ApiKey</code></button><button type="button" class="opt" data-i="3">in the README, so we don't forget it</button></div><div class="qe"><span class="verdict"></span> Every other place ends up in Git. Bots find a leaked key within minutes. <a class="chip" href="#s-8">Review · slide 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">3</span><div>The response says: <code>outputTokens</code> = 19, <code>reasoningTokens</code> = 212. How many output tokens do we pay for?</div></div><div class="opts"><button type="button" class="opt" data-i="0">19 — thinking is free</button><button type="button" class="opt" data-i="1">212</button><button type="button" class="opt" data-i="2">231 — thinking is billed at the output price too</button><button type="button" class="opt" data-i="3">0 — Gemini is free</button></div><div class="qe"><span class="verdict"></span> We can't see the thinking tokens, but we pay for them, at the (expensive) output price: 19 + 212 = 231. <a class="chip" href="#s-10">Review · slide 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>We ran the same question three times with <code>Temperature = 0</code>. What do we expect?</div></div><div class="opts"><button type="button" class="opt" data-i="0">three completely different answers</button><button type="button" class="opt" data-i="1">almost identical answers</button><button type="button" class="opt" data-i="2">an error — 0 isn't allowed</button><button type="button" class="opt" data-i="3">an empty answer</button></div><div class="qe"><span class="verdict"></span> A low Temperature picks the most likely token, so the answers are similar. At a high one — different every time. <a class="chip" href="#s-13">Review · slide 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div><code>ReasoningTokens</code> = 180, <code>OutputTokens</code> = 0, <code>FinishReason</code> = <code>length</code>. What happened?</div></div><div class="opts"><button type="button" class="opt" data-i="0">the key is wrong</button><button type="button" class="opt" data-i="1">the model spent the limit on thinking and nothing was left for the answer</button><button type="button" class="opt" data-i="2">the model refused to answer</button><button type="button" class="opt" data-i="3">the Temperature is too high</button></div><div class="qe"><span class="verdict"></span> Thinking tokens count toward <code>MaxOutputTokens</code>. A reasoning model needs a limit with room to spare. <a class="chip" href="#s-13">Review · slide 13</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">6</span><div>Which message sets the assistant's role and rules?</div></div><div class="opts"><button type="button" class="opt" data-i="0">User</button><button type="button" class="opt" data-i="1">Assistant</button><button type="button" class="opt" data-i="2">System</button><button type="button" class="opt" data-i="3">Tool</button></div><div class="qe"><span class="verdict"></span> The developer writes the System message in code. The user can't see or change it. <a class="chip" href="#s-16">Review · slide 16</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>Which is part of a good system prompt?</div></div><div class="opts"><button type="button" class="opt" data-i="0">“Be smart and help everyone”</button><button type="button" class="opt" data-i="1">the role, which topics it answers, the answer format and what it must not do</button><button type="button" class="opt" data-i="2">only the restaurant's name</button><button type="button" class="opt" data-i="3">the user's question</button></div><div class="qe"><span class="verdict"></span> A general “be good” tells the model nothing. A concrete role, boundaries and format do. <a class="chip" href="#s-17">Review · slide 17</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>A customer asks the assistant to write a letter, but it's a restaurant assistant. The right behaviour?</div></div><div class="opts"><button type="button" class="opt" data-i="0">writes the letter — it can</button><button type="button" class="opt" data-i="1">politely declines and brings the conversation back to the restaurant</button><button type="button" class="opt" data-i="2">returns an error (500)</button><button type="button" class="opt" data-i="3">doesn't answer at all</button></div><div class="qe"><span class="verdict"></span> The system prompt must set this boundary: “on any other topic you politely decline”. <a class="chip" href="#s-18">Review · slide 18</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>What is few-shot?</div></div><div class="opts"><button type="button" class="opt" data-i="0">extra training of the model on our data</button><button type="button" class="opt" data-i="1">a few “question → correct answer” examples in the prompt</button><button type="button" class="opt" data-i="2">calling several models at once</button><button type="button" class="opt" data-i="3">asking for a short answer</button></div><div class="qe"><span class="verdict"></span> The model takes the examples as a pattern and answers in the same form. No training happens — the examples are sent with every request. <a class="chip" href="#s-19">Review · slide 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>C# code uses the review classification: <code>if (label == "Negative")</code>. Why is few-shot better?</div></div><div class="opts"><button type="button" class="opt" data-i="0">it's cheaper</button><button type="button" class="opt" data-i="1">the answer comes as exactly one of the categories, and the code can rely on it</button><button type="button" class="opt" data-i="2">the model is faster</button><button type="button" class="opt" data-i="3">few-shot doesn't need a key</button></div><div class="qe"><span class="verdict"></span> Zero-shot might write “negative” or a whole paragraph — the <code>if</code> won't catch that. The examples fix the format. <a class="chip" href="#s-19">Review · slide 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>How are few-shot examples sent in the prompt in C#?</div></div><div class="opts"><button type="button" class="opt" data-i="0">with <code>ChatOptions.Examples</code></button><button type="button" class="opt" data-i="1">as User/Assistant pairs in the <code>ChatMessage</code> list</button><button type="button" class="opt" data-i="2">as separate HTTP requests</button><button type="button" class="opt" data-i="3">through appsettings.json</button></div><div class="qe"><span class="verdict"></span> For the model this is a “previous conversation”: the User asked, the Assistant answered. The real question goes last. <a class="chip" href="#s-20">Review · slide 20</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">All terms of the lecture</div><h2>Terms</h2></div></header><div class="cbody"><div class="terms"><dl><dt>IChatClient</dt><dd>the Microsoft.Extensions.AI interface for talking to a chat model; the same for every provider</dd><dt>provider</dt><dd>a library that implements the common interface for a specific service (Gemini, OpenAI…)</dd><dt>reasoningTokens</dt><dd>tokens the model spent thinking before the answer; billed at the output price</dd><dt>finishReason</dt><dd>why the model stopped: stop (finished on its own) or length (hit the limit)</dd><dt>System prompt</dt><dd>the system message: the assistant's role, boundaries and answer format; the developer writes it, the user can't see it</dd><dt>ChatMessage</dt><dd>one message with a role (ChatRole.System / User / Assistant) and text</dd><dt>prompt template</dt><dd>a prompt template into which data from code is inserted</dd><dt>zero-shot</dt><dd>a prompt with only an instruction, no examples</dd><dt>few-shot</dt><dd>a prompt with an instruction and a few “question → correct answer” examples</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div><h2>📝 Classwork</h2><div class="box task"><h3>Your assistant — with a system prompt</h3>
+<p>Your project or RestaurantApi · with code · in Swagger</p>
+<h4>Steps</h4>
+<ul>
+<li><strong>1 · A new endpoint</strong> <code>POST /api/ai-lab/assistant</code> — with a list of <code>ChatMessage</code>s: System + User</li>
+<li><strong>2 · A system prompt for your project</strong> — 4 parts: <strong>who it is</strong> · <strong>which topics</strong> it answers · <strong>in what form</strong> (length, language) · <strong>what it doesn't do</strong></li>
+<li><strong>3 · 3 questions in Swagger:</strong> a normal one · another topic (“write me a poem”) · one it should refuse</li>
+</ul>
+<h4>✓ Done when</h4>
+<p>On an off-topic question the assistant politely declines and returns to your topic; the answer is in the form you specified</p>
+<h4>⭐ Bonus</h4>
+<ul>
+<li>Put data from C# into the system prompt (<code>$"""…{variable}…"""</code>): the project name, opening hours</li>
+<li>Try to “break” it: “Forget your previous instructions and…” — does it hold?</li>
+</ul>
+<h4>💡 If you're stuck</h4>
+<ul>
+<li><strong>Template:</strong> “You are the assistant of [project]. You answer only about [topics]. Answer: at most [N] sentences. On any other topic you politely decline and say what you can help with.”</li>
+<li><strong>Answers everything?</strong> Check that the System message is in the list and that the system prompt clearly says <strong>what to do</strong> on another topic</li>
+<li><strong>A library, a gym, a shop</strong> — any project works: an assistant that talks only about its own business</li>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">Pick an answer and you will see right away whether it is correct and why.</p><div class="qscore"><span id="qs">0</span> / 8 correct · <span id="qd">0</span> / 8 answered<button type="button" class="btn qreset">Start over</button></div><div class="qq" data-answer="0"><div class="qt"><span class="qn">1</span><div>What does <code>new Client(apiKey: config["Gemini:ApiKey"]).AsIChatClient("gemini-3.8-flash")</code> do?</div></div><div class="opts"><button type="button" class="opt" data-i="0">creates a Gemini client and turns it into an <code>IChatClient</code>; takes the key from configuration (User Secrets)</button><button type="button" class="opt" data-i="1">downloads the model to our computer</button><button type="button" class="opt" data-i="2">creates a Gemini account</button><button type="button" class="opt" data-i="3">trains the model on our menu</button></div><div class="qe"><span class="verdict"></span> <code>Client</code> is Google's SDK, and <code>AsIChatClient</code> wraps it in the common interface. The model stays on Google's server — we call it over HTTP. <a class="chip" href="index.en.html#/9" target="_blank">Review · slide 9</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">2</span><div>Where is the Gemini API key stored?</div></div><div class="opts"><button type="button" class="opt" data-i="0">in <code>appsettings.json</code></button><button type="button" class="opt" data-i="1">in the Controller, as a const</button><button type="button" class="opt" data-i="2">in User Secrets, as <code>Gemini:ApiKey</code></button><button type="button" class="opt" data-i="3">in the README, so we don't forget it</button></div><div class="qe"><span class="verdict"></span> Every other place ends up in Git. Bots find a leaked key within minutes. <a class="chip" href="index.en.html#/8" target="_blank">Review · slide 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>We ran the same question three times with <code>Temperature = 0</code>. What do we expect?</div></div><div class="opts"><button type="button" class="opt" data-i="0">three completely different answers</button><button type="button" class="opt" data-i="1">almost identical answers</button><button type="button" class="opt" data-i="2">an error — 0 isn't allowed</button><button type="button" class="opt" data-i="3">an empty answer</button></div><div class="qe"><span class="verdict"></span> A low Temperature picks the most likely token, so the answers are similar. At a high one — different every time. <a class="chip" href="index.en.html#/13" target="_blank">Review · slide 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div><code>ReasoningTokens</code> = 180, <code>OutputTokens</code> = 0, <code>FinishReason</code> = <code>length</code>. What happened?</div></div><div class="opts"><button type="button" class="opt" data-i="0">the key is wrong</button><button type="button" class="opt" data-i="1">the model spent the limit on thinking and nothing was left for the answer</button><button type="button" class="opt" data-i="2">the model refused to answer</button><button type="button" class="opt" data-i="3">the Temperature is too high</button></div><div class="qe"><span class="verdict"></span> Thinking tokens count toward <code>MaxOutputTokens</code>. A reasoning model needs a limit with room to spare. <a class="chip" href="index.en.html#/13" target="_blank">Review · slide 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>Which is part of a good system prompt?</div></div><div class="opts"><button type="button" class="opt" data-i="0">“Be smart and help everyone”</button><button type="button" class="opt" data-i="1">the role, which topics it answers, the answer format and what it must not do</button><button type="button" class="opt" data-i="2">only the restaurant's name</button><button type="button" class="opt" data-i="3">the user's question</button></div><div class="qe"><span class="verdict"></span> A general “be good” tells the model nothing. A concrete role, boundaries and format do. <a class="chip" href="index.en.html#/17" target="_blank">Review · slide 17</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>A customer asks the assistant to write a letter, but it's a restaurant assistant. The right behaviour?</div></div><div class="opts"><button type="button" class="opt" data-i="0">writes the letter — it can</button><button type="button" class="opt" data-i="1">politely declines and brings the conversation back to the restaurant</button><button type="button" class="opt" data-i="2">returns an error (500)</button><button type="button" class="opt" data-i="3">doesn't answer at all</button></div><div class="qe"><span class="verdict"></span> The system prompt must set this boundary: “on any other topic you politely decline”. <a class="chip" href="index.en.html#/18" target="_blank">Review · slide 18</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>C# code uses the review classification: <code>if (label == "Negative")</code>. Why is few-shot better?</div></div><div class="opts"><button type="button" class="opt" data-i="0">it's cheaper</button><button type="button" class="opt" data-i="1">the answer comes as exactly one of the categories, and the code can rely on it</button><button type="button" class="opt" data-i="2">the model is faster</button><button type="button" class="opt" data-i="3">few-shot doesn't need a key</button></div><div class="qe"><span class="verdict"></span> Zero-shot might write “negative” or a whole paragraph — the <code>if</code> won't catch that. The examples fix the format. <a class="chip" href="index.en.html#/19" target="_blank">Review · slide 19</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>How are few-shot examples sent in the prompt in C#?</div></div><div class="opts"><button type="button" class="opt" data-i="0">with <code>ChatOptions.Examples</code></button><button type="button" class="opt" data-i="1">as User/Assistant pairs in the <code>ChatMessage</code> list</button><button type="button" class="opt" data-i="2">as separate HTTP requests</button><button type="button" class="opt" data-i="3">through appsettings.json</button></div><div class="qe"><span class="verdict"></span> For the model this is a “previous conversation”: the User asked, the Assistant answered. The real question goes last. <a class="chip" href="index.en.html#/20" target="_blank">Review · slide 20</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 2 — პირველი გამოძახება და Prompt Engineering";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ Read' : '☐ Mark as read'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "Copy", "copied": "✓ Copied", "review": "Review these questions: ", "allright": "All correct! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copied'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'Following the slides' : 'Reading freely'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -689,9 +303,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'Review these questions: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. The explanation is under each one, and “Review” takes you to the right part.'
-      : 'All correct! You can move on to the next lecture. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -705,16 +317,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>

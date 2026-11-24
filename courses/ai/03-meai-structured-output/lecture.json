@@ -82,18 +82,6 @@
       "slide": 8
     },
     {
-      "q": "სად ვინახავთ Gemini-ს API key-ს დეველოპმენტში?",
-      "options": [
-        "`appsettings.json`-ში — `Gemini:ApiKey`",
-        "User Secrets-ში — `dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`",
-        "Controller-ში const-ად",
-        "`launchSettings.json`-ში"
-      ],
-      "answer": 1,
-      "explain": "User Secrets პროექტის გარეთ ინახება და Git-ში არ ხვდება. `appsettings.json` და `launchSettings.json` Git-ში მიდის.",
-      "slide": 8
-    },
-    {
       "q": "Gemini-ს ნაცვლად OpenAI გვინდა. რომელი ფაილი იცვლება?",
       "options": [
         "ყველა Controller",
@@ -116,18 +104,6 @@
       "answer": 1,
       "explain": "few-shot ფორმას სთხოვს, structured output — აიძულებს. დასაშვები მნიშვნელობები სქემაშია, და მოდელი მხოლოდ მათ შორის ირჩევს.",
       "slide": 11
-    },
-    {
-      "q": "რას აბრუნებს `await _chat.GetResponseAsync<Sentiment>(messages)`?",
-      "options": [
-        "`Sentiment`-ს პირდაპირ",
-        "`string`-ს, რომელიც ხელით უნდა გადავაქციოთ",
-        "`ChatResponse<Sentiment>`-ს — `Result`-ში `Sentiment`, პლუს `Usage`, `FinishReason`",
-        "JSON Schema-ს"
-      ],
-      "answer": 2,
-      "explain": "`ChatResponse<T>` ჩვეულებრივი `ChatResponse`-ია (ტოკენებით და finish reason-ით) და დამატებით `Result`.",
-      "slide": 12
     },
     {
       "q": "endpoint აბრუნებს `Ok(response.Result)`-ს, სადაც `Result` = `Sentiment.Mixed`. Swagger-ში რას ვხედავთ?",
@@ -154,18 +130,6 @@
       "slide": 16
     },
     {
-      "q": "`BookingRequest`-ში `int Guests` (`?`-ის გარეშე) რომ ყოფილიყო და ტექსტში რაოდენობა არ ეწერა, რა მოხდებოდა სავარაუდოდ?",
-      "options": [
-        "მოდელი შეცდომას დააბრუნებდა",
-        "`Guests` = null",
-        "მოდელი რაიმე რიცხვს მოიგონებდა (მაგ. 2) — სქემა მას რიცხვს აიძულებს",
-        "endpoint 400-ს დააბრუნებდა"
-      ],
-      "answer": 2,
-      "explain": "სქემა ამბობს „აქ რიცხვია“, და მოდელი იძულებულია რიცხვი დაწეროს. `int?` სქემაში null-საც უშვებს — „არ ვიცი“.",
-      "slide": 16
-    },
-    {
       "q": "structured output-მა `BookingRequest` დააბრუნა. რა არის გარანტირებული?",
       "options": [
         "რომ ყველა მნიშვნელობა სწორია",
@@ -189,41 +153,5 @@
       "explain": "Google-ის რეკომენდაციაა სქემა prompt-ში არ გავიმეოროთ — ეს ხარისხს აუარესებს. ფორმას სქემა აწესებს, prompt — წესებს (მაგ. „რაც არ წერია, დატოვე null“).",
       "slide": 16
     }
-  ],
-  "study": {
-    "summary": [
-      "**`AddChatClient`** — `IChatClient` ერთხელ იქმნება `Program.cs`-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას **constructor-ით** იღებს — როგორც `DbContext`-ს API კურსზე.",
-      "**key** — User Secrets-ში (`dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`), **მოდელი** — `appsettings.json`-ში. სხვა მოდელი = მხოლოდ კონფიგურაცია, სხვა პროვაიდერი = მხოლოდ `Program.cs`.",
-      "**`GetResponseAsync<T>`** — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს. `response.Result` უკვე `T`-ია.",
-      "**enum** — ერთი მნიშვნელობა სიიდან (კლასიფიკაცია); **record** — რამდენიმე ველი ტექსტიდან (ამოღება). nullable ველები და „დატოვე null“ — რომ არ მოიგონოს; დღევანდელი თარიღი — prompt-ში.",
-      "**ფორმა გარანტირებულია, შინაარსი — არა.** მიღებულ ობიექტს ბაზამდე C# ამოწმებს."
-    ],
-    "skip": [
-      "დღის თემა",
-      "შესავალი"
-    ],
-    "chapters": {
-      "1 · IChatClient DI-ში": {
-        "title": "IChatClient DI-ში: AddChatClient და კონფიგურაცია",
-        "goal": "`IChatClient`-ს `Program.cs`-ში დაარეგისტრირებ, key-ს User Secrets-ში შეინახავ, მოდელს — `appsettings.json`-ში, Controller კი მას constructor-ით მიიღებს."
-      },
-      "2 · Structured output": {
-        "title": "Structured output: ტექსტის ნაცვლად C# ტიპი",
-        "goal": "`GetResponseAsync<T>`-ით მოდელისგან enum-ს მიიღებ და გაიგებ, რატომ არის ეს few-shot-ზე საიმედო."
-      },
-      "3 · ტექსტი → ობიექტი": {
-        "title": "ტექსტი → ობიექტი: record რამდენიმე ველით",
-        "goal": "მომხმარებლის ტექსტიდან ამოიღებ ობიექტს რამდენიმე ველით და შეამოწმებ, რომ მნიშვნელობები სწორია."
-      },
-      "პრაქტიკა": {
-        "title": "კლასის დავალება: ტექსტიდან ობიექტი შენს პროექტში"
-      },
-      "შეჯამება": {
-        "title": "შეჯამება"
-      },
-      "საშინაო": {
-        "title": "საშინაო დავალება"
-      }
-    }
-  }
+  ]
 }

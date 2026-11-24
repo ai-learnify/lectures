@@ -22,32 +22,85 @@
     {"title": "Gemini — Pricing", "url": "https://ai.google.dev/gemini-api/docs/pricing", "note": "the input/output price per 1M tokens — for the homework"}
   ],
   "quiz": [
-    {"q": "Gemini returned a 503. What does it mean and what do we do?", "options": ["A bug in our code — let's fix it", "Gemini is temporarily overloaded — let's try again a bit later", "The key ran out — let's get a new one", "The model name is wrong"], "explain": "503 — a transient error: retry, and if that doesn't work — a fallback model."},
-    {"q": "On which error should we **not** try again?", "options": ["429", "503", "401 — a wrong key", "timeout"], "explain": "401 is permanent: the same key brings the same error. Retry only on transient ones."},
-    {"q": "An answer arrived (200), but FinishReason = length and the JSON is cut off. Which group is this?", "options": ["Transient — retry", "Permanent — configuration", "Content — we check it in code (MaxOutputTokens, TryGetResult)", "This isn't an error"], "explain": "At the HTTP level everything's fine — our code checks the content of the answer."},
-    {"q": "What is exponential backoff?", "options": ["Increasing the number of retries", "A growing pause between retries: 2 → 4 → 8 seconds", "Reducing the timeout", "Compressing the request"], "explain": "The overloaded service gets time to catch its breath. Jitter adds a random part to the pause."},
-    {"q": "What does a circuit breaker do?", "options": ["Sends every request twice", "After many failures it temporarily stops the calls and returns an error right away", "Encrypts the request", "Counts the tokens"], "explain": "The service rests, the user doesn't wait for nothing."},
-    {"q": "Why do we raise `AttemptTimeout` from 10 seconds to 40?", "options": ["Gemini thinks and writes long answers — 10 seconds sometimes isn't enough, and a normal answer would “fail”", "It's cheaper", "Polly requires it", "The number of retries will grow"], "explain": "The default time is meant for fast APIs. An LLM needs more."},
-    {"q": "What happens if we don't turn off Google.GenAI's retry and add resilience too?", "options": ["Nothing — they don't touch each other", "The retries nest: many more attempts and much more waiting for one question", "A compile error", "Retry won't work at all"], "explain": "Retry in one place: `HttpRetryOptions { Attempts = 1 }`."},
-    {"q": "With `ChaosHandler`: two 503s and then a 200. What does the user see?", "options": ["A 500", "An ordinary answer, a little late (~6 seconds)", "Two errors and an answer", "A 503"], "explain": "The retry happens inside the HttpClient — the Controller and the user never saw the error."},
-    {"q": "Why doesn't `FallbackChatClient` kick in on a 401?", "options": ["A bug", "`IsTransient` treats 401 as permanent: the fallback model uses the same key and would bring the same error", "A 401 doesn't throw an exception", "The fallback only works with streaming"], "explain": "The fallback only on a transient error: 429, 5xx, the network, a timeout."},
-    {"q": "In a Singleton layer, why do we get `DataContext` through `IServiceScopeFactory`?", "options": ["It's faster", "The pipeline is a Singleton, the DbContext Scoped; injecting it directly would share one DbContext across every request", "A DbContext works in a Singleton too", "EF Core requires it for migrations"], "explain": "The layer creates its own scope every time and takes the DbContext from it."}
-  ],
-  "study": {
-    "summary": [
-      "Errors: **transient** (429, 5xx, timeout — retry helps), **permanent** (400, 401, 403, 404 — no), **content** (length, bad JSON, a tool error — in code).",
-      "A proper retry: **backoff + jitter**, `Retry-After`, a **timeout** per attempt, a **circuit breaker**. `AddStandardResilienceHandler` — on the HttpClient, with times raised for an LLM.",
-      "Google.GenAI uses our HttpClient (`ClientOptions.HttpClientFactory`), its retry is turned off (`Attempts = 1`): retry in **one** place.",
-      "**`FallbackChatClient`** — a fallback model on a transient error; the innermost layer of the pipeline; `catch … when`.",
-      "Tokens **in the database** (`AiUsage`): `IServiceScopeFactory`, because the pipeline is a Singleton; thinking tokens are added to the output; cost = tokens × price."
-    ],
-    "chapters": {
-      "1 · რა ფუჭდება": {"title": "What breaks: the error map", "goal": "You'll sort an error as transient, permanent or content, and explain which ones retry helps with."},
-      "2 · retry": {"title": "Retry and timeout: Microsoft.Extensions.Http.Resilience", "goal": "You'll add retry, timeout and a circuit breaker to an HttpClient and check it with an artificial 503."},
-      "3 · fallback და ხარჯი": {"title": "A fallback model and recording the cost", "goal": "You'll write a FallbackChatClient and write the tokens to the database to calculate the day's cost."},
-      "პრაქტიკა": {"title": "Classwork: a daily limit layer"},
-      "შეჯამება": {"title": "Summary"},
-      "საშინაო": {"title": "Homework"}
+    {
+      "q": "Gemini returned a 503. What does it mean and what do we do?",
+      "options": [
+        "A bug in our code — let's fix it",
+        "Gemini is temporarily overloaded — let's try again a bit later",
+        "The key ran out — let's get a new one",
+        "The model name is wrong"
+      ],
+      "explain": "503 — a transient error: retry, and if that doesn't work — a fallback model."
+    },
+    {
+      "q": "On which error should we **not** try again?",
+      "options": [
+        "429",
+        "503",
+        "401 — a wrong key",
+        "timeout"
+      ],
+      "explain": "401 is permanent: the same key brings the same error. Retry only on transient ones."
+    },
+    {
+      "q": "What is exponential backoff?",
+      "options": [
+        "Increasing the number of retries",
+        "A growing pause between retries: 2 → 4 → 8 seconds",
+        "Reducing the timeout",
+        "Compressing the request"
+      ],
+      "explain": "The overloaded service gets time to catch its breath. Jitter adds a random part to the pause."
+    },
+    {
+      "q": "What does a circuit breaker do?",
+      "options": [
+        "Sends every request twice",
+        "After many failures it temporarily stops the calls and returns an error right away",
+        "Encrypts the request",
+        "Counts the tokens"
+      ],
+      "explain": "The service rests, the user doesn't wait for nothing."
+    },
+    {
+      "q": "Why do we raise `AttemptTimeout` from 10 seconds to 40?",
+      "options": [
+        "Gemini thinks and writes long answers — 10 seconds sometimes isn't enough, and a normal answer would “fail”",
+        "It's cheaper",
+        "Polly requires it",
+        "The number of retries will grow"
+      ],
+      "explain": "The default time is meant for fast APIs. An LLM needs more."
+    },
+    {
+      "q": "What happens if we don't turn off Google.GenAI's retry and add resilience too?",
+      "options": [
+        "Nothing — they don't touch each other",
+        "The retries nest: many more attempts and much more waiting for one question",
+        "A compile error",
+        "Retry won't work at all"
+      ],
+      "explain": "Retry in one place: `HttpRetryOptions { Attempts = 1 }`."
+    },
+    {
+      "q": "Why doesn't `FallbackChatClient` kick in on a 401?",
+      "options": [
+        "A bug",
+        "`IsTransient` treats 401 as permanent: the fallback model uses the same key and would bring the same error",
+        "A 401 doesn't throw an exception",
+        "The fallback only works with streaming"
+      ],
+      "explain": "The fallback only on a transient error: 429, 5xx, the network, a timeout."
+    },
+    {
+      "q": "In a Singleton layer, why do we get `DataContext` through `IServiceScopeFactory`?",
+      "options": [
+        "It's faster",
+        "The pipeline is a Singleton, the DbContext Scoped; injecting it directly would share one DbContext across every request",
+        "A DbContext works in a Singleton too",
+        "EF Core requires it for migrations"
+      ],
+      "explain": "The layer creates its own scope every time and takes the DbContext from it."
     }
-  }
+  ]
 }

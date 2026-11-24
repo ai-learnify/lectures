@@ -82,18 +82,6 @@
       "slide": 8
     },
     {
-      "q": "Where do we keep the Gemini API key during development?",
-      "options": [
-        "In `appsettings.json` — `Gemini:ApiKey`",
-        "In User Secrets — `dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`",
-        "As a const in the Controller",
-        "In `launchSettings.json`"
-      ],
-      "explain": "User Secrets are stored outside the project and don't get into Git. `appsettings.json` and `launchSettings.json` go to Git.",
-      "answer": 1,
-      "slide": 8
-    },
-    {
       "q": "We want OpenAI instead of Gemini. Which file changes?",
       "options": [
         "Every Controller",
@@ -116,18 +104,6 @@
       "explain": "Few-shot asks for a shape, structured output forces it. The allowed values are in the schema, and the model chooses only among them.",
       "answer": 1,
       "slide": 11
-    },
-    {
-      "q": "What does `await _chat.GetResponseAsync<Sentiment>(messages)` return?",
-      "options": [
-        "A `Sentiment` directly",
-        "A `string` we must convert by hand",
-        "A `ChatResponse<Sentiment>` — a `Sentiment` in `Result`, plus `Usage`, `FinishReason`",
-        "The JSON Schema"
-      ],
-      "explain": "`ChatResponse<T>` is a normal `ChatResponse` (with tokens and the finish reason) plus `Result`.",
-      "answer": 2,
-      "slide": 12
     },
     {
       "q": "The endpoint returns `Ok(response.Result)` where `Result` = `Sentiment.Mixed`. What do we see in Swagger?",
@@ -154,18 +130,6 @@
       "slide": 16
     },
     {
-      "q": "If `BookingRequest` had `int Guests` (without `?`) and the text had no number, what would most likely happen?",
-      "options": [
-        "The model would return an error",
-        "`Guests` = null",
-        "The model would make up a number (e.g. 2) — the schema forces it to write a number",
-        "The endpoint would return 400"
-      ],
-      "explain": "The schema says “a number goes here”, and the model is forced to write one. `int?` also allows null in the schema — “I don't know”.",
-      "answer": 2,
-      "slide": 16
-    },
-    {
       "q": "Structured output returned a `BookingRequest`. What is guaranteed?",
       "options": [
         "That all values are correct",
@@ -189,41 +153,5 @@
       "answer": 1,
       "slide": 16
     }
-  ],
-  "study": {
-    "summary": [
-      "**`AddChatClient`** — `IChatClient` is created once in `Program.cs` and registered in DI as a Singleton. The Controller receives it **through the constructor** — like `DbContext` in the API course.",
-      "**The key** — in User Secrets (`dotnet user-secrets set \"Gemini:ApiKey\" \"...\"`), **the model** — in `appsettings.json`. Another model = configuration only, another provider = `Program.cs` only.",
-      "**`GetResponseAsync<T>`** — a JSON Schema is created from the C# type, sent with the request, and the model can't write outside it. `response.Result` is already a `T`.",
-      "**enum** — one value from a list (classification); **record** — several fields from text (extraction). Nullable fields and “leave null” — so it doesn't make things up; today's date — in the prompt.",
-      "**The shape is guaranteed, the content is not.** C# checks the received object before the database."
-    ],
-    "skip": [
-      "დღის თემა",
-      "შესავალი"
-    ],
-    "chapters": {
-      "1 · IChatClient DI-ში": {
-        "title": "IChatClient in DI: AddChatClient and configuration",
-        "goal": "You'll register `IChatClient` in `Program.cs`, keep the key in User Secrets and the model in `appsettings.json`, and the Controller will receive it through its constructor."
-      },
-      "2 · Structured output": {
-        "title": "Structured output: a C# type instead of text",
-        "goal": "You'll get an enum from the model with `GetResponseAsync<T>` and understand why it's more reliable than few-shot."
-      },
-      "3 · ტექსტი → ობიექტი": {
-        "title": "Text → object: a record with several fields",
-        "goal": "You'll extract an object with several fields from a user's text and check that the values are correct."
-      },
-      "პრაქტიკა": {
-        "title": "Classwork: an object from text in your project"
-      },
-      "შეჯამება": {
-        "title": "Summary"
-      },
-      "საშინაო": {
-        "title": "Homework"
-      }
-    }
-  }
+  ]
 }

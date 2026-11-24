@@ -8,7 +8,7 @@ With code · your project · a test table in the README
 - **Query:** `SearchChunksAsync` (top 5, the threshold in `appsettings.json`), `BuildContext` — `[N] (file, p. P)`
 - **In the chat:** your lecture 7 `/chat` — an augmented message, the original question in the history, `sources` in the response; rules in the system prompt: only from the sources, with the number, the exact phrase “I don't have information on this”
 - **README — a test table:** 8 questions on your PDF (2 — something that isn't in the PDF, 1 — with the answer on two different pages, 1 — with an exact number/name). Columns: question · correct page · sources found · is the answer correct? · is the source correct?
-- The **quiz** at the end of the notes (10 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## Done when
 

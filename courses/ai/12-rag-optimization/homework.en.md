@@ -10,7 +10,7 @@ With code · your project · a results table and a conclusion in the README
 - **one chunking experiment** — the size (e.g. 400 or 1500) **or** the heading in the prefix; upload again and measure
 - **groundedness** — `GroundednessEvaluator` on 3 answers: the number and the `Reason`
 - **README — a table and a conclusion:** version · hitAt3 · MRR · misses (vector-only, hybrid, hybrid + the chunking experiment), the 3 groundedness results, and 3–4 sentences: what improved, what didn't, what you'd choose in production
-- The **quiz** at the end of the notes (10 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## Done when
 

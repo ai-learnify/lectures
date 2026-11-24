@@ -9,7 +9,7 @@ With code · your project · a table in the README
 - **`TokenCounterChatClient` to the database** (`AiUsage`) — `ReasoningTokenCount` added to the output
 - **`GET /api/ai-lab/usage/today`** — per model: calls, input, output and the cost in dollars; the prices in `appsettings.json` (`AiPricing:<model>:InputPerMillion` / `OutputPerMillion`), not in the code
 - **README — an error table:** three tests with `ChaosHandler` and configuration: (1) two 503s · (2) a wrong model name · (3) always 503. Columns: test · how many requests went out · what the user got · 1–2 lines of the log
-- The **quiz** at the end of the notes (10 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

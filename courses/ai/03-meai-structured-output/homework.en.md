@@ -8,7 +8,7 @@ With code · your project · a table in the README
 - **classify with an enum:** rewrite homework 2's `POST /api/ai-lab/classify` with `GetResponseAsync<your enum>` (without few-shot examples)
 - **A comparison in the README:** the same 5 texts — few-shot (homework 2) vs enum. Table: text · few-shot answer · enum answer · `inputTokens` for both
 - **A record from text:** one endpoint in a **real** Controller of your project (not ai-lab): text → `record` → a C# check (a required field is `null` → `400` with a question) → saved **to the database** with your existing logic
-- The **quiz** at the end of the notes (11 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

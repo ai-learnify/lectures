@@ -10,7 +10,7 @@ With code · your project · a log and a table in the README
 - **README — the log:** the log of one tool `/chat` question (5–10 lines): how many requests went to Gemini? Which was more expensive and why?
 - **README — the order experiment:** TokenCounter **outside** vs **inside** `UseFunctionInvocation` — the same question, a table: position · number of lines · total
 - **README — caching:** 2–3 sentences — on which endpoint in your project would a cache be useful and on which dangerous? Why?
-- The **quiz** at the end of the notes (11 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

@@ -21,34 +21,101 @@
     {"title": "Logging in .NET", "url": "https://learn.microsoft.com/dotnet/core/extensions/logging", "note": "ლოგის დონეები და appsettings-ში კონფიგურაცია"}
   ],
   "quiz": [
-    {"q": "რას აბრუნებს `builder.Services.AddChatClient(...)`?", "options": ["`IChatClient`-ს", "`ChatClientBuilder`-ს — მასზე `.Use…()`-ით ფენები ემატება", "`void`-ს", "`IServiceCollection`-ს"], "answer": 1, "explain": "ამიტომ შეგვიძლია `.UseFunctionInvocation()`, `.UseLogging()` და ა.შ. პირდაპირ მივაბათ.", "slide": 7},
-    {"q": "რა არის ფენა (middleware) Microsoft.Extensions.AI-ში?", "options": ["Controller-ის ფილტრი", "`IChatClient`, რომელიც სხვა `IChatClient`-ს ეხვევა და მოთხოვნასაც და პასუხსაც ხედავს", "Gemini-ს პარამეტრი", "appsettings-ის სექცია"], "answer": 1, "explain": "decorator ნიმუში: ყოველი ფენა შიდა client-ს იძახებს და მის შედეგს უბრუნებს გარეს.", "slide": 8},
-    {"q": "`.UseA().UseB().UseC()` — რომელი ფენა დგას Controller-თან ყველაზე ახლოს?", "options": ["A", "B", "C", "რიგს მნიშვნელობა არ აქვს"], "answer": 0, "explain": "პირველი `.Use…()` გარე ფენაა; ბოლო — Gemini-ს client-თან ყველაზე ახლოს.", "slide": 8},
-    {"q": "Controller-მა რა უნდა შეცვალოს, როცა pipeline-ს ფენას ვამატებთ?", "options": ["constructor-ი", "ყველა endpoint", "არაფერი — ცვლილება მხოლოდ Program.cs-შია", "`IChatClient`-ის ნაცვლად ფენის ტიპი უნდა მიიღოს"], "answer": 2, "explain": "Controller მხოლოდ `IChatClient`-ს იცნობს; რამდენი ფენაა შიგნით, მისთვის უცნობია.", "slide": 8},
-    {"q": "`UseLogging()` ჩართე, მაგრამ კონსოლში არაფერი ჩანს. ყველაზე სავარაუდო მიზეზი?", "options": ["Gemini-ს key", "ლოგის დონე — `Microsoft.Extensions.AI` უნდა იყოს Debug (ან Trace) appsettings.Development.json-ში", "Controller-ში ILogger აკლია", "UseLogging მხოლოდ Linux-ზე მუშაობს"], "answer": 1, "explain": "LoggingChatClient Debug/Trace დონეზე წერს, ნაგულისხმევი კი Information-ია.", "slide": 10},
-    {"q": "რატომ არის Trace დონე production-ში საშიში?", "options": ["ნელია", "ლოგში მომხმარებლის შეკითხვების და tool-ის შედეგების მთელი ტექსტი იწერება — პირადი მონაცემები", "Gemini-ს key ჩანს", "ტოკენებს ხარჯავს"], "answer": 1, "explain": "Trace მხოლოდ დეველოპმენტისთვის — appsettings.Development.json-ში.", "slide": 10},
-    {"q": "`/ask`-ზე ერთი და იგივე კითხვა ორჯერ, ქეში ჩართულია. რა ხდება მეორედ?", "options": ["Gemini-ს ისევ მიმართავს, მაგრამ უფასოდ", "პასუხი მეხსიერებიდან ბრუნდება — Gemini-მდე მოთხოვნა არ მიდის", "შეცდომა: ერთი კითხვა ორჯერ არ შეიძლება", "ქეში მხოლოდ tool-ებზე მუშაობს"], "answer": 1, "explain": "გასაღები = შეტყობინებები + პარამეტრები. ზუსტად იგივე → შენახული პასუხი. ლოგი ცარიელია.", "slide": 11},
-    {"q": "რატომ ვაშორებთ ქეშს RestaurantApi-ის `/chat`-იდან?", "options": ["ქეში ძვირია", "tool-იანი პასუხი ბაზაზეა დამოკიდებული — ქეში ძველ „თავისუფალია“-ს დააბრუნებს", "Gemini ქეშს არ უშვებს", "ქეში Scoped-ია"], "answer": 1, "explain": "ქეში მხოლოდ იქ, სადაც ერთსა და იმავე შეკითხვაზე პასუხი არ იცვლება.", "slide": 11},
-    {"q": "`DelegatingChatClient`-ში რას ნიშნავს კოდი `base.GetResponseAsync(...)`-ის შემდეგ?", "options": ["Gemini-მდე შესრულდება", "Gemini-ს პასუხის შემდეგ შესრულდება — პასუხს ხედავს", "არასდროს შესრულდება", "მხოლოდ შეცდომისას"], "answer": 1, "explain": "base-მდე — მოთხოვნა, base-ის შემდეგ — პასუხი. როგორც `await next()` ASP.NET Core-ში.", "slide": 14},
-    {"q": "TokenCounter `UseFunctionInvocation`-ის შიგნით დგას. tool-იან კითხვაზე რამდენ ხაზს დაწერს?", "options": ["1 — ჯამს", "2 — Gemini-ს ყოველ მოთხოვნას ცალკე", "0", "იმდენს, რამდენი tool-იც არის რეგისტრირებული"], "answer": 1, "explain": "შიგნით მყოფ ფენაში ციკლის ყოველი მოთხოვნა გადის. გარეთ — ერთი ჯამური პასუხი.", "slide": 15},
-    {"q": "`InputGuardChatClient`-მა გრძელი შეკითხვა შეაჩერა. რამდენი ტოკენი დაიხარჯა?", "options": ["იმდენი, რამდენიც შეკითხვაშია", "0 — base არ გამოიძახა, Gemini-მდე არაფერი მივიდა", "მხოლოდ output ტოკენები", "1000"], "answer": 1, "explain": "short-circuit: ფენამ პასუხი თვითონ შექმნა.", "slide": 16}
-  ],
-  "study": {
-    "summary": [
-      "**`AddChatClient` აბრუნებს `ChatClientBuilder`-ს.** ყოველი `.Use…()` `IChatClient`-ს ერთ ფენას (middleware) ამატებს — ისევე, როგორც `app.Use…()` ASP.NET Core-ში.",
-      "**ფენა = `IChatClient` სხვა `IChatClient`-ის გარშემო.** მოთხოვნა შიგნით მიდის, პასუხი უკან ბრუნდება. პირველი `.Use…()` გარე ფენაა (Controller-თან ახლოს). Controller ფენებზე არაფერს იცის.",
-      "**`UseLogging`** — ჩანს, რამდენი მოთხოვნა წავიდა Gemini-სთან (Debug); Trace მთელ ტექსტს წერს — მხოლოდ დეველოპმენტში.",
-      "**`UseDistributedCache`** — ზუსტად იგივე მოთხოვნაზე Gemini-ს არ მიმართავს. მხოლოდ უცვლელ პასუხებზე; tool-იან ჩატში — არა.",
-      "**`DelegatingChatClient`** — საკუთარი ფენა: `base`-მდე მოთხოვნა, `base`-ის შემდეგ პასუხი; `base`-ის გარეშე — შეჩერება (short-circuit)."
-    ],
-    "skip": ["დღის თემა", "შესავალი"],
-    "chapters": {
-      "1 · Pipeline": {"title": "Pipeline: ფენები client-ის გარშემო", "goal": "ახსნი, რა არის `.UseFunctionInvocation()` და როგორ გადის მოთხოვნა ფენებს Controller-იდან Gemini-მდე."},
-      "2 · მზა ფენები": {"title": "მზა ფენები: ლოგი და ქეში", "goal": "ჩართავ ლოგს და ქეშს, დაინახავ tool-ის ციკლის ორ მოთხოვნას და გაიგებ, როდის არის ქეში საშიში."},
-      "3 · ჩვენი ფენა": {"title": "ჩვენი ფენა: DelegatingChatClient", "goal": "დაწერ ფენას, რომელიც ტოკენებს ითვლის, და ფენას, რომელიც გრძელ შეკითხვას Gemini-მდე არ უშვებს."},
-      "პრაქტიკა": {"title": "კლასის დავალება: შენი ფენა შენს პროექტში"},
-      "შეჯამება": {"title": "შეჯამება"},
-      "საშინაო": {"title": "საშინაო დავალება"}
+    {
+      "q": "რას აბრუნებს `builder.Services.AddChatClient(...)`?",
+      "options": [
+        "`IChatClient`-ს",
+        "`ChatClientBuilder`-ს — მასზე `.Use…()`-ით ფენები ემატება",
+        "`void`-ს",
+        "`IServiceCollection`-ს"
+      ],
+      "answer": 1,
+      "explain": "ამიტომ შეგვიძლია `.UseFunctionInvocation()`, `.UseLogging()` და ა.შ. პირდაპირ მივაბათ.",
+      "slide": 7
+    },
+    {
+      "q": "რა არის ფენა (middleware) Microsoft.Extensions.AI-ში?",
+      "options": [
+        "Controller-ის ფილტრი",
+        "`IChatClient`, რომელიც სხვა `IChatClient`-ს ეხვევა და მოთხოვნასაც და პასუხსაც ხედავს",
+        "Gemini-ს პარამეტრი",
+        "appsettings-ის სექცია"
+      ],
+      "answer": 1,
+      "explain": "decorator ნიმუში: ყოველი ფენა შიდა client-ს იძახებს და მის შედეგს უბრუნებს გარეს.",
+      "slide": 8
+    },
+    {
+      "q": "Controller-მა რა უნდა შეცვალოს, როცა pipeline-ს ფენას ვამატებთ?",
+      "options": [
+        "constructor-ი",
+        "ყველა endpoint",
+        "არაფერი — ცვლილება მხოლოდ Program.cs-შია",
+        "`IChatClient`-ის ნაცვლად ფენის ტიპი უნდა მიიღოს"
+      ],
+      "answer": 2,
+      "explain": "Controller მხოლოდ `IChatClient`-ს იცნობს; რამდენი ფენაა შიგნით, მისთვის უცნობია.",
+      "slide": 8
+    },
+    {
+      "q": "`UseLogging()` ჩართე, მაგრამ კონსოლში არაფერი ჩანს. ყველაზე სავარაუდო მიზეზი?",
+      "options": [
+        "Gemini-ს key",
+        "ლოგის დონე — `Microsoft.Extensions.AI` უნდა იყოს Debug (ან Trace) appsettings.Development.json-ში",
+        "Controller-ში ILogger აკლია",
+        "UseLogging მხოლოდ Linux-ზე მუშაობს"
+      ],
+      "answer": 1,
+      "explain": "LoggingChatClient Debug/Trace დონეზე წერს, ნაგულისხმევი კი Information-ია.",
+      "slide": 10
+    },
+    {
+      "q": "`/ask`-ზე ერთი და იგივე კითხვა ორჯერ, ქეში ჩართულია. რა ხდება მეორედ?",
+      "options": [
+        "Gemini-ს ისევ მიმართავს, მაგრამ უფასოდ",
+        "პასუხი მეხსიერებიდან ბრუნდება — Gemini-მდე მოთხოვნა არ მიდის",
+        "შეცდომა: ერთი კითხვა ორჯერ არ შეიძლება",
+        "ქეში მხოლოდ tool-ებზე მუშაობს"
+      ],
+      "answer": 1,
+      "explain": "გასაღები = შეტყობინებები + პარამეტრები. ზუსტად იგივე → შენახული პასუხი. ლოგი ცარიელია.",
+      "slide": 11
+    },
+    {
+      "q": "რატომ ვაშორებთ ქეშს RestaurantApi-ის `/chat`-იდან?",
+      "options": [
+        "ქეში ძვირია",
+        "tool-იანი პასუხი ბაზაზეა დამოკიდებული — ქეში ძველ „თავისუფალია“-ს დააბრუნებს",
+        "Gemini ქეშს არ უშვებს",
+        "ქეში Scoped-ია"
+      ],
+      "answer": 1,
+      "explain": "ქეში მხოლოდ იქ, სადაც ერთსა და იმავე შეკითხვაზე პასუხი არ იცვლება.",
+      "slide": 11
+    },
+    {
+      "q": "TokenCounter `UseFunctionInvocation`-ის შიგნით დგას. tool-იან კითხვაზე რამდენ ხაზს დაწერს?",
+      "options": [
+        "1 — ჯამს",
+        "2 — Gemini-ს ყოველ მოთხოვნას ცალკე",
+        "0",
+        "იმდენს, რამდენი tool-იც არის რეგისტრირებული"
+      ],
+      "answer": 1,
+      "explain": "შიგნით მყოფ ფენაში ციკლის ყოველი მოთხოვნა გადის. გარეთ — ერთი ჯამური პასუხი.",
+      "slide": 15
+    },
+    {
+      "q": "`InputGuardChatClient`-მა გრძელი შეკითხვა შეაჩერა. რამდენი ტოკენი დაიხარჯა?",
+      "options": [
+        "იმდენი, რამდენიც შეკითხვაშია",
+        "0 — base არ გამოიძახა, Gemini-მდე არაფერი მივიდა",
+        "მხოლოდ output ტოკენები",
+        "1000"
+      ],
+      "answer": 1,
+      "explain": "short-circuit: ფენამ პასუხი თვითონ შექმნა.",
+      "slide": 16
     }
-  }
+  ]
 }

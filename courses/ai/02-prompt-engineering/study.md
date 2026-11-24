@@ -1,0 +1,244 @@
+# პირველი გამოძახება და Prompt Engineering
+
+## ⚡ მთავარი
+
+- `IChatClient` LLM-ის „DbContext“-ია: კოდი `GetResponseAsync`-ს იძახებს, Gemini-სთან კი provider ლაპარაკობს. პროვაიდერის შეცვლა ერთი ხაზია.
+- API key **User Secrets**-შია (`Gemini:ApiKey`), არასდროს კოდში ან Git-ში.
+- `ChatOptions` ცალკეულ მოთხოვნას ეყენება. პასუხში **`Usage`** (ტოკენები, ფიქრის ტოკენების ჩათვლით) და **`FinishReason`** (`stop` / `length`) გვეუბნება, რა დაჯდა და რატომ გაჩერდა.
+- მოდელს **შეტყობინებების სიას** ვუგზავნით: **System** (ჩვენი წესები), **User**, **Assistant**.
+- კარგი **system prompt** = როლი + თემები + ფორმა + საზღვრები. **Few-shot** მაგალითები პასუხს ზუსტ ფორმატში აფიქსირებს, რომ C# კოდმა გამოიყენოს.
+
+## 1 · პირველი გამოძახება · 6–10
+
+**Microsoft.Extensions.AI** ენობრივი მოდელებისთვის იგივეა, რაც EF Core ბაზისთვის: კოდს ერთი interface-ით (`IChatClient`) წერ, კონკრეტულ სერვისთან კი **provider** ლაპარაკობს (Gemini-სთვის `Google.GenAI`).
+
+**1. key → User Secrets.** key აიღე [aistudio.google.com](https://aistudio.google.com)-ზე და პროექტის საქაღალდეში:
+
+```bash
+dotnet user-secrets init
+dotnet user-secrets set "Gemini:ApiKey" "AIza..."
+```
+
+**2. ორი NuGet package:**
+
+```bash
+dotnet add package Microsoft.Extensions.AI
+dotnet add package Google.GenAI
+```
+
+```warn
+API key პაროლია. არასდროს ჩაწერო კოდში, `appsettings.json`-ში ან Git-ში: GitHub-ზე გაჟონილ key-ს ბოტები წუთებში პოულობენ.
+```
+
+**3. პირველი endpoint.** DTO-ები:
+
+```csharp Dtos/AiLab/AskDtos.cs
+using Microsoft.Extensions.AI;
+
+public record AskRequest(string Prompt);
+
+public record AskResponse(
+    string Text,
+    long? InputTokens,
+    long? OutputTokens,
+    long? ReasoningTokens,
+    string? FinishReason)
+{
+    public static AskResponse From(ChatResponse response) => new(
+        response.Text,
+        response.Usage?.InputTokenCount,
+        response.Usage?.OutputTokenCount,
+        response.Usage?.ReasoningTokenCount,
+        response.FinishReason?.Value);
+}
+```
+
+Controller:
+
+```csharp Controllers/AiLabController.cs
+using Google.GenAI;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.AI;
+
+[ApiController]
+[Route("api/ai-lab")]
+public class AiLabController : ControllerBase
+{
+    private readonly IChatClient _chat;
+
+    // created here for now — moves to DI in lecture 3
+    public AiLabController(IConfiguration config)
+    {
+        _chat = new Client(apiKey: config["Gemini:ApiKey"])
+            .AsIChatClient("gemini-3.8-flash");
+    }
+
+    [HttpPost("ask")]
+    public async Task<IActionResult> Ask(AskRequest request)
+    {
+        ChatResponse response = await _chat.GetResponseAsync(request.Prompt);
+        return Ok(AskResponse.From(response));
+    }
+}
+```
+
+Swagger-ში `POST /api/ai-lab/ask` დააბრუნებს ტექსტს და ტოკენებს: `inputTokens`, `outputTokens`, `reasoningTokens` (ფიქრი, output-ის ფასით) და `finishReason`.
+
+```note
+`new Client(...)` Controller-ის შიგნით დროებითია. ლექცია 3-ზე `IChatClient`-ს DI-ში გადავიტანთ.
+```
+
+```check
+? `reasoningTokens: 212`, პასუხი კი 19 ტოკენია. რა არის 212 და ვინ იხდის?
+= ფიქრის ტოკენები: მოდელი პასუხამდე ფიქრობს. მათ output-ის ფასით ჩვენ ვიხდით.
+```
+
+```terms
+IChatClient — ერთი interface ყველა ჩატ-მოდელისთვის; მთავარი მეთოდი GetResponseAsync
+provider — ბიბლიოთეკა, რომელიც საერთო interface-ს კონკრეტული სერვისისთვის ახორციელებს
+finishReason — რატომ გაჩერდა მოდელი: stop (დაასრულა) ან length (ლიმიტს მიაღწია)
+```
+
+## 2 · პარამეტრები კოდში · 11–13
+
+ლექცია 1-ის პარამეტრები C#-ში `ChatOptions`-შია: `Temperature`, `TopP`, `MaxOutputTokens`. `AskRequest`-ს ორ არასავალდებულო ველს ვამატებთ:
+
+```csharp Dtos/AiLab/AskDtos.cs
+public record AskRequest(
+    string Prompt,
+    float? Temperature = null,
+    int? MaxOutputTokens = null);
+```
+
+და `Ask`-ში `ChatOptions`-ს ვქმნით (`null` = მოდელის ნაგულისხმევი):
+
+```csharp Controllers/AiLabController.cs
+var options = new ChatOptions
+{
+    Temperature = request.Temperature,
+    MaxOutputTokens = request.MaxOutputTokens
+};
+
+ChatResponse response =
+    await _chat.GetResponseAsync(request.Prompt, options);
+```
+
+**სცადე:** Temperature `0` და `2` სამ-სამჯერ: 0-ზე პასუხები თითქმის ერთნაირია, 2-ზე ყოველ ჯერზე სხვა. მერე `MaxOutputTokens: 15`: ტექსტი ცარიელია და `finishReason` არის `length`, რადგან ლიმიტი ფიქრმა შეჭამა.
+
+```tip
+reasoning მოდელზე ლიმიტი ყოველთვის მარაგით დააყენე. მოკლე პასუხი prompt-ით მოითხოვე („ერთი წინადადებით“) და არა ლიმიტით.
+```
+
+```check
+? `MaxOutputTokens = 50` და პასუხი ცარიელია. რატომ?
+= Gemini პასუხამდე ფიქრობს, და ფიქრმა ლიმიტი მთლიანად დახარჯა.
+```
+
+## 3 · როლები და system prompt · 15–18
+
+მოდელს ერთ ტექსტს კი არა, **შეტყობინებების სიას** ვუგზავნით. თითოს თავისი როლი აქვს:
+
+| როლი | ვინ წერს | რას შეიცავს |
+|---|---|---|
+| **System** | ჩვენ, კოდში | ვინ არის ასისტენტი და რა წესები აქვს |
+| **User** | მომხმარებელი | კითხვა |
+| **Assistant** | მოდელი | მოდელის პასუხი |
+
+```csharp
+List<ChatMessage> messages =
+[
+    new(ChatRole.System, "You are…"),
+    new(ChatRole.User, request.Prompt)
+];
+
+ChatResponse response = await _chat.GetResponseAsync(messages);
+```
+
+კარგი **system prompt** ოთხი ნაწილისგან შედგება: 👤 როლი · 🎯 თემები · 📏 ფორმა · 🚫 საზღვრები.
+
+```csharp Controllers/AiLabController.cs · Assistant
+private const string RestaurantName = "Supra";
+private const string OpenHours = "12:00–23:00";
+
+[HttpPost("assistant")]
+public async Task<IActionResult> Assistant(AskRequest request)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, $"""
+            You are the assistant of the restaurant "{RestaurantName}".
+            You answer only about the menu, bookings and hours ({OpenHours}).
+            Answer: at most 3 sentences, in the language the user writes in.
+            On any other topic you politely decline and say what you can help with.
+            You don't invent prices or ingredients — you say they are on the menu.
+            """),
+        new(ChatRole.User, request.Prompt)
+    ];
+
+    ChatResponse response = await _chat.GetResponseAsync(messages);
+    return Ok(AskResponse.From(response));
+}
+```
+
+**სცადე `/assistant`-ზე:** ჩვეულებრივი კითხვა მენიუზე, სხვა თემა („ლექსი დაწერე“) და ფასი („ხინკალი რა ღირს?“). ასისტენტი თემაზე რჩება და ფასს არ იგონებს.
+
+```warn
+system prompt ალბათობას ცვლის და გარანტიას არ იძლევა. მომხმარებელმა შეიძლება მოდელი „გადაარწმუნოს“, ამიტომ მნიშვნელოვანს C# ამოწმებს (ლექცია 19).
+```
+
+```check
+? System და User ორივე ტექსტია. რა განსხვავებაა?
+= System ჩვენი წესებია და მომხმარებელი მას ვერ ხედავს. User მომხმარებლის კითხვაა.
+```
+
+```terms
+system prompt — ასისტენტის როლი, საზღვრები და პასუხის ფორმა; დეველოპერი წერს
+ChatMessage — ერთი შეტყობინება როლით (System / User / Assistant) და ტექსტით
+```
+
+## 4 · zero-shot და few-shot · 19–20
+
+- **Zero-shot:** მოდელს მხოლოდ ვუხსნით, რა გააკეთოს.
+- **Few-shot:** ახსნას 3–5 მაგალითს ვუმატებთ („შეკითხვა → სწორი პასუხი“).
+
+პასუხს ხშირად **C# კოდი** იყენებს, მაგალითად `if (label == "Negative")`. zero-shot შეიძლება შინაარსით სწორი, მაგრამ ფორმით არასწორი იყოს („უარყოფითი“, `Negative.`). მაგალითები ფორმას აფიქსირებს. კოდში ისინი User/Assistant წყვილებია სიაში:
+
+```csharp Controllers/AiLabController.cs · ReviewSentiment
+[HttpPost("review-sentiment")]
+public async Task<IActionResult> ReviewSentiment(AskRequest request)
+{
+    List<ChatMessage> messages =
+    [
+        new(ChatRole.System, "Classify the restaurant review. " +
+            "Answer with one word only: Positive, Negative or Mixed."),
+        new(ChatRole.User, "The khinkali was delicious, the service fast"),
+        new(ChatRole.Assistant, "Positive"),
+        new(ChatRole.User, "We waited an hour, the food came cold"),
+        new(ChatRole.Assistant, "Negative"),
+        new(ChatRole.User, "The dishes are good, but the prices are very high"),
+        new(ChatRole.Assistant, "Mixed"),
+        new(ChatRole.User, request.Prompt)
+    ];
+
+    ChatResponse response = await _chat.GetResponseAsync(messages);
+    return Ok(AskResponse.From(response));
+}
+```
+
+```tip
+მაგალითებში ჩასვი რთული შემთხვევაც ("Good, but pricey" → `Mixed`): ზუსტად საზღვარზე ცდება zero-shot.
+```
+
+```note
+მოდელი მაინც ტექსტს წერს და არა C# ტიპს, ამიტომ პასუხი სიასთან შეამოწმე. ზუსტ ტიპს ლექცია 3 გვაძლევს (structured output).
+```
+
+```check
+? few-shot მაგალითები ყოველ მოთხოვნაზე იგზავნება?
+= კი, ისინი შეტყობინებების სიის ნაწილია. ამიტომ `inputTokens` იზრდება.
+```
+
+```terms
+zero-shot — prompt მხოლოდ ინსტრუქციით
+few-shot — prompt ინსტრუქციით და რამდენიმე მაგალითით
+```

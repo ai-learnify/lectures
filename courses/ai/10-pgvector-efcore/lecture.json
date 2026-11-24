@@ -22,33 +22,101 @@
     {"title": "Vector databases in .NET (VectorData)", "url": "https://learn.microsoft.com/dotnet/ai/conceptual/vector-databases", "note": "Microsoft.Extensions.VectorData — როდის გვჭირდება"}
   ],
   "quiz": [
-    {"q": "ლექცია 9-ის ძებნის ვექტორები `MenuIndex` Singleton-შია. რა ხდება deploy-ის შემდეგ?", "options": ["არაფერი — Singleton რჩება", "ვექტორები ქრება და მთელი მენიუ თავიდან უნდა გაიგზავნოს embedding მოდელთან", "ვექტორები ბაზაში გადადის", "Gemini მათ ინახავს"], "answer": 1, "explain": "მეხსიერება აპის პროცესს ეკუთვნის — რესტარტზე ყველაფერი თავიდან ითვლება.", "slide": 7},
-    {"q": "რატომ ვიყენებთ pgvector-ს ცალკე ვექტორული ბაზის (Qdrant) ნაცვლად?", "options": ["Qdrant ვექტორებს ვერ ინახავს", "PostgreSQL უკვე გვაქვს: ვექტორი კერძის გვერდით, იმავე ცხრილში — ერთი ტრანზაქცია, ერთი backup, WHERE და JOIN", "pgvector ყოველთვის უფრო სწრაფია", "EF Core Qdrant-ს ვერ ხედავს"], "answer": 1, "explain": "ცალკე ვექტორული ბაზა აზრიანია დიდ მასშტაბზე ან როცა მონაცემი PostgreSQL-ში არ არის.", "slide": 7},
-    {"q": "`Embedding vector(768)` სვეტში 3072-იანი ვექტორის ჩაწერა ცდილობ. რა მოხდება?", "options": ["ავტომატურად მოიჭრება", "ბაზა შეცდომას დააბრუნებს — ზომა სვეტის ტიპშია", "ჩაიწერება, ძებნა იმუშავებს", "ნულებით შეივსება"], "answer": 1, "explain": "„ერთი მოდელი — ერთი რუკა“ ბაზის დონეზე მოწმდება.", "slide": 8},
-    {"q": "ლექცია 9-ში score 0.71 იყო. pgvector-ის `<=>` რას დააბრუნებს?", "options": ["0.71", "0.29 — cosine distance = 1 − similarity", "71", "−0.71"], "answer": 1, "explain": "პატარა distance = ახლოს, ამიტომ ORDER BY ზრდადობით.", "slide": 8},
-    {"q": "რისთვის გვჭირდება `UseVector()` `UseNpgsql`-ში?", "options": ["ინდექსის შესაქმნელად", "Npgsql-მა pgvector-ის `vector` ტიპი რომ იცოდეს და C#-ის `Vector`-ს შეუსაბამოს", "Gemini-სთან დასაკავშირებლად", "migration-ის გასაშვებად"], "answer": 1, "explain": "HasPostgresExtension(\"vector\") კი migration-ში CREATE EXTENSION-ს ქმნის.", "slide": 10},
-    {"q": "`/menu/index` მეორედ გამოიძახე და `Indexed: 0` დაბრუნდა. რატომ?", "options": ["შეცდომაა", "ინდექსაცია მხოლოდ იმას ითვლის, რასაც ვექტორი არ აქვს ან სხვა მოდელით აქვს — ყველას უკვე აქვს", "ბაზა ცარიელია", "Gemini-მ უარი თქვა"], "answer": 1, "explain": "ვექტორები ბაზაშია — ფული აღარ იხარჯება.", "slide": 11},
-    {"q": "`OrderBy(p => p.Embedding!.CosineDistance(query)).Take(3)` — სად ხდება დალაგება?", "options": ["C#-ში, ყველა კერძის ჩატვირთვის შემდეგ", "ბაზაში: SQL-ში ORDER BY \"Embedding\" <=> @query LIMIT 3 — C#-ში მხოლოდ 3 ხაზი მოდის", "Gemini-ში", "ინდექსის შექმნისას"], "answer": 1, "explain": "LINQ SQL-ად ითარგმნება.", "slide": 11},
-    {"q": "HNSW ინდექსი რატომაა „მიახლოებითი“?", "options": ["ვექტორებს ამრგვალებს", "ყველა ვექტორს არ ადარებს — გრაფში „სართულებით“ მოძრაობს; ძალიან სწრაფია, მაგრამ იშვიათად შეიძლება ერთი სწორი გამოტოვოს", "მხოლოდ 2 განზომილებას იყენებს", "შემთხვევით ირჩევს"], "answer": 1, "explain": "ამის საზომია recall; ხარისხს hnsw.ef_search არეგულირებს.", "slide": 14},
-    {"q": "ინდექსი `vector_l2_ops`-ითაა, ძებნა — `CosineDistance`-ით. რა მოხდება?", "options": ["შეცდომა", "ძებნა იმუშავებს, მაგრამ ინდექსი არ გამოიყენება — ნელი იქნება", "ინდექსი ავტომატურად შეიცვლება", "შედეგები არასწორი იქნება"], "answer": 1, "explain": "ინდექსის ოპერატორი ძებნის ფუნქციას უნდა ემთხვეოდეს: vector_cosine_ops ↔ CosineDistance.", "slide": 15},
-    {"q": "კერძი და ფასი PostgreSQL-შია, ფილტრი „20 ლარამდე“ გვინდა. რომელი გზა სჯობს?", "options": ["Microsoft.Extensions.VectorData + Qdrant", "EF Core + pgvector: WHERE Price <= 20 და ORDER BY მანძილი — ერთი მოთხოვნა", "ორი ბაზა და შედეგების გაერთიანება C#-ში", "ფილტრი შეუძლებელია"], "answer": 1, "explain": "VectorData მაშინ გვჭირდება, როცა ვექტორები ცალკე store-შია ან ის შეიძლება შეიცვალოს.", "slide": 16}
-  ],
-  "study": {
-    "summary": [
-      "**pgvector** PostgreSQL-ს `vector(768)` სვეტს და მანძილის ოპერატორებს უმატებს; Docker-ში `pgvector/pgvector` იმავე ვერსიით.",
-      "**`<=>` — cosine distance** = 1 − similarity: პატარა = ახლოს, `ORDER BY distance` ზრდადობით.",
-      "**EF Core:** `Pgvector.EntityFrameworkCore`, `UseVector()`, `HasPostgresExtension(\"vector\")`, `Vector? Embedding` + `EmbeddingModel`, migration.",
-      "**ინდექსაცია** მხოლოდ გადასათვლელს ითვლის; **ძებნა:** `OrderBy(CosineDistance).Take(3)` — დალაგება ბაზაში ხდება.",
-      "**HNSW** — მიახლოებითი (ANN), სწრაფი ინდექსი; ოპერატორი (`vector_cosine_ops`) ძებნის ფუნქციას უნდა ემთხვეოდეს; `EXPLAIN`-ით მოწმდება. ერთ PostgreSQL-ში — EF Core, ცალკე store-ზე — VectorData."
-    ],
-    "skip": ["დღის თემა", "შესავალი"],
-    "chapters": {
-      "1 · ბაზაში": {"title": "ვექტორი ბაზაში: pgvector", "goal": "ახსნი, რა არის ვექტორული ბაზა, და pgvector-ის ტიპსა და ოპერატორებს SQL-ში გამოიყენებ."},
-      "2 · EF Core": {"title": "EF Core და ვექტორი", "goal": "ვექტორის სვეტს EF Core-ით დაამატებ, ვექტორებს ჩაწერ და LINQ-ით ეძებ."},
-      "3 · ინდექსი": {"title": "HNSW ინდექსი და VectorData", "goal": "HNSW ინდექსს შექმნი, EXPLAIN-ით შეამოწმებ და აირჩევ EF Core-სა და VectorData-ს შორის."},
-      "პრაქტიკა": {"title": "კლასის დავალება: ძებნა ბაზაზე"},
-      "შეჯამება": {"title": "შეჯამება"},
-      "საშინაო": {"title": "საშინაო დავალება"}
+    {
+      "q": "ლექცია 9-ის ძებნის ვექტორები `MenuIndex` Singleton-შია. რა ხდება deploy-ის შემდეგ?",
+      "options": [
+        "არაფერი — Singleton რჩება",
+        "ვექტორები ქრება და მთელი მენიუ თავიდან უნდა გაიგზავნოს embedding მოდელთან",
+        "ვექტორები ბაზაში გადადის",
+        "Gemini მათ ინახავს"
+      ],
+      "answer": 1,
+      "explain": "მეხსიერება აპის პროცესს ეკუთვნის — რესტარტზე ყველაფერი თავიდან ითვლება.",
+      "slide": 7
+    },
+    {
+      "q": "რატომ ვიყენებთ pgvector-ს ცალკე ვექტორული ბაზის (Qdrant) ნაცვლად?",
+      "options": [
+        "Qdrant ვექტორებს ვერ ინახავს",
+        "PostgreSQL უკვე გვაქვს: ვექტორი კერძის გვერდით, იმავე ცხრილში — ერთი ტრანზაქცია, ერთი backup, WHERE და JOIN",
+        "pgvector ყოველთვის უფრო სწრაფია",
+        "EF Core Qdrant-ს ვერ ხედავს"
+      ],
+      "answer": 1,
+      "explain": "ცალკე ვექტორული ბაზა აზრიანია დიდ მასშტაბზე ან როცა მონაცემი PostgreSQL-ში არ არის.",
+      "slide": 7
+    },
+    {
+      "q": "ლექცია 9-ში score 0.71 იყო. pgvector-ის `<=>` რას დააბრუნებს?",
+      "options": [
+        "0.71",
+        "0.29 — cosine distance = 1 − similarity",
+        "71",
+        "−0.71"
+      ],
+      "answer": 1,
+      "explain": "პატარა distance = ახლოს, ამიტომ ORDER BY ზრდადობით.",
+      "slide": 8
+    },
+    {
+      "q": "რისთვის გვჭირდება `UseVector()` `UseNpgsql`-ში?",
+      "options": [
+        "ინდექსის შესაქმნელად",
+        "Npgsql-მა pgvector-ის `vector` ტიპი რომ იცოდეს და C#-ის `Vector`-ს შეუსაბამოს",
+        "Gemini-სთან დასაკავშირებლად",
+        "migration-ის გასაშვებად"
+      ],
+      "answer": 1,
+      "explain": "HasPostgresExtension(\"vector\") კი migration-ში CREATE EXTENSION-ს ქმნის.",
+      "slide": 10
+    },
+    {
+      "q": "`/menu/index` მეორედ გამოიძახე და `Indexed: 0` დაბრუნდა. რატომ?",
+      "options": [
+        "შეცდომაა",
+        "ინდექსაცია მხოლოდ იმას ითვლის, რასაც ვექტორი არ აქვს ან სხვა მოდელით აქვს — ყველას უკვე აქვს",
+        "ბაზა ცარიელია",
+        "Gemini-მ უარი თქვა"
+      ],
+      "answer": 1,
+      "explain": "ვექტორები ბაზაშია — ფული აღარ იხარჯება.",
+      "slide": 11
+    },
+    {
+      "q": "`OrderBy(p => p.Embedding!.CosineDistance(query)).Take(3)` — სად ხდება დალაგება?",
+      "options": [
+        "C#-ში, ყველა კერძის ჩატვირთვის შემდეგ",
+        "ბაზაში: SQL-ში ORDER BY \"Embedding\" <=> @query LIMIT 3 — C#-ში მხოლოდ 3 ხაზი მოდის",
+        "Gemini-ში",
+        "ინდექსის შექმნისას"
+      ],
+      "answer": 1,
+      "explain": "LINQ SQL-ად ითარგმნება.",
+      "slide": 11
+    },
+    {
+      "q": "ინდექსი `vector_l2_ops`-ითაა, ძებნა — `CosineDistance`-ით. რა მოხდება?",
+      "options": [
+        "შეცდომა",
+        "ძებნა იმუშავებს, მაგრამ ინდექსი არ გამოიყენება — ნელი იქნება",
+        "ინდექსი ავტომატურად შეიცვლება",
+        "შედეგები არასწორი იქნება"
+      ],
+      "answer": 1,
+      "explain": "ინდექსის ოპერატორი ძებნის ფუნქციას უნდა ემთხვეოდეს: vector_cosine_ops ↔ CosineDistance.",
+      "slide": 15
+    },
+    {
+      "q": "კერძი და ფასი PostgreSQL-შია, ფილტრი „20 ლარამდე“ გვინდა. რომელი გზა სჯობს?",
+      "options": [
+        "Microsoft.Extensions.VectorData + Qdrant",
+        "EF Core + pgvector: WHERE Price <= 20 და ORDER BY მანძილი — ერთი მოთხოვნა",
+        "ორი ბაზა და შედეგების გაერთიანება C#-ში",
+        "ფილტრი შეუძლებელია"
+      ],
+      "answer": 1,
+      "explain": "VectorData მაშინ გვჭირდება, როცა ვექტორები ცალკე store-შია ან ის შეიძლება შეიცვალოს.",
+      "slide": 16
     }
-  }
+  ]
 }

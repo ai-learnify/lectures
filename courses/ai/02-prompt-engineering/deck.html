@@ -73,16 +73,6 @@
 }</pre>
     </div>
   </div>
-  <aside class="study">
-## ლექცია 2: პირველი გამოძახება და Prompt Engineering
-
-პირველ ლექციაზე ვნახეთ, როგორ მუშაობს მოდელი: ტოკენები, შემდეგი ტოკენი, პარამეტრები, ფასი. დღეს ყველაფერი ეს **ჩვენს კოდში** გამოჩნდება: RestaurantApi-დან Gemini-ს გამოვიძახებთ და პასუხში დავინახავთ ტოკენებს და `finishReason`-ს. მეორე ნახევარში ვისწავლით, როგორ ვუთხრათ მოდელს, ვინ არის, რაზე ილაპარაკოს და რა ფორმით უპასუხოს.
-  </aside>
-  <aside class="study-en">
-## Lecture 2: The first call and Prompt Engineering
-
-In the first lecture we saw how the model works: tokens, the next token, parameters, price. Today all of this shows up **in our code**: we call Gemini from RestaurantApi and see the tokens and `finishReason` in the response. In the second half we learn how to tell the model who it is, what to talk about and in what form to answer.
-  </aside>
 </section>
 
 <lecture-review/>
@@ -100,24 +90,6 @@ In the first lecture we saw how the model works: tokens, the next token, paramet
     <div class="stop" style="--a:var(--net)"><span class="sn">3</span><h3>💬 Prompt engineering</h3><p>ვინ არის ასისტენტი, რაზე ლაპარაკობს, რა ფორმით პასუხობს</p><span class="from">System · User · Assistant · few-shot</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>შენი ასისტენტი</b> — შენს პროექტში, შენი system prompt-ით</div>
-  <aside class="study">
-### ლექციის გეგმა — 3 ნაბიჯი
-
-1. 🔌 **პირველი გამოძახება** — RestaurantApi-ში ვქმნით endpoint-ს, რომელიც Gemini-ს იძახებს (`IChatClient`, `GetResponseAsync`).
-2. 🎛️ **პარამეტრები კოდში** — ლექცია 1-ის Temperature და Max Tokens `ChatOptions`-ით; პასუხში ვკითხულობთ ტოკენებს (`Usage`) და `FinishReason`-ს.
-3. 💬 **Prompt engineering** — შეტყობინებების როლები (System / User / Assistant), system prompt და few-shot მაგალითები.
-
-ბოლოს — კლასის დავალება: საკუთარი ასისტენტი შენს პროექტში.
-  </aside>
-  <aside class="study-en">
-### Lecture plan — 3 steps
-
-1. 🔌 **The first call** — in RestaurantApi we create an endpoint that calls Gemini (`IChatClient`, `GetResponseAsync`).
-2. 🎛️ **Parameters in code** — Temperature and Max Tokens from lecture 1 via `ChatOptions`; in the response we read the tokens (`Usage`) and `FinishReason`.
-3. 💬 **Prompt engineering** — message roles (System / User / Assistant), the system prompt and few-shot examples.
-
-At the end — classwork: your own assistant in your project.
-  </aside>
 </section>
 
 <!-- ================= 1 · პირველი გამოძახება ================= -->
@@ -128,16 +100,6 @@ At the end — classwork: your own assistant in your project.
     <p class="lead mt in" style="--d:.3s">IChatClient · NuGet · key · პირველი endpoint</p>
   </div>
   <div class="big-num">01</div>
-  <aside class="study">
-## ნაწილი 1 · Gemini ჩვენი API-დან
-
-ლექცია 1-ზე ვნახეთ, რომ LLM ჩვენთვის **კიდევ ერთი HTTP API-ა**. HTTP მოთხოვნას ხელით არ ავაწყობთ: .NET-ს ამისთვის აქვს ერთიანი ფენა — **Microsoft.Extensions.AI**. ამ ნაწილში RestaurantApi-ში ვქმნით პირველ endpoint-ს, რომელიც Gemini-ს იძახებს.
-  </aside>
-  <aside class="study-en">
-## Part 1 · Gemini from our API
-
-In lecture 1 we saw that for us an LLM is **just another HTTP API**. We won't build the HTTP request by hand: .NET has a common layer for this — **Microsoft.Extensions.AI**. In this part we create the first endpoint in RestaurantApi that calls Gemini.
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · პირველი გამოძახება">
@@ -158,48 +120,6 @@ In lecture 1 we saw that for us an LLM is **just another HTTP API**. We won't bu
     </div>
   </div>
   <div class="callout step mt2" data-with style="--a:var(--mvc);font-size:23px">ბაზის შეცვლისას LINQ არ იცვლება. პროვაიდერის შეცვლისას — <b>ჩვენი AI კოდი არ იცვლება</b></div>
-  <aside class="study">
-### `IChatClient` — LLM-ის „DbContext“
-
-EF Core-იდან ეს იდეა უკვე იცი: კოდს `DbContext`-ით და LINQ-ით წერ, ბაზასთან კი **provider** ლაპარაკობს (`SqlServer`, `Npgsql`). ბაზის შეცვლა = provider-ის შეცვლა; LINQ ადგილზე რჩება.
-
-**Microsoft.Extensions.AI** ზუსტად ამას აკეთებს ენობრივი მოდელებისთვის:
-
-- `IChatClient` — ერთი interface ყველა ჩატ-მოდელისთვის. მთავარი მეთოდი: `GetResponseAsync`.
-- provider-ები ამ interface-ს ახორციელებენ: **Google.GenAI** (Gemini), **Microsoft.Extensions.AI.OpenAI** (OpenAI და OpenAI-compatible სერვისები), **OllamaSharp** (ლოკალური მოდელები).
-
-ჩვენი კოდი მხოლოდ `IChatClient`-ს იცნობს. სხვა პროვაიდერზე გადასვლა = client-ის შექმნის **ერთი ხაზის** შეცვლა.
-
-```note
-Microsoft.Extensions.AI .NET-ის ოფიციალური „AI ფენაა“ — ისევე, როგორც `ILogger` ლოგირებისთვის. მასზე დგას Microsoft Agent Framework-იც (ლექცია 14). DI-ში რეგისტრაცია და კონფიგურაცია — ლექცია 3-ზე.
-```
-
-```terms
-IChatClient — Microsoft.Extensions.AI-ის interface ჩატ-მოდელთან სასაუბროდ; ერთნაირია ყველა პროვაიდერისთვის
-provider — ბიბლიოთეკა, რომელიც საერთო interface-ს კონკრეტული სერვისისთვის ახორციელებს (Gemini, OpenAI…)
-```
-  </aside>
-  <aside class="study-en">
-### `IChatClient` — the “DbContext” of LLMs
-
-You already know this idea from EF Core: you write code with `DbContext` and LINQ, and a **provider** talks to the database (`SqlServer`, `Npgsql`). Changing the database = changing the provider; LINQ stays the same.
-
-**Microsoft.Extensions.AI** does exactly this for language models:
-
-- `IChatClient` — one interface for every chat model. The main method: `GetResponseAsync`.
-- providers implement this interface: **Google.GenAI** (Gemini), **Microsoft.Extensions.AI.OpenAI** (OpenAI and OpenAI-compatible services), **OllamaSharp** (local models).
-
-Our code knows only `IChatClient`. Switching to another provider = changing **one line** where the client is created.
-
-```note
-Microsoft.Extensions.AI is the official “AI layer” of .NET — just like `ILogger` is for logging. Microsoft Agent Framework is built on it too (lecture 14). DI registration and configuration — in lecture 3.
-```
-
-```terms
-IChatClient — the Microsoft.Extensions.AI interface for talking to a chat model; the same for every provider
-provider — a library that implements the common interface for a specific service (Gemini, OpenAI…)
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · პირველი გამოძახება">
@@ -217,86 +137,6 @@ provider — a library that implements the common interface for a specific servi
       <div class="callout" style="--a:var(--net)">პროექტზე მარჯვენა ღილაკი → <b>Manage NuGet Packages</b> → Browse → ორივე → Install</div>
     </div>
   </div>
-  <aside class="study">
-### მომზადება: key და ორი NuGet package
-
-**1. key → User Secrets.** Gemini API key საშინაოში აიღე ([aistudio.google.com](https://aistudio.google.com) → **Get API key**). ახლა ვინახავთ **User Secrets**-ში — .NET-ის ჩაშენებული საცავი დეველოპმენტისთვის. ტერმინალში, პროექტის საქაღალდეში:
-
-```bash
-dotnet user-secrets init
-dotnet user-secrets set "Gemini:ApiKey" "AIza..."
-```
-
-ან Visual Studio-ში: პროექტზე მარჯვენა ღილაკი → **Manage User Secrets** → იხსნება `secrets.json`:
-
-```json secrets.json
-{
-  "Gemini": {
-    "ApiKey": "AIza..."
-  }
-}
-```
-
-`Gemini:ApiKey` — .NET კონფიგურაციის ჩანაწერია: `:` ნიშნავს ჩადგმულ სექციას (`Gemini` → `ApiKey`). კოდში ასე ვკითხულობთ: `config["Gemini:ApiKey"]`. `secrets.json` პროექტის გარეთ ინახება (შენი მომხმარებლის საქაღალდეში), ამიტომ Git-ში ვერ მოხვდება.
-
-```warn
-**API key = პაროლი.** არასდროს ჩაწერო კოდში, `appsettings.json`-ში ან `launchSettings.json`-ში — ისინი Git-ში მიდის, და GitHub-ზე გაჟონილ key-ს ბოტები წუთებში პოულობენ.
-```
-
-**2. ორი package** RestaurantApi-ში (ან შენს პროექტში):
-
-| Package | რისთვის |
-|---|---|
-| **Microsoft.Extensions.AI** | `IChatClient`, `ChatOptions`, `ChatMessage`, `ChatResponse` — ერთი API ყველა მოდელისთვის |
-| **Google.GenAI** | Google-ის ოფიციალური .NET SDK. `AsIChatClient()` მეთოდით გვაძლევს `IChatClient`-ს |
-
-Visual Studio-ში: პროექტზე მარჯვენა ღილაკი → **Manage NuGet Packages** → **Browse**. ან ტერმინალიდან:
-
-```bash
-dotnet add package Microsoft.Extensions.AI
-dotnet add package Google.GenAI
-```
-  </aside>
-  <aside class="study-en">
-### Setup: the key and two NuGet packages
-
-**1. The key → User Secrets.** You got a Gemini API key in the homework ([aistudio.google.com](https://aistudio.google.com) → **Get API key**). Now we store it in **User Secrets** — .NET's built-in store for development. In the terminal, in the project folder:
-
-```bash
-dotnet user-secrets init
-dotnet user-secrets set "Gemini:ApiKey" "AIza..."
-```
-
-Or in Visual Studio: right-click the project → **Manage User Secrets** → `secrets.json` opens:
-
-```json secrets.json
-{
-  "Gemini": {
-    "ApiKey": "AIza..."
-  }
-}
-```
-
-`Gemini:ApiKey` is a .NET configuration key: `:` means a nested section (`Gemini` → `ApiKey`). In code we read it as `config["Gemini:ApiKey"]`. `secrets.json` lives outside the project (in your user folder), so it can't end up in Git.
-
-```warn
-**An API key = a password.** Never put it in code, `appsettings.json` or `launchSettings.json` — they go to Git, and bots find a key leaked on GitHub within minutes.
-```
-
-**2. Two packages** in RestaurantApi (or your project):
-
-| Package | What for |
-|---|---|
-| **Microsoft.Extensions.AI** | `IChatClient`, `ChatOptions`, `ChatMessage`, `ChatResponse` — one API for every model |
-| **Google.GenAI** | Google's official .NET SDK. Its `AsIChatClient()` method gives us an `IChatClient` |
-
-In Visual Studio: right-click the project → **Manage NuGet Packages** → **Browse**. Or from the terminal:
-
-```bash
-dotnet add package Microsoft.Extensions.AI
-dotnet add package Google.GenAI
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · პირველი გამოძახება">
@@ -339,150 +179,6 @@ public class AiLabController : ControllerBase
       <div class="callout step" data-with style="--a:var(--mvc)">ტექსტი + <b>ტოკენები</b> + <b>finish reason</b> — ის, რაც ლექცია 1-ზე ვნახეთ</div>
     </div>
   </div>
-  <aside class="study">
-### პირველი endpoint: `POST /api/ai-lab/ask`
-
-RestaurantApi-ში ვქმნით „ლაბორატორიას“ — ცალკე Controller-ს ექსპერიმენტებისთვის. ის კლიენტისთვის არ არის: მასზე მოდელის ქცევას ვსწავლობთ.
-
-**DTO-ები — მზა, დააკოპირე** (`Dtos/AiLab/AskDtos.cs`):
-
-```csharp Dtos/AiLab/AskDtos.cs
-using Microsoft.Extensions.AI;
-
-public record AskRequest(string Prompt);
-
-public record AskResponse(
-    string Text,
-    long? InputTokens,
-    long? OutputTokens,
-    long? ReasoningTokens,
-    string? FinishReason)
-{
-    public static AskResponse From(ChatResponse response) => new(
-        response.Text,
-        response.Usage?.InputTokenCount,
-        response.Usage?.OutputTokenCount,
-        response.Usage?.ReasoningTokenCount,
-        response.FinishReason?.Value);
-}
-```
-
-`From` — პატარა static მეთოდი, რომელიც `ChatResponse`-ს ჩვენს DTO-ად აქცევს. ყველა დღევანდელ endpoint-ში გამოგვადგება.
-
-**Controller — ერთად ვწერთ:**
-
-```csharp Controllers/AiLabController.cs
-using Google.GenAI;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.AI;
-
-[ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
-{
-    private readonly IChatClient _chat;
-
-    // created here for now — moves to DI in lecture 3
-    public AiLabController(IConfiguration config)
-    {
-        _chat = new Client(apiKey: config["Gemini:ApiKey"])
-            .AsIChatClient("gemini-3.8-flash");
-    }
-
-    [HttpPost("ask")]
-    public async Task<IActionResult> Ask(AskRequest request)
-    {
-        ChatResponse response = await _chat.GetResponseAsync(request.Prompt);
-        return Ok(AskResponse.From(response));
-    }
-}
-```
-
-ხაზ-ხაზ:
-
-- **`IConfiguration config`** — .NET-ის კონფიგურაცია (appsettings.json + User Secrets + …), DI გვაძლევს constructor-ში.
-- **`new Client(apiKey: config["Gemini:ApiKey"])`** — Google-ის SDK-ის client; key-ს User Secrets-იდან ვაწვდით.
-- **`.AsIChatClient("gemini-3.8-flash")`** — client-ს საერთო `IChatClient`-ად აქცევს; პარამეტრი მოდელის სახელია ([მოდელების სია](https://ai.google.dev/gemini-api/docs/models)). ცვლადის ტიპი interface-ია, ობიექტი კი Gemini-ს.
-- **`GetResponseAsync(request.Prompt)`** — აგზავნის HTTP მოთხოვნას და ელოდება პასუხს. `async`, რადგან ეს ქსელის ოპერაციაა.
-- **`ChatResponse`** — პასუხი: `Text`, `Usage` (ტოკენები), `FinishReason`.
-- **`?.`** — `Usage` და `FinishReason` შეიძლება `null` იყოს (ყველა provider ყოველთვის არ აბრუნებს).
-
-```warn
-`new Client(...).AsIChatClient(...)` Controller-ის შიგნით — ესაა ის, რასაც DI-ზე **ვერიდებოდით**: Controller თვითონ ქმნის თავის დამოკიდებულებას. დღეს ეს შეგნებულად ასეა, რომ ყურადღება მოდელზე იყოს. ლექცია 3-ზე `IChatClient`-ს DI-ში დავარეგისტრირებთ.
-```
-  </aside>
-  <aside class="study-en">
-### The first endpoint: `POST /api/ai-lab/ask`
-
-In RestaurantApi we create a “lab” — a separate Controller for experiments. It isn't for customers: we use it to study how the model behaves.
-
-**DTOs — ready-made, copy them** (`Dtos/AiLab/AskDtos.cs`):
-
-```csharp Dtos/AiLab/AskDtos.cs
-using Microsoft.Extensions.AI;
-
-public record AskRequest(string Prompt);
-
-public record AskResponse(
-    string Text,
-    long? InputTokens,
-    long? OutputTokens,
-    long? ReasoningTokens,
-    string? FinishReason)
-{
-    public static AskResponse From(ChatResponse response) => new(
-        response.Text,
-        response.Usage?.InputTokenCount,
-        response.Usage?.OutputTokenCount,
-        response.Usage?.ReasoningTokenCount,
-        response.FinishReason?.Value);
-}
-```
-
-`From` is a small static method that turns a `ChatResponse` into our DTO. We'll use it in every endpoint today.
-
-**The Controller — we write it together:**
-
-```csharp Controllers/AiLabController.cs
-using Google.GenAI;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.AI;
-
-[ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
-{
-    private readonly IChatClient _chat;
-
-    // created here for now — moves to DI in lecture 3
-    public AiLabController(IConfiguration config)
-    {
-        _chat = new Client(apiKey: config["Gemini:ApiKey"])
-            .AsIChatClient("gemini-3.8-flash");
-    }
-
-    [HttpPost("ask")]
-    public async Task<IActionResult> Ask(AskRequest request)
-    {
-        ChatResponse response = await _chat.GetResponseAsync(request.Prompt);
-        return Ok(AskResponse.From(response));
-    }
-}
-```
-
-Line by line:
-
-- **`IConfiguration config`** — .NET configuration (appsettings.json + User Secrets + …); DI hands it to the constructor.
-- **`new Client(apiKey: config["Gemini:ApiKey"])`** — the Google SDK client; we pass it the key from User Secrets.
-- **`.AsIChatClient("gemini-3.8-flash")`** — turns the client into the common `IChatClient`; the parameter is the model name ([model list](https://ai.google.dev/gemini-api/docs/models)). The variable's type is the interface, the object is Gemini's.
-- **`GetResponseAsync(request.Prompt)`** — sends the HTTP request and waits for the answer. `async`, because it's a network operation.
-- **`ChatResponse`** — the answer: `Text`, `Usage` (tokens), `FinishReason`.
-- **`?.`** — `Usage` and `FinishReason` can be `null` (not every provider always returns them).
-
-```warn
-`new Client(...).AsIChatClient(...)` inside the Controller is exactly what we **avoided** in the DI lecture: the Controller creates its own dependency. Today it's on purpose, so the focus stays on the model. In lecture 3 we register `IChatClient` in DI.
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · პირველი გამოძახება">
@@ -509,76 +205,6 @@ Line by line:
       <div class="callout" style="--a:var(--red);font-size:19px">რიცხვები შენთან <b>სხვა</b> იქნება — მოდელი ყოველ ჯერზე სხვანაირად ფიქრობს</div>
     </div>
   </div>
-  <aside class="study">
-### პირველი პასუხი Swagger-ში
-
-გაუშვი პროექტი (F5), Swagger-ში გახსენი `POST /api/ai-lab/ask` → **Try it out**:
-
-```json
-{ "prompt": "Suggest one light vegetarian dish. One sentence." }
-```
-
-პასუხი დაახლოებით ასეთი იქნება (ტექსტი და რიცხვები შენთან განსხვავდება):
-
-```json
-{
-  "text": "Try grilled eggplant with walnuts…",
-  "inputTokens": 10,
-  "outputTokens": 19,
-  "reasoningTokens": 212,
-  "finishReason": "stop"
-}
-```
-
-| ველი | რას ნიშნავს | ლექცია 1-დან |
-|---|---|---|
-| `inputTokens` | რამდენი ტოკენი გავუგზავნეთ | ტოკენები, input ფასი |
-| `outputTokens` | რამდენი ტოკენია პასუხი | output ფასი (ძვირი) |
-| `reasoningTokens` | რამდენი ტოკენი დახარჯა ფიქრზე | reasoning მოდელები |
-| `finishReason` | რატომ გაჩერდა: `stop` — თვითონ, `length` — ლიმიტზე | Max Tokens |
-
-**რა არის `reasoningTokens`?** Gemini 3.8 Flash reasoning მოდელია: პასუხის დაწერამდე „ფიქრობს“. ფიქრის ტექსტს ჩვენ ვერ ვხედავთ, მაგრამ მის ტოკენებს **output-ის ფასით** ვიხდით. ამ მაგალითში 19-ტოკენიან პასუხზე 212 ფიქრის ტოკენი დაიხარჯა — ანუ ვიხდით 231 output ტოკენს.
-
-```terms
-reasoningTokens — ტოკენები, რომლებიც მოდელმა პასუხამდე ფიქრზე დახარჯა; output-ის ფასით ფასდება
-finishReason — რატომ გაჩერდა მოდელი: stop (თვითონ დაასრულა) ან length (ლიმიტს მიაღწია)
-```
-  </aside>
-  <aside class="study-en">
-### The first answer in Swagger
-
-Run the project (F5), open `POST /api/ai-lab/ask` in Swagger → **Try it out**:
-
-```json
-{ "prompt": "Suggest one light vegetarian dish. One sentence." }
-```
-
-The response will look roughly like this (the text and numbers will differ for you):
-
-```json
-{
-  "text": "Try grilled eggplant with walnuts…",
-  "inputTokens": 10,
-  "outputTokens": 19,
-  "reasoningTokens": 212,
-  "finishReason": "stop"
-}
-```
-
-| Field | What it means | From lecture 1 |
-|---|---|---|
-| `inputTokens` | how many tokens we sent | tokens, input price |
-| `outputTokens` | how many tokens the answer has | output price (expensive) |
-| `reasoningTokens` | how many tokens it spent thinking | reasoning models |
-| `finishReason` | why it stopped: `stop` — on its own, `length` — at the limit | Max Tokens |
-
-**What is `reasoningTokens`?** Gemini 3.8 Flash is a reasoning model: it “thinks” before writing the answer. We can't see the thinking text, but we pay for its tokens **at the output price**. In this example 212 thinking tokens were spent on a 19-token answer — so we pay for 231 output tokens.
-
-```terms
-reasoningTokens — tokens the model spent thinking before the answer; billed at the output price
-finishReason — why the model stopped: stop (finished on its own) or length (hit the limit)
-```
-  </aside>
 </section>
 
 <!-- ================= 2 · პარამეტრები კოდში ================= -->
@@ -589,16 +215,6 @@ finishReason — why the model stopped: stop (finished on its own) or length (hi
     <p class="lead mt in" style="--d:.3s">ChatOptions · Temperature · Max Tokens · ჯერ გამოიცანი, მერე გაუშვი</p>
   </div>
   <div class="big-num">02</div>
-  <aside class="study">
-## ნაწილი 2 · ლექცია 1-ის თეორია ჩვენს კოდში
-
-ლექცია 1-ზე Temperature-ის სლაიდერი და Max Tokens სლაიდზე ვნახეთ. ახლა მათ **კოდიდან** დავაყენებთ და შედეგს ნამდვილ მოდელზე შევამოწმებთ.
-  </aside>
-  <aside class="study-en">
-## Part 2 · Lecture 1 theory in our code
-
-In lecture 1 we saw the Temperature slider and Max Tokens on a slide. Now we set them **from code** and check the result on a real model.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · პარამეტრები კოდში">
@@ -631,86 +247,6 @@ public record AskRequest(
       <div class="callout" style="--a:var(--net)"><b>options</b> ეკუთვნის <b>ამ მოთხოვნას</b> — სხვა endpoint-ს სხვა ექნება</div>
     </div>
   </div>
-  <aside class="study">
-### პარამეტრები კოდიდან — `ChatOptions`
-
-ლექცია 1-ის პარამეტრები C#-ში `ChatOptions` კლასშია:
-
-| ChatOptions | ლექცია 1-ში |
-|---|---|
-| `Temperature` | Temperature |
-| `TopP` | Top-P |
-| `MaxOutputTokens` | Max Tokens |
-| `ModelId` | სხვა მოდელი ამ მოთხოვნისთვის |
-
-`AskRequest`-ს ვამატებთ ორ არასავალდებულო ველს:
-
-```csharp Dtos/AiLab/AskDtos.cs
-public record AskRequest(
-    string Prompt,
-    float? Temperature = null,
-    int? MaxOutputTokens = null);
-```
-
-და `Ask`-ში ვქმნით `ChatOptions`-ს:
-
-```csharp Controllers/AiLabController.cs
-var options = new ChatOptions
-{
-    Temperature = request.Temperature,
-    MaxOutputTokens = request.MaxOutputTokens
-};
-
-ChatResponse response =
-    await _chat.GetResponseAsync(request.Prompt, options);
-```
-
-`null` ნიშნავს „არ ვუთითებთ“ — მოდელი თავის ნაგულისხმევს გამოიყენებს. ასე Swagger-იდან ერთი endpoint-ით ნებისმიერ კომბინაციას ვცდით.
-
-```note
-`options` ცალკეულ მოთხოვნას ეკუთვნის: ერთ endpoint-ში ერთი Temperature, მეორეში სხვა — ზუსტად ისე, როგორც ლექცია 1-ის ცხრილში დავგეგმეთ.
-```
-  </aside>
-  <aside class="study-en">
-### Parameters from code — `ChatOptions`
-
-In C# the parameters from lecture 1 live in the `ChatOptions` class:
-
-| ChatOptions | In lecture 1 |
-|---|---|
-| `Temperature` | Temperature |
-| `TopP` | Top-P |
-| `MaxOutputTokens` | Max Tokens |
-| `ModelId` | a different model for this request |
-
-We add two optional fields to `AskRequest`:
-
-```csharp Dtos/AiLab/AskDtos.cs
-public record AskRequest(
-    string Prompt,
-    float? Temperature = null,
-    int? MaxOutputTokens = null);
-```
-
-and in `Ask` we create `ChatOptions`:
-
-```csharp Controllers/AiLabController.cs
-var options = new ChatOptions
-{
-    Temperature = request.Temperature,
-    MaxOutputTokens = request.MaxOutputTokens
-};
-
-ChatResponse response =
-    await _chat.GetResponseAsync(request.Prompt, options);
-```
-
-`null` means “not specified” — the model uses its default. This way we can try any combination from Swagger with one endpoint.
-
-```note
-`options` belongs to a single request: one Temperature in one endpoint, another in a different one — exactly as we planned in the lecture 1 table.
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · პარამეტრები კოდში">
@@ -728,66 +264,6 @@ ChatResponse response =
   </div>
   <div class="callout step mt" data-with style="--a:var(--net);font-size:21px">ლიმიტი <b>ფიქრმა</b> შეჭამა → reasoning მოდელს Max Tokens <b>მარაგით</b> სჭირდება</div>
   <div class="callout mt" style="--a:var(--pink);font-size:20px">ყოველზე: ჯერ <b>ხელის აწევა / პროგნოზი</b> → მერე Swagger → ვინ გამოიცნო?</div>
-  <aside class="study">
-### 🔮 2 ექსპერიმენტი — ჯერ გამოიცანი, მერე გაუშვი
-
-ყოველ ექსპერიმენტზე ჯერ დაწერე შენი პროგნოზი, მერე შეამოწმე Swagger-ში.
-
-**1 · Temperature.**
-
-```json
-{ "prompt": "Invent a name for a new Georgian dish. Only the name.", "temperature": 0 }
-```
-
-სამჯერ `0`-ით, მერე სამჯერ `2`-ით.
-*რას ნახავ:* 0-ზე სახელები (თითქმის) ერთნაირია, 2-ზე ყოველ ჯერზე სხვა — ზოგჯერ უცნაურიც. ეს ლექცია 1-ის სლაიდერის დადასტურებაა ნამდვილ მოდელზე.
-
-**2 · Max Tokens.**
-
-```json
-{ "prompt": "Describe khachapuri", "maxOutputTokens": 15 }
-```
-
-*რას ნახავ:* `"finishReason": "length"`, ტექსტი ცარიელი ან შუაში მოჭრილი, `reasoningTokens` კი ლიმიტის ტოლი. Gemini პასუხამდე ფიქრობს და **ფიქრის ტოკენებიც ამ ლიმიტში ითვლება** — 15 ტოკენი ფიქრზე დაიხარჯა და პასუხისთვის აღარ დარჩა. სცადე `300` და შეადარე.
-
-```note
-**Gemini 3 და Temperature.** Google Gemini 3 მოდელებისთვის გვირჩევს, Temperature ნაგულისხმევზე (1.0) დავტოვოთ: ეს reasoning მოდელებია, და დაბალ Temperature-ზე ხარისხი შეიძლება დაეცეს ან პასუხი გამეორებაში ჩავარდეს. ექსპერიმენტში Temperature-ს იმისთვის ვცვლით, რომ ეფექტი დავინახოთ. რეალურ endpoint-ში Gemini 3-ზე ნაგულისხმევს ვტოვებთ, ხოლო ზუსტ ფორმატს **prompt-ით** ვაღწევთ — ამას ნაწილი 3-ში ვისწავლით.
-```
-
-```tip
-**Max Tokens reasoning მოდელზე:** ლიმიტი ყოველთვის მარაგით — ფიქრსაც უნდა ეყოს. მოკლე პასუხი გინდა? ეს prompt-ში დაწერე („ერთი წინადადებით“), არა ლიმიტით.
-```
-  </aside>
-  <aside class="study-en">
-### 🔮 2 experiments — guess first, then run
-
-For each experiment, first write down your prediction, then check it in Swagger.
-
-**1 · Temperature.**
-
-```json
-{ "prompt": "Invent a name for a new Georgian dish. Only the name.", "temperature": 0 }
-```
-
-Three times with `0`, then three times with `2`.
-*What you'll see:* at 0 the names are (almost) the same, at 2 they're different every time — sometimes strange. This confirms the lecture 1 slider on a real model.
-
-**2 · Max Tokens.**
-
-```json
-{ "prompt": "Describe khachapuri", "maxOutputTokens": 15 }
-```
-
-*What you'll see:* `"finishReason": "length"`, the text is empty or cut in the middle, and `reasoningTokens` equals the limit. Gemini thinks before answering and **the thinking tokens count toward the same limit** — the 15 tokens were spent on thinking and nothing was left for the answer. Try `300` and compare.
-
-```note
-**Gemini 3 and Temperature.** For Gemini 3 models Google recommends leaving Temperature at the default (1.0): these are reasoning models, and at a low Temperature quality may drop or the answer may fall into repetition. In the experiment we change Temperature to see the effect. In a real endpoint on Gemini 3 we keep the default and get an exact format **with the prompt** — we learn that in part 3.
-```
-
-```tip
-**Max Tokens on a reasoning model:** always set the limit with room to spare — the thinking needs it too. Want a short answer? Say it in the prompt (“in one sentence”), not with the limit.
-```
-  </aside>
 </section>
 
 <section class="slide divider" data-section="შესვენება">
@@ -807,16 +283,6 @@ Three times with `0`, then three times with `2`.
     <p class="lead mt in" style="--d:.3s">როლები · system prompt · zero-shot და few-shot</p>
   </div>
   <div class="big-num">03</div>
-  <aside class="study">
-## ნაწილი 3 · როგორ ვესაუბროთ მოდელს?
-
-ლექცია 1-ზე ვნახეთ: მოდელი შემდეგ ტოკენს **მთელი ტექსტის** მიხედვით ირჩევს. ე.ი. რასაც მას ვაწვდით, ის ცვლის პასუხს. **Prompt engineering** არის ამ ტექსტის გააზრებულად აწყობა: ვინ არის ასისტენტი, რაზე ლაპარაკობს, რა ფორმით პასუხობს.
-  </aside>
-  <aside class="study-en">
-## Part 3 · How do we talk to the model?
-
-In lecture 1 we saw that the model picks the next token based on **the whole text**. So what we give it changes the answer. **Prompt engineering** means building this text deliberately: who the assistant is, what it talks about, in what form it answers.
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · Prompt engineering">
@@ -844,78 +310,6 @@ await _chat.GetResponseAsync(messages);
       <div class="callout" style="--a:var(--asp);font-size:19px"><code class="i">GetResponseAsync("text")</code> = სია ერთი <b>User</b> შეტყობინებით</div>
     </div>
   </div>
-  <aside class="study">
-### მოდელს ვუგზავნით შეტყობინებების სიას
-
-ChatGPT-ს თავაზიანობა და „ასისტენტობა“ არავინ უთხრა ჩატში — ეს **system** შეტყობინებაშია, რომელსაც აპლიკაცია ყოველ მოთხოვნაში მომხმარებლისგან ფარულად აგზავნის. ჩვენც ზუსტად ასე ვაკეთებთ.
-
-მოდელს ერთ ტექსტს კი არა, **შეტყობინებების სიას** ვუგზავნით. თითოს აქვს **როლი**:
-
-| როლი | ვინ წერს | რას შეიცავს |
-|---|---|---|
-| **System** | ჩვენ, კოდში | ვინ არის ასისტენტი, რაზე ლაპარაკობს, როგორ პასუხობს, რას არ აკეთებს |
-| **User** | მომხმარებელი | კითხვა, თხოვნა |
-| **Assistant** | მოდელი | მისი წინა პასუხები (ისტორიაში) |
-
-მოდელი სიას თავიდან ბოლომდე „კითხულობს“ და წერს **შემდეგ Assistant შეტყობინებას**.
-
-C#-ში სია ასე იწყობა:
-
-```csharp
-List<ChatMessage> messages =
-[
-    new(ChatRole.System, "You are…"),
-    new(ChatRole.User, request.Prompt)
-];
-
-ChatResponse response = await _chat.GetResponseAsync(messages);
-```
-
-```note
-`GetResponseAsync("text")`, რომელიც ნაწილ 1-ში გამოვიყენეთ, სინამდვილეში იგივეა: სია **ერთი User შეტყობინებით**. ისტორიას (წინა User/Assistant შეტყობინებებს) ლექცია 7-ზე დავამატებთ — ამით მოდელს „მეხსიერება“ გაუჩნდება.
-```
-
-```terms
-System prompt — სისტემური შეტყობინება: ასისტენტის როლი, საზღვრები და პასუხის ფორმა; დეველოპერი წერს, მომხმარებელი ვერ ხედავს
-ChatMessage — ერთი შეტყობინება როლით (ChatRole.System / User / Assistant) და ტექსტით
-```
-  </aside>
-  <aside class="study-en">
-### We send the model a list of messages
-
-Nobody told ChatGPT in the chat to be polite and act as an “assistant” — that's in the **system** message, which the app sends with every request, hidden from the user. We do exactly the same.
-
-We send the model not one text but a **list of messages**. Each has a **role**:
-
-| Role | Who writes it | What it contains |
-|---|---|---|
-| **System** | we, in code | who the assistant is, what it talks about, how it answers, what it doesn't do |
-| **User** | the user | a question, a request |
-| **Assistant** | the model | its previous answers (in the history) |
-
-The model “reads” the list from top to bottom and writes **the next Assistant message**.
-
-In C# the list is built like this:
-
-```csharp
-List<ChatMessage> messages =
-[
-    new(ChatRole.System, "You are…"),
-    new(ChatRole.User, request.Prompt)
-];
-
-ChatResponse response = await _chat.GetResponseAsync(messages);
-```
-
-```note
-`GetResponseAsync("text")`, which we used in part 1, is actually the same thing: a list with **one User message**. We'll add the history (previous User/Assistant messages) in lecture 7 — that gives the model a “memory”.
-```
-
-```terms
-System prompt — the system message: the assistant's role, boundaries and answer format; the developer writes it, the user can't see it
-ChatMessage — one message with a role (ChatRole.System / User / Assistant) and text
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · Prompt engineering">
@@ -958,102 +352,6 @@ public async Task<IActionResult> Assistant(AskRequest request)
       <div class="callout step" data-with style="--a:var(--muted);font-size:18px"><b>$"""…{ცვლადი}…"""</b> — შაბლონი: მონაცემი C#-დან. მოგვიანებით — ბაზიდან</div>
     </div>
   </div>
-  <aside class="study">
-### System prompt: რესტორნის ასისტენტი
-
-ვამატებთ მეორე endpoint-ს — `POST /api/ai-lab/assistant`. მას აქვს **system prompt**: ინსტრუქცია, რომელიც ყოველ მოთხოვნაში მომხმარებლის კითხვამდე მიდის.
-
-```csharp Controllers/AiLabController.cs · Assistant
-private const string RestaurantName = "Supra";
-private const string OpenHours = "12:00–23:00";
-
-[HttpPost("assistant")]
-public async Task<IActionResult> Assistant(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, $"""
-            You are the assistant of the restaurant "{RestaurantName}".
-            You answer only about the menu, bookings and hours ({OpenHours}).
-            Answer: at most 3 sentences, in the language the user writes in.
-            On any other topic you politely decline and say what you can help with.
-            You don't invent prices or ingredients — you say they are on the menu.
-            """),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
-}
-```
-
-**კარგი system prompt — 4 ნაწილი:**
-
-| ნაწილი | ჩვენთან | რატომ |
-|---|---|---|
-| 👤 **როლი** | „რესტორან „სუფრის“ ასისტენტი“ | მოდელმა იცის, ვის სახელით ლაპარაკობს |
-| 🎯 **თემები** | მენიუ, ჯავშანი, საათები | საზღვარი: რაზე პასუხობს |
-| 📏 **ფორმა** | მაქსიმუმ 3 წინადადება, მომხმარებლის ენაზე | სიგრძე და ენა — წინასწარ |
-| 🚫 **საზღვრები** | სხვა თემაზე — უარი; ფასს არ იგონებს | რა გააკეთოს, როცა კითხვა არ ჯდება |
-
-**შაბლონი (`$"""…"""`)** — C#-ის raw string interpolation. `{RestaurantName}` და `{OpenHours}` გაშვებისას ჩაისმება. ახლა ესენი const-ებია; მოგვიანებით ამ ადგილას **ბაზიდან** წამოღებული მონაცემი ჩაჯდება (ლექცია 4: tools, ლექცია 11: RAG).
-
-```tip
-"Be smart and help" მოდელს არაფერს ეუბნება. კონკრეტული როლი, თემები, ფორმა და საზღვარი — ეუბნება. წერე ისე, როგორც ახალ თანამშრომელს აუხსნიდი პირველ სამუშაო დღეს.
-```
-
-```terms
-prompt template — prompt-ის შაბლონი, რომელშიც მონაცემი კოდიდან ჩაისმება
-```
-  </aside>
-  <aside class="study-en">
-### System prompt: the restaurant assistant
-
-We add a second endpoint — `POST /api/ai-lab/assistant`. It has a **system prompt**: an instruction that goes before the user's question in every request.
-
-```csharp Controllers/AiLabController.cs · Assistant
-private const string RestaurantName = "Supra";
-private const string OpenHours = "12:00–23:00";
-
-[HttpPost("assistant")]
-public async Task<IActionResult> Assistant(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, $"""
-            You are the assistant of the restaurant "{RestaurantName}".
-            You answer only about the menu, bookings and hours ({OpenHours}).
-            Answer: at most 3 sentences, in the language the user writes in.
-            On any other topic you politely decline and say what you can help with.
-            You don't invent prices or ingredients — you say they are on the menu.
-            """),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
-}
-```
-
-**A good system prompt — 4 parts:**
-
-| Part | Ours | Why |
-|---|---|---|
-| 👤 **Role** | “the assistant of the restaurant Supra” | the model knows on whose behalf it speaks |
-| 🎯 **Topics** | menu, reservations, hours | a boundary: what it answers about |
-| 📏 **Format** | at most 3 sentences, in the user's language | length and language — set in advance |
-| 🚫 **Boundaries** | another topic — decline; doesn't invent prices | what to do when a question doesn't fit |
-
-**The template (`$"""…"""`)** is C# raw string interpolation. `{RestaurantName}` and `{OpenHours}` are filled in at run time. For now these are constants; later, data **from the database** goes here (lecture 4: tools, lecture 11: RAG).
-
-```tip
-“Be smart and helpful” tells the model nothing. A concrete role, topics, format and boundary do. Write it the way you'd explain the job to a new employee on their first day.
-```
-
-```terms
-prompt template — a prompt template into which data from code is inserted
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · Prompt engineering">
@@ -1075,36 +373,6 @@ prompt template — a prompt template into which data from code is inserted
   </div>
   <div class="callout ask mt2">🙋 system prompt-ის <b>გარეშე</b> რას იზამდა მე-2 და მე-3 კითხვაზე?</div>
   <div class="callout step mt" style="--a:var(--red);font-size:21px">prompt <b>ალბათობას</b> ცვლის, არა გარანტიას. რაც აუცილებლად უნდა შესრულდეს — <b>C# ამოწმებს</b> (ლექცია 19)</div>
-  <aside class="study">
-### 3 კითხვა ასისტენტს — ჯერ გამოიცანი
-
-`POST /api/ai-lab/assistant`-ზე სამი კითხვა:
-
-1. **ჩვეულებრივი:** "There'll be four of us tomorrow at 8. Do you have anything vegetarian?" — პასუხობს მოკლედ, თემაზე.
-2. **სხვა თემა:** "Write me a poem for my mom's birthday" — თავაზიანად უარს ამბობს და თავის თემას უბრუნდება.
-3. **ფასი:** "How much is khinkali?" — ფასს არ იგონებს.
-
-შემდეგ იგივე კითხვები **`/ask`-ზე** გაუშვი (system prompt-ის გარეშე) და შეადარე: ლექსს სიამოვნებით დაწერს, ფასსაც დამაჯერებლად „მოიგონებს“ — ეს ლექცია 1-ის hallucination-ია.
-
-```warn
-**System prompt უსაფრთხოების გარანტია არ არის.** ის ცვლის, რა არის **სავარაუდო**, მაგრამ მოდელი მაინც შეიძლება შეცდეს ან მომხმარებელმა „გადაარწმუნოს“ ("Ignore the previous instructions…" — ამას prompt injection ჰქვია). რაც **აუცილებლად** უნდა შესრულდეს — ფასი, ფასდაკლება, ვის რისი უფლება აქვს — ამოწმებს C# კოდი. დაწვრილებით ლექცია 19-ზე.
-```
-  </aside>
-  <aside class="study-en">
-### 3 questions for the assistant — guess first
-
-Three questions on `POST /api/ai-lab/assistant`:
-
-1. **A normal one:** “There'll be four of us tomorrow at 8. Do you have anything vegetarian?” — answers briefly, on topic.
-2. **Another topic:** “Write me a poem for my mom's birthday” — politely declines and returns to its topic.
-3. **A price:** “How much is khinkali?” — doesn't invent a price.
-
-Then send the same questions to **`/ask`** (without a system prompt) and compare: it will happily write the poem and confidently “invent” a price — that's the hallucination from lecture 1.
-
-```warn
-**A system prompt is not a security guarantee.** It changes what is **likely**, but the model can still make a mistake or the user can “talk it out of it” (“forget your previous instructions…” — this is called prompt injection). What **must** happen — prices, discounts, who's allowed to do what — is checked by C# code. More in lecture 19.
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · Prompt engineering">
@@ -1124,64 +392,6 @@ Then send the same questions to **`/ask`** (without a system prompt) and compare
     <div class="ifc step"><span class="kw">if</span> (label == <span class="st">"Negative"</span>) NotifyManager();</div>
     <div class="callout step" data-with style="--a:var(--api);font-size:20px">C# კოდს <b>ზუსტი სიტყვა</b> სჭირდება — „უარყოფითი“ ან აბზაცი ამას ვერ გაივლის</div>
   </div>
-  <aside class="study">
-### Zero-shot vs few-shot
-
-- **Zero-shot** — მოდელს მხოლოდ **ვუხსნით**, რა გააკეთოს. მარტივ ამოცანაზე ხშირად საკმარისია.
-- **Few-shot** — ახსნას ვუმატებთ რამდენიმე **მაგალითს**: „შეკითხვა → სწორი პასუხი“. მოდელი მაგალითებს ნიმუშად იღებს და იმავე ფორმით აგრძელებს.
-
-**რატომ გვჭირდება?** AI-ის პასუხს ხშირად ადამიანი კი არ კითხულობს, არამედ **ჩვენი C# კოდი** იყენებს:
-
-```csharp
-if (label == "Negative") NotifyManager();
-```
-
-zero-shot-მა შეიძლება შინაარსით სწორი, მაგრამ ფორმით „არასწორი“ პასუხი დაწეროს: „უარყოფითი“, „Negative.“, ან მთელი აბზაცი. `if` ამას ვერ დაიჭერს. few-shot ფორმას აფიქსირებს: პასუხი ზუსტად ერთ-ერთი სიტყვაა სიიდან.
-
-| | Zero-shot | Few-shot |
-|---|---|---|
-| რას ვაწვდით | მხოლოდ ინსტრუქციას | ინსტრუქციას + 3–5 მაგალითს |
-| როდის | მარტივი ამოცანა, თავისუფალი ტექსტი | ზუსტი ფორმატი, კატეგორიები, „საზღვრის“ შემთხვევები |
-| ფასი | ნაკლები ტოკენი | მაგალითები ყოველ მოთხოვნაში მიდის — მეტი input |
-
-```tip
-მაგალითებში აუცილებლად ჩასვი **რთული** შემთხვევა (აქ — "Good, but pricey" → `Mixed`). სწორედ საზღვარზე ცდება zero-shot ყველაზე ხშირად.
-```
-
-```terms
-zero-shot — prompt მხოლოდ ინსტრუქციით, მაგალითების გარეშე
-few-shot — prompt ინსტრუქციით და რამდენიმე მაგალითით „შეკითხვა → სწორი პასუხი“
-```
-  </aside>
-  <aside class="study-en">
-### Zero-shot vs few-shot
-
-- **Zero-shot** — we only **explain** to the model what to do. For a simple task this is often enough.
-- **Few-shot** — we add a few **examples** to the explanation: “question → correct answer”. The model takes the examples as a pattern and continues in the same form.
-
-**Why do we need it?** Often the AI's answer isn't read by a person — it's used by **our C# code**:
-
-```csharp
-if (label == "Negative") NotifyManager();
-```
-
-Zero-shot may write an answer that's right in content but “wrong” in form: “negative”, “Negative.”, or a whole paragraph. The `if` won't catch that. Few-shot fixes the form: the answer is exactly one word from the list.
-
-| | Zero-shot | Few-shot |
-|---|---|---|
-| What we give | only the instruction | the instruction + 3–5 examples |
-| When | a simple task, free text | an exact format, categories, “borderline” cases |
-| Cost | fewer tokens | the examples go with every request — more input |
-
-```tip
-Always include a **hard** case in the examples (here — “good, but expensive” → `Mixed`). Zero-shot fails most often right at the border.
-```
-
-```terms
-zero-shot — a prompt with only an instruction, no examples
-few-shot — a prompt with an instruction and a few “question → correct answer” examples
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · Prompt engineering">
@@ -1220,84 +430,6 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მოდელი Mixed-ს იშვიათად აირჩევს ან სხვა სიტყვით უპასუხებს — მაგალითი ფორმატსაც და ვარიანტებსაც აფიქსირებს</div>
     </div>
   </div>
-  <aside class="study">
-### Few-shot კოდში: User / Assistant წყვილები
-
-მაგალითებს ცალკე პარამეტრით არ ვაგზავნით — ისინი იმავე **შეტყობინებების სიაშია**, „წინა საუბრის“ სახით: User კითხულობდა, Assistant პასუხობდა. მოდელი ხედავს, როგორ „პასუხობდა“ აქამდე, და ბოლო კითხვაზე იმავე ფორმით პასუხობს.
-
-```csharp Controllers/AiLabController.cs · ReviewSentiment
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, "Classify the restaurant review. " +
-            "Answer with one word only: Positive, Negative or Mixed."),
-        new(ChatRole.User, "The khinkali was delicious, the service fast"),
-        new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "We waited an hour, the food came cold"),
-        new(ChatRole.Assistant, "Negative"),
-        new(ChatRole.User, "The dishes are good, but the prices are very high"),
-        new(ChatRole.Assistant, "Mixed"),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
-}
-```
-
-**სცადე Swagger-ში:** "The food is good, but it's very noisy" → `Mixed`. შემდეგ მაგალითები (8–13 ხაზები) კომენტარში გადაიტანე და იგივე გაუშვი — zero-shot-ის პასუხი შეადარე. ასევე შეადარე `inputTokens`: მაგალითები ტოკენებია და ყოველ მოთხოვნაზე მიდის.
-
-```note
-**ზუსტი სიტყვა ჯერ კიდევ არ არის C# ტიპი.** მოდელი სავარაუდოს წერს, ამიტომ Controller-ში პასუხი სიასთან უნდა შევამოწმოთ (მაგ. `Positive` / `Negative` / `Mixed`, სხვა შემთხვევაში — შეცდომა ან `Mixed`). შემდეგ ლექციაზე **structured output**-ით (`GetResponseAsync<T>`) პასუხს პირდაპირ C# ობიექტად მივიღებთ — enum-ით და ველებით.
-```
-
-```prompt გაიღრმავე
-ვსწავლობ prompt engineering-ს .NET-ში (Microsoft.Extensions.AI, Gemini). few-shot კლასიფიკაციისთვის მაქვს 3 მაგალითი User/Assistant წყვილებად.
-ამიხსენი: 1) რამდენი მაგალითია ოპტიმალური და რატომ; 2) რატომ არის მნიშვნელოვანი მაგალითების მრავალფეროვნება და თანმიმდევრობა; 3) რა რისკები აქვს few-shot-ს (მაგ. მოდელი მაგალითების სიტყვებს ზედმეტად „მიჰყვება“).
-მაგალითები რესტორნის შეფასებებზე. ახსნა ქართულად, მოკლედ.
-```
-  </aside>
-  <aside class="study-en">
-### Few-shot in code: User / Assistant pairs
-
-We don't send the examples as a separate parameter — they are in the same **message list**, as a “previous conversation”: the User asked, the Assistant answered. The model sees how it “answered” before and answers the last question in the same form.
-
-```csharp Controllers/AiLabController.cs · ReviewSentiment
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, "Classify the restaurant review. " +
-            "Answer with one word only: Positive, Negative or Mixed."),
-        new(ChatRole.User, "The khinkali was delicious, the service fast"),
-        new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "We waited an hour, the food came cold"),
-        new(ChatRole.Assistant, "Negative"),
-        new(ChatRole.User, "The dishes are good, but the prices are very high"),
-        new(ChatRole.Assistant, "Mixed"),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(AskResponse.From(response));
-}
-```
-
-**Try it in Swagger:** “The dishes are good, but it's very noisy” → `Mixed`. Then comment out the examples (lines 8–13) and run the same — compare the zero-shot answer. Also compare `inputTokens`: the examples are tokens and go with every request.
-
-```note
-**An exact word is still not a C# type.** The model writes what's likely, so in the Controller we should check the answer against the list (e.g. `Positive` / `Negative` / `Mixed`, otherwise — an error or `Mixed`). In the next lecture, with **structured output** (`GetResponseAsync<T>`), we'll get the answer directly as a C# object — with an enum and fields.
-```
-
-```prompt Go deeper
-I'm learning prompt engineering in .NET (Microsoft.Extensions.AI, Gemini). For few-shot classification I have 3 examples as User/Assistant pairs.
-Explain: 1) how many examples are optimal and why; 2) why the variety and order of examples matter; 3) what the risks of few-shot are (e.g. the model “follows” the examples' wording too closely).
-Use examples about restaurant reviews. Explain in English, briefly.
-```
-  </aside>
 </section>
 
 <lecture-classwork/>
@@ -1326,48 +458,6 @@ _chat = new Client(apiKey: config["Gemini:ApiKey"])
         <p class="small"><code class="i">AddChatClient</code> — IChatClient DI-ში და კონფიგურაციაში; <b>structured output</b> — პასუხი პირდაპირ <b>C# ობიექტად</b></p></div>
     </div>
   </div>
-  <aside class="study">
-## შეჯამება
-
-**დაიმახსოვრე:**
-
-1. **`IChatClient`** — LLM-ის „DbContext“: ერთი API ყველა მოდელისთვის; პროვაიდერის შეცვლა — ერთი ხაზი. key — User Secrets-ში (`Gemini:ApiKey`), არასდროს კოდში ან Git-ში.
-2. **`ChatOptions`** — Temperature და Max Tokens ყოველ მოთხოვნაზე ცალკე. Gemini 3-ზე Temperature-ს ნაგულისხმევზე ვტოვებთ; Max Tokens — მარაგით, რადგან ფიქრიც ამ ლიმიტშია.
-3. **`Usage` და `FinishReason`** — input, output და ფიქრის ტოკენები (ფიქრიც output-ის ფასით ფასდება); `stop` / `length`.
-4. **შეტყობინებების სია** — System (ჩვენი წესები), User (მომხმარებელი), Assistant (მოდელი).
-5. **System prompt** = როლი + თემები + ფორმა + საზღვრები. ის ალბათობას ცვლის, არა გარანტიას — აუცილებელ წესებს C# ამოწმებს.
-6. **Few-shot** — 3–5 მაგალითი User/Assistant წყვილებად; პასუხი ზუსტ ფორმატში მოდის, რომ კოდმა გამოიყენოს.
-
-### ⏭️ შემდეგ ლექციაზე
-
-დღევანდელი `new Client(...).AsIChatClient(...)` Controller-ის შიგნით DI-ის წესს არღვევს: Controller თვითონ ქმნის დამოკიდებულებას, მოდელის სახელი კოდშია ჩაწერილი. ლექცია 3-ზე `IChatClient`-ს **DI-ში** დავარეგისტრირებთ (`AddChatClient`) და კონფიგურაციიდან წავიკითხავთ. იქვე — **structured output**: პასუხი პირდაპირ C# ობიექტად (`GetResponseAsync<T>`), few-shot-ზე უფრო საიმედოდ.
-
-```prompt გამოცდა მთელ ლექციაზე
-ვსწავლობ AI-ს .NET-ში. მეორე ლექციაზე გავიარეთ: Microsoft.Extensions.AI და IChatClient (Gemini, Google.GenAI, AsIChatClient), API key User Secrets-ში (Gemini:ApiKey), ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning ტოკენები) და FinishReason, შეტყობინებების როლები (System, User, Assistant), system prompt-ის 4 ნაწილი, prompt-ის შაბლონი C#-ში, zero-shot და few-shot.
-დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ, მათ შორის 2 პრაქტიკული სიტუაცია რესტორნის API-ზე. ყოველ ჩემს პასუხზე მითხარი, სწორია თუ არა და რატომ, მერე დასვი შემდეგი. ბოლოს მითხარი, რა უნდა გავიმეორო. კომუნიკაცია ქართულად.
-```
-  </aside>
-  <aside class="study-en">
-## Summary
-
-**Remember:**
-
-1. **`IChatClient`** — the “DbContext” of LLMs: one API for every model; switching providers is one line. The key — in User Secrets (`Gemini:ApiKey`), never in code or Git.
-2. **`ChatOptions`** — Temperature and Max Tokens per request. On Gemini 3 we leave Temperature at the default; Max Tokens — with room to spare, because thinking is inside that limit too.
-3. **`Usage` and `FinishReason`** — input, output and thinking tokens (thinking is billed at the output price too); `stop` / `length`.
-4. **A list of messages** — System (our rules), User (the user), Assistant (the model).
-5. **System prompt** = role + topics + format + boundaries. It changes probabilities, not guarantees — C# checks the rules that must hold.
-6. **Few-shot** — 3–5 examples as User/Assistant pairs; the answer comes in an exact format so the code can use it.
-
-### ⏭️ Next lecture
-
-Today's `new Client(...).AsIChatClient(...)` inside the Controller breaks the DI rule: the Controller creates its own dependency, and the model name is hard-coded. In lecture 3 we register `IChatClient` **in DI** (`AddChatClient`) and read it from configuration. Also — **structured output**: the answer directly as a C# object (`GetResponseAsync<T>`), more reliable than few-shot.
-
-```prompt Test yourself on the whole lecture
-I'm learning AI in .NET. In the second lecture we covered: Microsoft.Extensions.AI and IChatClient (Gemini, Google.GenAI, AsIChatClient), the API key in User Secrets (Gemini:ApiKey), ChatOptions (Temperature, MaxOutputTokens), ChatResponse.Usage (input, output, reasoning tokens) and FinishReason, message roles (System, User, Assistant), the 4 parts of a system prompt, a prompt template in C#, zero-shot and few-shot.
-Ask me 8 questions one at a time, from easy to hard, including 2 practical situations about a restaurant API. After each of my answers tell me whether it's right and why, then ask the next one. At the end tell me what I should review. Communicate in English.
-```
-  </aside>
 </section>
 
 <lecture-homework/>

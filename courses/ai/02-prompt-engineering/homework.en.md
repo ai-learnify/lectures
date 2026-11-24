@@ -8,7 +8,7 @@ With code · an endpoint + a table in the README
 - **Few-shot:** System + at least **3 examples** as User/Assistant pairs
 - **A comparison in the README:** 5 texts — zero-shot (without examples) vs few-shot. Table: text · zero-shot answer · few-shot answer · `inputTokens` for both
 - **Language:** the same text in Georgian and in English — `inputTokens` in the table
-- The **quiz** at the end of the study notes (11 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

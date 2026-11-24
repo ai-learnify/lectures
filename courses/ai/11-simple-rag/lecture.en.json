@@ -22,32 +22,85 @@
     {"title": "pgvector-dotnet", "url": "https://github.com/pgvector/pgvector-dotnet", "note": "CosineDistance, the index — from lecture 10"}
   ],
   "quiz": [
-    {"q": "“How do I cancel a booking?” — why can't the model answer correctly without RAG?", "options": ["The model can't read Georgian", "Our restaurant's rules weren't in its training data — it either doesn't know or makes it up", "The question is too long", "A tool is missing"], "explain": "RAG gives the model a “book” at the exam."},
-    {"q": "Why isn't fine-tuning a good way for the restaurant's rules?", "options": ["Fine-tuning doesn't work in Georgian", "It's expensive and slow, again on every change, it memorizes facts badly and can't name the source", "Gemini has no fine-tuning", "It's free but slow"], "explain": "Fine-tuning is more suitable for style and format than for facts."},
-    {"q": "Which part of RAG runs **once**, when a document is uploaded?", "options": ["retrieve", "ingestion: PDF → text → parts → vectors → database", "generate", "augment"], "explain": "query (retrieve → augment → generate) — on every question."},
-    {"q": "Why do we use `ContentOrderTextExtractor` when extracting text with PdfPig?", "options": ["It's faster", "A PDF stores letters with coordinates; it assembles them in reading order, while `page.Text` often glues words together", "It does OCR", "It returns the page number"], "explain": "On a scanned PDF both return nothing — OCR is needed."},
-    {"q": "We stored the whole 18-page document as one vector. What happens in the search?", "options": ["It finds better — there's more text", "The vector is the “average” of every topic — it's blurry and compares badly with a specific question; it also exceeds the limit", "Nothing", "It finds the exact page"], "explain": "That's why chunking — a part = one idea."},
-    {"q": "What is the overlap (the last sentence in the next part too) for?", "options": ["To save tokens", "So that an idea split between two parts isn't cut — both parts have a “bridge”", "To make the vector smaller", "For a faster search"], "explain": "The price — a little extra text in the database."},
-    {"q": "Why do we cut the text page by page?", "options": ["PdfPig can't read it otherwise", "So that every part has an exact page number — for citing the source", "There are fewer parts this way", "Gemini asks for pages"], "explain": "The price — an idea split across pages stays in two parts."},
-    {"q": "Without a threshold, what happens for “a borscht recipe”?", "options": ["0 parts", "The search still returns the 5 “closest” parts, and the model may make something up based on them", "An error", "Gemini refuses"], "explain": "The threshold is the basis of “I don't have information”."},
-    {"q": "Why do we give the sources numbers and the page `[1] (rules.pdf, p. 3)`?", "options": ["It looks nice", "The model writes the number in the answer — we know which file and page it is; the user checks, and we see which part was bad", "It's fewer tokens", "Gemini requires it"], "explain": "Citation — RAG's main advantage over fine-tuning."},
-    {"q": "Which message do we store in the chat history?", "options": ["The augmented one — with the sources", "The original question — the sources are only for this request and mustn't inflate the history", "Only the answer", "Nothing"], "explain": "On the next question other sources will be found."}
-  ],
-  "study": {
-    "summary": [
-      "**RAG** = retrieve → augment → generate: the model answers with the found parts of our documents and names the source.",
-      "**Ingestion** (once): PDF → text page by page (**PdfPig**, `ContentOrderTextExtractor`) → cleaning → **chunks** → vectors → `DocumentChunk`.",
-      "**Chunking:** ~800 characters, by sentences, an **overlap** of one sentence, page by page — for an exact source.",
-      "**Query:** top 5 + a **threshold** → `[1] (file, p. N)` → rules: only from the sources, with the number, “I don't have information on this”.",
-      "**In the chat:** the **original** question in the history; the sources — only in this request; `sources` in the response."
-    ],
-    "chapters": {
-      "1 · იდეა": {"title": "The idea of RAG", "goal": "You'll explain what RAG is, why it beats the whole document and fine-tuning, and what ingestion and query are."},
-      "2 · ingestion": {"title": "Ingestion: PDF → parts → database", "goal": "You'll extract text from a PDF, cut it into parts and store them with vectors."},
-      "3 · query": {"title": "Query: an answer with a source", "goal": "You'll find the relevant parts, put them into the prompt, and the chat will answer with the source number."},
-      "პრაქტიკა": {"title": "Classwork: your PDF and a search test"},
-      "შეჯამება": {"title": "Summary"},
-      "საშინაო": {"title": "Homework"}
+    {
+      "q": "“How do I cancel a booking?” — why can't the model answer correctly without RAG?",
+      "options": [
+        "The model can't read Georgian",
+        "Our restaurant's rules weren't in its training data — it either doesn't know or makes it up",
+        "The question is too long",
+        "A tool is missing"
+      ],
+      "explain": "RAG gives the model a “book” at the exam."
+    },
+    {
+      "q": "Why isn't fine-tuning a good way for the restaurant's rules?",
+      "options": [
+        "Fine-tuning doesn't work in Georgian",
+        "It's expensive and slow, again on every change, it memorizes facts badly and can't name the source",
+        "Gemini has no fine-tuning",
+        "It's free but slow"
+      ],
+      "explain": "Fine-tuning is more suitable for style and format than for facts."
+    },
+    {
+      "q": "Why do we use `ContentOrderTextExtractor` when extracting text with PdfPig?",
+      "options": [
+        "It's faster",
+        "A PDF stores letters with coordinates; it assembles them in reading order, while `page.Text` often glues words together",
+        "It does OCR",
+        "It returns the page number"
+      ],
+      "explain": "On a scanned PDF both return nothing — OCR is needed."
+    },
+    {
+      "q": "We stored the whole 18-page document as one vector. What happens in the search?",
+      "options": [
+        "It finds better — there's more text",
+        "The vector is the “average” of every topic — it's blurry and compares badly with a specific question; it also exceeds the limit",
+        "Nothing",
+        "It finds the exact page"
+      ],
+      "explain": "That's why chunking — a part = one idea."
+    },
+    {
+      "q": "What is the overlap (the last sentence in the next part too) for?",
+      "options": [
+        "To save tokens",
+        "So that an idea split between two parts isn't cut — both parts have a “bridge”",
+        "To make the vector smaller",
+        "For a faster search"
+      ],
+      "explain": "The price — a little extra text in the database."
+    },
+    {
+      "q": "Why do we cut the text page by page?",
+      "options": [
+        "PdfPig can't read it otherwise",
+        "So that every part has an exact page number — for citing the source",
+        "There are fewer parts this way",
+        "Gemini asks for pages"
+      ],
+      "explain": "The price — an idea split across pages stays in two parts."
+    },
+    {
+      "q": "Why do we give the sources numbers and the page `[1] (rules.pdf, p. 3)`?",
+      "options": [
+        "It looks nice",
+        "The model writes the number in the answer — we know which file and page it is; the user checks, and we see which part was bad",
+        "It's fewer tokens",
+        "Gemini requires it"
+      ],
+      "explain": "Citation — RAG's main advantage over fine-tuning."
+    },
+    {
+      "q": "Which message do we store in the chat history?",
+      "options": [
+        "The augmented one — with the sources",
+        "The original question — the sources are only for this request and mustn't inflate the history",
+        "Only the answer",
+        "Nothing"
+      ],
+      "explain": "On the next question other sources will be found."
     }
-  }
+  ]
 }

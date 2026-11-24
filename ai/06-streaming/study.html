@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,245 +145,91 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 6</small>Streaming და Real-time AI პასუხები</div>
-  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
-  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
-  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+  <div class="bar">
+    <a class="back" href="../../">← ლექციები</a>
+    <div class="ttl"><small>📖 ლექცია 6</small>Streaming და Real-time AI პასუხები</div>
+    <div class="acts">
+      <a class="btn lang" href="study.en.html" title="English">EN</a>
+      <button class="themebtn btn" type="button" title="ღია / მუქი თემა" aria-label="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.html" target="_blank" title="პრეზენტაცია" aria-label="პრეზენტაცია"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">მთავარი</button><button type="button" data-t="topics">თემები<small>3</small></button><button type="button" data-t="tasks">დავალებები</button><button type="button" data-t="quiz">ტესტი<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
-    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">1′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">სტრიმი Gemini-დან: GetStreamingResponseAsync</span><span class="nm">2′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">Server-Sent Events: სტრიმი კლიენტამდე</span><span class="nm">3′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">გაუქმება: CancellationToken</span><span class="nm">1′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: შენი ჩატის სტრიმინგ ვერსია</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება</span><span class="nm">1′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">11</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">7</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 6</div>
-      <h1>Streaming და Real-time AI პასუხები</h1>
-      <p>ლექციის სრული მასალა თავებად, ~13 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li><strong>სტრიმინგი</strong> პასუხს დაწერისთანავე აჩვენებს: მთლიანი დრო იგივეა, მაგრამ <strong>TTFT</strong> (დრო პირველ სიტყვამდე) წამებიდან მილიწამებამდე მცირდება.</li><li><strong><code>GetStreamingResponseAsync</code></strong> → <code>IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code> → <strong><code>await foreach</code></strong>. იგივე messages და options; tool-ებიც მუშაობს.</li><li>ნაწილების <strong>სიაში შეგროვება</strong> სტრიმს Controller-ში წყვეტს. <strong><code>yield return</code></strong> (async iterator) თითო ნაწილს მაშინვე აბრუნებს.</li><li><strong>SSE</strong>: <code>text/event-stream</code>, <code>data: …</code> + ცარიელი ხაზი, ღია კავშირი. <strong><code>TypedResults.ServerSentEvents</code></strong> (.NET 10). Swagger სტრიმს ვერ აჩვენებს — <strong><code>curl -N</code></strong>.</li><li><strong><code>CancellationToken</code></strong> სამ ადგილას: action-ის პარამეტრი, <code>[EnumeratorCancellation]</code>, <code>GetStreamingResponseAsync</code>. მომხმარებელი წავიდა → Gemini ჩერდება.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~13 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 11 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/ichatclient" target="_blank" rel="noopener">IChatClient — streaming</a> — GetStreamingResponseAsync, ChatResponseUpdate, ToChatResponse</li><li><a href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.typedresults.serversentevents" target="_blank" rel="noopener">TypedResults.ServerSentEvents</a> — .NET 10 — SSE შედეგი ASP.NET Core-ში</li><li><a href="https://developer.mozilla.org/docs/Web/API/Server-sent_events/Using_server-sent_events" target="_blank" rel="noopener">MDN — Using server-sent events</a> — SSE-ის ფორმატი და EventSource ბრაუზერში</li><li><a href="https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream" target="_blank" rel="noopener">Iterating with async enumerables</a> — IAsyncEnumerable, await foreach, [EnumeratorCancellation]</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
-<p>ლექცია 5 — <strong>Chat Client Pipeline და Middleware</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../05-pipeline-middleware/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის <code>.UseFunctionInvocation()</code> და სად გვინახავს მსგავსი იდეა?</summary><div class="ans">ფენა (middleware) <code>IChatClient</code>-ის გარშემო — <code>IChatClient</code>, რომელიც სხვა <code>IChatClient</code>-ს ეხვევა · <code>AddChatClient</code> აბრუნებს <code>ChatClientBuilder</code>-ს, ყოველი <code>.Use…()</code> ერთ ფენას ამატებს · როგორც ASP.NET Core-ის <code>app.UseAuthentication()</code> HTTP მოთხოვნებზე</div></details><details><summary>Program.cs-ში <code>.UseFunctionInvocation().UseLogging()</code> — რომელია Controller-თან ახლოს? რატომ ჩანს ლოგში Gemini-ს ორივე მოთხოვნა?</summary><div class="ans">პირველი <code>.Use…()</code> = გარე ფენა (Controller-თან ახლოს) · Logging შიდაა, Gemini-სთან ყველაზე ახლოს — FunctionInvocation-ის ციკლის ყოველი მოთხოვნა მასში გადის</div></details><details><summary>როდის არის <code>UseDistributedCache</code> კარგი და როდის საშიში?</summary><div class="ans">კარგი — როცა ერთსა და იმავე შეკითხვაზე პასუხი არ იცვლება (FAQ, თარგმანი, კლასიფიკაცია) · საშიში — როცა პასუხი ცვალებად მონაცემზეა (თავისუფალი მაგიდა): ქეში ძველ პასუხს დააბრუნებს</div></details><details><summary><code>DelegatingChatClient</code>-ში <code>base.GetResponseAsync(...)</code>-მდე და მის შემდეგ — რას ხედავს კოდი?</summary><div class="ans">base-მდე — მოთხოვნას (Gemini-მდე) · base-ის შემდეგ — პასუხს (ტოკენები, ტექსტი) · ASP.NET Core-ის <code>await next()</code>-ის ანალოგი</div></details><details><summary>როგორ აჩერებს ფენა მოთხოვნას და რატომ ვსვამთ ასეთ ფენას პირველად?</summary><div class="ans"><code>base</code>-ს არ იძახებს და პასუხს თვითონ აბრუნებს (short-circuit) — Gemini-მდე არაფერი მიდის, 0 ტოკენი · პირველი = რაც ადრე გავაჩერებთ, მით ნაკლები ფენა იმუშავებს</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
-<p>წინა ლექციის საშინაო: <strong>Pipeline: ლოგი, ტოკენები, დაცვა</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
-<h3>მოთხოვნები</h3>
-<ul>
-<li><strong>Pipeline Program.cs-ში:</strong> შენი დაცვის ფენა (აჩერებს) → <code>UseFunctionInvocation</code> → <code>TokenCounterChatClient</code> → <code>UseLogging</code>. Controller-ები არ იცვლება</li>
-<li><strong>TokenCounter:</strong> ლოგში <code>in</code> / <code>out</code> / <code>total</code> ყოველ Gemini-მოთხოვნაზე</li>
-<li><strong>დაცვის ფენა:</strong> შენი პროექტის წესით (მინიმუმ 2 პირობა, მაგ. სიგრძე + აკრძალული სიტყვები); შეჩერებისას — გასაგები პასუხი მომხმარებლისთვის</li>
-<li><strong>README — ლოგი:</strong> ერთი tool-იანი <code>/chat</code> შეკითხვის ლოგი (5–10 ხაზი): რამდენი მოთხოვნა წავიდა Gemini-სთან? რომელი უფრო ძვირი იყო და რატომ?</li>
-<li><strong>README — რიგის ექსპერიმენტი:</strong> TokenCounter <strong>გარეთ</strong> vs <strong>შიგნით</strong> <code>UseFunctionInvocation</code>-ისა — ერთი და იგივე შეკითხვა, ცხრილი: ადგილი · ხაზების რაოდენობა · total</li>
-<li><strong>README — ქეში:</strong> 2–3 წინადადება — შენს პროექტში რომელ endpoint-ზე იქნებოდა ქეში სასარგებლო და რომელზე საშიში? რატომ?</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
-</ul>
-<h3>ამოხსნა</h3>
-<p>ნიმუში — ბიბლიოთეკის API (საშინაო 4-ის გაგრძელება).</p>
-<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">LibraryGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TokenCounterChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">TokenCounterChatClient</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<div class="codebox"><div class="ch"><span>Ai/LibraryGuardChatClient.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">LibraryGuardChatClient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DelegatingChatClient</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">string</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">Forbidden</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">"password"</span><span class="p">,</span><span class="w"> </span><span class="s">"api key"</span><span class="p">]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">LibraryGuardChatClient</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">inner</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">ChatResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">string</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">messages</span><span class="p">.</span><span class="n">LastOrDefault</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Role</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">)</span><span class="o">?.</span><span class="n">Text</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="kt">string?</span><span class="w"> </span><span class="n">refusal</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">            </span><span class="n">question</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">800</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"The question is too long — 800 characters at most."</span><span class="w"> </span><span class="p">:</span></span><span class="ln"><span class="w">            </span><span class="n">Forbidden</span><span class="p">.</span><span class="n">Any</span><span class="p">(</span><span class="n">w</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">question</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">StringComparison</span><span class="p">.</span><span class="n">OrdinalIgnoreCase</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">                </span><span class="o">?</span><span class="w"> </span><span class="s">"I can't help with that — only with books and reservations."</span><span class="w"> </span><span class="p">:</span></span><span class="ln"><span class="w">            </span><span class="k">null</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">refusal</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span></span><span class="ln"><span class="w">            </span><span class="o">?</span><span class="w"> </span><span class="k">base</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">:</span><span class="w"> </span><span class="n">Task</span><span class="p">.</span><span class="n">FromResult</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ChatResponse</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ChatMessage</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">Assistant</span><span class="p">,</span><span class="w"> </span><span class="n">refusal</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>TokenCounter-ის ადგილი</th>
-<th>ხაზები</th>
-<th>total ("Do you have detective novels available?")</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>გარეთ (<code>UseFunctionInvocation</code>-ის წინ)</td>
-<td>1</td>
-<td>~730</td>
-</tr>
-<tr>
-<td>შიგნით (<code>UseFunctionInvocation</code>-ის შემდეგ)</td>
-<td>3 (get_genres → find_books → პასუხი)</td>
-<td>~160 + ~240 + ~330</td>
-</tr>
-</tbody>
-</table>
-<div class="callout note"><span class="ci">💡</span><div><p>მესამე მოთხოვნა ყველაზე ძვირია — მასში მთელი ისტორიაა: შეკითხვა, ორივე tool-ის თხოვნა და შედეგი. ქეში: <code>get_genres</code> სასარგებლოა (ჟანრები იშვიათად იცვლება), <code>find_books</code> — საშიში (წიგნი შეიძლება წაიღონ). შეჩერებულ შეკითხვაზე ("What is the admin password?") ლოგში მხოლოდ HTTP ხაზია — <code>LoggingChatClient</code> და TokenCounter არ ჩანს.</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~2 წთ კითხვა</div><h2>სტრიმი Gemini-დან: GetStreamingResponseAsync</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> ახსნი, რას ცვლის სტრიმინგი, და Gemini-დან პასუხს ნაწილ-ნაწილ მიიღებ, თითო ნაწილის დროის გაზომვით.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · სტრიმი Gemini-დან</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
-<p>ჯერ ვხედავთ, რატომ გვჭირდება სტრიმინგი: პრობლემა UX-შია, არა სიჩქარეში. მერე ვიღებთ პასუხს Gemini-დან ნაწილ-ნაწილ და ვზომავთ, როდის მოდის თითოეული ნაწილი.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>პრობლემა: ცარიელი ეკრანი</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
-<p>Gemini პასუხს <strong>ტოკენ-ტოკენ</strong> წერს (ლექცია 1: next-token prediction), და გრძელ პასუხს, ფიქრის ჩათვლით, რამდენიმე წამი სჭირდება. აქამდე ვიყენებდით <code>GetResponseAsync</code>-ს, რომელიც <strong>ბოლომდე ელოდება</strong> და მერე მთელ ტექსტს ერთბაშად აბრუნებს:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>რას ხედავს მომხმარებელი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>GetResponseAsync</code></td>
-<td>~8 წამი ცარიელ ეკრანს, მერე მთელ ტექსტს ერთად</td>
-</tr>
-<tr>
-<td><strong>Streaming</strong></td>
-<td>~0.6 წამში პირველ სიტყვებს, მერე ტექსტი თანდათან „იწერება“</td>
-</tr>
-</tbody>
-</table>
-<p><strong>მთლიანი დრო თითქმის იგივეა</strong>: Gemini ორივე შემთხვევაში ერთი და იმავე სისწრაფით წერს. იცვლება მხოლოდ ის, <strong>როდის</strong> ხედავს მომხმარებელი პირველ სიტყვას. 8 წამი ცარიელ ეკრანზე „გაფუჭებულს“ ჰგავს, 8 წამი იწერებადი ტექსტი კი ნორმალურია: კითხვას მაშინვე იწყებ.</p>
-<p>ამიტომ ყველა AI ჩატი (ChatGPT, Claude, Gemini, Copilot) სტრიმავს.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Streaming</dt><dd>პასუხის მიღება და ჩვენება ნაწილ-ნაწილ, დაწერისთანავე, და არა ბოლოს მთლიანად</dd><dt>TTFT (time to first token)</dt><dd>დრო მოთხოვნიდან პირველი ტოკენის მიღებამდე; სტრიმინგი სწორედ ამას აუმჯობესებს</dd></dl></div></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>GetStreamingResponseAsync: პასუხი ნაწილ-ნაწილ</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
-<p><code>IChatClient</code>-ს ორი მეთოდი აქვს. აქამდე მხოლოდ პირველს ვიყენებდით:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI აგენტები .NET-ში · ლექცია 6</div><h1>Streaming და Real-time AI პასუხები</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 ამ ლექციის შემდეგ შეძლებ</h2><ul><li>ახსნი, რას ცვლის სტრიმინგი (TTFT) და რას არა (მთლიანი დრო)</li><li><code>GetStreamingResponseAsync</code>-ით პასუხს ნაწილ-ნაწილ მიიღებ <code>await foreach</code>-ით და გაზომავ, როდის მოდის თითო ნაწილი</li><li>დაწერ SSE endpoint-ს <code>TypedResults.ServerSentEvents</code>-ით და async iterator-ით (<code>yield return</code>), და შეამოწმებ <code>curl -N</code>-ით</li><li><code>CancellationToken</code>-ს სამ ადგილას გადასცემ, რომ კლიენტის წასვლისას Gemini-ს მოთხოვნაც შეწყდეს</li></ul></div><div class="box key"><h2>⚡ მთავარი</h2><ol><li><strong>სტრიმინგი</strong> პასუხს დაწერისთანავე აჩვენებს. მთლიანი დრო იგივეა, მაგრამ <strong>TTFT</strong> (დრო პირველ სიტყვამდე) წამებიდან მილიწამებამდე მცირდება.</li><li><code>GetStreamingResponseAsync</code> → <code>IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code> → <code>await foreach</code>. tool-ებიც მუშაობს.</li><li>სიაში შეგროვება სტრიმს წყვეტს, <code>yield return</code> კი არა.</li><li><strong>SSE</strong> ჩვეულებრივი HTTP-ა: <code>text/event-stream</code>, კავშირი ღიაა. <code>TypedResults.ServerSentEvents</code>, შემოწმება <code>curl -N</code>-ით.</li><li><code>CancellationToken</code> სამ ადგილას: მომხმარებელი წავიდა → Gemini ჩერდება და აღარ ვიხდით.</li></ol></div><div class="box"><h2>📍 ლექცია გააცდინე?</h2><ol class="path"><li><a href="index.html" target="_blank">ნახე პრეზენტაცია</a>: სლაიდები ლექციის მთელ გზას აჩვენებს</li><li><a href="#topics">წაიკითხე თემები</a>: ~5 წთ, თითოს ბოლოს „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a>: 8 კითხვა</li><li><a href="#tasks">გააკეთე დავალებები</a></li></ol></div><div class="box"><h2>🔗 ბმულები</h2><ul><li><a href="https://learn.microsoft.com/dotnet/ai/ichatclient" target="_blank" rel="noopener">IChatClient — streaming</a> — GetStreamingResponseAsync, ChatResponseUpdate, ToChatResponse</li><li><a href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.typedresults.serversentevents" target="_blank" rel="noopener">TypedResults.ServerSentEvents</a> — .NET 10 — SSE შედეგი ASP.NET Core-ში</li><li><a href="https://developer.mozilla.org/docs/Web/API/Server-sent_events/Using_server-sent_events" target="_blank" rel="noopener">MDN — Using server-sent events</a> — SSE-ის ფორმატი და EventSource ბრაუზერში</li><li><a href="https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream" target="_blank" rel="noopener">Iterating with async enumerables</a> — IAsyncEnumerable, await foreach, [EnumeratorCancellation]</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>სტრიმი Gemini-დან</h2><a class="sl" href="index.html#/6" target="_blank">▶ სლაიდები 6–9</a></header><div class="tb"><p>Gemini პასუხს ტოკენ-ტოკენ წერს, და გრძელ პასუხს რამდენიმე წამი სჭირდება. აქამდე მომხმარებელი ამ დროს ცარიელ ეკრანს უყურებდა. სტრიმინგით პირველი სიტყვა მაშინვე ჩანს.</p>
+<p><code>IChatClient</code>-ს მეორე მეთოდიც აქვს:</p>
 <div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// 1) one answer, at the end</span></span><span class="ln"><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="c1">// 2) many pieces, as they arrive</span></span><span class="ln"><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<ul>
-<li><strong><code>IAsyncEnumerable&lt;T&gt;</code></strong> — <code>IEnumerable&lt;T&gt;</code>-ის ასინქრონული ვერსია. <code>foreach</code> ჩვეულებრივ სიას გადის, ხოლო <strong><code>await foreach</code></strong> შემდეგ ელემენტს <strong>ელოდება</strong>, რადგან ის ჯერ არ არსებობს: Gemini ჯერ წერს. ციკლის სხეული თითო ნაწილზე მაშინვე სრულდება, როგორც კი ნაწილი მოვიდა.</li>
-<li><strong><code>ChatResponseUpdate</code></strong> — პასუხის ერთი ნაწილი: <code>Text</code> (ტექსტის ნაჭერი), <code>Role</code>, ხოლო ბოლო ნაწილებში <code>FinishReason</code> და ტოკენები (<code>UsageContent</code>).</li>
-<li><strong>არგუმენტები იგივეა:</strong> <code>messages</code>, <code>options</code> (tool-ების ჩათვლით), <code>cancellationToken</code>. <code>UseFunctionInvocation</code> სტრიმინგშიც მუშაობს: tool-ის ციკლი ჯერ შიგნით სრულდება, მერე ტექსტი იწყებს მოსვლას.</li>
-</ul>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IAsyncEnumerable<T></dt><dd>ელემენტების ნაკადი, რომლის თითო ელემენტი ასინქრონულად მოდის; იკითხება await foreach-ით</dd><dt>ChatResponseUpdate</dt><dd>სტრიმინგ პასუხის ერთი ნაწილი: ტექსტის ნაჭერი და მეტამონაცემები</dd></dl></div></article><article class="blk" data-slides="9,10"><span class="anchor" id="s-9"></span><span class="anchor" id="s-10"></span><div class="bh"><h3>ვზომავთ: როდის მოდის თითო ნაწილი</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
+<p><code>IAsyncEnumerable&lt;T&gt;</code> <code>IEnumerable&lt;T&gt;</code>-ის ასინქრონული ვერსიაა: <code>await foreach</code> ყოველ შემდეგ ნაწილს ელოდება. ვზომავთ, როდის მოდის თითო ნაწილი:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ChatChunks</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("chat/chunks")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ChatChunks</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Stopwatch</span><span class="w"> </span><span class="n">sw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stopwatch</span><span class="p">.</span><span class="n">StartNew</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">chunks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="p">]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">chunks</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sw</span><span class="p">.</span><span class="n">ElapsedMilliseconds</span><span class="p">,</span><span class="w"> </span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>Stopwatch</code> (<code>using System.Diagnostics;</code>) ზომავს, რამდენი მილიწამი გავიდა თითო ნაწილის მოსვლამდე. "Tell us about Georgian cuisine"-ს ნიმუშად შედეგი ასეთია:</p>
-<table>
-<thead>
-<tr>
-<th>ms</th>
-<th>text</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>640</td>
-<td>„ქართული სამზარეულო“</td>
-</tr>
-<tr>
-<td>910</td>
-<td>„ ცნობილია ხინკლით…“</td>
-</tr>
-<tr>
-<td>1180</td>
-<td>„ და ხაჭაპურით…“</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-</tr>
-<tr>
-<td>5420</td>
-<td>„.“</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong>პირველი ნაწილი ~0.6 წამზე</strong> (TTFT), ბოლო ~5.4 წამზე. სტრიმინგის გარეშე მომხმარებელი 5.4 წამს დაელოდებოდა.</li>
-<li><strong>ნაწილი ≠ ერთი ტოკენი.</strong> Gemini რამდენიმე ტოკენს ერთად აგზავნის. ნაწილის ზომა პროვაიდერზეა დამოკიდებული.</li>
-</ul>
-<p><strong>მაგრამ Swagger-მა ყველაფერი ერთბაშად აჩვენა. რატომ?</strong> ჩვენ ნაწილებს <strong>ვაგროვებთ</strong> <code>chunks</code> სიაში და <code>Ok(chunks)</code>-ს <strong>ბოლოს</strong> ვაბრუნებთ. სტრიმი Gemini-დან Controller-მდე მოდის, მაგრამ Controller-ში წყდება. კლიენტამდე რომ მივიდეს, ყოველი ნაწილი <strong>მაშინვე</strong> უნდა გავაგზავნოთ. ეს მეორე ნაწილის თემაა.</p></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~3 წთ კითხვა</div><h2>Server-Sent Events: სტრიმი კლიენტამდე</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> დაწერ SSE endpoint-ს <code>TypedResults.ServerSentEvents</code>-ით და <code>curl -N</code>-ით დაინახავ, როგორ ჩნდება პასუხი ნაწილ-ნაწილ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · Server-Sent Events</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
-<p>სტრიმი Controller-მდე მოდის. ახლა ის კლიენტამდე უნდა მივიდეს: ყოველი ნაწილი მაშინვე, ერთი HTTP პასუხის შიგნით. ამისთვის არსებობს მარტივი სტანდარტი, <strong>Server-Sent Events (SSE)</strong>, და .NET 10-ში მისთვის მზა <code>TypedResults.ServerSentEvents</code> გვაქვს.</p></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Server-Sent Events: ერთი პასუხი, რომელიც ღია რჩება</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
-<p>SSE ჩვეულებრივი HTTP-ა. სერვერი პასუხს აბრუნებს <code>Content-Type: text/event-stream</code>-ით, კავშირს <strong>არ ხურავს</strong> და ტექსტს ნაწილ-ნაწილ წერს:</p>
+<p>Swagger-ში ყველაფერი ბოლოს ერთად ჩანს, რადგან <strong>ჩვენ ვაგროვებთ</strong> სიაში. ms-ები კი აჩვენებს, რომ Gemini ნაწილ-ნაწილ აგზავნიდა.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>სტრიმინგი პასუხს უფრო სწრაფს ხდის?</summary><div class="ans">მთლიან დროს არა. ის ამცირებს დროს პირველ სიტყვამდე (TTFT).</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>streaming</dt><dd>პასუხის მიღება და ჩვენება ნაწილ-ნაწილ, დაწერისთანავე</dd><dt>TTFT (time to first token)</dt><dd>დრო მოთხოვნიდან პირველ ტოკენამდე</dd><dt>IAsyncEnumerable<T></dt><dd>ელემენტების ნაკადი, რომლის თითო ელემენტი ასინქრონულად მოდის</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>Server-Sent Events</h2><a class="sl" href="index.html#/11" target="_blank">▶ სლაიდები 11–13</a></header><div class="tb"><p>SSE ჩვეულებრივი HTTP პასუხია, რომელიც ღია რჩება. სერვერი ტექსტს ნაწილ-ნაწილ წერს:</p>
 <div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">HTTP/1.1 200 OK</span><span class="ln">Content-Type: text/event-stream</span><span class="ln"> </span><span class="ln">data: Tomorrow at 20:00</span><span class="ln"> </span><span class="ln">data:  for four people</span><span class="ln"> </span><span class="ln">data:  two tables are free</span></code></pre></div>
-<ul>
-<li><strong><code>data: …</code></strong> — ერთი შეტყობინება. <strong>ცარიელი ხაზი</strong> მის ბოლოს ნიშნავს.</li>
-<li>სერვერი თითო ნაწილს მაშინვე წერს და <strong>flush</strong>-ავს (გზავნის), ბუფერში არ აგროვებს.</li>
-<li>ბრაუზერს ამისთვის ჩაშენებული <code>EventSource</code> აქვს, ტერმინალში კი <code>curl -N</code> საკმარისია.</li>
-</ul>
-<p><strong>SSE, WebSocket თუ SignalR?</strong></p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>მიმართულება</th>
-<th>როდის</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>SSE</strong></td>
-<td>სერვერი → კლიენტი</td>
-<td>AI ჩატის პასუხი, შეტყობინებები, პროგრესის ზოლი</td>
-</tr>
-<tr>
-<td>WebSocket</td>
-<td>ორივე მხარეს</td>
-<td>თამაში, ერთობლივი რედაქტირება</td>
-</tr>
-<tr>
-<td>SignalR</td>
-<td>ორივე მხარეს + ჯგუფები, ავტომატური გადაერთება</td>
-<td>ადამიანებს შორის ჩატი, live დაშბორდი</td>
-</tr>
-</tbody>
-</table>
-<p>AI-ს პასუხი <strong>ცალმხრივია</strong>: მომხმარებელი კითხვას ერთხელ აგზავნის (ჩვეულებრივი მოთხოვნით), სერვერი კი პასუხს დიდხანს წერს. SSE ზუსტად ამისთვისაა: ჩვეულებრივი HTTP, დამატებითი ბიბლიოთეკისა და პროტოკოლის გარეშე. ამიტომ OpenAI, Anthropic და Gemini-ს API-ებიც თავიანთ სტრიმს SSE-თი აბრუნებენ. SignalR კარგია, როცა სერვერსა და კლიენტს ორივე მხარეს ბევრი აქვთ სათქმელი.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Server-Sent Events (SSE)</dt><dd>HTTP პასუხი text/event-stream ტიპით, რომელიც ღია რჩება და სერვერი მასში შეტყობინებებს ნაწილ-ნაწილ წერს</dd></dl></div></article><article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>TypedResults.ServerSentEvents: სტრიმი კლიენტამდე</h3><a class="chip" href="index.html#/13" data-go="13" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 13</a></div>
-<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ChatStream</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("chat/stream")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IResult</span><span class="w"> </span><span class="nf">ChatStream</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TypedResults</span><span class="p">.</span><span class="n">ServerSentEvents</span><span class="p">(</span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">StreamAnswer</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            You are a restaurant assistant. Answer briefly.</span></span><span class="ln"><span class="na">            Take menu and table data only from the tools.</span></span><span class="ln"><span class="na">            Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>ChatToolOptions()</code> — ლექცია 4-ის <code>ChatOptions</code> tool-ებით, ცალკე მეთოდში გატანილი, რომ <code>/chat</code>-მაც და <code>/chat/stream</code>-მაც ერთი და იგივე გამოიყენონ:</p>
+<p>AI-ის პასუხი ცალმხრივია (სერვერი → კლიენტი), ამიტომ SSE საკმარისია და WebSocket/SignalR არ გვჭირდება.</p>
+<p><code>ChatToolOptions()</code> ლექცია 4-ის tool-ებია ცალკე მეთოდში, რომ <code>/chat</code>-მაც და <code>/chat/stream</code>-მაც იგივე გამოიყენონ:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="n">ChatOptions</span><span class="w"> </span><span class="nf">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Tools</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu"),</span></span><span class="ln"><span class="na">        AIFunctionFactory.Create(_tools.CheckAvailability, name: "check_availability")</span></span><span class="ln"><span class="na">    ]</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span></code></pre></div>
-<p><strong>რა ხდება:</strong></p>
-<ul>
-<li><strong><code>TypedResults.ServerSentEvents(...)</code></strong> — .NET 10-ის ახალი შედეგი (Controller-შიც მუშაობს). <code>IAsyncEnumerable&lt;string&gt;</code>-ს იღებს და ყველაფერს თვითონ აკეთებს: <code>Content-Type: text/event-stream</code>, თითო ელემენტი <code>data: …</code>-ად და მაშინვე flush.</li>
-<li><strong><code>StreamAnswer</code></strong> — <strong>async iterator</strong> მეთოდი (<code>async IAsyncEnumerable&lt;string&gt;</code> + <code>yield return</code>). Gemini-ს ყოველ ნაწილს <strong>მაშინვე</strong> აბრუნებს, სიაში არ აგროვებს. ასე სტრიმი Gemini-დან კლიენტამდე არ წყდება.</li>
-<li><strong><code>if (!string.IsNullOrEmpty(update.Text))</code></strong> — ზოგ ნაწილში ტექსტი არ არის (მაგ. tool-ის გამოძახება ან ბოლო ნაწილი ტოკენებით). ცარიელს არ ვაგზავნით.</li>
-<li><strong><code>[HttpGet]</code> და <code>string prompt</code></strong> — query string-იდან (<code>?prompt=...</code>). GET იმიტომ, რომ ბრაუზერის <code>EventSource</code> მხოლოდ GET-ს უშვებს.</li>
-<li><strong><code>CancellationToken</code></strong> და <strong><code>[EnumeratorCancellation]</code></strong> — მესამე ნაწილის თემაა.</li>
-</ul>
-<p><code>using System.Runtime.CompilerServices;</code> — <code>[EnumeratorCancellation]</code>-ისთვის.</p>
-<p><strong>შემოწმება ტერმინალში</strong> (პორტი შენი <code>launchSettings.json</code>-იდან):</p>
+<p>endpoint: iterator <code>yield return</code>-ით, და <code>TypedResults.ServerSentEvents</code> ყოველ ნაწილს მაშინვე აგზავნის:</p>
+<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ChatStream</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("chat/stream")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IResult</span><span class="w"> </span><span class="nf">ChatStream</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TypedResults</span><span class="p">.</span><span class="n">ServerSentEvents</span><span class="p">(</span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">StreamAnswer</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            You are a restaurant assistant. Answer briefly.</span></span><span class="ln"><span class="na">            Take menu and table data only from the tools.</span></span><span class="ln"><span class="na">            Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>შემოწმება ტერმინალიდან (<code>-N</code> = არ დაელოდო ბოლომდე):</p>
 <div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">curl<span class="w"> </span>-N<span class="w"> </span><span class="s2">"http://localhost:5080/api/ai-lab/chat/stream?prompt=What%20do%20you%20have%20under%2015%20GEL%3F"</span></span></code></pre></div>
-<p><strong><code>-N</code></strong> (no buffer) — curl-მა მიღებული მონაცემი არ დააგროვოს და მაშინვე აჩვენოს. Windows-ზე PowerShell-ში <strong><code>curl.exe</code></strong> დაწერე (უბრალო <code>curl</code> PowerShell-ში სხვა ბრძანებაა).</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>Swagger-ში ეს endpoint <strong>არ გამოგადგება</strong>: Swagger პასუხს ბოლომდე ელოდება და ერთბაშად აჩვენებს. სტრიმი რომ დაინახო, გამოიყენე <code>curl -N</code> ან ბრაუზერის <code>EventSource</code> (⭐ ქვემოთ).</p></div></div>
-<p><strong>⭐ ბრაუზერში — <code>EventSource</code>.</strong> სურვილისამებრ: პატარა გვერდი, რომელიც პასუხს ბრაუზერში ნაწილ-ნაწილ აჩვენებს. <code>Program.cs</code>-ში <code>app.UseStaticFiles();</code>, ფაილი კი <code>wwwroot/chat.html</code>:</p>
-<div class="codebox"><div class="ch"><span>wwwroot/chat.html</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="cp">&lt;!doctype html&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"utf-8"</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">input</span> <span class="na">id</span><span class="o">=</span><span class="s">"q"</span> <span class="na">size</span><span class="o">=</span><span class="s">"60"</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">"Question"</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">button</span> <span class="na">onclick</span><span class="o">=</span><span class="s">"ask()"</span><span class="p">&gt;</span>Send<span class="p">&lt;</span><span class="p">/</span><span class="nt">button</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">pre</span> <span class="na">id</span><span class="o">=</span><span class="s">"out"</span><span class="p">&gt;</span><span class="p">&lt;</span><span class="p">/</span><span class="nt">pre</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span></span><span class="ln"><span class="w">  </span><span class="kd">function</span><span class="w"> </span><span class="nx">ask</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nx">out</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">''</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">es</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">EventSource</span><span class="p">(</span><span class="s1">'/api/ai-lab/chat/stream?prompt='</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nx">q</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="nx">es</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">out</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="nx">es</span><span class="p">.</span><span class="nx">onerror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">es</span><span class="p">.</span><span class="nx">close</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// the stream ended — don't reconnect</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">&lt;</span><span class="p">/</span><span class="nt">script</span><span class="p">&gt;</span></span></code></pre></div>
-<p><code>EventSource</code> ბრაუზერის ჩაშენებული კლასია: <code>text/event-stream</code>-ს თვითონ კითხულობს და ყოველ <code>data:</code>-ზე <code>onmessage</code>-ს იძახებს. კავშირის დახურვისას ის ავტომატურად ხელახლა უკავშირდება, ამიტომ <code>onerror</code>-ში ვხურავთ.</p>
-<div class="callout note"><span class="ci">💡</span><div><p>ლექცია 5-ის ჩვენი ფენები (<code>TokenCounter</code>, <code>InputGuard</code>) მხოლოდ <code>GetResponseAsync</code>-ს ფარავს. სტრიმინგზე <code>DelegatingChatClient</code> მოთხოვნას <strong>უცვლელად</strong> გადასცემს, ანუ ტოკენები არ ითვლება და <strong>დაცვაც არ მუშაობს</strong>. საშინაოში <code>InputGuard</code>-ს <code>GetStreamingResponseAsync</code>-საც დაუმატებ.</p></div></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~1 წთ კითხვა</div><h2>გაუქმება: CancellationToken</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> token-ს სამ ადგილას გადასცემ და შეამოწმებ, რომ კლიენტის წასვლისას Gemini-ს მოთხოვნაც წყდება.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაწილი 3 · გაუქმება</h3><a class="chip" href="index.html#/14" data-go="14" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 14</a></div>
-<p>სტრიმი დიდხანს გრძელდება. თუ მომხმარებელმა შუაში ფანჯარა დახურა, სერვერმა ეს უნდა გაიგოს და Gemini-ს მოთხოვნაც უნდა შეწყვიტოს. თორემ Gemini ცარიელ ოთახში წერს, ჩვენ კი მის ტოკენებს ვიხდით.</p></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>გაუქმება: კლიენტი წავიდა, Gemini-ც ჩერდება</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
-<p><strong>პრობლემა:</strong> მომხმარებელმა კითხვა დასვა და 2 წამში ფანჯარა დახურა, Gemini კი პასუხს 30 წამი წერს. თუ სერვერმა ეს არ გაიგო, Gemini-სთან მოთხოვნა შეიძლება ბოლომდე გაგრძელდეს: ტოკენებს ვიხდით, პასუხს კი არავინ კითხულობს.</p>
-<p><strong>გამოსავალი — <code>CancellationToken</code>, სამ ადგილას:</strong></p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>Swagger ამას ვერ აჩვენებს: ის პასუხს ბოლომდე ელოდება. გამოიყენე curl ან ბრაუზერი.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>tool-იან კითხვაზე პირველი სიტყვა რატომ იგვიანებს?</summary><div class="ans">ჯერ tool-ის ციკლი სრულდება (Gemini-ს ორი მოთხოვნა), და მხოლოდ მეორე მოთხოვნის პასუხი სტრიმდება.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Server-Sent Events (SSE)</dt><dd>HTTP პასუხი text/event-stream ტიპით, რომელიც ღია რჩება და სერვერი მასში ნაწილ-ნაწილ წერს</dd></dl></div></div></section><section class="topic"><header><span class="num">3</span><h2>გაუქმება</h2><a class="sl" href="index.html#/14" target="_blank">▶ სლაიდები 14–15</a></header><div class="tb"><p>მომხმარებელმა 2 წამში დახურა ფანჯარა, Gemini კი 30 წამი წერს, და ამაში ვიხდით. <code>CancellationToken</code> სამ ადგილას უნდა გადავცეთ: action-ში, iterator-ში (<code>[EnumeratorCancellation]</code>) და <code>GetStreamingResponseAsync</code>-ში:</p>
 <div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("chat/stream")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IResult</span><span class="w"> </span><span class="nf">ChatStream</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="w">   </span><span class="c1">// ①</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TypedResults</span><span class="p">.</span><span class="n">ServerSentEvents</span><span class="p">(</span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">StreamAnswer</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="w">               </span><span class="c1">// ②</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// ...</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span><span class="w">   </span><span class="c1">// ③</span></span><span class="ln"><span class="w">    </span><span class="c1">// ...</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<ol>
-<li><strong>Action-ის პარამეტრი.</strong> ASP.NET Core მას თვითონ ავსებს <code>HttpContext.RequestAborted</code>-ით: token „გაუქმდება“, როცა კლიენტი კავშირს წყვეტს. API კურსიდან იცი: ყველა async endpoint-ში ასე გადაეცემა <code>ToListAsync(cancellationToken)</code>-საც.</li>
-<li><strong><code>[EnumeratorCancellation]</code></strong> — async iterator-ის token-ის პარამეტრზე. ის აკავშირებს iterator-ის token-ს იმ token-თან, რომელსაც <code>ServerSentEvents</code> იტერაციისას გადასცემს. ატრიბუტის გარეშე კომპილატორი გაფრთხილებას წერს.</li>
-<li><strong><code>GetStreamingResponseAsync(..., cancellationToken)</code></strong> — token Gemini-ს HTTP მოთხოვნამდე მიდის. გაუქმებისას კავშირი წყდება და Gemini აღარ წერს.</li>
-</ol>
-<p><strong>შემოწმება:</strong> <code>curl -N</code>-ით გრძელი პასუხი ("Tell us about Georgian cuisine in detail"), შუაში <strong>Ctrl+C</strong>. სერვერის ლოგში (<code>UseLogging</code>, ლექცია 5) გამოჩნდება, რომ მოთხოვნა გაუქმდა (<code>canceled</code>), და არა ჩვეულებრივად დასრულდა (<code>completed</code>).</p>
-<div class="callout tip"><span class="ci">👉</span><div><p>წესი API კურსიდან: <strong>ყოველ</strong> async გამოძახებას, რომელიც <code>CancellationToken</code>-ს იღებს, token გადაეცი: <code>ToListAsync</code>, <code>GetResponseAsync</code>, <code>GetStreamingResponseAsync</code>. AI-სთან ეს განსაკუთრებით მნიშვნელოვანია, რადგან მოთხოვნები გრძელია და ფული ჯდება.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>CancellationToken</dt><dd>სიგნალი „შეწყვიტე“; ASP.NET Core-ში action-ის პარამეტრად მოდის და კლიენტის წასვლისას გაუქმდება</dd><dt>[EnumeratorCancellation]</dt><dd>ატრიბუტი async iterator-ის token-ის პარამეტრზე, რომ იტერაციის token მასთან მივიდეს</dd></dl></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>კლასის დავალება: შენი ჩატის სტრიმინგ ვერსია</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>კლასში დავალება: შენი ჩატი — სტრიმინგით</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
+<p>curl-ში Ctrl+C → სერვერის ლოგში ჩანს, რომ მოთხოვნა <strong>გაუქმდა</strong>.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>წესი API კურსიდან: ყოველ async გამოძახებას, რომელიც <code>CancellationToken</code>-ს იღებს, token გადაეცი.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>[EnumeratorCancellation]</code> რისთვისაა?</summary><div class="ans">iterator-ს token ორი გზით მოსდის (პარამეტრით და <code>WithCancellation</code>-ით). ატრიბუტი ორივეს აერთიანებს.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>CancellationToken</dt><dd>სიგნალი „შეწყვიტე“; კლიენტის წასვლისას გაუქმდება</dd></dl></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 საშინაო</h2><div class="box task"><h3>სტრიმინგ ჩატი და ფენები სტრიმინგზე</h3>
+<p>კოდით · შენი პროექტი · README-ში ცხრილი</p>
+<h4>მოთხოვნები</h4>
+<ul>
+<li><strong><code>GET /api/ai-lab/chat/stream</code></strong> შენს პროექტში: tool-ებით (<code>ChatToolOptions()</code>), <code>TypedResults.ServerSentEvents</code>, async iterator, <code>CancellationToken</code> სამივე ადგილას</li>
+<li><strong>InputGuard სტრიმინგზე:</strong> ლექცია 5-ის დაცვის ფენას დაუმატე <code>GetStreamingResponseAsync</code> override — შეჩერებისას <strong>ერთი</strong> <code>ChatResponseUpdate</code> შეტყობინებით და <code>yield break</code>, Gemini-ს გარეშე</li>
+<li><strong>README — TTFT ცხრილი:</strong> <code>/chat/chunks</code>-ით 3 კითხვა: მოკლე · გრძელი · tool-იანი. სვეტები: კითხვა · პირველი ნაწილის ms · ბოლო ნაწილის ms · ნაწილების რაოდენობა</li>
+<li><strong>README — გაუქმება:</strong> გრძელ პასუხზე Ctrl+C → სერვერის ლოგის 3–5 ხაზი, სადაც ჩანს, რომ მოთხოვნა გაუქმდა</li>
+<li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
+</ul>
+<h4>✓ მზადაა, როცა</h4>
+<p><code>curl -N</code>-ით ტექსტი ნაწილ-ნაწილ ჩნდება, tool-იან კითხვაზეც; გრძელ შეკითხვაზე <code>/chat/stream</code> დაცვის პასუხს აბრუნებს და Gemini-ს ლოგი ცარიელია; README-ში TTFT ცხრილი, გაუქმების ლოგი და ტესტის ქულა</p>
+<h4>⭐ ბონუსი</h4>
+<ul>
+<li><strong>ბრაუზერის გვერდი:</strong> <code>wwwroot/chat.html</code> <code>EventSource</code>-ით (ნიმუში კონსპექტში, ნაწილი 2) + <code>app.UseStaticFiles()</code></li>
+<li><strong>TokenCounter სტრიმინგზე:</strong> override, რომელიც ნაწილებს აგროვებს და ბოლოს <code>updates.ToChatResponse().Usage</code>-ს წერს ლოგში</li>
+<li><strong>სტატუსის მოვლენები:</strong> <code>IAsyncEnumerable&lt;SseItem&lt;string&gt;&gt;</code> და <code>TypedResults.ServerSentEvents(...)</code> — tool-ის ციკლის დროს <code>event: status</code> ("Checking the tables…"), მერე ტექსტი</li>
+</ul>
+<h4>💡 დეტალები</h4>
+<ul>
+<li>iterator-ში <code>yield return</code>-ის <strong>გარეშე</strong> სიაში ნუ შეაგროვებ — სტრიმი გაწყდება</li>
+<li><code>ChatResponseUpdate</code>-ის შექმნა: <code>new ChatResponseUpdate(ChatRole.Assistant, "text")</code></li>
+<li>override-ის სიგნატურა: <code>public override async IAsyncEnumerable&lt;ChatResponseUpdate&gt; GetStreamingResponseAsync(IEnumerable&lt;ChatMessage&gt; messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)</code></li>
+<li>tool-იან კითხვაზე TTFT დიდია — ჯერ tool-ის ციკლი სრულდება; ცხრილში ეს უნდა ჩანდეს</li>
+</ul></div><h2>📝 კლასის დავალება</h2><div class="box task"><h3>შენი ჩატი — სტრიმინგით</h3>
 <p>შენი პროექტი ან RestaurantApi · კოდით · ტერმინალში, curl-ით</p>
-<h3>ნაბიჯები</h3>
+<h4>ნაბიჯები</h4>
 <ul>
 <li><strong>1 · ChatToolOptions()</strong> — ლექცია 4-ის <code>/chat</code>-ის <code>ChatOptions</code> ცალკე მეთოდში გაიტანე, რომ ორმა endpoint-მა გამოიყენოს</li>
 <li><strong>2 · iterator</strong> — <code>private async IAsyncEnumerable&lt;string&gt; StreamAnswer(string prompt, [EnumeratorCancellation] CancellationToken cancellationToken)</code>: იგივე System prompt, რაც <code>/chat</code>-ში → <code>await foreach</code> <code>GetStreamingResponseAsync(messages, ChatToolOptions(), cancellationToken)</code> → ტექსტიან ნაწილზე <code>yield return</code></li>
 <li><strong>3 · endpoint</strong> — <code>[HttpGet("chat/stream")]</code>, პარამეტრები <code>string prompt, CancellationToken cancellationToken</code> → <code>TypedResults.ServerSentEvents(StreamAnswer(...))</code></li>
 <li><strong>4 · შემოწმება</strong> — <code>curl -N "http://localhost:&lt;პორტი&gt;/api/ai-lab/chat/stream?prompt=..."</code>: ჯერ ჩვეულებრივი კითხვა, მერე ისეთი, რომელზეც <strong>tool</strong> გამოიძახება, ბოლოს გრძელი პასუხი და შუაში <strong>Ctrl+C</strong></li>
 </ul>
-<h3>✓ მზადაა, როცა</h3>
+<h4>✓ მზადაა, როცა</h4>
 <p>ტერმინალში ტექსტი ნაწილ-ნაწილ ჩნდება (<code>data: …</code>); tool-იან კითხვაზე პასუხში შენი ბაზის მონაცემია; Ctrl+C-ის შემდეგ სერვერის ლოგში ჩანს, რომ მოთხოვნა გაუქმდა და არა დასრულდა</p>
-<h3>⭐ ბონუსი</h3>
+<h4>⭐ ბონუსი</h4>
 <ul>
 <li><code>/chat</code>-მაც <code>ChatToolOptions()</code> გამოიყენოს — ერთი ადგილი tool-ების სიისთვის</li>
 <li>სტრიმის ბოლოს ცალკე მოვლენა: <code>yield return "[DONE]"</code> — როგორც OpenAI-ის API-ში. რისთვის სჭირდება კლიენტს?</li>
 <li><code>/chat/chunks</code> შენს endpoint-ზე: პირველი და ბოლო ნაწილის ms — tool-იან და tool-ის გარეშე კითხვაზე</li>
 </ul>
-<h3>💡 თუ გაიჭედე</h3>
+<h4>💡 თუ გაიჭედე</h4>
 <ul>
 <li><strong>Windows, PowerShell:</strong> <code>curl.exe</code> (არა <code>curl</code> — ის Invoke-WebRequest-ია და სტრიმს ბოლომდე ელოდება)</li>
 <li><strong>ქართული ტექსტი ტერმინალში დამახინჯებულია?</strong> <code>chcp 65001</code> ან Windows Terminal; prompt URL-ში ინგლისურადაც შეიძლება — <code>%20</code> ჰარის ნაცვლად</li>
@@ -451,106 +237,32 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 <li><strong><code>[EnumeratorCancellation]</code> ვერ პოულობს?</strong> <code>using System.Runtime.CompilerServices;</code></li>
 <li><strong>ტექსტი მაინც ბოლოს ჩნდება?</strong> ნაწილებს სიაში ხომ არ აგროვებ? <code>yield return</code> უნდა იყოს <code>await foreach</code>-ის შიგნით</li>
 <li><strong>Ctrl+C-ის შემდეგ კონსოლში exception?</strong> ნორმალურია — ეს გაუქმების სიგნალია (<code>OperationCanceledException</code>)</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>შეჯამება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
-<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>სტრიმინგი პასუხს უფრო სწრაფს ხდის? რა იცვლება სინამდვილეში?</summary><div class="ans">მთლიანი დრო თითქმის იგივეა · იცვლება TTFT — დრო პირველ სიტყვამდე (წამები → მილიწამები) · მომხმარებელი კითხვას მაშინვე იწყებს, ცარიელი ეკრანი აღარ არის</div></details><details><summary>რას აბრუნებს <code>GetStreamingResponseAsync</code> და როგორ ვკითხულობთ?</summary><div class="ans"><code>IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code> — ნაწილების ნაკადი · <code>await foreach</code> — შემდეგ ნაწილს ელოდება · <code>update.Text</code> — ტექსტის ნაჭერი; იგივე messages/options, tool-ებიც მუშაობს</div></details><details><summary><code>/chat/chunks</code>-ში Gemini სტრიმავდა, Swagger-მა კი ყველაფერი ერთად აჩვენა. რატომ? როგორ გავასწორეთ?</summary><div class="ans">ნაწილებს სიაში ვაგროვებდით და ბოლოს ვაბრუნებდით — სტრიმი Controller-ში წყდებოდა · async iterator (<code>yield return</code>) + <code>TypedResults.ServerSentEvents</code> — თითო ნაწილი მაშინვე მიდის კლიენტთან</div></details><details><summary>რა არის SSE და რატომ არის ის AI ჩატისთვის საკმარისი (WebSocket/SignalR-ის ნაცვლად)?</summary><div class="ans">HTTP პასუხი <code>text/event-stream</code>-ით, რომელიც ღია რჩება; <code>data: …</code> + ცარიელი ხაზი · AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი) · WebSocket/SignalR ორმხრივისთვისაა</div></details><details><summary>სად და რატომ გადავეცით <code>CancellationToken</code>?</summary><div class="ans">① action-ის პარამეტრი (RequestAborted) ② <code>[EnumeratorCancellation]</code> iterator-ში ③ <code>GetStreamingResponseAsync</code>-ს · კლიენტი წავიდა → Gemini-ს მოთხოვნა წყდება → ტოკენები აღარ იხარჯება</div></details></div></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
-<ul>
-<li><strong>სტრიმინგი</strong> პასუხს დაწერისთანავე აჩვენებს. მთლიან დროს არ ამცირებს, მაგრამ <strong>TTFT</strong>-ს (დროს პირველ სიტყვამდე) წამებიდან მილიწამებამდე ამცირებს. ცარიელი ეკრანი აღარ არის.</li>
-<li><strong><code>GetStreamingResponseAsync</code></strong> აბრუნებს <code>IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code>-ს. ვკითხულობთ <strong><code>await foreach</code></strong>-ით. იგივე <code>messages</code> და <code>options</code>, tool-ებიც მუშაობს.</li>
-<li>თუ ნაწილებს <strong>სიაში ვაგროვებთ</strong>, სტრიმი Controller-ში წყდება. <strong><code>yield return</code></strong> (async iterator) თითო ნაწილს მაშინვე აბრუნებს.</li>
-<li><strong>SSE</strong> — HTTP პასუხი <code>text/event-stream</code>-ით, რომელიც ღია რჩება; <code>data: …</code> + ცარიელი ხაზი. AI-ს ცალმხრივი პასუხისთვის საკმარისია. WebSocket/SignalR ორმხრივი კომუნიკაციისთვისაა.</li>
-<li><strong><code>TypedResults.ServerSentEvents</code></strong> (.NET 10) SSE-ს თვითონ აწყობს. Swagger სტრიმს ვერ აჩვენებს, ამიტომ ვამოწმებთ <strong><code>curl -N</code></strong>-ით.</li>
-<li><strong><code>CancellationToken</code></strong> სამ ადგილას: action-ის პარამეტრი, <code>[EnumeratorCancellation]</code> და <code>GetStreamingResponseAsync</code>. მომხმარებელი წავიდა → Gemini ჩერდება → ტოკენები აღარ იხარჯება.</li>
-</ul>
-<h3>შემდეგ ლექციაზე</h3>
-<p>ჩვენი ჩატი სტრიმავს, მაგრამ ყოველი შეკითხვა ცალკეა: "Four of us tomorrow at 8?" და მერე "And at 9?". მეორეს მოდელი ვერ გაიგებს, რადგან პირველი არ ახსოვს (stateless, ლექცია 1). ლექცია 7-ზე: <strong>Context Engineering</strong>. რა შედის მოდელის კონტექსტში, საუბრის ისტორია, ტოკენების ბიუჯეტი და ისტორიის შენახვა PostgreSQL-ში.</p></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>საშინაო დავალება: სტრიმინგ ჩატი და ფენები სტრიმინგზე</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
-<p>კოდით · შენი პროექტი · README-ში ცხრილი</p>
-<h3>მოთხოვნები</h3>
-<ul>
-<li><strong><code>GET /api/ai-lab/chat/stream</code></strong> შენს პროექტში: tool-ებით (<code>ChatToolOptions()</code>), <code>TypedResults.ServerSentEvents</code>, async iterator, <code>CancellationToken</code> სამივე ადგილას</li>
-<li><strong>InputGuard სტრიმინგზე:</strong> ლექცია 5-ის დაცვის ფენას დაუმატე <code>GetStreamingResponseAsync</code> override — შეჩერებისას <strong>ერთი</strong> <code>ChatResponseUpdate</code> შეტყობინებით და <code>yield break</code>, Gemini-ს გარეშე</li>
-<li><strong>README — TTFT ცხრილი:</strong> <code>/chat/chunks</code>-ით 3 კითხვა: მოკლე · გრძელი · tool-იანი. სვეტები: კითხვა · პირველი ნაწილის ms · ბოლო ნაწილის ms · ნაწილების რაოდენობა</li>
-<li><strong>README — გაუქმება:</strong> გრძელ პასუხზე Ctrl+C → სერვერის ლოგის 3–5 ხაზი, სადაც ჩანს, რომ მოთხოვნა გაუქმდა</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
-</ul>
-<h3>✓ მზადაა, როცა</h3>
-<p><code>curl -N</code>-ით ტექსტი ნაწილ-ნაწილ ჩნდება, tool-იან კითხვაზეც; გრძელ შეკითხვაზე <code>/chat/stream</code> დაცვის პასუხს აბრუნებს და Gemini-ს ლოგი ცარიელია; README-ში TTFT ცხრილი, გაუქმების ლოგი და ტესტის ქულა</p>
-<h3>⭐ ბონუსი</h3>
-<ul>
-<li><strong>ბრაუზერის გვერდი:</strong> <code>wwwroot/chat.html</code> <code>EventSource</code>-ით (ნიმუში კონსპექტში, ნაწილი 2) + <code>app.UseStaticFiles()</code></li>
-<li><strong>TokenCounter სტრიმინგზე:</strong> override, რომელიც ნაწილებს აგროვებს და ბოლოს <code>updates.ToChatResponse().Usage</code>-ს წერს ლოგში</li>
-<li><strong>სტატუსის მოვლენები:</strong> <code>IAsyncEnumerable&lt;SseItem&lt;string&gt;&gt;</code> და <code>TypedResults.ServerSentEvents(...)</code> — tool-ის ციკლის დროს <code>event: status</code> ("Checking the tables…"), მერე ტექსტი</li>
-</ul>
-<h3>💡 დეტალები</h3>
-<ul>
-<li>iterator-ში <code>yield return</code>-ის <strong>გარეშე</strong> სიაში ნუ შეაგროვებ — სტრიმი გაწყდება</li>
-<li><code>ChatResponseUpdate</code>-ის შექმნა: <code>new ChatResponseUpdate(ChatRole.Assistant, "text")</code></li>
-<li>override-ის სიგნატურა: <code>public override async IAsyncEnumerable&lt;ChatResponseUpdate&gt; GetStreamingResponseAsync(IEnumerable&lt;ChatMessage&gt; messages, ChatOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)</code></li>
-<li>tool-იან კითხვაზე TTFT დიდია — ჯერ tool-ის ციკლი სრულდება; ცხრილში ეს უნდა ჩანდეს</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 11 სწორი · <span id="qd">0</span> / 11 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>Gemini-ს პასუხს 6 წამი სჭირდება. სტრიმინგით რა შეიცვლება?</div></div><div class="opts"><button type="button" class="opt" data-i="0">პასუხი 3 წამში მოვა</button><button type="button" class="opt" data-i="1">პირველი სიტყვა ~წამზე ადრე გამოჩნდება, მთლიანი დრო თითქმის იგივე დარჩება</button><button type="button" class="opt" data-i="2">ტოკენები გაიაფდება</button><button type="button" class="opt" data-i="3">არაფერი</button></div><div class="qe"><span class="verdict"></span> სტრიმინგი TTFT-ს ამცირებს — Gemini იგივე სისწრაფით წერს. <a class="chip" href="#s-7">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>რას აბრუნებს <code>GetStreamingResponseAsync</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>Task&lt;ChatResponse&gt;</code></button><button type="button" class="opt" data-i="1"><code>IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code></button><button type="button" class="opt" data-i="2"><code>List&lt;string&gt;</code></button><button type="button" class="opt" data-i="3"><code>Stream</code></button></div><div class="qe"><span class="verdict"></span> ნაწილების ასინქრონული ნაკადი — იკითხება await foreach-ით. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>რით განსხვავდება <code>await foreach</code> ჩვეულებრივი <code>foreach</code>-ისგან?</div></div><div class="opts"><button type="button" class="opt" data-i="0">უფრო სწრაფია</button><button type="button" class="opt" data-i="1">შემდეგ ელემენტს ელოდება — ის ჯერ არ არსებობს, მოგვიანებით მოვა</button><button type="button" class="opt" data-i="2">მხოლოდ string-ზე მუშაობს</button><button type="button" class="opt" data-i="3">ელემენტებს უკუღმა გადის</button></div><div class="qe"><span class="verdict"></span> IAsyncEnumerable-ის ელემენტები ასინქრონულად ჩნდება — Gemini ჯერ წერს. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>სტრიმინგზე tool-ები (ლექცია 4) მუშაობს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">არა — მხოლოდ GetResponseAsync-ზე</button><button type="button" class="opt" data-i="1">კი — UseFunctionInvocation სტრიმინგშიც ასრულებს ციკლს</button><button type="button" class="opt" data-i="2">მხოლოდ ერთი tool</button><button type="button" class="opt" data-i="3">მხოლოდ OpenAI-ზე</button></div><div class="qe"><span class="verdict"></span> იგივე options, იგივე ციკლი; ტექსტი მოდის tool-ის შედეგის შემდეგ. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div><code>/chat/chunks</code>-ში Swagger-მა ყველა ნაწილი ერთბაშად აჩვენა. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini არ სტრიმავდა</button><button type="button" class="opt" data-i="1">ნაწილებს სიაში ვაგროვებდით და <code>Ok(chunks)</code>-ს ბოლოს ვაბრუნებდით</button><button type="button" class="opt" data-i="2">Swagger-ის ბაგია</button><button type="button" class="opt" data-i="3">Stopwatch აჩერებდა</button></div><div class="qe"><span class="verdict"></span> ms-ები აჩვენებს, რომ Gemini სტრიმავდა — სტრიმი Controller-ში წყდებოდა. <a class="chip" href="#s-9">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>SSE-ში რა ნიშნავს ცარიელი ხაზი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">კავშირის დახურვას</button><button type="button" class="opt" data-i="1">ერთი შეტყობინების ბოლოს</button><button type="button" class="opt" data-i="2">შეცდომას</button><button type="button" class="opt" data-i="3">არაფერს — იგნორირდება</button></div><div class="qe"><span class="verdict"></span> <code>data: …</code> + ცარიელი ხაზი = ერთი შეტყობინება. კავშირი ღია რჩება. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>რატომ არის SSE AI ჩატისთვის საკმარისი და SignalR არ არის აუცილებელი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">SignalR ფასიანია</button><button type="button" class="opt" data-i="1">AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი); SSE ჩვეულებრივი HTTP-ა, დამატებითი ბიბლიოთეკის გარეშე</button><button type="button" class="opt" data-i="2">SSE უფრო უსაფრთხოა</button><button type="button" class="opt" data-i="3">SignalR .NET 10-ში აღარ არის</button></div><div class="qe"><span class="verdict"></span> ორმხრივი კომუნიკაციისთვის (თამაში, ადამიანების ჩატი) — WebSocket/SignalR. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>რას აკეთებს <code>yield return update.Text</code> async iterator-ში?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ტექსტს სიაში ამატებს</button><button type="button" class="opt" data-i="1">ნაწილს მაშინვე აბრუნებს გამომძახებელს — ServerSentEvents კი კლიენტს უგზავნის</button><button type="button" class="opt" data-i="2">მეთოდს ასრულებს</button><button type="button" class="opt" data-i="3">Gemini-ს ახალ მოთხოვნას აგზავნის</button></div><div class="qe"><span class="verdict"></span> სია არ გვჭირდება — სტრიმი Gemini-დან კლიენტამდე არ წყდება. <a class="chip" href="#s-13">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div><code>/chat/stream</code>-ს Swagger-ში ცდი და პასუხი მაინც ერთბაშად ჩნდება. რა ხდება?</div></div><div class="opts"><button type="button" class="opt" data-i="0">endpoint არასწორია</button><button type="button" class="opt" data-i="1">Swagger პასუხს ბოლომდე ელოდება — სტრიმის სანახავად curl -N ან EventSource</button><button type="button" class="opt" data-i="2">SSE Windows-ზე არ მუშაობს</button><button type="button" class="opt" data-i="3">CancellationToken აკლია</button></div><div class="qe"><span class="verdict"></span> endpoint სწორად სტრიმავს — კლიენტი აგროვებს. <a class="chip" href="#s-13">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>action-ის <code>CancellationToken</code> პარამეტრს ვინ ავსებს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ჩვენ — new CancellationToken()</button><button type="button" class="opt" data-i="1">ASP.NET Core — HttpContext.RequestAborted, კლიენტის წასვლისას გაუქმდება</button><button type="button" class="opt" data-i="2">Gemini</button><button type="button" class="opt" data-i="3">Swagger</button></div><div class="qe"><span class="verdict"></span> ზუსტად ისე, როგორც API კურსის async endpoint-ებში. <a class="chip" href="#s-15">გაიმეორე · სლაიდი 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">11</span><div>რა მოხდება, თუ <code>GetStreamingResponseAsync</code>-ს token არ გადავცემთ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">კომპილაციის შეცდომა</button><button type="button" class="opt" data-i="1">კლიენტის წასვლის შემდეგ Gemini-სთან მოთხოვნა შეიძლება ბოლომდე გაგრძელდეს — ტოკენებს ვიხდით ტყუილად</button><button type="button" class="opt" data-i="2">პასუხი არ მოვა</button><button type="button" class="opt" data-i="3">არაფერი — token არასავალდებულოა და ყოველთვის ზედმეტია</button></div><div class="qe"><span class="verdict"></span> token ყოველ async გამოძახებას გადაეცი — AI-სთან მოთხოვნები გრძელია და ფული ჯდება. <a class="chip" href="#s-15">გაიმეორე · სლაიდი 15</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Streaming</dt><dd>პასუხის მიღება და ჩვენება ნაწილ-ნაწილ, დაწერისთანავე, და არა ბოლოს მთლიანად</dd><dt>TTFT (time to first token)</dt><dd>დრო მოთხოვნიდან პირველი ტოკენის მიღებამდე; სტრიმინგი სწორედ ამას აუმჯობესებს</dd><dt>IAsyncEnumerable<T></dt><dd>ელემენტების ნაკადი, რომლის თითო ელემენტი ასინქრონულად მოდის; იკითხება await foreach-ით</dd><dt>ChatResponseUpdate</dt><dd>სტრიმინგ პასუხის ერთი ნაწილი: ტექსტის ნაჭერი და მეტამონაცემები</dd><dt>Server-Sent Events (SSE)</dt><dd>HTTP პასუხი text/event-stream ტიპით, რომელიც ღია რჩება და სერვერი მასში შეტყობინებებს ნაწილ-ნაწილ წერს</dd><dt>CancellationToken</dt><dd>სიგნალი „შეწყვიტე“; ASP.NET Core-ში action-ის პარამეტრად მოდის და კლიენტის წასვლისას გაუქმდება</dd><dt>[EnumeratorCancellation]</dt><dd>ატრიბუტი async iterator-ის token-ის პარამეტრზე, რომ იტერაციის token მასთან მივიდეს</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">აირჩიე პასუხი და მაშინვე ნახავ, სწორია თუ არა და რატომ.</p><div class="qscore"><span id="qs">0</span> / 8 სწორი · <span id="qd">0</span> / 8 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>Gemini-ს პასუხს 6 წამი სჭირდება. სტრიმინგით რა შეიცვლება?</div></div><div class="opts"><button type="button" class="opt" data-i="0">პასუხი 3 წამში მოვა</button><button type="button" class="opt" data-i="1">პირველი სიტყვა ~წამზე ადრე გამოჩნდება, მთლიანი დრო თითქმის იგივე დარჩება</button><button type="button" class="opt" data-i="2">ტოკენები გაიაფდება</button><button type="button" class="opt" data-i="3">არაფერი</button></div><div class="qe"><span class="verdict"></span> სტრიმინგი TTFT-ს ამცირებს — Gemini იგივე სისწრაფით წერს. <a class="chip" href="index.html#/7" target="_blank">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>რას აბრუნებს <code>GetStreamingResponseAsync</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0"><code>Task&lt;ChatResponse&gt;</code></button><button type="button" class="opt" data-i="1"><code>IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code></button><button type="button" class="opt" data-i="2"><code>List&lt;string&gt;</code></button><button type="button" class="opt" data-i="3"><code>Stream</code></button></div><div class="qe"><span class="verdict"></span> ნაწილების ასინქრონული ნაკადი — იკითხება await foreach-ით. <a class="chip" href="index.html#/8" target="_blank">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>სტრიმინგზე tool-ები (ლექცია 4) მუშაობს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">არა — მხოლოდ GetResponseAsync-ზე</button><button type="button" class="opt" data-i="1">კი — UseFunctionInvocation სტრიმინგშიც ასრულებს ციკლს</button><button type="button" class="opt" data-i="2">მხოლოდ ერთი tool</button><button type="button" class="opt" data-i="3">მხოლოდ OpenAI-ზე</button></div><div class="qe"><span class="verdict"></span> იგივე options, იგივე ციკლი; ტექსტი მოდის tool-ის შედეგის შემდეგ. <a class="chip" href="index.html#/8" target="_blank">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div><code>/chat/chunks</code>-ში Swagger-მა ყველა ნაწილი ერთბაშად აჩვენა. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini არ სტრიმავდა</button><button type="button" class="opt" data-i="1">ნაწილებს სიაში ვაგროვებდით და <code>Ok(chunks)</code>-ს ბოლოს ვაბრუნებდით</button><button type="button" class="opt" data-i="2">Swagger-ის ბაგია</button><button type="button" class="opt" data-i="3">Stopwatch აჩერებდა</button></div><div class="qe"><span class="verdict"></span> ms-ები აჩვენებს, რომ Gemini სტრიმავდა — სტრიმი Controller-ში წყდებოდა. <a class="chip" href="index.html#/9" target="_blank">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>რატომ არის SSE AI ჩატისთვის საკმარისი და SignalR არ არის აუცილებელი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">SignalR ფასიანია</button><button type="button" class="opt" data-i="1">AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი); SSE ჩვეულებრივი HTTP-ა, დამატებითი ბიბლიოთეკის გარეშე</button><button type="button" class="opt" data-i="2">SSE უფრო უსაფრთხოა</button><button type="button" class="opt" data-i="3">SignalR .NET 10-ში აღარ არის</button></div><div class="qe"><span class="verdict"></span> ორმხრივი კომუნიკაციისთვის (თამაში, ადამიანების ჩატი) — WebSocket/SignalR. <a class="chip" href="index.html#/12" target="_blank">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>რას აკეთებს <code>yield return update.Text</code> async iterator-ში?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ტექსტს სიაში ამატებს</button><button type="button" class="opt" data-i="1">ნაწილს მაშინვე აბრუნებს გამომძახებელს — ServerSentEvents კი კლიენტს უგზავნის</button><button type="button" class="opt" data-i="2">მეთოდს ასრულებს</button><button type="button" class="opt" data-i="3">Gemini-ს ახალ მოთხოვნას აგზავნის</button></div><div class="qe"><span class="verdict"></span> სია არ გვჭირდება — სტრიმი Gemini-დან კლიენტამდე არ წყდება. <a class="chip" href="index.html#/13" target="_blank">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>action-ის <code>CancellationToken</code> პარამეტრს ვინ ავსებს?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ჩვენ — new CancellationToken()</button><button type="button" class="opt" data-i="1">ASP.NET Core — HttpContext.RequestAborted, კლიენტის წასვლისას გაუქმდება</button><button type="button" class="opt" data-i="2">Gemini</button><button type="button" class="opt" data-i="3">Swagger</button></div><div class="qe"><span class="verdict"></span> ზუსტად ისე, როგორც API კურსის async endpoint-ებში. <a class="chip" href="index.html#/15" target="_blank">გაიმეორე · სლაიდი 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>რა მოხდება, თუ <code>GetStreamingResponseAsync</code>-ს token არ გადავცემთ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">კომპილაციის შეცდომა</button><button type="button" class="opt" data-i="1">კლიენტის წასვლის შემდეგ Gemini-სთან მოთხოვნა შეიძლება ბოლომდე გაგრძელდეს — ტოკენებს ვიხდით ტყუილად</button><button type="button" class="opt" data-i="2">პასუხი არ მოვა</button><button type="button" class="opt" data-i="3">არაფერი — token არასავალდებულოა და ყოველთვის ზედმეტია</button></div><div class="qe"><span class="verdict"></span> token ყოველ async გამოძახებას გადაეცი — AI-სთან მოთხოვნები გრძელია და ფული ჯდება. <a class="chip" href="index.html#/15" target="_blank">გაიმეორე · სლაიდი 15</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 6 — Streaming და Real-time AI პასუხები";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "კოპირება", "copied": "✓ დაკოპირდა", "review": "გაიმეორე ეს კითხვები: ", "allright": "ყველაფერი სწორია! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -560,9 +272,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
-      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -576,16 +286,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>

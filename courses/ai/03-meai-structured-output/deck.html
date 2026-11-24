@@ -66,16 +66,6 @@
 }</pre>
     </div>
   </div>
-  <aside class="study">
-## ლექცია 3: Microsoft.Extensions.AI — DI და Structured Output
-
-ლექცია 2-ზე Gemini პირველად გამოვიძახეთ, მაგრამ `IChatClient` პირდაპირ Controller-ში შევქმენით `new`-ით, პასუხი კი თავისუფალი ტექსტი იყო. დღეს ორივეს ვასწორებთ: `IChatClient` DI-ში და კონფიგურაციაში გადადის (როგორც API კურსზე `DbContext`), ხოლო მოდელი ტექსტის ნაცვლად **C# ტიპს** აბრუნებს — enum-ს ან ობიექტს, რომელსაც კოდი პირდაპირ იყენებს.
-  </aside>
-  <aside class="study-en">
-## Lecture 3: Microsoft.Extensions.AI — DI and Structured Output
-
-In lecture 2 we called Gemini for the first time, but we created `IChatClient` right inside the Controller with `new`, and the answer was free text. Today we fix both: `IChatClient` moves into DI and configuration (like `DbContext` in the API course), and the model returns a **C# type** instead of text — an enum or an object that our code uses directly.
-  </aside>
 </section>
 
 <lecture-review/>
@@ -92,22 +82,6 @@ In lecture 2 we called Gemini for the first time, but we created `IChatClient` r
     <div class="stop" style="--a:var(--net)"><span class="sn">2</span><h3>🧱 Structured output</h3><p>მოდელი ტექსტის ნაცვლად C# ტიპს აბრუნებს: ჯერ ერთ მნიშვნელობას (enum), მერე მთელ ობიექტს</p><span class="from">GetResponseAsync&lt;T&gt; · ChatResponse&lt;T&gt;</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>ტექსტი → ობიექტი</b> — შენს პროექტში, შენი ტიპით</div>
-  <aside class="study">
-### ლექციის გეგმა — 2 ნაბიჯი
-
-1. 🔌 **`IChatClient` DI-ში** — Controller-ში `new`-ის ნაცვლად client-ს `Program.cs`-ში ვარეგისტრირებთ (`AddChatClient`), key-ს User Secrets-ში ვინახავთ, მოდელის სახელს — `appsettings.json`-ში.
-2. 🧱 **Structured output** — `GetResponseAsync<T>`: მოდელი აბრუნებს C# ტიპს. ჯერ enum (შეფასების კატეგორია), მერე ობიექტი რამდენიმე ველით (ჯავშანი ტექსტიდან).
-
-ბოლოს — კლასის დავალება: ტექსტიდან ობიექტის ამოღება შენს პროექტში.
-  </aside>
-  <aside class="study-en">
-### Lecture plan — 2 steps
-
-1. 🔌 **`IChatClient` in DI** — instead of `new` in the Controller we register the client in `Program.cs` (`AddChatClient`), keep the key in User Secrets and the model name in `appsettings.json`.
-2. 🧱 **Structured output** — `GetResponseAsync<T>`: the model returns a C# type. First an enum (a review category), then an object with several fields (a booking from text).
-
-At the end — classwork: extracting an object from text in your project.
-  </aside>
 </section>
 
 <!-- ================= 1 · IChatClient DI-ში ================= -->
@@ -118,16 +92,6 @@ At the end — classwork: extracting an object from text in your project.
     <p class="lead mt in" style="--d:.3s">AddChatClient · User Secrets · appsettings · constructor injection</p>
   </div>
   <div class="big-num">01</div>
-  <aside class="study">
-## ნაწილი 1 · `IChatClient` DI-ში
-
-ამ ნაწილში ახალი არაფერია — API კურსზე ზუსტად ასე დაარეგისტრირე `DbContext` და შენი სერვისები. ვიყენებთ იმავე ნიმუშს `IChatClient`-ზე: ერთხელ ვქმნით `Program.cs`-ში, Controller კი მას constructor-ით იღებს.
-  </aside>
-  <aside class="study-en">
-## Part 1 · `IChatClient` in DI
-
-Nothing new in this part — in the API course you registered `DbContext` and your services exactly like this. We apply the same pattern to `IChatClient`: we create it once in `Program.cs`, and the Controller receives it through its constructor.
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · IChatClient DI-ში">
@@ -149,52 +113,6 @@ _chat = new Client(apiKey: config["Gemini:ApiKey"])
     </div>
   </div>
   <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">პასუხი უკვე იცით: <b>Controller არ ქმნის, Controller იღებს</b> — DI</div>
-  <aside class="study">
-### რა არის ცუდი ლექცია 2-ის კოდში
-
-ლექცია 2-ზე `IChatClient` პირდაპირ Controller-ში შევქმენით, რომ ყურადღება მოდელზე ყოფილიყო:
-
-```csharp Controllers/AiLabController.cs · ლექცია 2
-public AiLabController(IConfiguration config)
-{
-    _chat = new Client(apiKey: config["Gemini:ApiKey"])
-        .AsIChatClient("gemini-3.8-flash");
-}
-```
-
-ეს მუშაობს, მაგრამ სამი პრობლემა აქვს:
-
-| | პრობლემა | რატომ ცუდია |
-|---|---|---|
-| ♻️ | **ყოველ request-ზე ახალი client** | ASP.NET Core Controller-ს ყოველ მოთხოვნაზე ახლიდან ქმნის. ველი `_chat` მასთან ერთად იქმნება — ყოველ ჯერზე ახალი client და ახალი HTTP კავშირი. სერვერზე ეს რესურსის ფლანგვაა |
-| 📌 | **მოდელის სახელი კოდშია** | სხვა მოდელზე გადასასვლელად კოდი უნდა შეცვალო და ხელახლა გამოაქვეყნო |
-| 🧪 | **ტესტირება შეუძლებელია** | Controller თვითონ ქმნის Gemini-ს client-ს. ტესტში ყალბ client-ს ვერ ჩავუსვამთ — ყოველი ტესტი ნამდვილ Gemini-ს დაუძახებს და ფულს დახარჯავს |
-
-API კურსიდან ეს უკვე იცი: `DbContext`-ს Controller-ში `new`-ით არ ვქმნით — **ვარეგისტრირებთ DI-ში და constructor-ით ვიღებთ**. `IChatClient`-ზეც იგივე წესი მოქმედებს.
-  </aside>
-  <aside class="study-en">
-### What's wrong with the lecture 2 code
-
-In lecture 2 we created `IChatClient` right inside the Controller, so that our attention stayed on the model:
-
-```csharp Controllers/AiLabController.cs · lecture 2
-public AiLabController(IConfiguration config)
-{
-    _chat = new Client(apiKey: config["Gemini:ApiKey"])
-        .AsIChatClient("gemini-3.8-flash");
-}
-```
-
-It works, but it has three problems:
-
-| | Problem | Why it's bad |
-|---|---|---|
-| ♻️ | **A new client on every request** | ASP.NET Core creates a Controller anew for every request. The `_chat` field is created with it — a new client and a new HTTP connection every time. On a server that's a waste of resources |
-| 📌 | **The model name is in the code** | To switch to another model you have to change the code and deploy again |
-| 🧪 | **It can't be tested** | The Controller creates the Gemini client itself. In a test we can't plug in a fake client — every test would call the real Gemini and spend money |
-
-You already know this from the API course: we don't create a `DbContext` with `new` in a Controller — **we register it in DI and receive it through the constructor**. The same rule applies to `IChatClient`.
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · IChatClient DI-ში">
@@ -234,140 +152,6 @@ builder.Services.AddControllers();
       <div class="callout step" data-with style="--a:var(--api)"><b>Singleton</b>: ერთი client მთელ აპლიკაციაზე</div>
     </div>
   </div>
-  <aside class="study">
-### `Program.cs`: `AddChatClient`
-
-`IChatClient`-ს ერთხელ ვქმნით, აპლიკაციის გაშვებისას, და DI-ში ვარეგისტრირებთ:
-
-```csharp Program.cs
-using Google.GenAI;
-using Microsoft.Extensions.AI;
-
-var builder = WebApplication.CreateBuilder(args);
-
-string apiKey = builder.Configuration["Gemini:ApiKey"]
-    ?? throw new InvalidOperationException("Gemini:ApiKey is missing");
-string model = builder.Configuration["Gemini:Model"]
-    ?? throw new InvalidOperationException("Gemini:Model is missing");
-
-builder.Services.AddChatClient(
-    new Client(apiKey: apiKey).AsIChatClient(model));
-
-builder.Services.AddControllers();
-// ... the rest — as it was
-```
-
-- **`AddChatClient(...)`** — `Microsoft.Extensions.AI`-ის extension. `IChatClient`-ს არეგისტრირებს **Singleton**-ად: მთელ აპლიკაციაზე ერთი client, ერთი HTTP კავშირების pool. Gemini-ს client thread-safe-ია, ამიტომ ერთდროულ მოთხოვნებს უპრობლემოდ ემსახურება.
-- **`new Client(apiKey: apiKey)`** — იგივე ხაზი, რაც ლექცია 2-ის Controller-ში იყო, ოღონდ ახლა ერთხელ სრულდება, აპლიკაციის გაშვებისას.
-- **`?? throw`** — თუ key ან მოდელი არ წერია, აპლიკაცია **გაშვებისთანავე** ჩავარდება გასაგები შეცდომით, და არა პირველ მოთხოვნაზე, უცნაური 401-ით.
-
-**მოდელის სახელი** — `appsettings.json`-ში. ეს საიდუმლო არ არის, Git-შიც მიდის:
-
-```json appsettings.json
-{
-  "Gemini": {
-    "Model": "gemini-3.8-flash"
-  }
-}
-```
-
-**key** უკვე **User Secrets**-შია — ლექცია 2-ზე ჩავწერეთ, როგორც `Gemini:ApiKey`. `secrets.json`-ში ასე ჩანს (VS → პროექტზე მარჯვენა ღილაკი → **Manage User Secrets**):
-
-```json secrets.json
-{
-  "Gemini": {
-    "ApiKey": "AIza..."
-  }
-}
-```
-
-ორივე ფაილში ერთი სექციაა — `Gemini`: `appsettings.json`-ში `Model` (საიდუმლო არ არის, Git-ში მიდის), `secrets.json`-ში `ApiKey` (საიდუმლოა, პროექტის გარეთ ინახება). `IConfiguration` ორივეს ერთ სექციად აერთიანებს.
-
-თუ key ჯერ არ ჩაგიწერია — ტერმინალში, პროექტის საქაღალდეში:
-
-```bash
-dotnet user-secrets init
-dotnet user-secrets set "Gemini:ApiKey" "AIza..."
-```
-
-`builder.Configuration["Gemini:ApiKey"]` ორივე ადგილიდან ერთნაირად კითხულობს — კოდმა არ იცის, სად წერია მნიშვნელობა.
-
-```note
-სერვერზე User Secrets არ არსებობს — იქ იგივე მნიშვნელობა გარემოს ცვლადით მიდის: `Gemini__ApiKey` (ორი ქვედა ტირე = `:`). კოდი არ იცვლება. ამას DevOps-ში, deploy-ზე ვნახავთ.
-```
-
-```terms
-AddChatClient — Microsoft.Extensions.AI-ის მეთოდი, რომელიც IChatClient-ს DI-ში არეგისტრირებს (ნაგულისხმევად Singleton)
-User Secrets — დეველოპერის კომპიუტერზე, პროექტის გარეთ შენახული კონფიგურაცია საიდუმლოებისთვის; Git-ში არ ხვდება
-```
-  </aside>
-  <aside class="study-en">
-### `Program.cs`: `AddChatClient`
-
-We create `IChatClient` once, when the application starts, and register it in DI:
-
-```csharp Program.cs
-using Google.GenAI;
-using Microsoft.Extensions.AI;
-
-var builder = WebApplication.CreateBuilder(args);
-
-string apiKey = builder.Configuration["Gemini:ApiKey"]
-    ?? throw new InvalidOperationException("Gemini:ApiKey is missing");
-string model = builder.Configuration["Gemini:Model"]
-    ?? throw new InvalidOperationException("Gemini:Model is missing");
-
-builder.Services.AddChatClient(
-    new Client(apiKey: apiKey).AsIChatClient(model));
-
-builder.Services.AddControllers();
-// ... the rest — as it was
-```
-
-- **`AddChatClient(...)`** — an extension from `Microsoft.Extensions.AI`. It registers `IChatClient` as a **Singleton**: one client for the whole application, one pool of HTTP connections. The Gemini client is thread-safe, so it serves concurrent requests without problems.
-- **`new Client(apiKey: apiKey)`** — the same line that was in the lecture 2 Controller, but now it runs once, when the app starts.
-- **`?? throw`** — if the key or the model is missing, the application fails **right at startup** with a clear error, not on the first request with a strange 401.
-
-**The model name** goes in `appsettings.json`. It isn't a secret, it goes to Git too:
-
-```json appsettings.json
-{
-  "Gemini": {
-    "Model": "gemini-3.8-flash"
-  }
-}
-```
-
-**The key** is already in **User Secrets** — we put it there in lecture 2 as `Gemini:ApiKey`. In `secrets.json` it looks like this (VS → right-click the project → **Manage User Secrets**):
-
-```json secrets.json
-{
-  "Gemini": {
-    "ApiKey": "AIza..."
-  }
-}
-```
-
-Both files hold one section — `Gemini`: `Model` in `appsettings.json` (not a secret, goes to Git), `ApiKey` in `secrets.json` (a secret, stored outside the project). `IConfiguration` merges them into one section.
-
-If you haven't set the key yet — in the terminal, in the project folder:
-
-```bash
-dotnet user-secrets init
-dotnet user-secrets set "Gemini:ApiKey" "AIza..."
-```
-
-`builder.Configuration["Gemini:ApiKey"]` reads from both places the same way — the code doesn't know where the value is written.
-
-```note
-User Secrets don't exist on a server — there the same value comes from an environment variable: `Gemini__ApiKey` (two underscores = `:`). The code doesn't change. We'll see this in DevOps, at deploy time.
-```
-
-```terms
-AddChatClient — the Microsoft.Extensions.AI method that registers IChatClient in DI (Singleton by default)
-User Secrets — configuration for secrets stored on the developer's computer, outside the project; it never goes to Git
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · IChatClient DI-ში">
@@ -398,76 +182,6 @@ public class AiLabController : ControllerBase
       <div class="callout step" data-with style="--a:var(--asp);font-size:19px">მხოლოდ <b>Program.cs</b>-ს. სხვა მოდელი Gemini-ში — მხოლოდ <b>appsettings.json</b>-ს</div>
     </div>
   </div>
-  <aside class="study">
-### Controller: constructor injection
-
-`AiLabController`-ში იცვლება მხოლოდ client-ის მიღება: constructor-ში `IConfiguration`-ის ნაცვლად პირდაპირ `IChatClient` შემოდის. ველის სახელი იგივე რჩება — `_chat`, ამიტომ ლექცია 2-ის endpoint-ებს (`ask`, `assistant`, `review-sentiment`) არ ვეხებით:
-
-```csharp Controllers/AiLabController.cs
-[ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
-{
-    private readonly IChatClient _chat;
-
-    public AiLabController(IChatClient chat)
-    {
-        _chat = chat;
-    }
-
-    // ask, assistant, review-sentiment — unchanged
-}
-```
-
-`using Google.GenAI;` Controller-ში აღარ გვჭირდება — Controller-მა აღარ იცის, რომ Gemini-სთან მუშაობს. მან იცის მხოლოდ `IChatClient`.
-
-**შეამოწმე:** Swagger → `POST /api/ai-lab/ask` → პასუხი ისევ მოდის.
-
-**რა სად იცვლება ახლა:**
-
-| მინდა | ვცვლი |
-|---|---|
-| სხვა Gemini მოდელი | მხოლოდ `appsettings.json` — `"Model"` |
-| სხვა პროვაიდერი (OpenAI, Ollama…) | მხოლოდ `Program.cs` — client-ის შექმნის ხაზი (და შესაბამისი package) |
-| ტესტში ყალბი client | ტესტი თვითონ გადასცემს Controller-ს თავის `IChatClient`-ს |
-
-Controller-ს ამ სამიდან არცერთი არ ეხება.
-  </aside>
-  <aside class="study-en">
-### Controller: constructor injection
-
-In `AiLabController` only the way we get the client changes: the constructor takes `IChatClient` directly instead of `IConfiguration`. The field name stays the same — `_chat`, so we don't touch the lecture 2 endpoints (`ask`, `assistant`, `review-sentiment`):
-
-```csharp Controllers/AiLabController.cs
-[ApiController]
-[Route("api/ai-lab")]
-public class AiLabController : ControllerBase
-{
-    private readonly IChatClient _chat;
-
-    public AiLabController(IChatClient chat)
-    {
-        _chat = chat;
-    }
-
-    // ask, assistant, review-sentiment — unchanged
-}
-```
-
-We no longer need `using Google.GenAI;` in the Controller — the Controller no longer knows it works with Gemini. It knows only `IChatClient`.
-
-**Check:** Swagger → `POST /api/ai-lab/ask` → the answer still comes back.
-
-**What changes where now:**
-
-| I want | I change |
-|---|---|
-| Another Gemini model | only `appsettings.json` — `"Model"` |
-| Another provider (OpenAI, Ollama…) | only `Program.cs` — the line that creates the client (and the matching package) |
-| A fake client in a test | the test itself passes its own `IChatClient` to the Controller |
-
-None of the three touches the Controller.
-  </aside>
 </section>
 
 <!-- ================= 2 · Structured output ================= -->
@@ -478,16 +192,6 @@ None of the three touches the Controller.
     <p class="lead mt in" style="--d:.3s">Structured output · GetResponseAsync&lt;T&gt; · JSON Schema</p>
   </div>
   <div class="big-num">02</div>
-  <aside class="study">
-## ნაწილი 2 · Structured output
-
-ლექცია 2-ზე few-shot-ით მივაღწიეთ, რომ მოდელი თითქმის ყოველთვის ზუსტ სიტყვას აბრუნებდა. „თითქმის“ კოდისთვის საკმარისი არ არის. **Structured output** მოდელს სთხოვს არა "Answer in one word", არამედ — "Answer in exactly the shape of this C# type".
-  </aside>
-  <aside class="study-en">
-## Part 2 · Structured output
-
-In lecture 2 we used few-shot to make the model return the exact word almost every time. “Almost” isn't enough for code. **Structured output** doesn't ask the model to “answer with one word” — it asks it to “answer in exactly the shape of this C# type”.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · Structured output">
@@ -509,36 +213,6 @@ In lecture 2 we used few-shot to make the model return the exact word almost eve
     </div>
   </div>
   <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">few-shot <b>სთხოვს</b> ფორმას. structured output ფორმას <b>აიძულებს</b></div>
-  <aside class="study">
-### few-shot: „თითქმის“ ყოველთვის
-
-საშინაოში `classify` endpoint few-shot-ით დაწერე. უმეტესად ზუსტ სიტყვას აბრუნებს, მაგრამ ხანდახან — `Search.`, `search` ან მთელ წინადადებას. ეს ყველაფერი `string`-ია, და `if (label == "Search")` მათზე ჩავარდება.
-
-few-shot მოდელს **სთხოვს** ფორმას: მაგალითებით ვაჩვენებთ, მოდელი კი ალბათობით იმეორებს. ალბათობა ≠ გარანტია (ლექცია 1).
-
-**იდეა:** რა იქნება, თუ პასუხი `string` კი არა, C# **enum** იქნება?
-
-```csharp
-public enum RequestType { Search, Reserve, Question }
-```
-
-`RequestType` ტიპის ცვლადში `"Search."` ვერ მოხვდება — მხოლოდ სამი მნიშვნელობიდან ერთი. ზუსტად ამას აკეთებს **structured output**: მოდელს ფორმას **აიძულებს**, და არა სთხოვს.
-  </aside>
-  <aside class="study-en">
-### few-shot: “almost” always
-
-In the homework you wrote a `classify` endpoint with few-shot. It mostly returns the exact word, but sometimes — `Search.`, `search` or a whole sentence. All of it is a `string`, and `if (label == "Search")` fails on them.
-
-Few-shot **asks** the model for a shape: we show it with examples, and the model repeats it with some probability. Probability ≠ a guarantee (lecture 1).
-
-**The idea:** what if the answer were not a `string` but a C# **enum**?
-
-```csharp
-public enum RequestType { Search, Reserve, Question }
-```
-
-`"Search."` can't get into a variable of type `RequestType` — only one of the three values can. That's exactly what **structured output** does: it **forces** the shape on the model instead of asking for it.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · Structured output">
@@ -577,84 +251,6 @@ public async Task<IActionResult> ReviewSentiment(AskRequest request)
       <div class="callout step" data-with style="--a:var(--mvc)"><b>.Result</b> — უკვე C# enum. if-ი ყოველთვის მუშაობს</div>
     </div>
   </div>
-  <aside class="study">
-### `GetResponseAsync<T>`: enum
-
-ლექცია 2-ის `ReviewSentiment` few-shot-ით მუშაობდა. ახლა იმავე endpoint-ს enum-ით ვწერთ:
-
-```csharp Controllers/AiLabController.cs · ReviewSentiment
-public enum Sentiment { Positive, Negative, Mixed }
-
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, "Classify the restaurant review."),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse<Sentiment> response =
-        await _chat.GetResponseAsync<Sentiment>(messages);
-
-    Sentiment sentiment = response.Result;
-    if (sentiment == Sentiment.Negative) { /* notify the manager */ }
-
-    return Ok(sentiment.ToString());
-}
-```
-
-ხაზ-ხაზ:
-
-- **`enum Sentiment`** — დასაშვები პასუხების სია. მოდელი ამის გარეთ ვერაფერს დააბრუნებს. enum შეგიძლია ცალკე ფაილში გაიტანო.
-- **System prompt მოკლდება.** "Answer with one word only: Positive, Negative or Mixed" და few-shot მაგალითები **ფორმისთვის** აღარ გვჭირდება — ფორმას ტიპი განსაზღვრავს. ნაკლები ტექსტი = ნაკლები input ტოკენი.
-- **`GetResponseAsync<Sentiment>(messages)`** — იგივე `GetResponseAsync`, ოღონდ ტიპით. აბრუნებს **`ChatResponse<Sentiment>`**-ს: ჩვეულებრივ `ChatResponse`-ს (`Text`, `Usage`, `FinishReason`) პლუს `Result`.
-- **`response.Result`** — უკვე `Sentiment`, არა `string`. `if (sentiment == Sentiment.Negative)` ყოველთვის სწორად მუშაობს.
-- **`sentiment.ToString()`** — ASP.NET Core enum-ს JSON-ში ნაგულისხმევად **რიცხვად** აბრუნებს (`Mixed` → `2`). `ToString()` სახელს გვიბრუნებს.
-
-```tip
-few-shot მაგალითები **შინაარსისთვის** კვლავ სასარგებლოა: მაგალითად, თუ გინდა მოდელმა ზუსტად შენებურად გაიგოს, რა არის `Mixed`. **ფორმისთვის** კი აღარ გჭირდება — ფორმას ტიპი იცავს.
-```
-  </aside>
-  <aside class="study-en">
-### `GetResponseAsync<T>`: an enum
-
-The lecture 2 `ReviewSentiment` worked with few-shot. Now we write the same endpoint with an enum:
-
-```csharp Controllers/AiLabController.cs · ReviewSentiment
-public enum Sentiment { Positive, Negative, Mixed }
-
-[HttpPost("review-sentiment")]
-public async Task<IActionResult> ReviewSentiment(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, "Classify the restaurant review."),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse<Sentiment> response =
-        await _chat.GetResponseAsync<Sentiment>(messages);
-
-    Sentiment sentiment = response.Result;
-    if (sentiment == Sentiment.Negative) { /* notify the manager */ }
-
-    return Ok(sentiment.ToString());
-}
-```
-
-Line by line:
-
-- **`enum Sentiment`** — the list of allowed answers. The model can't return anything outside it. You can move the enum to its own file.
-- **The system prompt gets shorter.** “Answer with only one word: Positive, Negative or Mixed” and the few-shot examples are no longer needed **for the shape** — the type defines the shape. Less text = fewer input tokens.
-- **`GetResponseAsync<Sentiment>(messages)`** — the same `GetResponseAsync`, but with a type. It returns a **`ChatResponse<Sentiment>`**: a normal `ChatResponse` (`Text`, `Usage`, `FinishReason`) plus `Result`.
-- **`response.Result`** — already a `Sentiment`, not a `string`. `if (sentiment == Sentiment.Negative)` always works correctly.
-- **`sentiment.ToString()`** — by default ASP.NET Core returns an enum in JSON as a **number** (`Mixed` → `2`). `ToString()` gives us the name.
-
-```tip
-Few-shot examples are still useful **for content**: for example, if you want the model to understand exactly what you mean by `Mixed`. **For the shape** you don't need them anymore — the type protects the shape.
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · Structured output">
@@ -679,46 +275,6 @@ Few-shot examples are still useful **for content**: for example, if you want the
   </div>
   <div class="callout ask step mt2">🙋 ლექცია 1: მოდელი ტოკენებს ალბათობით ირჩევს. სქემა <b>რას ცვლის</b> ამ არჩევანში?</div>
   <div class="callout step mt" style="--a:var(--mvc);font-size:21px">სქემა ზღუდავს, <b>რომელი ტოკენები</b> შეიძლება აირჩიოს — „Search.“ უბრალოდ არ არის დაშვებულ სიაში</div>
-  <aside class="study">
-### რა ხდება `GetResponseAsync<T>`-ის შიგნით
-
-ერთ ხაზში ოთხი ნაბიჯია:
-
-1. **C# ტიპი → JSON Schema.** Microsoft.Extensions.AI ტიპიდან (`Sentiment`) აგენერირებს JSON Schema-ს — ფორმის აღწერას: „პასუხი ობიექტია ერთი ველით, რომლის მნიშვნელობა ამ სამიდან ერთია“.
-2. **სქემა მოთხოვნაში.** სქემა `ChatOptions.ResponseFormat`-ში ჯდება და Gemini-ს მოთხოვნასთან ერთად მიდის. prompt-ში ამას ჩვენ არ ვწერთ.
-3. **მოდელი სქემას მისდევს.** Gemini პასუხს წერს ისე, რომ ის სქემას ემთხვეოდეს: ყოველ ნაბიჯზე მხოლოდ იმ ტოკენებს შორის ირჩევს, რომლებიც სქემას არ არღვევს. ამიტომ `"Search."` ან აბზაცი უბრალოდ ვერ გაჩნდება.
-4. **JSON → C#.** პასუხი (`{"data":"Mixed"}`) `System.Text.Json`-ით C# ობიექტად იქცევა — `response.Result`.
-
-```note
-**რატომ `"data"`?** მოდელები JSON-ში ზედა დონეზე მხოლოდ ობიექტს აბრუნებენ. enum, რიცხვი ან სია ობიექტი არ არის — ამიტომ Microsoft.Extensions.AI მას ავტომატურად `{"data": …}`-ში „ახვევს“ და მერე თვითონვე ხსნის. ობიექტზე (მაგ. `record`) ეს არ ხდება.
-```
-
-```terms
-structured output — მოდელის პასუხი წინასწარ განსაზღვრული ფორმით (JSON Schema), რომელსაც კოდი C# ტიპად კითხულობს
-JSON Schema — JSON-ის ფორმის აღწერა: რა ველებია, რა ტიპის, რა მნიშვნელობებია დასაშვები
-ChatResponse<T> — GetResponseAsync<T>-ის პასუხი: ჩვეულებრივი ChatResponse + Result (T ტიპის ობიექტი)
-```
-  </aside>
-  <aside class="study-en">
-### What happens inside `GetResponseAsync<T>`
-
-There are four steps in one line:
-
-1. **C# type → JSON Schema.** Microsoft.Extensions.AI generates a JSON Schema from the type (`Sentiment`) — a description of the shape: “the answer is an object with one field whose value is one of these three”.
-2. **The schema goes into the request.** The schema is put into `ChatOptions.ResponseFormat` and sent to Gemini with the request. We don't write it in the prompt.
-3. **The model follows the schema.** Gemini writes the answer so that it matches the schema: at every step it chooses only among tokens that don't break the schema. That's why `"Search."` or a paragraph simply can't appear.
-4. **JSON → C#.** The answer (`{"data":"Mixed"}`) is turned into a C# object with `System.Text.Json` — `response.Result`.
-
-```note
-**Why `"data"`?** At the top level of JSON, models return only an object. An enum, a number or a list isn't an object — so Microsoft.Extensions.AI automatically “wraps” it in `{"data": …}` and unwraps it again itself. This doesn't happen for an object (e.g. a `record`).
-```
-
-```terms
-structured output — a model answer in a predefined shape (JSON Schema) that the code reads as a C# type
-JSON Schema — a description of the shape of JSON: which fields, of which types, which values are allowed
-ChatResponse<T> — the response of GetResponseAsync<T>: a normal ChatResponse + Result (an object of type T)
-```
-  </aside>
 </section>
 
 <section class="slide divider" data-section="შესვენება">
@@ -738,16 +294,6 @@ ChatResponse<T> — the response of GetResponseAsync<T>: a normal ChatResponse +
     <p class="lead mt in" style="--d:.3s">record · რამდენიმე ველი · null · ფორმა ≠ შინაარსი</p>
   </div>
   <div class="big-num">03</div>
-  <aside class="study">
-## ნაწილი 3 · ტექსტი → ობიექტი
-
-enum ერთი მნიშვნელობაა. რეალურ ამოცანებში ტექსტიდან **რამდენიმე** მონაცემი გვჭირდება: თარიღი, რაოდენობა, სახელი. structured output ამასაც აკეთებს — `T` შეიძლება იყოს `record` რამდენიმე ველით. ასე მომხმარებლის თავისუფალი ტექსტი ჩვენს არსებულ ლოგიკამდე მიდის.
-  </aside>
-  <aside class="study-en">
-## Part 3 · Text → object
-
-An enum is one value. In real tasks we need **several** pieces of data from text: a date, a count, a name. Structured output does this too — `T` can be a `record` with several fields. This is how a user's free text reaches our existing logic.
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · ტექსტი → ობიექტი">
@@ -787,88 +333,6 @@ public async Task<IActionResult> ParseBooking(AskRequest request)
       <div class="callout step" data-with style="--a:var(--red)">მოგონების ნაცვლად — <b>null</b></div>
     </div>
   </div>
-  <aside class="study">
-### `BookingRequest`: ობიექტი რამდენიმე ველით
-
-მომხმარებელი წერს: "There are four of us, tomorrow at 8". ჯავშნის ლოგიკას კი სჭირდება `DateTime` და `int`. structured output ამ ორს შორის ხიდია:
-
-```csharp Controllers/AiLabController.cs · ParseBooking
-public record BookingRequest(
-    [property: Description("Booking date and time")] DateTime? At,
-    [property: Description("Number of guests")] int? Guests);
-
-[HttpPost("parse-booking")]
-public async Task<IActionResult> ParseBooking(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, $"""
-            Extract the booking details from the user's text.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            Leave null whatever is not in the text.
-            """),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse<BookingRequest> response =
-        await _chat.GetResponseAsync<BookingRequest>(messages);
-    return Ok(response.Result);
-}
-```
-
-`Description`-ისთვის ფაილის თავში: `using System.ComponentModel;`
-
-**სამი მნიშვნელოვანი დეტალი:**
-
-1. **დღევანდელი თარიღი prompt-ში.** მოდელმა არ იცის, დღეს რა რიცხვია: ის stateless-ია და მისი ცოდნა ვარჯიშის დღეზე ჩერდება (ლექცია 1). „ხვალ“ რომ გაიგოს, თარიღს ჩვენ ვაწვდით — ლექცია 2-ის prompt შაბლონით (`$"""…{…}…"""`).
-2. **Nullable ველები (`DateTime?`, `int?`).** `?` მოდელს ეუბნება: "you may not know this". `?`-ის გარეშე მოდელი **იძულებულია** რაიმე დაწეროს — და მოიგონებს. prompt-ის ხაზი "Leave null whatever is not in the text" იგივეს ამყარებს.
-3. **`[property: Description(...)]`** — აღწერა სქემაში ჯდება და მოდელს ველის მნიშვნელობას უხსნის. `property:` საჭიროა, რადგან `record`-ის პარამეტრზე ატრიბუტი თვისებას (property) უნდა მიეწეროს.
-
-```tip
-Google-ის რეკომენდაცია: სქემა prompt-ში **არ გაიმეორო** (მაგ. "Return JSON with the fields at and guests") — ის ისედაც მოთხოვნასთან მიდის, და გამეორება ხარისხს აუარესებს. prompt-ში წერე **რა** ამოიღოს და **რა წესით**.
-```
-  </aside>
-  <aside class="study-en">
-### `BookingRequest`: an object with several fields
-
-A user writes: “there are four of us, tomorrow at 8”. The booking logic needs a `DateTime` and an `int`. Structured output is the bridge between the two:
-
-```csharp Controllers/AiLabController.cs · ParseBooking
-public record BookingRequest(
-    [property: Description("Booking date and time")] DateTime? At,
-    [property: Description("Number of guests")] int? Guests);
-
-[HttpPost("parse-booking")]
-public async Task<IActionResult> ParseBooking(AskRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, $"""
-            Extract the booking details from the user's text.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            Leave null whatever is not in the text.
-            """),
-        new(ChatRole.User, request.Prompt)
-    ];
-
-    ChatResponse<BookingRequest> response =
-        await _chat.GetResponseAsync<BookingRequest>(messages);
-    return Ok(response.Result);
-}
-```
-
-For `Description`, at the top of the file: `using System.ComponentModel;`
-
-**Three important details:**
-
-1. **Today's date in the prompt.** The model doesn't know what today's date is: it's stateless and its knowledge stops at its training date (lecture 1). For it to understand “tomorrow”, we give it the date — with the lecture 2 prompt template (`$"""…{…}…"""`).
-2. **Nullable fields (`DateTime?`, `int?`).** `?` tells the model: “you might not know this”. Without `?` the model is **forced** to write something — and it will make it up. The prompt line “leave null whatever is not in the text” reinforces the same thing.
-3. **`[property: Description(...)]`** — the description goes into the schema and explains the field's meaning to the model. `property:` is needed because on a `record` parameter the attribute has to be applied to the property.
-
-```tip
-Google's recommendation: **don't repeat** the schema in the prompt (e.g. “return JSON with fields at and guests”) — it's sent with the request anyway, and repeating it lowers the quality. In the prompt write **what** to extract and **by which rules**.
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · ტექსტი → ობიექტი">
@@ -898,62 +362,6 @@ Google's recommendation: **don't repeat** the schema in the prompt (e.g. “retu
     <div class="callout step" style="--a:var(--mvc);font-size:21px"><b>ფორმა</b> გარანტირებულია. <b>შინაარსი</b> — არა</div>
     <div class="ifc step" data-with style="font-size:17px"><span class="kw">if</span> (b.Guests <span class="kw">is null</span>) <span class="kw">return</span> BadRequest(<span class="st">"რამდენი ხართ?"</span>);<br><span class="kw">if</span> (b.At?.Hour &lt; 12) …  <span style="color:var(--muted)">// C# ამოწმებს</span></div>
   </div>
-  <aside class="study">
-### ფორმა გარანტირებულია, შინაარსი — არა
-
-ერთი და იგივე endpoint, სამი ტექსტი. ყოველ ჯერზე ბრუნდება `BookingRequest` — **ფორმა ყოველთვის სწორია**. შინაარსი კი სხვა საკითხია:
-
-| ტექსტი | შედეგი | რა უნდა შენიშნო |
-|---|---|---|
-| "There are four of us, tomorrow at 8" | `at: …T08:00`, `guests: 4` | „8“ ორაზროვანია. მოდელმა შეიძლება დილის 8 აირჩიოს, რესტორანი კი 12:00-დან მუშაობს |
-| "I'd like a table on Saturday evening" | `at: …T19:00`, `guests: null` | სტუმრების რაოდენობა არ წერია → `null` (არ მოიგონა). „საღამო“ → 19:00 კი **მოდელის ვარაუდია** |
-| "How much is khinkali?" | `at: null`, `guests: null` | ჯავშანი არ არის — ფორმა მაინც სწორია, ყველაფერი `null` |
-
-ზუსტი შედეგი შენთან შეიძლება განსხვავდებოდეს — მოდელი ალბათობით მუშაობს.
-
-**დასკვნა:** structured output იძლევა გარანტიას, რომ პასუხი **ჩვენი ტიპისაა**. ის არ იძლევა გარანტიას, რომ მნიშვნელობები **სწორია**. ამიტომ, სანამ ობიექტი ჩვენს ლოგიკაში (ბაზაში) წავა, **C# ამოწმებს**:
-
-```csharp
-BookingRequest b = response.Result;
-
-if (b.At is null) return BadRequest("Which day and what time?");
-if (b.Guests is null) return BadRequest("How many of you?");
-if (b.At.Value.Hour < 12 || b.At.Value.Hour >= 23)
-    return BadRequest("We're open 12:00–23:00");
-
-// from here — your existing booking logic
-```
-
-ეს იგივე წესია, რაც ლექცია 2-ზე: **prompt და მოდელი ალბათობას ცვლის, აუცილებელს კი C# ამოწმებს.**
-  </aside>
-  <aside class="study-en">
-### The shape is guaranteed, the content is not
-
-One endpoint, three texts. Every time a `BookingRequest` comes back — **the shape is always correct**. The content is a different matter:
-
-| Text | Result | What to notice |
-|---|---|---|
-| “there are four of us, tomorrow at 8” | `at: …T08:00`, `guests: 4` | “8” is ambiguous. The model may pick 8 in the morning, but the restaurant opens at 12:00 |
-| “I'd like a table on Saturday evening” | `at: …T19:00`, `guests: null` | The number of guests isn't written → `null` (it didn't make it up). “Evening” → 19:00, though, is **the model's guess** |
-| “how much is khinkali?” | `at: null`, `guests: null` | There's no booking — the shape is still correct, everything is `null` |
-
-Your exact result may differ — the model works with probabilities.
-
-**Conclusion:** structured output guarantees that the answer is **of our type**. It doesn't guarantee that the values are **correct**. So before the object goes into our logic (the database), **C# checks it**:
-
-```csharp
-BookingRequest b = response.Result;
-
-if (b.At is null) return BadRequest("Which day and what time?");
-if (b.Guests is null) return BadRequest("How many of you?");
-if (b.At.Value.Hour < 12 || b.At.Value.Hour >= 23)
-    return BadRequest("We're open 12:00–23:00");
-
-// from here — your existing booking logic
-```
-
-It's the same rule as in lecture 2: **the prompt and the model change the probability; what must hold, C# checks.**
-  </aside>
 </section>
 
 <lecture-classwork/>
@@ -979,34 +387,6 @@ It's the same rule as in lecture 2: **the prompt and the model change the probab
         <p class="small">არა — ბაზას ვერ ხედავს. <b>Tools</b>: მოდელი თვითონ იძახებს ჩვენს C# მეთოდს (<code class="i">CheckAvailability</code>, <code class="i">GetMenu</code>)</p></div>
     </div>
   </div>
-  <aside class="study">
-## შეჯამება
-
-- **`AddChatClient`** — `IChatClient` ერთხელ იქმნება `Program.cs`-ში და DI-ში Singleton-ად რეგისტრირდება. Controller მას constructor-ით იღებს. key — User Secrets-ში, მოდელის სახელი — `appsettings.json`-ში.
-- **პროვაიდერის შეცვლა** — მხოლოდ `Program.cs`; **მოდელის შეცვლა** — მხოლოდ `appsettings.json`. Controller-ს არცერთი არ ეხება.
-- **`GetResponseAsync<T>`** — C# ტიპიდან JSON Schema იქმნება, მოთხოვნასთან მიდის, მოდელი სქემას მისდევს, პასუხი `response.Result`-ში უკვე `T` ტიპისაა.
-- **enum** — ერთი მნიშვნელობა დასაშვები სიიდან (კლასიფიკაცია). **record** — რამდენიმე ველი ტექსტიდან (ამოღება).
-- **nullable ველები** (`DateTime?`, `int?`) და prompt-ში "Leave null whatever is not in the text" — მოდელს ნებას აძლევს, არ მოიგონოს.
-- **ფორმა გარანტირებულია, შინაარსი — არა.** ობიექტს ბაზამდე C# ამოწმებს.
-
-### შემდეგ ლექციაზე
-
-მოდელმა ჯავშანი ამოიღო, მაგრამ არ იცის, ხვალ 20:00-ზე მაგიდა თავისუფალია თუ არა — ჩვენს ბაზას ვერ ხედავს. ლექცია 4-ზე — **Tools / Function Calling**: მოდელი თვითონ გადაწყვეტს, როდის გამოიძახოს ჩვენი C# მეთოდი (მაგ. `CheckAvailability` ან `GetMenu`).
-  </aside>
-  <aside class="study-en">
-## Summary
-
-- **`AddChatClient`** — `IChatClient` is created once in `Program.cs` and registered in DI as a Singleton. The Controller receives it through its constructor. The key — in User Secrets, the model name — in `appsettings.json`.
-- **Changing the provider** — only `Program.cs`; **changing the model** — only `appsettings.json`. Neither touches the Controller.
-- **`GetResponseAsync<T>`** — a JSON Schema is created from the C# type, sent with the request, the model follows the schema, and the answer in `response.Result` is already of type `T`.
-- **enum** — one value from an allowed list (classification). **record** — several fields from text (extraction).
-- **Nullable fields** (`DateTime?`, `int?`) and “leave null whatever is not in the text” in the prompt — let the model not make things up.
-- **The shape is guaranteed, the content is not.** C# checks the object before it reaches the database.
-
-### Next lecture
-
-The model extracted the booking, but it doesn't know whether a table is free tomorrow at 20:00 — it can't see our database. In lecture 4 — **Tools / Function Calling**: the model itself decides when to call our C# method (e.g. `CheckAvailability` or `GetMenu`).
-  </aside>
 </section>
 
 <lecture-homework/>

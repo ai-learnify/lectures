@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,478 +145,171 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 7</small>Context Engineering: კონტექსტისა და მეხსიერების მართვა</div>
-  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
-  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
-  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+  <div class="bar">
+    <a class="back" href="../../">← ლექციები</a>
+    <div class="ttl"><small>📖 ლექცია 7</small>Context Engineering: კონტექსტისა და მეხსიერების მართვა</div>
+    <div class="acts">
+      <a class="btn lang" href="study.en.html" title="English">EN</a>
+      <button class="themebtn btn" type="button" title="ღია / მუქი თემა" aria-label="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.html" target="_blank" title="პრეზენტაცია" aria-label="პრეზენტაცია"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">მთავარი</button><button type="button" data-t="topics">თემები<small>3</small></button><button type="button" data-t="tasks">დავალებები</button><button type="button" data-t="quiz">ტესტი<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
-    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">1′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">კონტექსტი: რას ხედავს მოდელი</span><span class="nm">2′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">ისტორია PostgreSQL-ში</span><span class="nm">5′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">ტოკენების ბიუჯეტი და reducer</span><span class="nm">4′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: შენი ჩატი ისტორიით</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება</span><span class="nm">1′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">8</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 7</div>
-      <h1>Context Engineering: კონტექსტისა და მეხსიერების მართვა</h1>
-      <p>ლექციის სრული მასალა თავებად, ~18 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li>მოდელი <strong>stateless</strong>-ია: „მეხსიერება“ ისტორიაა, რომელსაც ყოველ მოთხოვნაში <strong>ჩვენ</strong> ვუგზავნით.</li><li><strong>კონტექსტი</strong> = System + tool-ების აღწერები + ისტორია + tool-ების შედეგები + შეკითხვა. <strong>Context engineering</strong> — რა ჩავდოთ, რა დავტოვოთ, რა რიგით.</li><li>ისტორია <strong>PostgreSQL</strong>-შია: ერთი ხაზი = ერთი <code>ChatMessage</code>, <code>ConversationId</code>-ით, მთელი შეტყობინება <strong>jsonb</strong>-ში, tool-ების ჩათვლით. System prompt — არა.</li><li><code>/chat</code>: <strong>ჩატვირთე</strong> → <code>[SystemPrompt(), .. history, question]</code> → <strong>შეინახე</strong> <code>[question, .. response.Messages]</code>.</li><li><strong>ბაზაში ყველაფერი, კონტექსტში ნაწილი</strong>: <code>MessageCountingChatReducer</code> ბოლო N-ს ტოვებს და tool-ის შეტყობინებებს ამოყრის.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~18 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 10 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — stateless vs stateful, chat reducers</a> — ისტორია ჩვენს კოდში; MessageCountingChatReducer და SummarizingChatReducer</li><li><a href="https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.messagecountingchatreducer" target="_blank" rel="noopener">MessageCountingChatReducer</a> — ბოლო N შეტყობინება; tool-ის შეტყობინებები არ შედის</li><li><a href="https://www.npgsql.org/efcore/mapping/json.html" target="_blank" rel="noopener">Npgsql EF Core — JSON mapping</a> — jsonb სვეტი EF Core-ში</li><li><a href="https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/polymorphism" target="_blank" rel="noopener">System.Text.Json — polymorphism</a> — $type და AllowOutOfOrderMetadataProperties</li><li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Anthropic — Effective context engineering for AI agents</a> — context engineering აგენტებისთვის — წასაკითხი სტატია</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
-<p>ლექცია 6 — <strong>Streaming და Real-time AI პასუხები</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../06-streaming/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>სტრიმინგი პასუხს უფრო სწრაფს ხდის? რა იცვლება სინამდვილეში?</summary><div class="ans">მთლიანი დრო თითქმის იგივეა · იცვლება TTFT — დრო პირველ სიტყვამდე (წამები → მილიწამები) · მომხმარებელი კითხვას მაშინვე იწყებს, ცარიელი ეკრანი აღარ არის</div></details><details><summary>რას აბრუნებს <code>GetStreamingResponseAsync</code> და როგორ ვკითხულობთ?</summary><div class="ans"><code>IAsyncEnumerable&lt;ChatResponseUpdate&gt;</code> — ნაწილების ნაკადი · <code>await foreach</code> — შემდეგ ნაწილს ელოდება · <code>update.Text</code> — ტექსტის ნაჭერი; იგივე messages/options, tool-ებიც მუშაობს</div></details><details><summary><code>/chat/chunks</code>-ში Gemini სტრიმავდა, Swagger-მა კი ყველაფერი ერთად აჩვენა. რატომ? როგორ გავასწორეთ?</summary><div class="ans">ნაწილებს სიაში ვაგროვებდით და ბოლოს ვაბრუნებდით — სტრიმი Controller-ში წყდებოდა · async iterator (<code>yield return</code>) + <code>TypedResults.ServerSentEvents</code> — თითო ნაწილი მაშინვე მიდის კლიენტთან</div></details><details><summary>რა არის SSE და რატომ არის ის AI ჩატისთვის საკმარისი (WebSocket/SignalR-ის ნაცვლად)?</summary><div class="ans">HTTP პასუხი <code>text/event-stream</code>-ით, რომელიც ღია რჩება; <code>data: …</code> + ცარიელი ხაზი · AI-ს პასუხი ცალმხრივია (სერვერი → კლიენტი) · WebSocket/SignalR ორმხრივისთვისაა</div></details><details><summary>სად და რატომ გადავეცით <code>CancellationToken</code>?</summary><div class="ans">① action-ის პარამეტრი (RequestAborted) ② <code>[EnumeratorCancellation]</code> iterator-ში ③ <code>GetStreamingResponseAsync</code>-ს · კლიენტი წავიდა → Gemini-ს მოთხოვნა წყდება → ტოკენები აღარ იხარჯება</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
-<p>წინა ლექციის საშინაო: <strong>სტრიმინგ ჩატი და ფენები სტრიმინგზე</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
-<h3>მოთხოვნები</h3>
-<ul>
-<li><strong><code>GET /api/ai-lab/chat/stream</code></strong> შენს პროექტში: tool-ებით (<code>ChatToolOptions()</code>), <code>TypedResults.ServerSentEvents</code>, async iterator, <code>CancellationToken</code> სამივე ადგილას</li>
-<li><strong>InputGuard სტრიმინგზე:</strong> ლექცია 5-ის დაცვის ფენას დაუმატე <code>GetStreamingResponseAsync</code> override — შეჩერებისას <strong>ერთი</strong> <code>ChatResponseUpdate</code> შეტყობინებით და <code>yield break</code>, Gemini-ს გარეშე</li>
-<li><strong>README — TTFT ცხრილი:</strong> <code>/chat/chunks</code>-ით 3 კითხვა: მოკლე · გრძელი · tool-იანი. სვეტები: კითხვა · პირველი ნაწილის ms · ბოლო ნაწილის ms · ნაწილების რაოდენობა</li>
-<li><strong>README — გაუქმება:</strong> გრძელ პასუხზე Ctrl+C → სერვერის ლოგის 3–5 ხაზი, სადაც ჩანს, რომ მოთხოვნა გაუქმდა</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (11 კითხვა) — ქულა ჩაწერე</li>
-</ul>
-<h3>ამოხსნა</h3>
-<p>ნიმუში — ბიბლიოთეკის API (საშინაო 5-ის გაგრძელება).</p>
-<div class="codebox"><div class="ch"><span>Ai/LibraryGuardChatClient.cs · სტრიმინგი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="n">ChatResponseUpdate</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatOptions</span><span class="o">?</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">string?</span><span class="w"> </span><span class="n">refusal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Check</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// the same check as in GetResponseAsync</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">refusal</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ChatResponseUpdate</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">Assistant</span><span class="p">,</span><span class="w"> </span><span class="n">refusal</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">yield</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span></span><span class="ln"><span class="w">        </span><span class="k">base</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · ChatStream</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet("chat/stream")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IResult</span><span class="w"> </span><span class="nf">ChatStream</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">TypedResults</span><span class="p">.</span><span class="n">ServerSentEvents</span><span class="p">(</span><span class="n">StreamAnswer</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">IAsyncEnumerable</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">StreamAnswer</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">prompt</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[EnumeratorCancellation]</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, """</span></span><span class="ln"><span class="na">            You are a library assistant. Answer briefly.</span></span><span class="ln"><span class="na">            Take book and genre data only from the tools.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, prompt)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nf">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatResponseUpdate</span><span class="w"> </span><span class="n">update</span><span class="w"> </span><span class="k">in</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetStreamingResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrEmpty</span><span class="p">(</span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">update</span><span class="p">.</span><span class="n">Text</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>კითხვა</th>
-<th>პირველი ნაწილი</th>
-<th>ბოლო ნაწილი</th>
-<th>ნაწილები</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>„გამარჯობა!“</td>
-<td>~550 ms</td>
-<td>~700 ms</td>
-<td>2</td>
-</tr>
-<tr>
-<td>"Tell us about the detective genre"</td>
-<td>~650 ms</td>
-<td>~6100 ms</td>
-<td>18</td>
-</tr>
-<tr>
-<td>"Which detective novels do you have available?"</td>
-<td>~2900 ms</td>
-<td>~4300 ms</td>
-<td>6</td>
-</tr>
-</tbody>
-</table>
-<div class="callout note"><span class="ci">💡</span><div><p><code>Check(messages)</code> — ლექცია 5-ის შემოწმება, ცალკე private მეთოდში გატანილი, რომ ორივე override-მა (<code>GetResponseAsync</code> და <code>GetStreamingResponseAsync</code>) ერთი და იგივე გამოიყენოს. tool-იან კითხვაზე TTFT ~3 წამია: ჯერ <code>get_genres</code> და <code>find_books</code> სრულდება, ტექსტი მხოლოდ მერე იწყებს მოსვლას. გაუქმების ლოგში <code>GetStreamingResponseAsync canceled</code> ჩანს — <code>completed</code> არა.</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~2 წთ კითხვა</div><h2>კონტექსტი: რას ხედავს მოდელი</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> ახსნი, რატომ არ ახსოვს მოდელს წინა შეკითხვა და რა შედის ერთ მოთხოვნაში.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · კონტექსტი</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
-<p>ჯერ ვნახავთ პრობლემას ცოცხლად: მეორე შეკითხვას მოდელი ვერ იგებს. მერე ვალაგებთ, რა მიდის მოდელთან ერთ მოთხოვნაში და რატომ არის ეს ჩვენი, დეველოპერების, გადასაწყვეტი.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>პრობლემა: მოდელს წინა შეკითხვა არ ახსოვს</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
-<p>ჩვენი <code>/chat</code> ყოველ მოთხოვნაზე ახალ <code>messages</code> სიას ქმნის: System + მომხმარებლის <strong>ერთი</strong> შეკითხვა. ორი მოთხოვნა ერთმანეთზე არაფერი იცის:</p>
-<table>
-<thead>
-<tr>
-<th>მოთხოვნა</th>
-<th>რას ხედავს მოდელი</th>
-<th>პასუხი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>System + "Four of us tomorrow at 20:00, do you have room?"</td>
-<td>"Yes, two tables" (<code>check_availability</code>)</td>
-</tr>
-<tr>
-<td>2</td>
-<td>System + "And at 21:00?"</td>
-<td>"What would you like to know about 21:00?"</td>
-</tr>
-</tbody>
-</table>
-<p>მეორე მოთხოვნაში პირველი შეკითხვა <strong>საერთოდ არ არის</strong>. ლექცია 1-დან ვიცით: მოდელი <strong>stateless</strong>-ია, ის მხოლოდ იმას ხედავს, რაც ამ მოთხოვნაში გავუგზავნეთ. „მეხსიერება“ ChatGPT-შიც ასე მუშაობს: ყოველ ახალ შეტყობინებასთან ერთად სერვერი მოდელს <strong>მთელ საუბარს</strong> უგზავნის.</p>
-<p>ესე იგი, მეხსიერება მოდელში კი არა, <strong>ჩვენს კოდშია</strong>: ისტორიას ჩვენ ვინახავთ და ჩვენ ვუგზავნით. ლექცია 2-ის ⭐-ში ეს ხელით ვცადეთ <code>List&lt;ChatMessage&gt;</code>-ით. დღეს ამას სწორად ვაკეთებთ: ბაზაში.</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>კონტექსტი: რას ხედავს მოდელი ერთ მოთხოვნაში</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
-<p><strong>კონტექსტი</strong> ყველაფერია, რაც მოდელამდე ერთ მოთხოვნაში მიდის. ჩვენს ჩატში ის ხუთი ნაწილისგან შედგება:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI აგენტები .NET-ში · ლექცია 7</div><h1>Context Engineering: კონტექსტისა და მეხსიერების მართვა</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 ამ ლექციის შემდეგ შეძლებ</h2><ul><li>ახსნი, რა შედის მოდელის კონტექსტში (System, tool-ები, ისტორია, tool-ების შედეგები, შეკითხვა) და რით განსხვავდება context engineering prompt engineering-ისგან</li><li>საუბრის ისტორიას PostgreSQL-ში შეინახავ: <code>conversationId</code>, მთელი <code>ChatMessage</code> jsonb-ში, tool-ების შეტყობინებების ჩათვლით</li><li><code>/chat</code>-ს ისტორიით დაწერ: ჩატვირთე → System + ისტორია + შეკითხვა → შეინახე <code>response.Messages</code></li><li>ახსნი, რატომ იზრდება ტოკენები ყოველ შეკითხვაზე, და <code>MessageCountingChatReducer</code>-ით კონტექსტში მხოლოდ ბოლო N შეტყობინებას გაგზავნი</li></ul></div><div class="box key"><h2>⚡ მთავარი</h2><ol><li>მოდელი <strong>stateless</strong>-ია: „მეხსიერება“ ისტორიაა, რომელსაც ყოველ მოთხოვნაში <strong>ჩვენ</strong> ვუგზავნით.</li><li><strong>კონტექსტი</strong> = System + tool-ების აღწერები + ისტორია + tool-ების შედეგები + შეკითხვა. ყველაფერი ტოკენია: ფასი, ლიმიტი და სიჩქარე.</li><li>ისტორია ბაზაშია: <code>conversationId</code>, მთელი <code>ChatMessage</code> jsonb-ში, <strong>ყველა</strong> შეტყობინება, tool-ებისაც. System prompt-ს არ ვინახავთ.</li><li><code>/chat</code>: ჩატვირთე → <code>[SystemPrompt(), .. history, question]</code> → შეინახე <code>[question, .. response.Messages]</code>.</li><li>ბაზაში ყველაფერი ინახება, მოდელთან მხოლოდ ნაწილი მიდის: <code>MessageCountingChatReducer</code>.</li></ol></div><div class="box"><h2>📍 ლექცია გააცდინე?</h2><ol class="path"><li><a href="index.html" target="_blank">ნახე პრეზენტაცია</a>: სლაიდები ლექციის მთელ გზას აჩვენებს</li><li><a href="#topics">წაიკითხე თემები</a>: ~6 წთ, თითოს ბოლოს „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a>: 8 კითხვა</li><li><a href="#tasks">გააკეთე დავალებები</a></li></ol></div><div class="box"><h2>🔗 ბმულები</h2><ul><li><a href="https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai" target="_blank" rel="noopener">Microsoft.Extensions.AI — stateless vs stateful, chat reducers</a> — ისტორია ჩვენს კოდში; MessageCountingChatReducer და SummarizingChatReducer</li><li><a href="https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.messagecountingchatreducer" target="_blank" rel="noopener">MessageCountingChatReducer</a> — ბოლო N შეტყობინება; tool-ის შეტყობინებები არ შედის</li><li><a href="https://www.npgsql.org/efcore/mapping/json.html" target="_blank" rel="noopener">Npgsql EF Core — JSON mapping</a> — jsonb სვეტი EF Core-ში</li><li><a href="https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/polymorphism" target="_blank" rel="noopener">System.Text.Json — polymorphism</a> — $type და AllowOutOfOrderMetadataProperties</li><li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Anthropic — Effective context engineering for AI agents</a> — context engineering აგენტებისთვის — წასაკითხი სტატია</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>კონტექსტი</h2><a class="sl" href="index.html#/6" target="_blank">▶ სლაიდები 6–8</a></header><div class="tb"><p>ჩვენი <code>/chat</code> ყოველ მოთხოვნაზე ახალ სიას ქმნის: System + <strong>ერთი</strong> შეკითხვა. "Four of us tomorrow at 20:00?" და მერე "And at 21:00?": მეორეზე მოდელმა არ იცის, რაზეა საუბარი.</p>
+<p><strong>კონტექსტი</strong> ყველაფერია, რაც მოდელთან ერთ მოთხოვნაში მიდის:</p>
 <table>
 <thead>
 <tr>
 <th>ნაწილი</th>
-<th>საიდან</th>
-<th>ნიმუში (ტოკენი)</th>
+<th>ვინ წერს</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>System</strong></td>
-<td>ჩვენი ინსტრუქცია (ლექცია 2)</td>
-<td>~180</td>
+<td>System prompt</td>
+<td>ჩვენ</td>
 </tr>
 <tr>
-<td><strong>Tools</strong></td>
-<td>tool-ების სახელები, აღწერები, პარამეტრების JSON Schema (ლექცია 4)</td>
-<td>~310</td>
+<td>tool-ების აღწერები</td>
+<td>ჩვენ</td>
 </tr>
 <tr>
-<td><strong>ისტორია</strong></td>
-<td>წინა შეკითხვები და პასუხები</td>
-<td>~460</td>
+<td>ისტორია</td>
+<td>ბაზიდან</td>
 </tr>
 <tr>
-<td><strong>tool შედეგები</strong></td>
-<td>რაც tool-ებმა დააბრუნა, მაგ. მთელი მენიუ</td>
-<td>~1 780</td>
+<td>tool-ების შედეგები</td>
+<td>ჩვენი კოდი</td>
 </tr>
 <tr>
-<td><strong>ახალი შეკითხვა</strong></td>
+<td>ახალი შეკითხვა</td>
 <td>მომხმარებელი</td>
-<td>~25</td>
 </tr>
 </tbody>
 </table>
-<p>ციფრები ნიმუშია, მაგრამ სურათი ტიპურია: <strong>ყველაზე დიდი ნაწილი ხშირად tool-ების შედეგებია</strong>, და არა ის, რაც მომხმარებელმა დაწერა. <code>get_menu</code> მთელ მენიუს აბრუნებს, და თუ ის ისტორიაში დარჩა, ყოველ შემდეგ მოთხოვნაში თავიდან მიდის.</p>
-<p>ყველაფერი ეს ერთ <strong>context window</strong>-ში უნდა ჩაეტიოს (ლექცია 1), და ყველაფერში ვიხდით: input ტოკენი ფასიანია, დიდი კონტექსტი ნელია.</p>
-<p><strong>Prompt engineering vs context engineering:</strong></p>
-<ul>
-<li><strong>Prompt engineering</strong> (ლექცია 2) — <strong>როგორ</strong> დავწეროთ ინსტრუქცია: როლი, წესები, მაგალითები.</li>
-<li><strong>Context engineering</strong> — <strong>რა</strong> ჩავდოთ ფანჯარაში ყოველ მოთხოვნაზე: რომელი ისტორია, რომელი tool-ები, რომელი შედეგები, რა რიგით, და რა დარჩეს გარეთ. Prompt ამ ფანჯრის ერთი ნაწილია.</li>
-</ul>
-<p>აგენტებთან (ლექცია 13+) ეს მთავარი უნარი ხდება: აგენტი ათობით tool-ს იძახებს, და კონტექსტი ძალიან სწრაფად ივსება.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>კონტექსტი (context)</dt><dd>ყველაფერი, რასაც მოდელი ერთ მოთხოვნაში ხედავს: ინსტრუქცია, tool-ები, ისტორია, tool-ების შედეგები, შეკითხვა</dd><dt>Context engineering</dt><dd>იმის გადაწყვეტა, რა ჩავდოთ კონტექსტში ყოველ მოთხოვნაზე, რა რიგით და რა დავტოვოთ გარეთ</dd></dl></div></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~5 წთ კითხვა</div><h2>ისტორია PostgreSQL-ში</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> საუბარს ბაზაში შეინახავ jsonb-ით და <code>/chat</code>-ს ისტორიით დაწერ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · ისტორია ბაზაში</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
-<p>ისტორია სადღაც უნდა ვინახოთ. ვირჩევთ ადგილს, ვქმნით ცხრილს PostgreSQL-ში და <code>/chat</code>-ს ვასწავლით, რომ ყოველ მოთხოვნაზე ჯერ ისტორია ჩატვირთოს, ბოლოს კი ახალი შეტყობინებები შეინახოს.</p></article><article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>სად ვინახოთ ისტორია</h3><a class="chip" href="index.html#/10" data-go="10" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 10</a></div>
-<table>
-<thead>
-<tr>
-<th>ვარიანტი</th>
-<th>რა ხდება</th>
-<th>პრობლემა</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>კლიენტი აგზავნის</strong></td>
-<td>frontend ყოველ მოთხოვნაში მთელ საუბარს აგზავნის</td>
-<td>კლიენტს შეუძლია ისტორია შეცვალოს (მაგ. ჩაწეროს, რომ ასისტენტმა 50% ფასდაკლება „დაჰპირდა“); ტრაფიკი ყოველ ჯერზე იზრდება</td>
-</tr>
-<tr>
-<td><strong>სერვერის მეხსიერება</strong></td>
-<td>Singleton სერვისში <code>Dictionary&lt;Guid, List&lt;ChatMessage&gt;&gt;</code></td>
-<td>აპლიკაციის რესტარტზე ყველაფერი ქრება; ორ სერვერზე ერთი მომხმარებლის მოთხოვნები სხვადასხვა მეხსიერებაში ხვდება</td>
-</tr>
-<tr>
-<td><strong>PostgreSQL</strong> ✓</td>
-<td>ცხრილი, სადაც ერთი ხაზი ერთი შეტყობინებაა, <code>ConversationId</code>-ით</td>
-<td>—</td>
-</tr>
-</tbody>
-</table>
-<p>ბაზაში ისტორია რჩება, ყველა სერვერი ერთსა და იმავეს ხედავს, და შეგვიძლია გავაანალიზოთ: რას კითხულობენ ხშირად, სად ცდება ასისტენტი.</p>
-<p><strong>რას ვინახავთ? ყველაფერს</strong>, tool-ების გამოძახებებისა და შედეგების ჩათვლით. ასე მუშაობს რეალური სისტემებიც: ბაზაში სრული ჩანაწერია, ხოლო ის, რასაც <strong>მოდელს ვუგზავნით</strong>, ცალკე გადაწყვეტილებაა (ნაწილი 3). „ბაზაში ინახება“ და „კონტექსტში მიდის“ ორი სხვადასხვა რამეა.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ცხრილი და შენახვა: ChatMessageRecord და ChatHistoryStore</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
-<p><strong>ცხრილი.</strong> ერთი ხაზი ერთი შეტყობინებაა:</p>
+<p>ყველაზე დიდი ხშირად tool-ების შედეგებია: <code>get_menu</code> მთელ მენიუს აბრუნებს, და ის ისტორიაში რჩება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ChatGPT-ს ხომ ახსოვს საუბარი?</summary><div class="ans">ChatGPT-ის სერვერს ახსოვს და არა მოდელს: ის ყოველ ჯერზე მთელ ისტორიას თავიდან აგზავნის.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>კონტექსტი (context)</dt><dd>ყველაფერი, რასაც მოდელი ერთ მოთხოვნაში ხედავს</dd><dt>context engineering</dt><dd>გადაწყვეტა, რა ჩავსვათ კონტექსტში და რა არა</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>ისტორია ბაზაში</h2><a class="sl" href="index.html#/9" target="_blank">▶ სლაიდები 9–13</a></header><div class="tb"><p>ისტორიას სერვერზე, PostgreSQL-ში ვინახავთ: კლიენტს მას არ ვანდობთ, და მეხსიერებაში რესტარტზე დაიკარგება. ერთი ხაზი ერთი შეტყობინებაა:</p>
 <div class="codebox"><div class="ch"><span>Data/ChatMessageRecord.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ChatMessageRecord</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">ConversationId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// which conversation it belongs to</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Position</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">          </span><span class="c1">// order in the conversation: 0, 1, 2…</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Role</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span><span class="w">     </span><span class="c1">// user / assistant / tool — for looking at the DB</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[Column(TypeName = "jsonb")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Json</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span><span class="w">     </span><span class="c1">// the whole ChatMessage</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">CreatedAt</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>DataContext</code>-ში: <code>public DbSet&lt;ChatMessageRecord&gt; ChatMessages =&gt; Set&lt;ChatMessageRecord&gt;();</code>, მერე migration (<code>Add-Migration ChatHistory</code>, <code>Update-Database</code>).</p>
-<p><strong>რატომ jsonb და არა სვეტები?</strong> <code>ChatMessage</code>-ს <code>Text</code> კი არა, <strong><code>Contents</code></strong> აქვს: სხვადასხვა ტიპის ნაწილების სია. ტექსტი (<code>TextContent</code>), tool-ის გამოძახება (<code>FunctionCallContent</code>), tool-ის შედეგი (<code>FunctionResultContent</code>), Gemini-ს ფიქრის ხელმოწერა (<code>TextReasoningContent</code>, ლექცია 4). ყოველი ტიპისთვის სვეტები რომ გავაკეთოთ, ცხრილი ჩიხი გახდება. ამიტომ მთელ შეტყობინებას JSON-ად ვინახავთ ერთ <strong>jsonb</strong> სვეტში: PostgreSQL მას JSON-ად ინახავს და შიგნით ძებნაც შეუძლია.</p>
-<p><strong>სერიალიზაცია.</strong> <code>AIJsonUtilities.DefaultOptions</code> — Microsoft.Extensions.AI-ის მზა პარამეტრები, რომლებმაც <code>AIContent</code>-ის ყველა ტიპი იციან. JSON-ში ყოველ ნაწილს <code>"$type"</code> ეწერება (<code>"text"</code>, <code>"functionCall"</code>…), რომ უკან წაკითხვისას სწორი ტიპი შეიქმნას:</p>
+<p><code>DataContext</code>-ში <code>DbSet&lt;ChatMessageRecord&gt; ChatMessages</code> და migration. შენახვა და ჩატვირთვა: მთელი <code>ChatMessage</code> jsonb-ში, tool-ების შეტყობინებებით:</p>
 <div class="codebox"><div class="ch"><span>Ai/ChatHistoryStore.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ChatHistoryStore</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// jsonb reorders keys — "$type" is no longer first</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">JsonSerializerOptions</span><span class="w"> </span><span class="n">Json</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="p">(</span><span class="n">AIJsonUtilities</span><span class="p">.</span><span class="n">DefaultOptions</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">AllowOutOfOrderMetadataProperties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">ChatHistoryStore</span><span class="p">(</span><span class="n">DataContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">ChatMessages</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">ConversationId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">conversationId</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Position</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Json</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rows</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">JsonSerializer</span><span class="p">.</span><span class="n">Deserialize</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">Json</span><span class="p">)</span><span class="o">!</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="w"> </span><span class="nf">AppendAsync</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">ChatMessages</span><span class="p">.</span><span class="n">CountAsync</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">ConversationId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">ChatMessage</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">messages</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">_db</span><span class="p">.</span><span class="n">ChatMessages</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ChatMessageRecord</span></span><span class="ln"><span class="w">            </span><span class="p">{</span></span><span class="ln"><span class="w">                </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">ConversationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">Position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position</span><span class="o">++</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">Role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">.</span><span class="n">Role</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">Json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonSerializer</span><span class="p">.</span><span class="n">Serialize</span><span class="p">(</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">Json</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">                </span><span class="n">CreatedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span></span><span class="ln"><span class="w">            </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>Program.cs</code>-ში: <code>builder.Services.AddScoped&lt;ChatHistoryStore&gt;();</code> (Scoped, რადგან <code>DataContext</code>-ს იყენებს).</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong><code>AllowOutOfOrderMetadataProperties = true</code> აუცილებელია.</strong> System.Text.Json ელოდება, რომ <code>"$type"</code> ობიექტში <strong>პირველი</strong> იყოს. jsonb კი key-ებს თავისებურად ალაგებს (ჯერ მოკლეს), და <code>"text"</code> <code>"$type"</code>-ზე წინ ექცევა. ამ პარამეტრის გარეშე წაკითხვისას exception მოვა.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>jsonb</dt><dd>PostgreSQL-ის ტიპი JSON-ისთვის: ინახავს დამუშავებულ ფორმაში, შიგნით ძებნა შეუძლია</dd><dt>AIJsonUtilities.DefaultOptions</dt><dd>Microsoft.Extensions.AI-ის JSON პარამეტრები, რომლებმაც ChatMessage და AIContent-ის ყველა ტიპი იციან</dd><dt>$type</dt><dd>JSON-ში ველი, რომელიც ამბობს, რომელი C# ტიპი შეიქმნას (text, functionCall, functionResult…)</dd></dl></div></article><article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>/chat ისტორიით: ჩატვირთე → გაგზავნე → შეინახე</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>AllowOutOfOrderMetadataProperties = true</code> აუცილებელია: jsonb key-ებს თავისებურად ალაგებს, <code>"$type"</code> კი პირველი აღარ იქნება.</p></div></div>
+<p><code>/chat</code> ისტორიით: ჩატვირთე → გაგზავნე → შეინახე.</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ChatRequest</span><span class="p">(</span><span class="n">Guid</span><span class="o">?</span><span class="w"> </span><span class="n">ConversationId</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("chat")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Chat</span><span class="p">(</span><span class="n">ChatRequest</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Guid</span><span class="w"> </span><span class="n">conversationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">ConversationId</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">SystemPrompt</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">question</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="w"> </span><span class="n">ChatToolOptions</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">AppendAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Messages</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Usage</span><span class="o">?.</span><span class="n">InputTokenCount</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p><code>ChatHistoryStore</code> Controller-ს constructor-ით მოდის (<code>_history</code>), როგორც <code>RestaurantTools</code>.</p>
-<p><strong>ნაბიჯ-ნაბიჯ:</strong></p>
-<ol>
-<li><strong><code>ConversationId ?? Guid.NewGuid()</code></strong> — პირველ შეკითხვაზე კლიენტს id არ აქვს, ამიტომ ახალ საუბარს ვიწყებთ. id-ს პასუხში ვაბრუნებთ, და კლიენტი მას ყოველ შემდეგ მოთხოვნაში აგზავნის.</li>
-<li><strong><code>LoadAsync</code></strong> — წინა შეტყობინებები ბაზიდან, რიგით.</li>
-<li><strong><code>[SystemPrompt(), .. history, question]</code></strong> — collection expression: System პირველი, მერე ისტორია (<code>..</code> სიას „შლის“), ბოლოს ახალი შეკითხვა. <code>SystemPrompt()</code> იგივე System prompt-ია, რაც ლექცია 6-ში, ცალკე მეთოდში გატანილი, როგორც <code>ChatToolOptions()</code>.</li>
-<li><strong><code>AppendAsync(conversationId, [question, .. response.Messages])</code></strong> — ვინახავთ შეკითხვას და <strong>ყველაფერს</strong>, რაც მოდელმა დაამატა. <code>response.Messages</code> tool-ის ციკლში ერთზე მეტი შეტყობინებაა: tool-ის თხოვნა, შედეგი და საბოლოო პასუხი.</li>
-</ol>
-<p><strong>System prompt ბაზაში არ ინახება.</strong> ის ჩვენია, არა საუბრის ნაწილი: შიგ დღევანდელი თარიღია, და თუ ხვალ წესს შევცვლით, ძველ საუბრებსაც ახალი წესი უნდა ჰქონდეს. ამიტომ ყოველ მოთხოვნაზე ახლიდან ვაწყობთ და სიის თავში ვსვამთ.</p>
-<p><strong>Swagger-ში შემოწმება:</strong> პირველი მოთხოვნა <code>conversationId</code>-ის გარეშე → პასუხში ახალი id. მეორე მოთხოვნა იმავე id-ით: "And at 21:00?" → მოდელი ხედავს პირველ შეკითხვას და <code>check_availability</code>-ს 21:00-ით იძახებს. <code>InputTokenCount</code> მეორე მოთხოვნაზე უფრო დიდია: ისტორიაც მიდის.</p></article><article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>რა ჩანს ბაზაში ორი შეკითხვის შემდეგ</h3><a class="chip" href="index.html#/13" data-go="13" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 13</a></div>
-<p><code>SELECT "Position", "Role", "Json" FROM "ChatMessages" WHERE "ConversationId" = '…' ORDER BY "Position";</code></p>
-<table>
-<thead>
-<tr>
-<th>Position</th>
-<th>Role</th>
-<th>Json (მოკლედ)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0</td>
-<td>user</td>
-<td><code>{"text": "Four of us tomorrow at 20:00…", "$type": "text"}</code></td>
-</tr>
-<tr>
-<td>1</td>
-<td>assistant</td>
-<td><code>functionCall</code>: <code>check_availability</code>, <code>{"at": "…T20:00", "guests": 4}</code> + ფიქრის ხელმოწერა</td>
-</tr>
-<tr>
-<td>2</td>
-<td>tool</td>
-<td><code>functionResult</code>: <code>{"available": true, "freeTables": 2}</code></td>
-</tr>
-<tr>
-<td>3</td>
-<td>assistant</td>
-<td><code>{"text": "Yes, two tables are free.", "$type": "text"}</code></td>
-</tr>
-<tr>
-<td>4</td>
-<td>user</td>
-<td>"And at 21:00?"</td>
-</tr>
-<tr>
-<td>5–7</td>
-<td>…</td>
-<td>functionCall (21:00) → functionResult → "One table is free at 21:00"</td>
-</tr>
-</tbody>
-</table>
-<p><strong>ერთ შეკითხვაზე ოთხი ხაზია</strong>, რადგან tool-ის ციკლი (ლექცია 4) შეტყობინებებით მუშაობს: მოდელი ითხოვს გამოძახებას (assistant), ჩვენი კოდი აბრუნებს შედეგს (tool), მოდელი წერს პასუხს (assistant). ყველა მათგანი <code>response.Messages</code>-შია, და ყველას ვინახავთ.</p>
-<p><strong>რატომ ვინახავთ ფიქრის ხელმოწერასაც?</strong> Gemini 3 მოითხოვს, რომ მის ფიქრის ბლოკებს ზუსტად ისე დავუბრუნოთ, როგორც გამოგვიგზავნა. მთელ <code>ChatMessage</code>-ს რომ ვინახავთ, ეს თავისით სრულდება.</p>
-<p>jsonb-ში key-ები სხვა რიგითაა (<code>"text"</code> <code>"$type"</code>-ზე წინ): სწორედ ამიტომ გვჭირდება <code>AllowOutOfOrderMetadataProperties</code>.</p></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~4 წთ კითხვა</div><h2>ტოკენების ბიუჯეტი და reducer</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> ახსნი, რატომ იზრდება კონტექსტი, და მოდელს მხოლოდ ბოლო N შეტყობინებას გაუგზავნი.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · ტოკენების ბიუჯეტი</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
-<p>ისტორია მუშაობს, მაგრამ ყოველ შეკითხვაზე მთელი საუბარი მიდის, და ის მუდმივად იზრდება. ვნახავთ, რამდენად სწრაფად, რა სტრატეგიები არსებობს და როგორ ვგზავნით მოდელთან ისტორიის მხოლოდ ნაწილს, ისე რომ ბაზაში ყველაფერი რჩება.</p></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ზრდა: ყოველ შეკითხვაზე მთელი ისტორია მიდის</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
-<p>თითო შეკითხვის <code>InputTokenCount</code> ერთ საუბარში (ნიმუში):</p>
-<table>
-<thead>
-<tr>
-<th>შეკითხვა</th>
-<th>რა მოხდა</th>
-<th>InputTokenCount</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>„გამარჯობა“</td>
-<td>~620 (System + tool-ები)</td>
-</tr>
-<tr>
-<td>2</td>
-<td>"Four at 20:00?" → <code>check_availability</code></td>
-<td>~1 450</td>
-</tr>
-<tr>
-<td>3</td>
-<td>"What do you have under 15 GEL?" → <strong><code>get_menu</code></strong></td>
-<td>~3 300</td>
-</tr>
-<tr>
-<td>4</td>
-<td>"Is the lobio spicy?"</td>
-<td>~3 900</td>
-</tr>
-<tr>
-<td>5</td>
-<td>"What do you have that's vegetarian?" → <strong><code>get_menu</code></strong> ისევ</td>
-<td>~5 600</td>
-</tr>
-<tr>
-<td>6</td>
-<td>"OK, I'll book"</td>
-<td>~7 100</td>
-</tr>
-</tbody>
-</table>
-<p><strong>ყველაზე დიდი ნახტომი <code>get_menu</code>-ის შემდეგაა</strong>: მთელი მენიუ <code>functionResult</code>-ად ისტორიაში რჩება და ყოველ შემდეგ შეკითხვას მიჰყვება. თანაც ორჯერ.</p>
-<p><strong>რატომ არის ეს პრობლემა:</strong></p>
-<ul>
-<li>💸 <strong>ფასი და სიჩქარე.</strong> input ტოკენი ფასიანია. მე-50 შეკითხვაზე ათობით ათასი ტოკენი მიდის, ყოველ ჯერზე, და დიდ კონტექსტს მოდელი უფრო ნელა ამუშავებს.</li>
-<li>🧱 <strong>ლიმიტი.</strong> context window დიდია, მაგრამ არა უსასრულო. გრძელი საუბარი ადრე თუ გვიან ივსება.</li>
-<li>🕰️ <strong>ძველი მონაცემი.</strong> ისტორიაში დარჩენილ tool-ის შედეგში ლობიო 12 ლარია, ბაზაში კი უკვე 14. მოდელმა შეიძლება tool თავიდან აღარ გამოიძახოს და ძველი ფასი თქვას.</li>
-<li>🎯 <strong>ყურადღება.</strong> რაც მეტია კონტექსტში, მით მეტი რამ „უშლის ხელს“ მთავარს. გრძელ კონტექსტში მოდელი შუა ნაწილს უფრო ხშირად „ვერ ამჩნევს“.</li>
-</ul></article><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>სამი სტრატეგია: შერჩევა, შეკუმშვა, რიგი</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
+<p>ერთ tool-იან შეკითხვაზე ბაზაში <strong>4 ხაზი</strong> ჩნდება: user → assistant (functionCall) → tool (functionResult) → assistant (ტექსტი).</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ისტორიაში System prompt-ს რატომ არ ვინახავთ?</summary><div class="ans">მას ყოველ ჯერზე კოდიდან ვამატებთ. ასე მისი შეცვლა ძველ საუბრებზეც მაშინვე მოქმედებს.</div></details><details><summary><code>response.Text</code>-ს ვინახავთ თუ <code>response.Messages</code>-ს?</summary><div class="ans"><code>response.Messages</code>-ს: მასში tool-ების გამოძახებები და შედეგებიცაა, რომლებიც შემდეგ მოთხოვნაში უნდა აღდგეს.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>jsonb</dt><dd>PostgreSQL-ის ტიპი JSON-ისთვის; შიგნით ძებნა შეუძლია</dd><dt>conversationId</dt><dd>საუბრის იდენტიფიკატორი, რომლითაც მისი შეტყობინებები ერთიანდება</dd></dl></div></div></section><section class="topic"><header><span class="num">3</span><h2>ტოკენების ბიუჯეტი</h2><a class="sl" href="index.html#/15" target="_blank">▶ სლაიდები 15–18</a></header><div class="tb"><p>ყოველ შეკითხვაზე მთელი ისტორია მიდის, ამიტომ <code>InputTokenCount</code> სულ იზრდება, <code>get_menu</code>-ს შემდეგ კი ნახტომით. ეს ოთხ პრობლემას ქმნის: ფასი, context window-ის ლიმიტი, ძველი მონაცემი და მოდელის ყურადღება.</p>
 <table>
 <thead>
 <tr>
 <th>სტრატეგია</th>
 <th>რას ნიშნავს</th>
-<th>ჩვენს პროექტში</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>🎯 <strong>შერჩევა</strong></td>
+<td>🎯 შერჩევა</td>
 <td>კონტექსტში მხოლოდ ის, რაც ამ შეკითხვას სჭირდება</td>
-<td>მთელი მენიუს ნაცვლად tool (ლექცია 4: მოდელი თვითონ ითხოვს, რაც სჭირდება) · ისტორიიდან ბოლო N შეტყობინება · ლექცია 11-ში RAG: დოკუმენტებიდან მხოლოდ შესაბამისი ნაწილები</td>
 </tr>
 <tr>
-<td>🗜️ <strong>შეკუმშვა</strong></td>
-<td>ძველი ნაწილი პატარა ფორმით</td>
-<td><strong>truncation</strong>: ძველ შეტყობინებებს ვაგდებთ · <strong>summarization</strong>: ძველ ნაწილს მოდელი მოკლედ აჯამებს და შეჯამება მიდის მის ნაცვლად</td>
+<td>🗜️ შეკუმშვა</td>
+<td>ძველი ნაწილის მოკლე შეჯამება</td>
 </tr>
 <tr>
-<td>📐 <strong>რიგი</strong></td>
-<td>სად დგას რა კონტექსტში</td>
-<td>System ყოველთვის პირველი · ახალი შეკითხვა ბოლოს · მნიშვნელოვანი ინფორმაცია დასაწყისში ან ბოლოს, არა შუაში</td>
+<td>✂️ ბოლო N</td>
+<td>მხოლოდ ბოლო შეტყობინებები</td>
 </tr>
 </tbody>
 </table>
-<p><strong>მთავარი იდეა: ბაზაში ყველაფერი რჩება, კონტექსტში მხოლოდ ნაწილი მიდის.</strong> ჩვენი კოდი ყოველ მოთხოვნაზე წყვეტს, ბაზიდან რა გავიდეს. ეს გადაწყვეტილება ჩვენია და არა მოდელის: სწორედ ესაა context engineering.</p>
-<p><strong>truncation vs summarization.</strong> truncation მარტივი და იაფია, მაგრამ ძველი დეტალი (მაგ. „ოთხნი ვართ“) ქრება. summarization დეტალს ინახავს, მაგრამ ერთი დამატებითი გამოძახება ჯდება და შეჯამებამ შეიძლება რამე გამოტოვოს. დღეს truncation-ს ვაკეთებთ, summarization ⭐-შია.</p></article><article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>IChatReducer: მოდელთან ბოლო 10 შეტყობინება</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
-<p>Microsoft.Extensions.AI-ს აქვს <strong><code>IChatReducer</code></strong>: interface, რომელიც შეტყობინებების სიას იღებს და პატარას აბრუნებს. მზა ვერსია <strong><code>MessageCountingChatReducer</code></strong> მხოლოდ ბოლო N შეტყობინებას ტოვებს:</p>
+<p><strong>ბაზაში ყველაფერი, მოდელთან ნაწილი.</strong> <code>IChatReducer</code> სიას ამცირებს, სანამ მოდელს გაეგზავნება:</p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Chat</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="cp">#</span><span class="cp">pragma</span><span class="cp"> warning disable MEAI001   // reducers are still experimental</span></span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatReducer</span><span class="w"> </span><span class="n">Reducer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MessageCountingChatReducer</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="cp">#</span><span class="cp">pragma</span><span class="cp"> warning restore MEAI001</span></span><span class="ln"> </span><span class="ln"><span class="c1">// inside Chat:</span></span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_history</span><span class="p">.</span><span class="n">LoadAsync</span><span class="p">(</span><span class="n">conversationId</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">recent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">Reducer</span><span class="p">.</span><span class="n">ReduceAsync</span><span class="p">(</span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">ChatMessage</span><span class="w"> </span><span class="n">question</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="n">ChatRole</span><span class="p">.</span><span class="n">User</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">SystemPrompt</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">recent</span><span class="p">,</span><span class="w"> </span><span class="n">question</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">GetResponseAsync</span><span class="p">,</span><span class="w"> </span><span class="n">AppendAsync</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">unchanged</span></span></code></pre></div>
-<p><strong>რას აკეთებს <code>MessageCountingChatReducer(10)</code>:</strong></p>
-<ul>
-<li>ტოვებს <strong>ბოლო 10</strong> შეტყობინებას (System-ის გარდა). ძველი კონტექსტში აღარ მიდის.</li>
-<li><strong>tool-ის შეტყობინებებს ამოყრის</strong> (<code>functionCall</code>, <code>functionResult</code>). ამიტომ მენიუ ძველ შეკითხვებს აღარ მიჰყვება: ყველაზე დიდი ნაწილი ქრება.</li>
-<li><strong>ბაზას არ ეხება.</strong> <code>AppendAsync</code> ისევ ყველაფერს ინახავს. იცვლება მხოლოდ ის, რაც <strong>ამ</strong> მოთხოვნაში მიდის.</li>
-</ul>
-<p><strong>და ფასი?</strong> მენიუ კონტექსტში აღარ არის, ამიტომ თუ მომხმარებელი ფასს კითხულობს, მოდელი <code>get_menu</code>-ს <strong>თავიდან</strong> იძახებს და ახალ ფასს იღებს. ეს უკეთესიცაა: ძველი ფასი აღარ „იჭედება“ ისტორიაში.</p>
-<p><strong>რატომ არა უბრალოდ <code>history.TakeLast(10)</code>?</strong> შეიძლება სიის შუაში გაჭრა: functionCall დარჩეს, მისი functionResult კი არა. ასეთ ისტორიაზე პროვაიდერი შეცდომას აბრუნებს. reducer tool-ის შეტყობინებებს მთლიანად იღებს და ამ პრობლემას გვერდს უვლის.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong><code>MEAI001</code>.</strong> reducer-ები Microsoft.Extensions.AI-ში ჯერ <strong>experimental</strong>-ად არის მონიშნული: API შეიძლება შეიცვალოს. compiler-ი შეცდომას აჩვენებს, სანამ <code>#pragma warning disable MEAI001</code>-ს (ან <code>.csproj</code>-ში <code>&lt;NoWarn&gt;MEAI001&lt;/NoWarn&gt;</code>) არ დავწერთ.</p></div></div>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IChatReducer</dt><dd>interface, რომელიც შეტყობინებების სიას ამცირებს, სანამ მოდელს გაეგზავნება</dd><dt>MessageCountingChatReducer</dt><dd>მზა reducer: ტოვებს ბოლო N შეტყობინებას და ამოყრის tool-ის შეტყობინებებს</dd><dt>Truncation</dt><dd>ძველი შეტყობინებების კონტექსტიდან ამოგდება</dd></dl></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>კლასის დავალება: შენი ჩატი ისტორიით</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>კლასში დავალება: შენი ჩატი — ისტორიით</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
-<p>შენი პროექტი ან RestaurantApi · კოდით · Swagger და ბაზა</p>
-<h3>ნაბიჯები</h3>
-<ul>
-<li><strong>1 · ცხრილი</strong> — <code>ChatMessageRecord</code> (<code>Id</code>, <code>ConversationId</code>, <code>Position</code>, <code>Role</code>, <code>Json</code> — <code>[Column(TypeName = "jsonb")]</code>, <code>CreatedAt</code>), <code>DbSet</code> <code>DataContext</code>-ში, migration</li>
-<li><strong>2 · store</strong> — <code>ChatHistoryStore</code>: <code>LoadAsync</code> და <code>AppendAsync</code>, JSON პარამეტრებით <code>new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true }</code>; <code>AddScoped</code> <code>Program.cs</code>-ში</li>
-<li><strong>3 · endpoint</strong> — <code>ChatRequest(Guid? ConversationId, string Prompt)</code>; <code>/chat</code>: ჩატვირთე → <code>[SystemPrompt(), .. history, question]</code> → <code>GetResponseAsync</code> → <code>AppendAsync([question, .. response.Messages])</code> → პასუხში <code>conversationId</code></li>
-<li><strong>4 · შემოწმება</strong> — Swagger-ში ორი შეკითხვა ერთი <code>conversationId</code>-ით, სადაც მეორე პირველის გარეშე გაუგებარია (მაგ. "And at 21:00?"); მერე ბაზაში <code>SELECT "Position", "Role", "Json" FROM "ChatMessages"</code></li>
-</ul>
-<h3>✓ მზადაა, როცა</h3>
-<p>მეორე შეკითხვას მოდელი პირველის გათვალისწინებით პასუხობს; ბაზაში ჩანს ყველა შეტყობინება რიგით, მათ შორის <code>assistant</code> (<code>functionCall</code>) და <code>tool</code> (<code>functionResult</code>) ხაზები</p>
-<h3>⭐ ბონუსი</h3>
-<ul>
-<li><code>MessageCountingChatReducer(4)</code> — და ჰკითხე რამე, რაც 3 შეკითხვის წინ თქვი. ახსოვს?</li>
-<li>jsonb-ში ძებნა: <code>SELECT "Json" FROM "ChatMessages" WHERE "Json" @&gt; '{"contents":[{"$type":"functionCall"}]}'</code> — რამდენჯერ გამოიძახა მოდელმა tool?</li>
-<li>პასუხში დაამატე <code>InputTokenCount</code> და ნახე, როგორ იზრდება ყოველ შეკითხვაზე</li>
-</ul>
-<h3>💡 თუ გაიჭედე</h3>
-<ul>
-<li><strong><code>Add-Migration</code> ვერ პოულობს?</strong> Package Manager Console-ში Default project — შენი API პროექტი; ან <code>dotnet ef migrations add ChatHistory</code></li>
-<li><strong><code>AIJsonUtilities</code> ვერ პოულობს?</strong> <code>using Microsoft.Extensions.AI;</code>; <code>JsonSerializer</code> — <code>using System.Text.Json;</code>; <code>[Column]</code> — <code>using System.ComponentModel.DataAnnotations.Schema;</code></li>
-<li><strong>წაკითხვისას <code>The metadata property is either not supported… or is not the first property</code>?</strong> <code>AllowOutOfOrderMetadataProperties = true</code> დაგავიწყდა</li>
-<li><strong>მეორე შეკითხვაზე ისევ „ახალი“ საუბარია?</strong> პირველი პასუხიდან <code>conversationId</code> დააკოპირე და მეორე მოთხოვნის body-ში ჩასვი</li>
-<li><strong>tool-ების გარეშე ჩატი გაქვს (ლექცია 4)?</strong> იმუშავებს: ბაზაში მხოლოდ <code>user</code> და <code>assistant</code> ხაზები იქნება</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>შეჯამება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/20" data-go="20" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 20</a></div>
-<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>მოდელს წინა შეკითხვა რატომ არ ახსოვს და როგორ „ვახსენებთ“?</summary><div class="ans">მოდელი stateless-ია: მხოლოდ ამ მოთხოვნას ხედავს · ისტორიას ყოველ მოთხოვნაში ჩვენ ვუგზავნით — მეხსიერება ჩვენს კოდშია, არა მოდელში</div></details><details><summary>რა შედის კონტექსტში და რომელი ნაწილი იზრდება ყველაზე სწრაფად?</summary><div class="ans">System + tool-ების აღწერები + ისტორია + tool-ების შედეგები + ახალი შეკითხვა · ხშირად tool-ების შედეგები (მაგ. მთელი მენიუ), რომლებიც ისტორიაში რჩება</div></details><details><summary>რატომ ვინახავთ მთელ <code>ChatMessage</code>-ს jsonb-ში და არა Text სვეტს?</summary><div class="ans"><code>Contents</code> სხვადასხვა ტიპისაა: ტექსტი, functionCall, functionResult, ფიქრის ხელმოწერა · <code>AIJsonUtilities.DefaultOptions</code> <code>$type</code>-ით ინახავს · jsonb key-ებს ალაგებს → <code>AllowOutOfOrderMetadataProperties</code></div></details><details><summary>რატომ არ ვინახავთ System prompt-ს ბაზაში?</summary><div class="ans">ის ჩვენია, არა საუბრის ნაწილი: შიგ დღევანდელი თარიღია და წესები შეიძლება შეიცვალოს · ყოველ მოთხოვნაზე ახლიდან ვაწყობთ და სიის თავში ვსვამთ</div></details><details><summary>რას აკეთებს <code>MessageCountingChatReducer(10)</code> და რა რჩება ბაზაში?</summary><div class="ans">კონტექსტში ბოლო 10 შეტყობინებას ტოვებს და tool-ის შეტყობინებებს ამოყრის · ბაზაში ყველაფერი რჩება · ფასს მოდელი tool-ით თავიდან იღებს</div></details></div></article><article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/21" data-go="21" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 21</a></div>
-<ul>
-<li>მოდელი <strong>stateless</strong>-ია. „მეხსიერება“ ისტორიაა, რომელსაც ყოველ მოთხოვნაში <strong>ჩვენ</strong> ვუგზავნით.</li>
-<li><strong>კონტექსტი</strong> ყველაფერია, რასაც მოდელი ერთ მოთხოვნაში ხედავს: System, tool-ების აღწერები, ისტორია, tool-ების შედეგები, ახალი შეკითხვა. ყველაზე დიდი ნაწილი ხშირად tool-ების შედეგებია.</li>
-<li><strong>Context engineering</strong> — იმის გადაწყვეტა, რა ჩავდოთ კონტექსტში, რა დავტოვოთ გარეთ და რა რიგით. სტრატეგიები: <strong>შერჩევა</strong>, <strong>შეკუმშვა</strong> (truncation, summarization), <strong>რიგი</strong>.</li>
-<li>ისტორია <strong>PostgreSQL</strong>-შია: ერთი ხაზი = ერთი <code>ChatMessage</code>, <code>ConversationId</code>-ით, მთელი შეტყობინება <strong>jsonb</strong>-ში (<code>AIJsonUtilities.DefaultOptions</code> + <code>AllowOutOfOrderMetadataProperties</code>). ვინახავთ <strong>ყველაფერს</strong>, tool-ების ჩათვლით.</li>
-<li><strong>System prompt</strong> ბაზაში არ ინახება: ის ჩვენია და ყოველ მოთხოვნაზე ახლიდან იწყობა.</li>
-<li><strong>ბაზაში ყველაფერი, კონტექსტში ნაწილი.</strong> <code>MessageCountingChatReducer</code> ბოლო N შეტყობინებას ტოვებს და tool-ის შეტყობინებებს ამოყრის; მოდელი საჭიროებისას tool-ს თავიდან იძახებს.</li>
-</ul>
-<h3>შემდეგ ლექციაზე</h3>
-<p>ჩატს ახლა ახსოვს, მაგრამ ყოველი შეკითხვა Gemini-ს რამდენიმე გამოძახებაა, და Gemini ზოგჯერ ცდება: 429 (ძალიან ბევრი მოთხოვნა), 503 (გადატვირთულია), timeout. ახლა ასეთ დროს მომხმარებელი 500-ს ხედავს. ლექცია 8-ზე: <strong>Error Handling, Resilience და ხარჯის კონტროლი</strong> — retry, timeout, fallback მოდელი და ტოკენების აღრიცხვა ბაზაში.</p></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>საშინაო დავალება: ისტორია სტრიმინგ ჩატში და ბიუჯეტი</h3><a class="chip" href="index.html#/22" data-go="22" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 22</a></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>reducer-ები ჯერ experimental-ია (<code>MEAI001</code>). <code>#pragma warning disable MEAI001</code> ან <code>.csproj</code>-ში <code>&lt;NoWarn&gt;</code>.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>მენიუ კონტექსტიდან ამოვარდა. ფასს მოდელი საიდან გაიგებს?</summary><div class="ans"><code>get_menu</code>-ს თავიდან გამოიძახებს. თანაც ახალ ფასს მიიღებს.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IChatReducer</dt><dd>interface, რომელიც შეტყობინებების სიას ამცირებს მოდელთან გაგზავნამდე</dd><dt>MessageCountingChatReducer</dt><dd>მზა reducer: ტოვებს ბოლო N შეტყობინებას</dd></dl></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 საშინაო</h2><div class="box task"><h3>ისტორია სტრიმინგ ჩატში და ბიუჯეტი</h3>
 <p>კოდით · შენი პროექტი · README-ში ცხრილი</p>
-<h3>მოთხოვნები</h3>
+<h4>მოთხოვნები</h4>
 <ul>
 <li><strong><code>/chat</code> ისტორიით</strong> შენს პროექტში: <code>ChatHistoryStore</code> (jsonb), <code>ChatRequest</code> <code>conversationId</code>-ით, ბაზაში ყველა შეტყობინება, System prompt — ბაზის გარეშე</li>
 <li><strong><code>GET /chat/stream</code> ისტორიით:</strong> პარამეტრები <code>Guid conversationId, string prompt</code> (id-ს კლიენტი ქმნის); iterator ჯერ ისტორიას ტვირთავს, ნაწილებს <code>yield return</code>-ით აგზავნის, <strong>სტრიმის ბოლოს</strong> კი <code>updates.ToChatResponse().Messages</code>-ს ინახავს</li>
 <li><strong>reducer:</strong> <code>MessageCountingChatReducer</code> ორივე endpoint-ში — ბაზაში ყველაფერი, კონტექსტში ბოლო N</li>
 <li><strong><code>GET /conversations/{id}</code></strong> — საუბარი UI-სთვის: მხოლოდ ტექსტიანი შეტყობინებები, <code>{ role, text }</code></li>
 <li><strong>README — ბიუჯეტის ცხრილი:</strong> ერთი საუბარი 6 შეკითხვით (2 მათგანზე tool-ი, რომელიც ბევრ მონაცემს აბრუნებს). სვეტები: შეკითხვა · InputTokenCount reducer-ის გარეშე · InputTokenCount <code>MessageCountingChatReducer(6)</code>-ით</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (10 კითხვა) — ქულა ჩაწერე</li>
+<li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
 </ul>
-<h3>✓ მზადაა, როცა</h3>
+<h4>✓ მზადაა, როცა</h4>
 <p><code>curl -N</code>-ით ორი შეკითხვა ერთი <code>conversationId</code>-ით — მეორე პირველის გათვალისწინებით; სტრიმის შემდეგ ბაზაში ახალი ხაზებია; <code>/conversations/{id}</code> tool-ის ხაზებს არ აჩვენებს; README-ში ცხრილი, სადაც reducer-ით ზრდა შეჩერებულია, და ტესტის ქულა</p>
-<h3>⭐ ბონუსი</h3>
+<h4>⭐ ბონუსი</h4>
 <ul>
 <li><strong>summarization:</strong> <code>SummarizingChatReducer(_chat, targetCount: 4, threshold: 2)</code> — ჰკითხე რამე, რაც 6 შეკითხვის წინ თქვი; ახსოვს? რას ხედავ ლოგში (<code>UseLogging</code>)?</li>
 <li><strong><code>Conversation</code> ცხრილი:</strong> <code>Id</code>, <code>Title</code>, <code>CreatedAt</code> — <code>Title</code> პირველი შეკითხვიდან (პირველი 40 სიმბოლო); <code>GET /conversations</code> სიით</li>
 <li><strong>გაუქმება:</strong> სტრიმის შუაში Ctrl+C — რა ინახება ბაზაში? რა უნდა ინახებოდეს?</li>
 </ul>
-<h3>💡 დეტალები</h3>
+<h4>💡 დეტალები</h4>
 <ul>
 <li><code>ToChatResponse()</code> — <code>using Microsoft.Extensions.AI;</code>; ნაწილები <code>List&lt;ChatResponseUpdate&gt;</code>-ში შეაგროვე <strong>და</strong> <code>yield return</code> გააკეთე, როგორც ლექცია 6-ის ⭐ TokenCounter-ში</li>
 <li>id-ს კლიენტი ქმნის: curl-ისთვის ნებისმიერი Guid (Visual Studio → Tools → Create GUID, ან PowerShell <code>[guid]::NewGuid()</code>); ბრაუზერში <code>crypto.randomUUID()</code></li>
 <li>iterator-ში <code>AppendAsync</code>-ს <code>cancellationToken</code> გადაეცი; გაუქმებისას ბოლო ხაზი არ შესრულდება — ეს ⭐-ის კითხვაა</li>
 <li>ცხრილისთვის <code>InputTokenCount</code> <code>/chat</code>-ის პასუხიდან აიღე; reducer-ის გარეშე ვერსია — ერთი ხაზის დაკომენტარებით</li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 სწორი · <span id="qd">0</span> / 10 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>მეორე შეკითხვაზე („და 21:00-ზე?“) მოდელმა არ იცის, რაზეა საუბარი. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini-ს მეხსიერება გადაივსო</button><button type="button" class="opt" data-i="1">მოდელი stateless-ია: მეორე მოთხოვნაში პირველი შეკითხვა არ იყო</button><button type="button" class="opt" data-i="2">Temperature ძალიან მაღალია</button><button type="button" class="opt" data-i="3">tool-ი არ გამოიძახა</button></div><div class="qe"><span class="verdict"></span> მოდელი მხოლოდ იმას ხედავს, რაც ამ მოთხოვნაში გავუგზავნეთ. ისტორიას ჩვენ ვაგზავნით. <a class="chip" href="#s-7">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>რა არის context engineering?</div></div><div class="opts"><button type="button" class="opt" data-i="0">System prompt-ის ლამაზად დაწერა</button><button type="button" class="opt" data-i="1">იმის გადაწყვეტა, რა ჩავდოთ მოდელის კონტექსტში ყოველ მოთხოვნაზე, რა დავტოვოთ გარეთ და რა რიგით</button><button type="button" class="opt" data-i="2">მოდელის ფაინ-ტიუნინგი</button><button type="button" class="opt" data-i="3">context window-ის გაზრდა</button></div><div class="qe"><span class="verdict"></span> Prompt engineering — როგორ დავწეროთ ინსტრუქცია; context engineering — რა მთლიანად მიდის ფანჯარაში. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">3</span><div>ჩვენს ჩატში კონტექსტის ყველაზე დიდი ნაწილი ხშირად რომელია?</div></div><div class="opts"><button type="button" class="opt" data-i="0">მომხმარებლის შეკითხვა</button><button type="button" class="opt" data-i="1">System prompt</button><button type="button" class="opt" data-i="2">tool-ების შედეგები, რომლებიც ისტორიაში რჩება (მაგ. მთელი მენიუ)</button><button type="button" class="opt" data-i="3">conversationId</button></div><div class="qe"><span class="verdict"></span> get_menu მთელ მენიუს აბრუნებს, და ისტორიაში დარჩენილი შედეგი ყოველ შემდეგ მოთხოვნას მიჰყვება. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>რატომ არ ვინახავთ ისტორიას Singleton სერვისის <code>Dictionary</code>-ში?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Dictionary ნელია</button><button type="button" class="opt" data-i="1">აპის რესტარტზე ქრება და ორ სერვერზე ერთ მომხმარებელს სხვადასხვა მეხსიერება ექნება</button><button type="button" class="opt" data-i="2">Singleton-ში Dictionary აკრძალულია</button><button type="button" class="opt" data-i="3">Gemini ვერ კითხულობს</button></div><div class="qe"><span class="verdict"></span> ბაზაში ისტორია რჩება და ყველა სერვერი ერთსა და იმავეს ხედავს. <a class="chip" href="#s-10">გაიმეორე · სლაიდი 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>რატომ ვინახავთ მთელ <code>ChatMessage</code>-ს ერთ jsonb სვეტში?</div></div><div class="opts"><button type="button" class="opt" data-i="0">jsonb ყველაზე პატარაა</button><button type="button" class="opt" data-i="1"><code>Contents</code> სხვადასხვა ტიპის ნაწილებია (ტექსტი, functionCall, functionResult…) — სვეტებად დაშლა ჩიხია</button><button type="button" class="opt" data-i="2">EF Core სხვა ტიპს ვერ ინახავს</button><button type="button" class="opt" data-i="3">Gemini JSON-ს მოითხოვს</button></div><div class="qe"><span class="verdict"></span> AIJsonUtilities.DefaultOptions ყოველ ნაწილს $type-ით წერს, რომ უკან სწორი ტიპი შეიქმნას. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>რისთვის გვჭირდება <code>AllowOutOfOrderMetadataProperties = true</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">JSON-ის შეკუმშვისთვის</button><button type="button" class="opt" data-i="1">jsonb key-ებს ალაგებს და <code>$type</code> აღარ არის პირველი — ამის გარეშე წაკითხვა exception-ს აგდებს</button><button type="button" class="opt" data-i="2">ქართული ტექსტისთვის</button><button type="button" class="opt" data-i="3">სიჩქარისთვის</button></div><div class="qe"><span class="verdict"></span> System.Text.Json ნაგულისხმევად ელოდება, რომ $type ობიექტში პირველი იყოს. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">7</span><div><code>/chat</code>-ში რას ვინახავთ <code>AppendAsync</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">მხოლოდ მოდელის საბოლოო ტექსტს</button><button type="button" class="opt" data-i="1">System prompt-ს, შეკითხვას და პასუხს</button><button type="button" class="opt" data-i="2">შეკითხვას და <code>response.Messages</code>-ს — tool-ის თხოვნას, შედეგს და პასუხს</button><button type="button" class="opt" data-i="3">მხოლოდ შეკითხვას</button></div><div class="qe"><span class="verdict"></span> ვინახავთ ყველაფერს, რაც საუბარში მოხდა. System prompt ჩვენია და ყოველ ჯერზე ახლიდან იწყობა. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>ერთ შეკითხვაზე, რომელზეც tool გამოიძახა, ბაზაში 4 ხაზი გაჩნდა. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ბაგია — უნდა იყოს 2</button><button type="button" class="opt" data-i="1">user → assistant (functionCall) → tool (functionResult) → assistant (ტექსტი): tool-ის ციკლის შეტყობინებები</button><button type="button" class="opt" data-i="2">jsonb ხაზებს ყოფს</button><button type="button" class="opt" data-i="3">Position ორჯერ ითვლება</button></div><div class="qe"><span class="verdict"></span> tool-ის ციკლი (ლექცია 4) შეტყობინებებით მუშაობს — ყველა response.Messages-შია. <a class="chip" href="#s-13">გაიმეორე · სლაიდი 13</a></div></div><div class="qq" data-answer="3"><div class="qt"><span class="qn">9</span><div>საუბრის ყოველ შეკითხვაზე InputTokenCount იზრდება. რა არ არის ამის შედეგი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ფასი იზრდება</button><button type="button" class="opt" data-i="1">პასუხი ნელდება</button><button type="button" class="opt" data-i="2">context window ადრე თუ გვიან ივსება</button><button type="button" class="opt" data-i="3">მოდელი ახალ რამეს სწავლობს და ჭკვიანდება</button></div><div class="qe"><span class="verdict"></span> მოდელი არაფერს სწავლობს (ლექცია 1) — უბრალოდ მეტს კითხულობს და ჩვენ მეტს ვიხდით. <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">10</span><div><code>MessageCountingChatReducer(10)</code>-ის შემდეგ ფასის შეკითხვაზე მოდელი რას აკეთებს, თუ მენიუ კონტექსტში აღარ არის?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ფასს იგონებს</button><button type="button" class="opt" data-i="1">ამბობს, რომ არ იცის</button><button type="button" class="opt" data-i="2"><code>get_menu</code>-ს თავიდან იძახებს და ახალ ფასს იღებს</button><button type="button" class="opt" data-i="3">ბაზიდან თვითონ კითხულობს</button></div><div class="qe"><span class="verdict"></span> reducer tool-ის შეტყობინებებს ამოყრის — მოდელი tool-ს საჭიროებისას თავიდან იძახებს, და ფასიც ახალია. <a class="chip" href="#s-18">გაიმეორე · სლაიდი 18</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>კონტექსტი (context)</dt><dd>ყველაფერი, რასაც მოდელი ერთ მოთხოვნაში ხედავს: ინსტრუქცია, tool-ები, ისტორია, tool-ების შედეგები, შეკითხვა</dd><dt>Context engineering</dt><dd>იმის გადაწყვეტა, რა ჩავდოთ კონტექსტში ყოველ მოთხოვნაზე, რა რიგით და რა დავტოვოთ გარეთ</dd><dt>jsonb</dt><dd>PostgreSQL-ის ტიპი JSON-ისთვის: ინახავს დამუშავებულ ფორმაში, შიგნით ძებნა შეუძლია</dd><dt>AIJsonUtilities.DefaultOptions</dt><dd>Microsoft.Extensions.AI-ის JSON პარამეტრები, რომლებმაც ChatMessage და AIContent-ის ყველა ტიპი იციან</dd><dt>$type</dt><dd>JSON-ში ველი, რომელიც ამბობს, რომელი C# ტიპი შეიქმნას (text, functionCall, functionResult…)</dd><dt>IChatReducer</dt><dd>interface, რომელიც შეტყობინებების სიას ამცირებს, სანამ მოდელს გაეგზავნება</dd><dt>MessageCountingChatReducer</dt><dd>მზა reducer: ტოვებს ბოლო N შეტყობინებას და ამოყრის tool-ის შეტყობინებებს</dd><dt>Truncation</dt><dd>ძველი შეტყობინებების კონტექსტიდან ამოგდება</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div><h2>📝 კლასის დავალება</h2><div class="box task"><h3>შენი ჩატი — ისტორიით</h3>
+<p>შენი პროექტი ან RestaurantApi · კოდით · Swagger და ბაზა</p>
+<h4>ნაბიჯები</h4>
+<ul>
+<li><strong>1 · ცხრილი</strong> — <code>ChatMessageRecord</code> (<code>Id</code>, <code>ConversationId</code>, <code>Position</code>, <code>Role</code>, <code>Json</code> — <code>[Column(TypeName = "jsonb")]</code>, <code>CreatedAt</code>), <code>DbSet</code> <code>DataContext</code>-ში, migration</li>
+<li><strong>2 · store</strong> — <code>ChatHistoryStore</code>: <code>LoadAsync</code> და <code>AppendAsync</code>, JSON პარამეტრებით <code>new(AIJsonUtilities.DefaultOptions) { AllowOutOfOrderMetadataProperties = true }</code>; <code>AddScoped</code> <code>Program.cs</code>-ში</li>
+<li><strong>3 · endpoint</strong> — <code>ChatRequest(Guid? ConversationId, string Prompt)</code>; <code>/chat</code>: ჩატვირთე → <code>[SystemPrompt(), .. history, question]</code> → <code>GetResponseAsync</code> → <code>AppendAsync([question, .. response.Messages])</code> → პასუხში <code>conversationId</code></li>
+<li><strong>4 · შემოწმება</strong> — Swagger-ში ორი შეკითხვა ერთი <code>conversationId</code>-ით, სადაც მეორე პირველის გარეშე გაუგებარია (მაგ. "And at 21:00?"); მერე ბაზაში <code>SELECT "Position", "Role", "Json" FROM "ChatMessages"</code></li>
+</ul>
+<h4>✓ მზადაა, როცა</h4>
+<p>მეორე შეკითხვას მოდელი პირველის გათვალისწინებით პასუხობს; ბაზაში ჩანს ყველა შეტყობინება რიგით, მათ შორის <code>assistant</code> (<code>functionCall</code>) და <code>tool</code> (<code>functionResult</code>) ხაზები</p>
+<h4>⭐ ბონუსი</h4>
+<ul>
+<li><code>MessageCountingChatReducer(4)</code> — და ჰკითხე რამე, რაც 3 შეკითხვის წინ თქვი. ახსოვს?</li>
+<li>jsonb-ში ძებნა: <code>SELECT "Json" FROM "ChatMessages" WHERE "Json" @&gt; '{"contents":[{"$type":"functionCall"}]}'</code> — რამდენჯერ გამოიძახა მოდელმა tool?</li>
+<li>პასუხში დაამატე <code>InputTokenCount</code> და ნახე, როგორ იზრდება ყოველ შეკითხვაზე</li>
+</ul>
+<h4>💡 თუ გაიჭედე</h4>
+<ul>
+<li><strong><code>Add-Migration</code> ვერ პოულობს?</strong> Package Manager Console-ში Default project — შენი API პროექტი; ან <code>dotnet ef migrations add ChatHistory</code></li>
+<li><strong><code>AIJsonUtilities</code> ვერ პოულობს?</strong> <code>using Microsoft.Extensions.AI;</code>; <code>JsonSerializer</code> — <code>using System.Text.Json;</code>; <code>[Column]</code> — <code>using System.ComponentModel.DataAnnotations.Schema;</code></li>
+<li><strong>წაკითხვისას <code>The metadata property is either not supported… or is not the first property</code>?</strong> <code>AllowOutOfOrderMetadataProperties = true</code> დაგავიწყდა</li>
+<li><strong>მეორე შეკითხვაზე ისევ „ახალი“ საუბარია?</strong> პირველი პასუხიდან <code>conversationId</code> დააკოპირე და მეორე მოთხოვნის body-ში ჩასვი</li>
+<li><strong>tool-ების გარეშე ჩატი გაქვს (ლექცია 4)?</strong> იმუშავებს: ბაზაში მხოლოდ <code>user</code> და <code>assistant</code> ხაზები იქნება</li>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">აირჩიე პასუხი და მაშინვე ნახავ, სწორია თუ არა და რატომ.</p><div class="qscore"><span id="qs">0</span> / 8 სწორი · <span id="qd">0</span> / 8 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>მეორე შეკითხვაზე („და 21:00-ზე?“) მოდელმა არ იცის, რაზეა საუბარი. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini-ს მეხსიერება გადაივსო</button><button type="button" class="opt" data-i="1">მოდელი stateless-ია: მეორე მოთხოვნაში პირველი შეკითხვა არ იყო</button><button type="button" class="opt" data-i="2">Temperature ძალიან მაღალია</button><button type="button" class="opt" data-i="3">tool-ი არ გამოიძახა</button></div><div class="qe"><span class="verdict"></span> მოდელი მხოლოდ იმას ხედავს, რაც ამ მოთხოვნაში გავუგზავნეთ. ისტორიას ჩვენ ვაგზავნით. <a class="chip" href="index.html#/7" target="_blank">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>რა არის context engineering?</div></div><div class="opts"><button type="button" class="opt" data-i="0">System prompt-ის ლამაზად დაწერა</button><button type="button" class="opt" data-i="1">იმის გადაწყვეტა, რა ჩავდოთ მოდელის კონტექსტში ყოველ მოთხოვნაზე, რა დავტოვოთ გარეთ და რა რიგით</button><button type="button" class="opt" data-i="2">მოდელის ფაინ-ტიუნინგი</button><button type="button" class="opt" data-i="3">context window-ის გაზრდა</button></div><div class="qe"><span class="verdict"></span> Prompt engineering — როგორ დავწეროთ ინსტრუქცია; context engineering — რა მთლიანად მიდის ფანჯარაში. <a class="chip" href="index.html#/8" target="_blank">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>რატომ არ ვინახავთ ისტორიას Singleton სერვისის <code>Dictionary</code>-ში?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Dictionary ნელია</button><button type="button" class="opt" data-i="1">აპის რესტარტზე ქრება და ორ სერვერზე ერთ მომხმარებელს სხვადასხვა მეხსიერება ექნება</button><button type="button" class="opt" data-i="2">Singleton-ში Dictionary აკრძალულია</button><button type="button" class="opt" data-i="3">Gemini ვერ კითხულობს</button></div><div class="qe"><span class="verdict"></span> ბაზაში ისტორია რჩება და ყველა სერვერი ერთსა და იმავეს ხედავს. <a class="chip" href="index.html#/10" target="_blank">გაიმეორე · სლაიდი 10</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>რატომ ვინახავთ მთელ <code>ChatMessage</code>-ს ერთ jsonb სვეტში?</div></div><div class="opts"><button type="button" class="opt" data-i="0">jsonb ყველაზე პატარაა</button><button type="button" class="opt" data-i="1"><code>Contents</code> სხვადასხვა ტიპის ნაწილებია (ტექსტი, functionCall, functionResult…) — სვეტებად დაშლა ჩიხია</button><button type="button" class="opt" data-i="2">EF Core სხვა ტიპს ვერ ინახავს</button><button type="button" class="opt" data-i="3">Gemini JSON-ს მოითხოვს</button></div><div class="qe"><span class="verdict"></span> AIJsonUtilities.DefaultOptions ყოველ ნაწილს $type-ით წერს, რომ უკან სწორი ტიპი შეიქმნას. <a class="chip" href="index.html#/11" target="_blank">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>რისთვის გვჭირდება <code>AllowOutOfOrderMetadataProperties = true</code>?</div></div><div class="opts"><button type="button" class="opt" data-i="0">JSON-ის შეკუმშვისთვის</button><button type="button" class="opt" data-i="1">jsonb key-ებს ალაგებს და <code>$type</code> აღარ არის პირველი — ამის გარეშე წაკითხვა exception-ს აგდებს</button><button type="button" class="opt" data-i="2">ქართული ტექსტისთვის</button><button type="button" class="opt" data-i="3">სიჩქარისთვის</button></div><div class="qe"><span class="verdict"></span> System.Text.Json ნაგულისხმევად ელოდება, რომ $type ობიექტში პირველი იყოს. <a class="chip" href="index.html#/11" target="_blank">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">6</span><div><code>/chat</code>-ში რას ვინახავთ <code>AppendAsync</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">მხოლოდ მოდელის საბოლოო ტექსტს</button><button type="button" class="opt" data-i="1">System prompt-ს, შეკითხვას და პასუხს</button><button type="button" class="opt" data-i="2">შეკითხვას და <code>response.Messages</code>-ს — tool-ის თხოვნას, შედეგს და პასუხს</button><button type="button" class="opt" data-i="3">მხოლოდ შეკითხვას</button></div><div class="qe"><span class="verdict"></span> ვინახავთ ყველაფერს, რაც საუბარში მოხდა. System prompt ჩვენია და ყოველ ჯერზე ახლიდან იწყობა. <a class="chip" href="index.html#/12" target="_blank">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="3"><div class="qt"><span class="qn">7</span><div>საუბრის ყოველ შეკითხვაზე InputTokenCount იზრდება. რა არ არის ამის შედეგი?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ფასი იზრდება</button><button type="button" class="opt" data-i="1">პასუხი ნელდება</button><button type="button" class="opt" data-i="2">context window ადრე თუ გვიან ივსება</button><button type="button" class="opt" data-i="3">მოდელი ახალ რამეს სწავლობს და ჭკვიანდება</button></div><div class="qe"><span class="verdict"></span> მოდელი არაფერს სწავლობს (ლექცია 1) — უბრალოდ მეტს კითხულობს და ჩვენ მეტს ვიხდით. <a class="chip" href="index.html#/16" target="_blank">გაიმეორე · სლაიდი 16</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">8</span><div><code>MessageCountingChatReducer(10)</code>-ის შემდეგ ფასის შეკითხვაზე მოდელი რას აკეთებს, თუ მენიუ კონტექსტში აღარ არის?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ფასს იგონებს</button><button type="button" class="opt" data-i="1">ამბობს, რომ არ იცის</button><button type="button" class="opt" data-i="2"><code>get_menu</code>-ს თავიდან იძახებს და ახალ ფასს იღებს</button><button type="button" class="opt" data-i="3">ბაზიდან თვითონ კითხულობს</button></div><div class="qe"><span class="verdict"></span> reducer tool-ის შეტყობინებებს ამოყრის — მოდელი tool-ს საჭიროებისას თავიდან იძახებს, და ფასიც ახალია. <a class="chip" href="index.html#/18" target="_blank">გაიმეორე · სლაიდი 18</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 7 — Context Engineering: კონტექსტისა და მეხსიერების მართვა";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "კოპირება", "copied": "✓ დაკოპირდა", "review": "გაიმეორე ეს კითხვები: ", "allright": "ყველაფერი სწორია! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -686,9 +319,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
-      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -702,16 +333,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>

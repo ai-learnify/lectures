@@ -9,7 +9,7 @@ With code · your project · a comparison table in the README
 - **The index:** `POST .../index` — your main records (dishes, books, courses…) with `GenerateAsync` in **one** call, the vectors in a Singleton; if a record has no description — add one
 - **The search:** `GET .../search?q=` — top 3 with scores, **with a threshold**: if the best score is below the threshold (the threshold in `appsettings.json`), return an empty list. Choose the threshold through your own tests
 - **README — a comparison table:** 5 questions (one in English, one about something that isn't in your data at all). Columns: question · the `LIKE` result · the embeddings top 3 with scores · correct?
-- The **quiz** at the end of the notes (10 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

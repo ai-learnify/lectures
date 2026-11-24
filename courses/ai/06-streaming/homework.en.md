@@ -8,7 +8,7 @@ With code · your project · a table in the README
 - **InputGuard with streaming:** add a `GetStreamingResponseAsync` override to lecture 5's guard layer — when it stops, **one** `ChatResponseUpdate` with the message and `yield break`, without Gemini
 - **README — a TTFT table:** 3 questions through `/chat/chunks`: short · long · with a tool. Columns: question · ms of the first piece · ms of the last piece · number of pieces
 - **README — cancellation:** Ctrl+C on a long answer → 3–5 lines of the server log showing the request was cancelled
-- The **quiz** at the end of the notes (11 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

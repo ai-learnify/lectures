@@ -67,16 +67,6 @@
 <span class="d">     at RestaurantApi.Controllers.AiLabController…</span>
 <span class="r">HTTP 500</span> → მომხმარებელს 😞</div>
   </div>
-  <aside class="study">
-## ლექცია 8: Error Handling, Resilience და ხარჯის კონტროლი
-
-ჩვენი ჩატი ისტორიას ინახავს, tool-ებს იძახებს და სტრიმავს. მაგრამ ყოველი შეკითხვა Gemini-ს ერთი ან რამდენიმე HTTP გამოძახებაა, და Gemini ზოგჯერ ცდება: **429** (ძალიან ბევრი მოთხოვნა), **503** (მოდელი გადატვირთულია), ან უბრალოდ დიდხანს არ პასუხობს. ახლა ასეთ დროს მომხმარებელი 500-ს ხედავს. დღეს ვარჩევთ, რომელი შეცდომა „გაივლის“ და რომელი არა, ვამატებთ **retry**-ს და **timeout**-ს, **სარეზერვო მოდელს**, და ვიწყებთ **ხარჯის აღრიცხვას** ბაზაში.
-  </aside>
-  <aside class="study-en">
-## Lecture 8: Error Handling, Resilience and Cost Control
-
-Our chat stores the history, calls tools and streams. But every question is one or more HTTP calls to Gemini, and Gemini sometimes fails: **429** (too many requests), **503** (the model is overloaded), or it just takes too long to answer. Right now the user sees a 500 when that happens. Today we sort out which errors “pass” and which don't, add **retry** and **timeout**, a **fallback model**, and start **recording the cost** in the database.
-  </aside>
 </section>
 
 <lecture-review/>
@@ -94,24 +84,6 @@ Our chat stores the history, calls tools and streams. But every question is one 
     <div class="stop" style="--a:var(--mvc)"><span class="sn">3</span><h3>🛟 fallback და ხარჯი</h3><p>Gemini არ პასუხობს? სხვა მოდელი. და ყოველი გამოძახების ტოკენები — ბაზაში</p><span class="from">DelegatingChatClient · AiUsage</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>ჩატი</b>, რომელიც 503-ს უძლებს და იცის, რა დაჯდა დღეს</div>
-  <aside class="study">
-### ლექციის გეგმა: 3 ნაბიჯი
-
-1. 🧯 **რა ფუჭდება.** AI გამოძახების შეცდომები სამ ჯგუფად: **დროებითი** (429, 503, timeout — თავიდან ცდა შველის), **მუდმივი** (400, 401, 404 — თავიდან ცდა არ შველის, კოდი ან კონფიგურაცია უნდა გასწორდეს) და **შინაარსის** (პასუხი მოვიდა, მაგრამ მოჭრილია ან JSON არასწორია).
-2. 🔁 **retry და timeout.** დროებით შეცდომაზე ვცდით თავიდან, მზარდი პაუზით. `Microsoft.Extensions.Http.Resilience` ამას ერთი ხაზით აკეთებს HttpClient-ის დონეზე. ცოცხლად ვნახავთ, როგორ „გადაურჩება“ მოთხოვნა ორ 503-ს.
-3. 🛟 **fallback და ხარჯი.** თუ retry არ შველის, სარეზერვო მოდელზე გადავდივართ. და ყოველი გამოძახების ტოკენებს ბაზაში ვწერთ, რომ ვიცოდეთ, რა დაჯდა დღეს.
-
-ბოლოს კლასის დავალებაა: ფენა, რომელიც დღიურ ლიმიტზე ჩატს აჩერებს.
-  </aside>
-  <aside class="study-en">
-### Lecture plan: 3 steps
-
-1. 🧯 **What breaks.** The errors of an AI call in three groups: **transient** (429, 503, timeout — trying again helps), **permanent** (400, 401, 404 — trying again doesn't help, the code or configuration has to be fixed) and **content** errors (an answer arrived, but it's cut off or the JSON is wrong).
-2. 🔁 **Retry and timeout.** On a transient error we try again, with a growing pause. `Microsoft.Extensions.Http.Resilience` does this in one line at the HttpClient level. We'll see live how a request “survives” two 503s.
-3. 🛟 **Fallback and cost.** If retry doesn't help, we switch to a fallback model. And we write the tokens of every call to the database, so we know what today cost.
-
-At the end there's classwork: a layer that stops the chat at a daily limit.
-  </aside>
 </section>
 
 <!-- ================= 1 · რა ფუჭდება ================= -->
@@ -122,16 +94,6 @@ At the end there's classwork: a layer that stops the chat at a daily limit.
     <p class="lead mt in" style="--d:.3s">დროებითი · მუდმივი · შინაარსის</p>
   </div>
   <div class="big-num">01</div>
-  <aside class="study">
-## ნაწილი 1 · რა ფუჭდება
-
-ჯერ ვნახავთ, რას ხედავს მომხმარებელი, როცა Gemini ცდება. მერე შეცდომებს ვალაგებთ ჯგუფებად: ყველა შეცდომაზე ერთი და იგივე რეაქცია არასწორია.
-  </aside>
-  <aside class="study-en">
-## Part 1 · What breaks
-
-First we see what the user sees when Gemini fails. Then we sort the errors into groups: reacting the same way to every error is wrong.
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · რა ფუჭდება">
@@ -164,34 +126,6 @@ First we see what the user sees when Gemini fails. Then we sort the errors into 
       <div class="callout step" data-with style="--a:var(--mvc);font-size:19px">რამდენიმე წამში <b>თავიდან</b> ვცდით. ზუსტად ამას ვასწავლით კოდს</div>
     </div>
   </div>
-  <aside class="study">
-### პრობლემა: Gemini ზოგჯერ ცდება
-
-ორი ტიპური პასუხი, რომელსაც Gemini ნებისმიერ დღეს დააბრუნებს:
-
-| კოდი | სტატუსი | რას ნიშნავს |
-|---|---|---|
-| **503** | `UNAVAILABLE` | "The model is overloaded, try again later" — Google-ის მხარეს ძალიან ბევრი მოთხოვნაა |
-| **429** | `RESOURCE_EXHAUSTED` | **ჩვენი** ლიმიტი ამოიწურა: წუთში მოთხოვნების ან ტოკენების რაოდენობა (უფასო key-ზე ლიმიტი პატარაა) |
-
-Google.GenAI ასეთ პასუხზე exception-ს აგდებს: **`ServerError`** (5xx) ან **`ClientError`** (4xx). ორივე **`ApiException`**-ია, `StatusCode` თვისებით. ჩვენ მას არ ვიჭერთ, ამიტომ ASP.NET Core მომხმარებელს **500**-ს უბრუნებს. თანაც, ლექცია 7-ის `/chat`-ში `AppendAsync` პასუხის **შემდეგაა**, ამიტომ შეკითხვაც იკარგება.
-
-**ეს ჩვენი ბაგი არ არის**: გარე სერვისი ზოგჯერ ცდება, ქსელი წყდება. ეს აუცილებლად მოხდება. მაგრამ **რეაქცია ჩვენია**. ადამიანი ასეთ დროს რამდენიმე წამს დაიცდიდა და თავიდან სცდიდა: ზუსტად ამას ვასწავლით კოდს.
-  </aside>
-  <aside class="study-en">
-### The problem: Gemini sometimes fails
-
-Two typical responses that Gemini will return on any given day:
-
-| Code | Status | What it means |
-|---|---|---|
-| **503** | `UNAVAILABLE` | “The model is overloaded, please try again later” — too many requests on Google's side |
-| **429** | `RESOURCE_EXHAUSTED` | **our** limit ran out: the number of requests or tokens per minute (the limit is small on a free key) |
-
-On such a response Google.GenAI throws an exception: **`ServerError`** (5xx) or **`ClientError`** (4xx). Both are **`ApiException`**s, with a `StatusCode` property. We don't catch it, so ASP.NET Core returns a **500** to the user. On top of that, in lecture 7's `/chat` the `AppendAsync` comes **after** the answer, so the question is lost too.
-
-**This isn't our bug**: an external service sometimes fails, the network drops. It will definitely happen. But **the reaction is ours**. A person would wait a few seconds and try again: that's exactly what we teach the code.
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · რა ფუჭდება">
@@ -208,50 +142,6 @@ On such a response Google.GenAI throws an exception: **`ServerError`** (5xx) or 
   </table>
   <div class="callout ask mt step">🙋 401-ზე (არასწორი key) 5-ჯერ თავიდან ცდა <b>რას</b> მოგვცემს?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 არაფერს — key იგივეა, შეცდომაც იგივე. retry მხოლოდ დროებით შეცდომებზე შველის</div>
-  <aside class="study">
-### შეცდომების რუკა: სამი ჯგუფი
-
-| რა მოხდა | რას ნიშნავს | ჯგუფი | რას ვაკეთებთ |
-|---|---|---|---|
-| **429** | ლიმიტი: ძალიან ბევრი მოთხოვნა ან ტოკენი წუთში | დროებითი | ვიცდით (თუ პასუხში `Retry-After` წერია — ზუსტად იმდენს) და თავიდან ვცდით |
-| **500 · 503** | Gemini გადატვირთულია ან შიდა შეცდომაა | დროებითი | retry; თუ არ გამოვიდა — სარეზერვო მოდელი |
-| **timeout** | პასუხი დიდხანს არ მოდის, ქსელი წყდება | დროებითი | დროის ლიმიტი და retry |
-| **400 · 401 · 403 · 404** | არასწორი მოთხოვნა, key, უფლება ან მოდელის სახელი | მუდმივი | retry **არა**: იგივე მოთხოვნა იგივე შეცდომას მოიტანს. ლოგი და გასწორება |
-| **FinishReason = length · ცუდი JSON** | პასუხი მოვიდა, მაგრამ მოჭრილია ან სქემას არ ემთხვევა | შინაარსის | კოდში: `MaxOutputTokens`-ის მარაგი (ლექცია 2), `TryGetResult` (ლექცია 3) |
-| **tool exception** | ჩვენი C# მეთოდი ჩავარდა | შინაარსის | `FunctionInvokingChatClient` შეცდომას მოდელს უბრუნებს, მოდელი პასუხს ისე წერს |
-
-**მთავარი წესი: retry მხოლოდ დროებით შეცდომაზე.** 401-ზე (არასწორი key) ხუთჯერ თავიდან ცდა ხუთ 401-ს მოგვცემს და მომხმარებელს დრო დაეკარგება. 400-ზე იგივე: მოთხოვნა არასწორია და ასეთივე დარჩება.
-
-**შინაარსის შეცდომები HTTP-ის დონეზე არ ჩანს:** სტატუსი 200-ია, პასუხი მოვიდა. მათ ჩვენი კოდი ამოწმებს: ლექცია 3-ის `TryGetResult` (თუ JSON სქემას არ ემთხვევა, exception-ის ნაცვლად `false`), `FinishReason`-ის შემოწმება.
-
-```terms
-დროებითი შეცდომა (transient) — შეცდომა, რომელიც თავიდან ცდისას შეიძლება აღარ განმეორდეს: 429, 5xx, timeout, ქსელი
-მუდმივი შეცდომა — თავიდან ცდა არ შველის: არასწორი მოთხოვნა, key, უფლება, მოდელის სახელი (4xx, 429-ის გარდა)
-ApiException — Google.GenAI-ის შეცდომა StatusCode-ით: ClientError (4xx) და ServerError (5xx)
-```
-  </aside>
-  <aside class="study-en">
-### The error map: three groups
-
-| What happened | What it means | Group | What we do |
-|---|---|---|---|
-| **429** | A limit: too many requests or tokens per minute | transient | we wait (if the response says `Retry-After` — exactly that long) and try again |
-| **500 · 503** | Gemini is overloaded or has an internal error | transient | retry; if it doesn't work — a fallback model |
-| **timeout** | The answer takes too long, the network drops | transient | a time limit and retry |
-| **400 · 401 · 403 · 404** | A wrong request, key, permission or model name | permanent | **no** retry: the same request brings the same error. Log it and fix it |
-| **FinishReason = length · bad JSON** | An answer arrived, but it's cut off or doesn't match the schema | content | in code: headroom in `MaxOutputTokens` (lecture 2), `TryGetResult` (lecture 3) |
-| **tool exception** | Our C# method failed | content | `FunctionInvokingChatClient` returns the error to the model, and the model writes the answer anyway |
-
-**The main rule: retry only on a transient error.** On a 401 (wrong key), trying again five times gives five 401s and wastes the user's time. Same with a 400: the request is wrong and will stay wrong.
-
-**Content errors don't show at the HTTP level:** the status is 200, an answer arrived. Our code checks them: lecture 3's `TryGetResult` (if the JSON doesn't match the schema, `false` instead of an exception), checking the `FinishReason`.
-
-```terms
-Transient error — an error that may not repeat on another try: 429, 5xx, timeout, the network
-Permanent error — trying again doesn't help: a wrong request, key, permission, model name (4xx, except 429)
-ApiException — a Google.GenAI error with a StatusCode: ClientError (4xx) and ServerError (5xx)
-```
-  </aside>
 </section>
 
 <!-- ================= 2 · retry ================= -->
@@ -262,16 +152,6 @@ ApiException — a Google.GenAI error with a StatusCode: ClientError (4xx) and S
     <p class="lead mt in" style="--d:.3s">backoff · jitter · Retry-After · timeout · circuit breaker</p>
   </div>
   <div class="big-num">02</div>
-  <aside class="study">
-## ნაწილი 2 · retry და timeout
-
-თავიდან ცდა მარტივად ჟღერს, მაგრამ არასწორი retry პრობლემას აუარესებს. ვნახავთ, როგორ ცდიან თავიდან სწორად, ვამატებთ ამას ერთი პაკეტით და ცოცხლად ვამოწმებთ.
-  </aside>
-  <aside class="study-en">
-## Part 2 · Retry and timeout
-
-Trying again sounds simple, but a wrong retry makes the problem worse. We see how to retry properly, add it with one package and check it live.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · retry">
@@ -292,44 +172,6 @@ Trying again sounds simple, but a wrong retry makes the problem worse. We see ho
   </div>
   <div class="callout ask mt step">🙋 რატომ არა უბრალოდ <b>10-ჯერ ზედიზედ</b>, პაუზის გარეშე?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 გადატვირთულ სერვისს კიდევ უფრო ვტვირთავთ და 429-ს ვიღებთ — ამიტომ backoff და jitter</div>
-  <aside class="study">
-### retry სწორად: backoff, jitter, Retry-After, circuit breaker
-
-გულუბრყვილო retry — „ჩავარდა? მაშინვე თავიდან, 10-ჯერ“ — პრობლემას **აუარესებს**: Gemini გადატვირთულია, ჩვენ კი მას კიდევ უფრო მეტ მოთხოვნას ვუგზავნით, და ათასი კლიენტი ერთსა და იმავე წამში აკეთებს იგივეს. სწორი retry-ს ოთხი ნაწილი აქვს:
-
-| ნაწილი | რას აკეთებს |
-|---|---|
-| 📈 **exponential backoff** | ყოველ ცდამდე მეტს ვიცდით: ~2 → ~4 → ~8 წამი. სერვისს „ამოსუნთქვის“ დრო ეძლევა |
-| 🎲 **jitter** | პაუზას შემთხვევითი ნაწილი ემატება (2.3 წმ, 1.8 წმ…). ათასი კლიენტი ერთსა და იმავე მომენტში აღარ ცდის თავიდან |
-| ⏰ **Retry-After · timeout** | 429-ზე სერვერი ხშირად გვეუბნება, რამდენი ვიცადოთ (`Retry-After` header). და თითო ცდას დროის ლიმიტი აქვს: თუ პასუხი 40 წამში არ მოვიდა, ცდა ჩავარდნილად ითვლება |
-| 🔌 **circuit breaker** | თუ ბოლო პერიოდში ცდების დიდი ნაწილი ჩავარდა, „ჩამრთველი“ ითიშება: რამდენიმე წამი Gemini-ს საერთოდ არ ვიძახებთ და მაშინვე შეცდომას ვაბრუნებთ. სერვისი ისვენებს, მომხმარებელი ტყუილად არ ელოდება |
-
-```terms
-Retry — ჩავარდნილი მოთხოვნის თავიდან გაგზავნა დროებით შეცდომაზე
-Exponential backoff — retry-ებს შორის მზარდი პაუზა (2, 4, 8… წამი)
-Jitter — პაუზის შემთხვევითი ნაწილი, რომ ბევრმა კლიენტმა ერთდროულად არ სცადოს
-Circuit breaker — „ჩამრთველი“: ბევრი ჩავარდნის შემდეგ გამოძახებებს დროებით წყვეტს
-```
-  </aside>
-  <aside class="study-en">
-### Retry done right: backoff, jitter, Retry-After, circuit breaker
-
-A naive retry — “it failed? try again immediately, 10 times” — makes the problem **worse**: Gemini is overloaded, and we send it even more requests, while a thousand clients do the same in the same second. A proper retry has four parts:
-
-| Part | What it does |
-|---|---|
-| 📈 **exponential backoff** | we wait longer before every attempt: ~2 → ~4 → ~8 seconds. The service gets time to “catch its breath” |
-| 🎲 **jitter** | a random part is added to the pause (2.3 s, 1.8 s…). A thousand clients no longer retry at the same moment |
-| ⏰ **Retry-After · timeout** | on a 429 the server often tells us how long to wait (the `Retry-After` header). And each attempt has a time limit: if the answer doesn't arrive in 40 seconds, the attempt counts as failed |
-| 🔌 **circuit breaker** | if a large share of recent attempts failed, the “breaker” trips: for a few seconds we don't call Gemini at all and return an error right away. The service rests, the user doesn't wait for nothing |
-
-```terms
-Retry — sending a failed request again on a transient error
-Exponential backoff — a growing pause between retries (2, 4, 8… seconds)
-Jitter — a random part of the pause, so many clients don't retry at the same time
-Circuit breaker — a “breaker”: after many failures it temporarily stops the calls
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · retry">
@@ -369,102 +211,6 @@ builder.Services.AddChatClient(sp =>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 არაფერი — resilience HttpClient-ის დონეზეა, Controller ისევ IChatClient-ს იყენებს</div>
     </div>
   </div>
-  <aside class="study">
-### `AddStandardResilienceHandler`: retry, timeout და circuit breaker HttpClient-ზე
-
-`dotnet add package Microsoft.Extensions.Http.Resilience` — Microsoft-ის პაკეტი (Polly-ზე დაფუძნებული), რომელიც `IHttpClientFactory`-ის client-ს მზა „resilience pipeline“-ს ამატებს:
-
-```csharp Program.cs
-builder.Services.AddHttpClient("gemini")
-    .AddStandardResilienceHandler(o =>
-    {
-        o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(40);   // an LLM is slow
-        o.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(90);
-        o.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(90);
-    });
-
-builder.Services.AddChatClient(sp =>
-    {
-        IHttpClientFactory http = sp.GetRequiredService<IHttpClientFactory>();
-        Client gemini = new(
-            apiKey: apiKey,
-            httpOptions: new HttpOptions { RetryOptions = new HttpRetryOptions { Attempts = 1 } },
-            clientOptions: new ClientOptions { HttpClientFactory = () => http.CreateClient("gemini") });
-        return gemini.AsIChatClient(model);
-    })
-    .Use(inner => new InputGuardChatClient(inner))
-    .UseFunctionInvocation()
-    // ... the other layers — as before
-```
-
-**რას შეიცავს „standard“ pipeline:**
-
-| ნაწილი | ნაგულისხმევად | ჩვენთან |
-|---|---|---|
-| **Retry** | 3 retry, exponential backoff + jitter, `Retry-After`-ს ითვალისწინებს; 408, 429, 5xx და ქსელის შეცდომებზე | უცვლელი |
-| **AttemptTimeout** | 10 წმ ერთ ცდაზე | **40 წმ** — Gemini ფიქრობს და გრძელ პასუხს წერს |
-| **TotalRequestTimeout** | 30 წმ ყველა ცდაზე ერთად | **90 წმ** |
-| **CircuitBreaker** | ბევრი ჩავარდნისას რამდენიმე წამით წყვეტს | `SamplingDuration` ≥ 2 × AttemptTimeout უნდა იყოს (validation) → 90 |
-
-**რატომ ვთიშავთ SDK-ის retry-ს?** Google.GenAI-ს თავისი retry აქვს (`HttpRetryOptions`). ორი retry ერთმანეთში რომ დარჩეს, ერთ შეკითხვაზე 4 × 4 = 16 ცდა გამოვა, და მომხმარებელი წუთობით დაელოდება. retry **ერთ** ადგილას უნდა იყოს. `Attempts = 1` ნიშნავს „მხოლოდ თავდაპირველი მოთხოვნა, retry-ს გარეშე“.
-
-**`ClientOptions.HttpClientFactory`** — SDK-ს ვეუბნებით, რომ HTTP მოთხოვნები **ჩვენი** `HttpClient`-ით გააგზავნოს, რომელსაც resilience pipeline აქვს. `AddChatClient(sp => …)` — factory ვერსია, რომ DI-დან `IHttpClientFactory` ავიღოთ.
-
-**Controller-ები არ შეცვლილა.** retry HTTP-ის დონეზე ხდება, `IChatClient`-ის შიგნით. tool-ის ციკლში Gemini-ს თითოეულ მოთხოვნას თავისი retry აქვს.
-
-```terms
-Microsoft.Extensions.Http.Resilience — პაკეტი, რომელიც HttpClient-ს retry-ს, timeout-ს და circuit breaker-ს ამატებს (Polly-ზე დაფუძნებული)
-AddStandardResilienceHandler — მზა pipeline რეკომენდებული პარამეტრებით
-```
-  </aside>
-  <aside class="study-en">
-### `AddStandardResilienceHandler`: retry, timeout and circuit breaker on the HttpClient
-
-`dotnet add package Microsoft.Extensions.Http.Resilience` — a Microsoft package (built on Polly) that adds a ready-made “resilience pipeline” to an `IHttpClientFactory` client:
-
-```csharp Program.cs
-builder.Services.AddHttpClient("gemini")
-    .AddStandardResilienceHandler(o =>
-    {
-        o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(40);   // an LLM is slow
-        o.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(90);
-        o.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(90);
-    });
-
-builder.Services.AddChatClient(sp =>
-    {
-        IHttpClientFactory http = sp.GetRequiredService<IHttpClientFactory>();
-        Client gemini = new(
-            apiKey: apiKey,
-            httpOptions: new HttpOptions { RetryOptions = new HttpRetryOptions { Attempts = 1 } },
-            clientOptions: new ClientOptions { HttpClientFactory = () => http.CreateClient("gemini") });
-        return gemini.AsIChatClient(model);
-    })
-    .Use(inner => new InputGuardChatClient(inner))
-    .UseFunctionInvocation()
-    // ... the other layers — as before
-```
-
-**What the “standard” pipeline contains:**
-
-| Part | By default | Ours |
-|---|---|---|
-| **Retry** | 3 retries, exponential backoff + jitter, respects `Retry-After`; on 408, 429, 5xx and network errors | unchanged |
-| **AttemptTimeout** | 10 s per attempt | **40 s** — Gemini thinks and writes long answers |
-| **TotalRequestTimeout** | 30 s for all attempts together | **90 s** |
-| **CircuitBreaker** | stops for a few seconds on many failures | `SamplingDuration` must be ≥ 2 × AttemptTimeout (validation) → 90 |
-
-**Why do we turn off the SDK's retry?** Google.GenAI has its own retry (`HttpRetryOptions`). If two retries stayed nested, one question would make 4 × 4 = 16 attempts, and the user would wait for minutes. Retry must be in **one** place. `Attempts = 1` means “only the original request, no retries”.
-
-**`ClientOptions.HttpClientFactory`** — we tell the SDK to send its HTTP requests with **our** `HttpClient`, the one with the resilience pipeline. `AddChatClient(sp => …)` — the factory version, so we can take `IHttpClientFactory` from DI.
-
-**The Controllers haven't changed.** Retry happens at the HTTP level, inside `IChatClient`. In the tool loop, every Gemini request has its own retry.
-
-```terms
-Microsoft.Extensions.Http.Resilience — a package that adds retry, timeout and a circuit breaker to an HttpClient (built on Polly)
-AddStandardResilienceHandler — a ready-made pipeline with recommended settings
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · retry">
@@ -506,86 +252,6 @@ public class ChaosHandler : DelegatingHandler
       <div class="callout step" data-with style="--a:var(--red);font-size:18px"><b>ერთხელ</b>: 404 მუდმივია, retry არ ხდება</div>
     </div>
   </div>
-  <aside class="study">
-### ვამოწმებთ: ხელოვნური 503
-
-Gemini-ს 503 ბრძანებით ვერ გამოვიწვევთ, ამიტომ ცდისთვის **საკუთარ handler-ს** ვწერთ, რომელიც ყოველი სამი მოთხოვნიდან პირველ ორზე 503-ს აბრუნებს, Gemini-მდე მისვლის გარეშე:
-
-```csharp Ai/ChaosHandler.cs · მხოლოდ ცდისთვის
-public class ChaosHandler : DelegatingHandler
-{
-    private int _count;
-
-    protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request, CancellationToken ct)
-    {
-        // the first two of every 3 → 503
-        if (Interlocked.Increment(ref _count) % 3 != 0)
-            return Task.FromResult(
-                new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
-
-        return base.SendAsync(request, ct);
-    }
-}
-```
-
-```csharp Program.cs · მხოლოდ ცდისთვის
-builder.Services.AddTransient<ChaosHandler>();
-builder.Services.AddHttpClient("gemini")
-    .AddStandardResilienceHandler(/* ... */)
-    .AddHttpMessageHandler<ChaosHandler>();   // inside, close to the network
-```
-
-`DelegatingHandler` — HttpClient-ის „ფენა“, ზუსტად ისე, როგორც `DelegatingChatClient` (ლექცია 5), ოღონდ HTTP-ის დონეზე. რიგი: **პირველი დამატებული — გარეთ**. resilience გარეთაა, `ChaosHandler` შიგნით: retry ხედავს 503-ს და თავიდან ცდის.
-
-**შედეგი ლოგში:** ორი 503, პაუზები ~2 და ~4 წამი, მესამე ცდა — 200. მომხმარებელი ~6 წამს ელოდება, მაგრამ 500-ის ნაცვლად პასუხს იღებს.
-
-**მუდმივი შეცდომის ცდა:** `appsettings.json`-ში `Gemini:Model`-ს შეუცვალე სახელი (მაგ. `gemini-0`) → Gemini 404-ს აბრუნებს → **ერთი** ცდა, retry არ ხდება. ესაა სწორი ქცევა.
-
-```warn
-`ChaosHandler` მხოლოდ ცდისთვისაა: მერე `Program.cs`-იდან ამოიღე (ან `if (builder.Environment.IsDevelopment())`-ში ჩასვი).
-```
-  </aside>
-  <aside class="study-en">
-### Checking it: an artificial 503
-
-We can't make Gemini return a 503 on command, so for the test we write **our own handler** that returns a 503 on the first two of every three requests, without reaching Gemini:
-
-```csharp Ai/ChaosHandler.cs · for testing only
-public class ChaosHandler : DelegatingHandler
-{
-    private int _count;
-
-    protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request, CancellationToken ct)
-    {
-        // the first two of every 3 → 503
-        if (Interlocked.Increment(ref _count) % 3 != 0)
-            return Task.FromResult(
-                new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
-
-        return base.SendAsync(request, ct);
-    }
-}
-```
-
-```csharp Program.cs · for testing only
-builder.Services.AddTransient<ChaosHandler>();
-builder.Services.AddHttpClient("gemini")
-    .AddStandardResilienceHandler(/* ... */)
-    .AddHttpMessageHandler<ChaosHandler>();   // inside, close to the network
-```
-
-`DelegatingHandler` — a “layer” of the HttpClient, exactly like `DelegatingChatClient` (lecture 5), but at the HTTP level. The order: **the first one added is outside**. Resilience is outside, `ChaosHandler` inside: the retry sees the 503 and tries again.
-
-**The result in the log:** two 503s, pauses of ~2 and ~4 seconds, the third attempt — 200. The user waits ~6 seconds but gets an answer instead of a 500.
-
-**Testing a permanent error:** change the name in `appsettings.json` under `Gemini:Model` (e.g. `gemini-0`) → Gemini returns a 404 → **one** attempt, no retry. That's the right behaviour.
-
-```warn
-`ChaosHandler` is only for testing: remove it from `Program.cs` afterwards (or put it inside `if (builder.Environment.IsDevelopment())`).
-```
-  </aside>
 </section>
 
 <section class="slide divider" data-section="შესვენება">
@@ -605,16 +271,6 @@ builder.Services.AddHttpClient("gemini")
     <p class="lead mt in" style="--d:.3s">fallback მოდელი · ტოკენები ბაზაში · რა დაჯდა დღეს</p>
   </div>
   <div class="big-num">03</div>
-  <aside class="study">
-## ნაწილი 3 · fallback და ხარჯი
-
-retry ყოველთვის არ შველის: თუ Gemini-ს მოდელი 5 წუთია გადატვირთულია, სამი ცდაც ჩავარდება. ასეთ დროს სხვა მოდელზე გადავდივართ. და რადგან ერთი შეკითხვა რამდენიმე გამოძახებაა (tool-ები, retry, fallback), ყოველი გამოძახების ტოკენებს ბაზაში ვწერთ, რომ ვიცოდეთ, რა დაჯდა.
-  </aside>
-  <aside class="study-en">
-## Part 3 · Fallback and cost
-
-Retry doesn't always help: if a Gemini model has been overloaded for 5 minutes, all three attempts will fail. Then we switch to another model. And since one question is several calls (tools, retries, fallback), we write the tokens of every call to the database, so we know what it cost.
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · fallback და ხარჯი">
@@ -670,144 +326,6 @@ public class FallbackChatClient : DelegatingChatClient
       <div class="callout step" data-with style="--a:var(--net);font-size:17px">სხვა <b>პროვაიდერი</b>: იგივე IChatClient — ლექცია 3-ის „ერთი ხაზი“</div>
     </div>
   </div>
-  <aside class="study">
-### `FallbackChatClient`: retry არ შველის → სხვა მოდელი
-
-ლექცია 5-ის `DelegatingChatClient` — ახლა ფენა, რომელიც **შეცდომას იჭერს**:
-
-```csharp Ai/FallbackChatClient.cs
-public class FallbackChatClient : DelegatingChatClient
-{
-    private readonly IChatClient _fallback;
-    private readonly ILogger<FallbackChatClient> _logger;
-
-    public FallbackChatClient(IChatClient inner, IChatClient fallback,
-        ILogger<FallbackChatClient> logger) : base(inner)
-    {
-        _fallback = fallback;
-        _logger = logger;
-    }
-
-    public override async Task<ChatResponse> GetResponseAsync(
-        IEnumerable<ChatMessage> messages, ChatOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            return await base.GetResponseAsync(messages, options, cancellationToken);
-        }
-        catch (Exception ex) when (IsTransient(ex))
-        {
-            _logger.LogWarning("🛟 {Error} — fallback model", ex.Message);
-            return await _fallback.GetResponseAsync(messages, options, cancellationToken);
-        }
-    }
-
-    private static bool IsTransient(Exception ex) => ex switch
-    {
-        ApiException api => api.StatusCode is 429 or >= 500,
-        HttpRequestException or TimeoutRejectedException => true,
-        _ => false
-    };
-}
-```
-
-- **`catch … when (IsTransient(ex))`** — exception filter: ვიჭერთ **მხოლოდ** დროებით შეცდომას. მუდმივი (400, 401, 404) გადის ზევით: fallback-იც იგივე key-ს და იგივე მოთხოვნას იყენებს და იგივე შეცდომას მოიტანს.
-- **`IsTransient`** — `ApiException` (Google.GenAI, 429 ან 5xx), `HttpRequestException` (ქსელი) ან `TimeoutRejectedException` (resilience-ის timeout, `using Polly.Timeout;`). რიგი მნიშვნელოვანია: `ApiException` თვითონაც `HttpRequestException`-ია, ამიტომ პირველი უნდა იყოს. `OperationCanceledException` (მომხმარებელი წავიდა) აქ არ ხვდება — სწორია.
-
-**რეგისტრაცია:** fallback ყველაზე **შიგნითაა**, Gemini-სთან ყველაზე ახლოს. ასე tool-ის ციკლის თითოეულ მოთხოვნას თავისი fallback აქვს:
-
-```csharp Program.cs
-IChatClient fallback = new Client(apiKey: apiKey)
-    .AsIChatClient(builder.Configuration["Gemini:FallbackModel"]!);
-
-builder.Services.AddChatClient(sp => /* gemini — as on slide 11 */)
-    .Use(inner => new InputGuardChatClient(inner))
-    .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(inner, /* ... */))
-    .UseLogging()
-    .Use((inner, sp) => new FallbackChatClient(inner, fallback,
-        sp.GetRequiredService<ILogger<FallbackChatClient>>()));
-```
-
-`appsettings.json`-ში: `"Gemini": { "Model": "...", "FallbackModel": "..." }` — სხვა, ჩვეულებრივ უფრო მსუბუქი მოდელი (მიმდინარე სახელები: Gemini-ს მოდელების სია).
-
-**Gemini მთლიანად რომ იყოს გათიშული?** fallback **სხვა პროვაიდერიც** შეიძლება იყოს (OpenAI, Groq…): ისიც `IChatClient`-ია (ლექცია 3: პროვაიდერის შეცვლა = ერთი ხაზი). production-ში ხშირად ასე აკეთებენ.
-
-```terms
-Fallback — სარეზერვო ვარიანტი: თუ მთავარი სერვისი არ პასუხობს, მოთხოვნა სხვაზე გადადის
-Exception filter (catch … when) — catch, რომელიც exception-ს მხოლოდ პირობის შესრულებისას იჭერს
-```
-  </aside>
-  <aside class="study-en">
-### `FallbackChatClient`: retry doesn't help → another model
-
-Lecture 5's `DelegatingChatClient` — now a layer that **catches an error**:
-
-```csharp Ai/FallbackChatClient.cs
-public class FallbackChatClient : DelegatingChatClient
-{
-    private readonly IChatClient _fallback;
-    private readonly ILogger<FallbackChatClient> _logger;
-
-    public FallbackChatClient(IChatClient inner, IChatClient fallback,
-        ILogger<FallbackChatClient> logger) : base(inner)
-    {
-        _fallback = fallback;
-        _logger = logger;
-    }
-
-    public override async Task<ChatResponse> GetResponseAsync(
-        IEnumerable<ChatMessage> messages, ChatOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            return await base.GetResponseAsync(messages, options, cancellationToken);
-        }
-        catch (Exception ex) when (IsTransient(ex))
-        {
-            _logger.LogWarning("🛟 {Error} — fallback model", ex.Message);
-            return await _fallback.GetResponseAsync(messages, options, cancellationToken);
-        }
-    }
-
-    private static bool IsTransient(Exception ex) => ex switch
-    {
-        ApiException api => api.StatusCode is 429 or >= 500,
-        HttpRequestException or TimeoutRejectedException => true,
-        _ => false
-    };
-}
-```
-
-- **`catch … when (IsTransient(ex))`** — an exception filter: we catch **only** a transient error. A permanent one (400, 401, 404) goes up: the fallback uses the same key and the same request and would bring the same error.
-- **`IsTransient`** — an `ApiException` (Google.GenAI, 429 or 5xx), an `HttpRequestException` (the network) or a `TimeoutRejectedException` (the resilience timeout, `using Polly.Timeout;`). The order matters: `ApiException` is itself an `HttpRequestException`, so it has to come first. An `OperationCanceledException` (the user left) doesn't land here — that's right.
-
-**Registration:** the fallback is the **innermost** layer, closest to Gemini. This way every request of the tool loop has its own fallback:
-
-```csharp Program.cs
-IChatClient fallback = new Client(apiKey: apiKey)
-    .AsIChatClient(builder.Configuration["Gemini:FallbackModel"]!);
-
-builder.Services.AddChatClient(sp => /* gemini — as on slide 11 */)
-    .Use(inner => new InputGuardChatClient(inner))
-    .UseFunctionInvocation()
-    .Use((inner, sp) => new TokenCounterChatClient(inner, /* ... */))
-    .UseLogging()
-    .Use((inner, sp) => new FallbackChatClient(inner, fallback,
-        sp.GetRequiredService<ILogger<FallbackChatClient>>()));
-```
-
-In `appsettings.json`: `"Gemini": { "Model": "...", "FallbackModel": "..." }` — another, usually lighter model (the current names: Gemini's list of models).
-
-**What if Gemini is down entirely?** The fallback can be **another provider** too (OpenAI, Groq…): it's an `IChatClient` as well (lecture 3: switching the provider = one line). In production this is often how it's done.
-
-```terms
-Fallback — a backup option: if the main service doesn't answer, the request goes to another one
-Exception filter (catch … when) — a catch that only catches the exception when a condition holds
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · fallback და ხარჯი">
@@ -849,160 +367,6 @@ GROUP BY "Model";
       <div class="callout step" style="--a:var(--mvc);font-size:17px">ხარჯი = input × ფასი + output × ფასი (1M-ზე, ლექცია 1). ModelId-ით ჩანს, რამდენჯერ ჩაერთო fallback</div>
     </div>
   </div>
-  <aside class="study">
-### ხარჯის აღრიცხვა: ტოკენები ბაზაში
-
-ლექცია 5-ის `TokenCounterChatClient` ტოკენებს ლოგში წერდა. ლოგი რამდენიმე დღეში იკარგება და მისი შეჯამება რთულია. ახლა **ბაზაში** ვწერთ: ერთი ხაზი = Gemini-ს ერთი გამოძახება.
-
-```csharp Data/AiUsageRecord.cs
-public class AiUsageRecord
-{
-    public Guid Id { get; set; }
-    public DateTime At { get; set; }
-    public string Model { get; set; } = "";
-    public long InputTokens { get; set; }
-    public long OutputTokens { get; set; }
-}
-```
-
-```csharp Ai/TokenCounterChatClient.cs
-public class TokenCounterChatClient : DelegatingChatClient
-{
-    private readonly IServiceScopeFactory _scopes;
-
-    public TokenCounterChatClient(IChatClient inner, IServiceScopeFactory scopes) : base(inner)
-    {
-        _scopes = scopes;
-    }
-
-    public override async Task<ChatResponse> GetResponseAsync(
-        IEnumerable<ChatMessage> messages, ChatOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        ChatResponse response =
-            await base.GetResponseAsync(messages, options, cancellationToken);
-
-        // a Scoped DbContext in a Singleton layer → its own scope
-        using IServiceScope scope = _scopes.CreateScope();
-        DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-        db.AiUsage.Add(new AiUsageRecord
-        {
-            Id = Guid.NewGuid(),
-            At = DateTime.UtcNow,
-            Model = response.ModelId ?? "?",
-            InputTokens = response.Usage?.InputTokenCount ?? 0,
-            OutputTokens = (response.Usage?.OutputTokenCount ?? 0)
-                         + (response.Usage?.ReasoningTokenCount ?? 0)
-        });
-        await db.SaveChangesAsync(cancellationToken);
-
-        return response;
-    }
-}
-// Program.cs: .Use((inner, sp) => new TokenCounterChatClient(inner,
-//                 sp.GetRequiredService<IServiceScopeFactory>()))
-```
-
-**რატომ `IServiceScopeFactory`?** `AddChatClient` client-ს **Singleton**-ად არეგისტრირებს: pipeline ერთხელ იქმნება და ყველა მოთხოვნას ემსახურება. `DataContext` კი **Scoped**-ია: ყოველ HTTP მოთხოვნაზე ახალი. Singleton-ში Scoped-ის პირდაპირ ჩასმა შეცდომაა („captive dependency“ — ერთი DbContext ყველა მომხმარებელს). ამიტომ ფენა ყოველ ჯერზე **საკუთარ scope**-ს ქმნის და მისგან იღებს `DataContext`-ს.
-
-**`ReasoningTokenCount` output-ს ვუმატებთ:** Gemini-ს ფიქრის ტოკენები ცალკე ითვლება, მაგრამ output-ის ფასით ფასდება (ლექცია 2).
-
-**`response.ModelId`** — რომელმა მოდელმა უპასუხა. fallback-ის შემდეგ აქ სარეზერვო მოდელის სახელი ჩანს, ამიტომ ბაზიდან ვხედავთ, რამდენჯერ ჩაერთო fallback.
-
-**დღევანდელი ხარჯი SQL-ით:**
-
-```sql
-SELECT "Model", SUM("InputTokens") AS input, SUM("OutputTokens") AS output
-FROM "AiUsage"
-WHERE "At" >= CURRENT_DATE
-GROUP BY "Model";
-```
-
-ფასი ლექცია 1-ის ფორმულით: **input × input-ის ფასი + output × output-ის ფასი** (ფასი 1 მილიონ ტოკენზე, Gemini-ს ფასების გვერდიდან).
-
-```terms
-IServiceScopeFactory — DI სერვისი, რომლითაც Singleton-ში საკუთარ scope-ს ვქმნით და იქიდან Scoped სერვისს (DbContext) ვიღებთ
-Captive dependency — შეცდომა: Scoped სერვისი Singleton-შია „დატყვევებული“ და ყველა მოთხოვნა მას იზიარებს
-```
-  </aside>
-  <aside class="study-en">
-### Recording the cost: tokens in the database
-
-Lecture 5's `TokenCounterChatClient` wrote the tokens to the log. The log is lost in a few days and is hard to sum up. Now we write to the **database**: one row = one Gemini call.
-
-```csharp Data/AiUsageRecord.cs
-public class AiUsageRecord
-{
-    public Guid Id { get; set; }
-    public DateTime At { get; set; }
-    public string Model { get; set; } = "";
-    public long InputTokens { get; set; }
-    public long OutputTokens { get; set; }
-}
-```
-
-```csharp Ai/TokenCounterChatClient.cs
-public class TokenCounterChatClient : DelegatingChatClient
-{
-    private readonly IServiceScopeFactory _scopes;
-
-    public TokenCounterChatClient(IChatClient inner, IServiceScopeFactory scopes) : base(inner)
-    {
-        _scopes = scopes;
-    }
-
-    public override async Task<ChatResponse> GetResponseAsync(
-        IEnumerable<ChatMessage> messages, ChatOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        ChatResponse response =
-            await base.GetResponseAsync(messages, options, cancellationToken);
-
-        // a Scoped DbContext in a Singleton layer → its own scope
-        using IServiceScope scope = _scopes.CreateScope();
-        DataContext db = scope.ServiceProvider.GetRequiredService<DataContext>();
-
-        db.AiUsage.Add(new AiUsageRecord
-        {
-            Id = Guid.NewGuid(),
-            At = DateTime.UtcNow,
-            Model = response.ModelId ?? "?",
-            InputTokens = response.Usage?.InputTokenCount ?? 0,
-            OutputTokens = (response.Usage?.OutputTokenCount ?? 0)
-                         + (response.Usage?.ReasoningTokenCount ?? 0)
-        });
-        await db.SaveChangesAsync(cancellationToken);
-
-        return response;
-    }
-}
-// Program.cs: .Use((inner, sp) => new TokenCounterChatClient(inner,
-//                 sp.GetRequiredService<IServiceScopeFactory>()))
-```
-
-**Why `IServiceScopeFactory`?** `AddChatClient` registers the client as a **Singleton**: the pipeline is created once and serves every request. But `DataContext` is **Scoped**: a new one for every HTTP request. Putting a Scoped service directly into a Singleton is a mistake (a “captive dependency” — one DbContext for every user). So the layer creates **its own scope** every time and takes the `DataContext` from it.
-
-**We add `ReasoningTokenCount` to the output:** Gemini's thinking tokens are counted separately but charged at the output price (lecture 2).
-
-**`response.ModelId`** — which model answered. After a fallback this shows the fallback model's name, so the database shows how many times the fallback kicked in.
-
-**Today's cost with SQL:**
-
-```sql
-SELECT "Model", SUM("InputTokens") AS input, SUM("OutputTokens") AS output
-FROM "AiUsage"
-WHERE "At" >= CURRENT_DATE
-GROUP BY "Model";
-```
-
-The cost with lecture 1's formula: **input × the input price + output × the output price** (the price per 1 million tokens, from Gemini's pricing page).
-
-```terms
-IServiceScopeFactory — a DI service with which we create our own scope inside a Singleton and take a Scoped service (DbContext) from it
-Captive dependency — a mistake: a Scoped service is “captured” inside a Singleton and every request shares it
-```
-  </aside>
 </section>
 
 <lecture-classwork/>
@@ -1028,32 +392,6 @@ Captive dependency — a mistake: a Scoped service is “captured” inside a Si
         <p class="small"><b>Text Embeddings</b>: ტექსტი რიცხვებად და ძებნა <b>მნიშვნელობით</b>, არა სიტყვებით</p></div>
     </div>
   </div>
-  <aside class="study">
-## შეჯამება
-
-- AI გამოძახების შეცდომები სამ ჯგუფადაა: **დროებითი** (429, 500/503, timeout — retry შველის), **მუდმივი** (400, 401, 403, 404 — retry არ შველის) და **შინაარსის** (მოჭრილი პასუხი, ცუდი JSON, tool-ის შეცდომა — კოდში ვამოწმებთ).
-- სწორი **retry**: exponential **backoff**, **jitter**, `Retry-After`-ის გათვალისწინება, **timeout** თითო ცდაზე და **circuit breaker** ბევრი ჩავარდნისას.
-- **`AddStandardResilienceHandler`** (`Microsoft.Extensions.Http.Resilience`) ამას HttpClient-ზე ამატებს. LLM-ისთვის timeout-ს ვზრდით. Google.GenAI-ს ჩვენს HttpClient-ს ვაძლევთ (`ClientOptions.HttpClientFactory`) და მის საკუთარ retry-ს ვთიშავთ: retry **ერთ** ადგილას.
-- **`FallbackChatClient`** — `DelegatingChatClient`, რომელიც დროებით შეცდომაზე სარეზერვო მოდელს იძახებს. pipeline-ში ყველაზე შიგნითაა.
-- ტოკენები **ბაზაში**: `TokenCounterChatClient` ყოველ გამოძახებას `AiUsage`-ში წერს (`IServiceScopeFactory`, რადგან pipeline Singleton-ია). `ReasoningTokenCount` output-ს ემატება.
-
-### შემდეგ ლექციაზე
-
-ლექცია 7-ში ვთქვით: კონტექსტში მხოლოდ ის, რაც საჭიროა. მომხმარებელი წერს: "something light, without meat". მთელი მენიუ (200 კერძი) ძვირია, ხოლო SQL-ის `LIKE '%without meat%'` ლობიოს ვერ იპოვის, რადგან ეს სიტყვები მის აღწერაში არ წერია. ლექცია 9-ზე: **Text Embeddings** — ტექსტი რიცხვებად (ვექტორებად) და ძებნა **მნიშვნელობით**.
-  </aside>
-  <aside class="study-en">
-## Summary
-
-- The errors of an AI call come in three groups: **transient** (429, 500/503, timeout — retry helps), **permanent** (400, 401, 403, 404 — retry doesn't help) and **content** errors (a cut-off answer, bad JSON, a tool error — we check them in code).
-- A proper **retry**: exponential **backoff**, **jitter**, respecting `Retry-After`, a **timeout** per attempt and a **circuit breaker** on many failures.
-- **`AddStandardResilienceHandler`** (`Microsoft.Extensions.Http.Resilience`) adds this to an HttpClient. For an LLM we raise the timeouts. We give Google.GenAI our HttpClient (`ClientOptions.HttpClientFactory`) and turn off its own retry: retry in **one** place.
-- **`FallbackChatClient`** — a `DelegatingChatClient` that calls a fallback model on a transient error. It's the innermost layer of the pipeline.
-- Tokens **in the database**: `TokenCounterChatClient` writes every call to `AiUsage` (`IServiceScopeFactory`, because the pipeline is a Singleton). `ReasoningTokenCount` is added to the output.
-
-### Next lecture
-
-In lecture 7 we said: only what's needed goes into the context. The user writes: “something light, without meat”. The whole menu (200 dishes) is expensive, and SQL's `LIKE '%without meat%'` won't find the lobio, because those words aren't in its description. In lecture 9: **Text Embeddings** — text as numbers (vectors) and searching **by meaning**.
-  </aside>
 </section>
 
 <lecture-homework/>

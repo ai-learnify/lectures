@@ -9,7 +9,7 @@ With code · your project · results in the README
 - **Filter + meaning** — one filter parameter for `/search` (price, category, author…): `Where` and `OrderBy(CosineDistance)` in **one** SQL query
 - **HNSW index** — `HasMethod("hnsw").HasOperators("vector_cosine_ops")`, a migration
 - **README — `EXPLAIN`:** the search SQL (from the log) with `EXPLAIN` twice: normally and with `SET enable_seqscan = off`. Both results and one sentence: why they differ
-- The **quiz** at the end of the notes (10 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## Done when
 

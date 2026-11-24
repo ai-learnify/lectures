@@ -66,16 +66,6 @@
 🤖 A booking can be cancelled up to 24 hours
    before the visit, by phone or on the website [1].</div>
   </div>
-  <aside class="study">
-## ლექცია 11: Simple RAG
-
-მომხმარებელი კითხულობს: "How do I cancel a booking?" ან "I'm allergic to nuts — what can I eat?". ამის პასუხი მენიუში არ წერია. ის რესტორნის **დოკუმენტებშია**: წესების, ალერგენების და FAQ-ის PDF-ებში. მოდელმა ეს დოკუმენტები არ იცის, მთელი PDF-ის კონტექსტში ჩადება კი ძვირია (ლექცია 7). დღეს ვაწყობთ **RAG**-ს (Retrieval-Augmented Generation): PDF-ს ნაწილებად ვჭრით, ნაწილებს ვექტორებად ვინახავთ (ლექცია 10), შეკითხვაზე რელევანტურ ნაწილებს ვპოულობთ და მოდელს ვაწვდით — ის პასუხობს მხოლოდ მათზე დაყრდნობით და **წყაროს** ასახელებს.
-  </aside>
-  <aside class="study-en">
-## Lecture 11: Simple RAG
-
-The user asks: “How do I cancel a booking?” or “I'm allergic to nuts — what can I eat?”. The answer isn't in the menu. It's in the restaurant's **documents**: the PDFs with the rules, the allergens and the FAQ. The model doesn't know these documents, and putting a whole PDF in the context is expensive (lecture 7). Today we build **RAG** (Retrieval-Augmented Generation): we cut the PDF into parts, store the parts as vectors (lecture 10), find the relevant parts for a question and give them to the model — it answers only from them and names the **source**.
-  </aside>
 </section>
 
 <lecture-review/>
@@ -93,24 +83,6 @@ The user asks: “How do I cancel a booking?” or “I'm allergic to nuts — w
     <div class="stop" style="--a:var(--mvc)"><span class="sn">3</span><h3>💬 Query</h3><p>ძებნა, ნაწილები კონტექსტში, პასუხი წყაროს ნომრით</p><span class="from">top 5 · [1] · „არ ვიცი“</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: ჩატი, რომელიც რესტორნის <b>წესებიდან</b> პასუხობს და ამბობს, <b>საიდან</b> იცის</div>
-  <aside class="study">
-### ლექციის გეგმა: 3 ნაბიჯი
-
-1. 💡 **RAG-ის იდეა.** რატომ ვერ ვიყენებთ მთელ დოკუმენტს ან fine-tuning-ს, და რა არის RAG: ორი pipeline — **ingestion** (ერთხელ, დოკუმენტის ატვირთვისას) და **query** (ყოველ შეკითხვაზე).
-2. 📄 **Ingestion.** PDF-დან ტექსტის ამოღება (PdfPig), გაწმენდა, ნაწილებად დაჭრა (chunking) და ნაწილების ვექტორები ლექცია 10-ის ცხრილში — `DocumentChunk`.
-3. 💬 **Query.** შეკითხვაზე ყველაზე ახლოს მყოფი ნაწილები, მათი ჩასმა prompt-ში გადანომრილი წყაროებით, და ლექცია 7-ის ჩატი, რომელიც პასუხობს წყაროს ნომრით — ან ამბობს „ინფორმაცია არ მაქვს“.
-
-ბოლოს კლასის დავალებაა: შენი PDF და ძებნის ტესტი.
-  </aside>
-  <aside class="study-en">
-### Lecture plan: 3 steps
-
-1. 💡 **The idea of RAG.** Why we can't use the whole document or fine-tuning, and what RAG is: two pipelines — **ingestion** (once, when a document is uploaded) and **query** (on every question).
-2. 📄 **Ingestion.** Extracting text from a PDF (PdfPig), cleaning it, cutting it into parts (chunking), and the parts' vectors in lecture 10's table — `DocumentChunk`.
-3. 💬 **Query.** The parts closest to the question, putting them into the prompt as numbered sources, and lecture 7's chat that answers with the source number — or says “I don't have information”.
-
-At the end there's classwork: your PDF and a search test.
-  </aside>
 </section>
 
 <!-- ================= 1 · იდეა ================= -->
@@ -121,16 +93,6 @@ At the end there's classwork: your PDF and a search test.
     <p class="lead mt in" style="--d:.3s">retrieve → augment → generate · ingestion და query</p>
   </div>
   <div class="big-num">01</div>
-  <aside class="study">
-## ნაწილი 1 · RAG-ის იდეა
-
-ჯერ ვხედავთ, რატომ არ გამოდგება „მთელი PDF კონტექსტში“ და fine-tuning. მერე — RAG-ის სრული სურათი: რა ხდება ერთხელ (ingestion) და რა ხდება ყოველ შეკითხვაზე (query).
-  </aside>
-  <aside class="study-en">
-## Part 1 · The idea of RAG
-
-First we see why “the whole PDF in the context” and fine-tuning don't work. Then the full picture of RAG: what happens once (ingestion) and what happens on every question (query).
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · იდეა">
@@ -154,46 +116,6 @@ First we see why “the whole PDF in the context” and fine-tuning don't work. 
       <div class="prob step" style="--a:var(--mvc)"><span class="pi">🔎</span><div><b>ვიპოვოთ ის 3–5 ნაწილი, რომელიც საჭიროა</b><span>და მხოლოდ ისინი ჩავდოთ კონტექსტში — ლექცია 7-ის „შერჩევა“</span></div></div>
     </div>
   </div>
-  <aside class="study">
-### პრობლემა: პასუხი დოკუმენტშია
-
-რესტორანს აქვს წესების PDF — 18 გვერდი: ჯავშნის გაუქმება, ალერგენები, ცხოველები, ღონისძიებები. მომხმარებლის ბევრი შეკითხვის პასუხი იქაა, არა მენიუში. მოდელმა ეს დოკუმენტი არ იცის — მისი ცოდნა ვარჯიშის მონაცემებიდანაა (ლექცია 1), ჩვენი რესტორნის წესები იქ არ ყოფილა.
-
-**რა გზები გვაქვს:**
-
-| გზა | პრობლემა |
-|---|---|
-| **მთელი PDF კონტექსტში** | ყოველ შეკითხვაზე 18 გვერდი = ათასობით input ტოკენი (ლექცია 7–8): ფული და ნელი პასუხი. 500-გვერდიან დოკუმენტებზე context window-შიც არ ეტევა. და რაც მეტია კონტექსტში, მით უფრო „იკარგება“ მთავარი (lost in the middle) |
-| **Fine-tuning** (მოდელის დამატებითი ვარჯიში) | ძვირი და ნელი; წესი შეიცვლება — ისევ ვარჯიში. მოდელი ფაქტებს ცუდად „იმახსოვრებს“ და **წყაროს ვერ ასახელებს** |
-| **RAG** — ვიპოვოთ მხოლოდ საჭირო ნაწილები | ყოველ შეკითხვაზე 3–5 ნაწილი; დოკუმენტი შეიცვალა — თავიდან ვტვირთავთ; პასუხს წყარო ახლავს |
-
-RAG ლექცია 7-ის **შერჩევის** სტრატეგიაა: კონტექსტში მხოლოდ ის, რაც ამ შეკითხვას სჭირდება. და ლექცია 9–10-ის ძებნა მნიშვნელობით ზუსტად ამ ნაწილების პოვნას აკეთებს.
-
-```terms
-Fine-tuning — არსებული მოდელის დამატებითი ვარჯიში საკუთარ მონაცემზე; სტილისა და ფორმატისთვის კარგია, ფაქტებისთვის — ნაკლებად
-Lost in the middle — გრძელ კონტექსტში მოდელი შუა ნაწილის ინფორმაციას უფრო ხშირად „ვერ ამჩნევს“
-```
-  </aside>
-  <aside class="study-en">
-### The problem: the answer is in a document
-
-The restaurant has a rules PDF — 18 pages: cancelling a booking, allergens, pets, events. The answers to many of the users' questions are there, not in the menu. The model doesn't know this document — its knowledge comes from its training data (lecture 1), and our restaurant's rules weren't in it.
-
-**What options do we have:**
-
-| Option | The problem |
-|---|---|
-| **The whole PDF in the context** | 18 pages on every question = thousands of input tokens (lectures 7–8): money and a slow answer. With 500-page documents it doesn't even fit in the context window. And the more there is in the context, the more the important part “gets lost” (lost in the middle) |
-| **Fine-tuning** (extra training of the model) | Expensive and slow; a rule changes — training again. The model “memorizes” facts badly and **can't name the source** |
-| **RAG** — find only the parts we need | 3–5 parts per question; the document changed — we upload it again; the answer comes with a source |
-
-RAG is lecture 7's **selection** strategy: only what this question needs goes into the context. And lectures 9–10's search by meaning does exactly the finding of these parts.
-
-```terms
-Fine-tuning — extra training of an existing model on your own data; good for style and format, less so for facts
-Lost in the middle — in a long context the model more often “misses” information in the middle part
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="1 · იდეა">
@@ -222,56 +144,6 @@ Lost in the middle — in a long context the model more often “misses” infor
     <div class="callout ask step">🙋 ეს რას ჰგავს? <b>გამოცდა</b> ღია წიგნით თუ დახურულით?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ღია წიგნით — მოდელი პასუხს იმ გვერდებიდან წერს, რომლებსაც ჩვენ ვპოულობთ და ვაწვდით</div>
   </div>
-  <aside class="study">
-### RAG: ორი pipeline
-
-**RAG — Retrieval-Augmented Generation:** „გენერაცია, გაძლიერებული ძებნით“. სამი სიტყვა — სამი ნაბიჯი:
-
-- **Retrieve** — შეკითხვაზე ვპოულობთ დოკუმენტების ყველაზე რელევანტურ ნაწილებს (ლექცია 9–10-ის ძებნა);
-- **Augment** — ამ ნაწილებს ვამატებთ prompt-ს;
-- **Generate** — მოდელი პასუხს წერს **მათზე დაყრდნობით** და წყაროს ასახელებს.
-
-ამისთვის ორი ცალკე pipeline გვჭირდება:
-
-| | Ingestion | Query |
-|---|---|---|
-| როდის | ერთხელ — დოკუმენტის ატვირთვისას (ან შეცვლისას) | ყოველ შეკითხვაზე |
-| ნაბიჯები | PDF → ტექსტი → ნაწილები (chunks) → ვექტორები → ბაზა | შეკითხვის ვექტორი → top 5 ნაწილი → prompt → პასუხი |
-| ლექცია | 9 (ვექტორები), 10 (ბაზა), დღეს — PDF და chunking | 9–10 (ძებნა), 7 (ჩატი), დღეს — augment და წყაროები |
-
-**ანალოგია — გამოცდა ღია წიგნით.** მოდელი ჭკვიანი სტუდენტია, რომელმაც ჩვენი რესტორნის წესები არ იცის. RAG-ით გამოცდაზე წიგნი აქვს: შეკითხვას კითხულობს, წიგნში სწორ გვერდს პოულობს (ჩვენ ვპოულობთ მისთვის) და პასუხს წერს, გვერდის მითითებით. დახურული წიგნით (RAG-ის გარეშე) — „იხსენებს“ ან იგონებს (hallucination, ლექცია 1).
-
-```terms
-RAG (Retrieval-Augmented Generation) — მოდელის პასუხი, რომელიც ძებნით ნაპოვნ ჩვენს დოკუმენტებს ეყრდნობა
-Ingestion — დოკუმენტის მომზადება ძებნისთვის: ტექსტი → ნაწილები → ვექტორები → ბაზა
-Chunk — დოკუმენტის ნაწილი, რომელიც ცალკე ვექტორად ინახება და იძებნება
-```
-  </aside>
-  <aside class="study-en">
-### RAG: two pipelines
-
-**RAG — Retrieval-Augmented Generation:** “generation, augmented by search”. Three words — three steps:
-
-- **Retrieve** — for the question we find the most relevant parts of the documents (lectures 9–10's search);
-- **Augment** — we add these parts to the prompt;
-- **Generate** — the model writes the answer **based on them** and names the source.
-
-For this we need two separate pipelines:
-
-| | Ingestion | Query |
-|---|---|---|
-| When | once — when a document is uploaded (or changed) | on every question |
-| Steps | PDF → text → parts (chunks) → vectors → database | the question's vector → top 5 parts → prompt → answer |
-| Lecture | 9 (vectors), 10 (database), today — PDF and chunking | 9–10 (search), 7 (chat), today — augment and sources |
-
-**An analogy — an open-book exam.** The model is a smart student who doesn't know our restaurant's rules. With RAG it has the book at the exam: it reads the question, finds the right page in the book (we find it for it) and writes the answer, citing the page. With a closed book (without RAG) — it “remembers” or makes things up (hallucination, lecture 1).
-
-```terms
-RAG (Retrieval-Augmented Generation) — a model answer that relies on our documents found by search
-Ingestion — preparing a document for search: text → parts → vectors → database
-Chunk — a part of a document that is stored and searched as a separate vector
-```
-  </aside>
 </section>
 
 <!-- ================= 2 · ingestion ================= -->
@@ -282,16 +154,6 @@ Chunk — a part of a document that is stored and searched as a separate vector
     <p class="lead mt in" style="--d:.3s">PdfPig · გაწმენდა · chunking · DocumentChunk</p>
   </div>
   <div class="big-num">02</div>
-  <aside class="study">
-## ნაწილი 2 · Ingestion: დოკუმენტი ბაზაში
-
-PDF-დან ვიღებთ ტექსტს გვერდებით, ვწმენდთ, ვჭრით ნაწილებად (chunks) და თითოეულ ნაწილს ვექტორთან ერთად ვინახავთ ბაზაში — ლექცია 10-ის გზით.
-  </aside>
-  <aside class="study-en">
-## Part 2 · Ingestion: the document in the database
-
-We take the text out of the PDF page by page, clean it, cut it into parts (chunks) and store each part with its vector in the database — the lecture 10 way.
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · ingestion">
@@ -329,88 +191,6 @@ public static class PdfText
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ცარიელ ტექსტს — სკანი სურათია, ტექსტისთვის OCR სჭირდება</div>
     </div>
   </div>
-  <aside class="study">
-### PDF → ტექსტი: PdfPig
-
-PDF ტექსტური ფაილი არ არის. მასში წერია **ასოები და მათი კოორდინატები გვერდზე** — „ასო ‚ჯ‘, x=72, y=540, შრიფტი…“. სიტყვა, ხაზი, აბზაცი ან სვეტი ფაილში არ არსებობს: ტექსტის ამოღება ნიშნავს ასოებიდან სიტყვების და ხაზების „აწყობას“.
-
-**PdfPig** (NuGet `PdfPig`, ლიცენზია Apache-2.0) — .NET-ის ბიბლიოთეკა PDF-ის წასაკითხად:
-
-```csharp Ai/PdfText.cs
-using System.Text.RegularExpressions;
-using UglyToad.PdfPig;
-using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
-
-public static class PdfText
-{
-    public static List<(int Page, string Text)> ReadPages(byte[] pdf)
-    {
-        using PdfDocument doc = PdfDocument.Open(pdf);
-        return doc.GetPages()
-            .Select(p => (p.Number, Clean(ContentOrderTextExtractor.GetText(p))))
-            .Where(p => p.Item2.Length > 0)          // skip empty pages
-            .ToList();
-    }
-
-    private static string Clean(string text) =>
-        Regex.Replace(text, @"\s+", " ").Trim();     // extra spaces and line breaks
-}
-```
-
-- **`ContentOrderTextExtractor.GetText(page)`** — ასოებს **კითხვის რიგით** აწყობს (ხაზები, სვეტები). მარტივი `page.Text` ასოებს ფაილის რიგით აბრუნებს და ხშირად სიტყვებს აწებებს ან ურევს.
-- **გვერდის ნომერი** (`p.Number`) რჩება — ის წყაროს მითითებისთვის გვჭირდება ("rules.pdf, p. 3").
-- **გაწმენდა** — ჰარების და ხაზების ნორმალიზაცია. რეალურ დოკუმენტებში ამას ემატება განმეორებადი header/footer-ის (გვერდის ნომერი, კომპანიის სახელი) ამოღება.
-
-```warn
-**სკანირებული PDF** (ფოტოები) ტექსტს საერთოდ არ შეიცავს — `GetText` ცარიელს დააბრუნებს. ასეთ ფაილს OCR სჭირდება (ტექსტის ამოცნობა სურათიდან). ცხრილები და სვეტები PdfPig-ით ხშირად „ირევა“ — რთული დოკუმენტებისთვის არსებობს layout-ის ანალიზის სერვისები (Azure Document Intelligence, Docling).
-```
-
-```terms
-PdfPig — .NET ბიბლიოთეკა PDF-დან ტექსტის და შინაარსის წასაკითხად (Apache-2.0)
-OCR — ტექსტის ამოცნობა სურათიდან; სკანირებულ PDF-ს სჭირდება
-```
-  </aside>
-  <aside class="study-en">
-### PDF → text: PdfPig
-
-A PDF isn't a text file. It contains **letters and their coordinates on the page** — “letter ‘ჯ’, x=72, y=540, font…”. A word, a line, a paragraph or a column doesn't exist in the file: extracting the text means “assembling” words and lines from the letters.
-
-**PdfPig** (NuGet `PdfPig`, Apache-2.0 licence) — a .NET library for reading PDFs:
-
-```csharp Ai/PdfText.cs
-using System.Text.RegularExpressions;
-using UglyToad.PdfPig;
-using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
-
-public static class PdfText
-{
-    public static List<(int Page, string Text)> ReadPages(byte[] pdf)
-    {
-        using PdfDocument doc = PdfDocument.Open(pdf);
-        return doc.GetPages()
-            .Select(p => (p.Number, Clean(ContentOrderTextExtractor.GetText(p))))
-            .Where(p => p.Item2.Length > 0)          // skip empty pages
-            .ToList();
-    }
-
-    private static string Clean(string text) =>
-        Regex.Replace(text, @"\s+", " ").Trim();     // extra spaces and line breaks
-}
-```
-
-- **`ContentOrderTextExtractor.GetText(page)`** — assembles the letters **in reading order** (lines, columns). The simple `page.Text` returns the letters in file order and often glues or mixes up words.
-- **The page number** (`p.Number`) stays — we need it for citing the source (“rules.pdf, p. 3”).
-- **Cleaning** — normalizing spaces and line breaks. In real documents this also includes removing a repeated header/footer (the page number, the company name).
-
-```warn
-A **scanned PDF** (photos) contains no text at all — `GetText` returns nothing. Such a file needs OCR (recognizing text in an image). Tables and columns often get “mixed up” with PdfPig — for complex documents there are layout analysis services (Azure Document Intelligence, Docling).
-```
-
-```terms
-PdfPig — a .NET library for reading text and content from PDFs (Apache-2.0)
-OCR — recognizing text in an image; a scanned PDF needs it
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · ingestion">
@@ -434,116 +214,6 @@ var chunks = TextChunker.Split(text, maxChars: 800, overlap: 1);
       </code-block></div>
     </div>
   </div>
-  <aside class="study">
-### Chunking: ტექსტი ნაწილებად
-
-**რატომ არა მთელი დოკუმენტი ერთ ვექტორად?** ვექტორი ტექსტის „საშუალო მნიშვნელობაა“. 18 გვერდის ვექტორი ჯავშნის, ალერგენების, ცხოველების და ღონისძიებების ნაზავია — "cancelling a booking" მას ცუდად ედრება. ამას ემატება: embedding მოდელს შეყვანის ლიმიტი აქვს (`gemini-embedding-2` — 8 192 ტოკენი), და ნაპოვნი ტექსტი კონტექსტში უნდა ჩავდოთ — 18 გვერდი ისევ ძვირია.
-
-**Chunk (ნაწილი)** — დოკუმენტის მონაკვეთი, რომელიც ერთ აზრს ფარავს. თითოეული ცალკე ვექტორად ინახება და ცალკე იძებნება.
-
-**ზომა — კომპრომისი:**
-
-| ზომა | პლიუსი | მინუსი |
-|---|---|---|
-| ძალიან პატარა (1 წინადადება) | ვექტორი ზუსტია | კონტექსტი იკარგება: "this rule applies to 8+ people" — რომელი წესი? |
-| ძალიან დიდი (გვერდები) | კონტექსტი სრულია | ვექტორი ბუნდოვანია, კონტექსტში ძვირია |
-| **საშუალო (~500–1000 სიმბოლო)** | ერთი აზრი + მისი კონტექსტი | — ჩვენი არჩევანი: 800 |
-
-**Overlap (გადაფარვა).** ნაწილის ბოლო წინადადება შემდეგი ნაწილის დასაწყისშიც მეორდება. თუ აზრი ორ ნაწილს შორის გაიყო ("cancellation 24 hours before" + "If cancelled late, the money isn't returned"), ორივე ნაწილს აქვს „ხიდი“.
-
-**ჩვენი chunker** — წინადადებებით:
-
-```csharp Ai/TextChunker.cs
-public static class TextChunker
-{
-    public static List<string> Split(string text, int maxChars = 800, int overlap = 1)
-    {
-        string[] sentences = Regex.Split(text, @"(?<=[.!?])\s+");
-        List<string> chunks = [];
-        List<string> current = [];
-
-        foreach (string sentence in sentences)
-        {
-            if (current.Count > 0 && current.Sum(s => s.Length) + sentence.Length > maxChars)
-            {
-                chunks.Add(string.Join(" ", current));
-                current = current.TakeLast(overlap).ToList();   // overlap: the last sentence stays
-            }
-            current.Add(sentence);
-        }
-        if (current.Count > 0)
-            chunks.Add(string.Join(" ", current));
-        return chunks;
-    }
-}
-```
-
-- ტექსტს **წინადადებებად** ვყოფთ (`.`, `!`, `?`-ის შემდეგ) — ნაწილი წინადადების შუაში არ იჭრება.
-- წინადადებებს ვაგროვებთ, სანამ ~800 სიმბოლოს არ გადააჭარბებს; მერე ნაწილი იხურება და ბოლო წინადადება შემდეგში გადადის.
-- ვჭრით **გვერდ-გვერდ** — ასე ყოველ ნაწილს ზუსტი გვერდის ნომერი აქვს.
-
-ეს ერთ-ერთი სტრატეგიაა. ლექცია 12-ში სხვებს შევადარებთ (სათაურებით, მნიშვნელობით) — და **გავზომავთ**, რომელი სჯობს.
-
-```terms
-Chunking — დოკუმენტის ნაწილებად დაჭრა ძებნისთვის
-Overlap — ნაწილებს შორის გადაფარვა: ბოლო ტექსტი შემდეგ ნაწილშიც მეორდება
-```
-  </aside>
-  <aside class="study-en">
-### Chunking: text into parts
-
-**Why not the whole document as one vector?** A vector is the “average meaning” of a text. The vector of 18 pages is a mix of bookings, allergens, pets and events — “cancelling a booking” compares badly with it. On top of that: the embedding model has an input limit (`gemini-embedding-2` — 8,192 tokens), and the text we find has to go into the context — 18 pages are expensive again.
-
-**A chunk (a part)** — a section of the document that covers one idea. Each one is stored as a separate vector and searched separately.
-
-**The size — a compromise:**
-
-| Size | Plus | Minus |
-|---|---|---|
-| very small (1 sentence) | the vector is precise | the context is lost: “this rule applies to 8+ people” — which rule? |
-| very large (pages) | the context is complete | the vector is blurry, expensive in the context |
-| **medium (~500–1000 characters)** | one idea + its context | — our choice: 800 |
-
-**Overlap.** The last sentence of a part is repeated at the start of the next part too. If an idea is split between two parts (“cancelling 24 hours before” + “if cancelled late the money isn't returned”), both parts have a “bridge”.
-
-**Our chunker** — by sentences:
-
-```csharp Ai/TextChunker.cs
-public static class TextChunker
-{
-    public static List<string> Split(string text, int maxChars = 800, int overlap = 1)
-    {
-        string[] sentences = Regex.Split(text, @"(?<=[.!?])\s+");
-        List<string> chunks = [];
-        List<string> current = [];
-
-        foreach (string sentence in sentences)
-        {
-            if (current.Count > 0 && current.Sum(s => s.Length) + sentence.Length > maxChars)
-            {
-                chunks.Add(string.Join(" ", current));
-                current = current.TakeLast(overlap).ToList();   // overlap: the last sentence stays
-            }
-            current.Add(sentence);
-        }
-        if (current.Count > 0)
-            chunks.Add(string.Join(" ", current));
-        return chunks;
-    }
-}
-```
-
-- We split the text into **sentences** (after `.`, `!`, `?`) — a part is never cut in the middle of a sentence.
-- We collect sentences until they exceed ~800 characters; then the part is closed and the last sentence moves to the next one.
-- We cut **page by page** — so every part has an exact page number.
-
-This is one strategy. In lecture 12 we compare others (by headings, by meaning) — and **measure** which one is better.
-
-```terms
-Chunking — cutting a document into parts for search
-Overlap — the overlap between parts: the last text is repeated in the next part too
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="2 · ingestion">
@@ -602,162 +272,6 @@ public class DocumentChunk
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მხოლოდ ორი რამ: PDF-ის წაკითხვა და chunking. დანარჩენი ლექცია 9–10-ია</div>
     </div>
   </div>
-  <aside class="study">
-### Ingestion კოდში: `Document`, `DocumentChunk` და ატვირთვა
-
-**ორი ცხრილი:** დოკუმენტი და მისი ნაწილები.
-
-```csharp Data/Document.cs
-public class Document
-{
-    public int Id { get; set; }
-    public string FileName { get; set; } = "";
-    public DateTime UploadedAt { get; set; }
-    public List<DocumentChunk> Chunks { get; set; } = [];
-}
-```
-
-```csharp Data/DocumentChunk.cs
-public class DocumentChunk
-{
-    public int Id { get; set; }
-    public int DocumentId { get; set; }
-    public Document Document { get; set; } = null!;
-    public int Page { get; set; }                       // for the source: “p. 3”
-    public string Content { get; set; } = "";           // the part's text — this goes into the context
-
-    [Column(TypeName = "vector(768)")]
-    public Vector? Embedding { get; set; }
-    public string? EmbeddingModel { get; set; }
-}
-```
-
-`DataContext`-ში: `DbSet<Document> Documents` და `DbSet<DocumentChunk> DocumentChunks`, HNSW ინდექსი `DocumentChunk.Embedding`-ზე (ლექცია 10-ის გზით) → migration.
-
-**ატვირთვის endpoint:**
-
-```csharp Controllers/AiLabController.cs · UploadDocument
-[HttpPost("documents")]
-public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToken ct)
-{
-    using var ms = new MemoryStream();
-    await file.CopyToAsync(ms, ct);
-
-    // 1–2: PDF → pages → parts
-    var doc = new Document { FileName = file.FileName, UploadedAt = DateTime.UtcNow };
-    foreach (var (page, text) in PdfText.ReadPages(ms.ToArray()))
-        foreach (string chunk in TextChunker.Split(text))
-            doc.Chunks.Add(new DocumentChunk { Page = page, Content = chunk });
-
-    // 3: vectors, in batches of 100
-    string model = _config["Gemini:EmbeddingModel"]!;
-    foreach (DocumentChunk[] batch in doc.Chunks.Chunk(100))
-    {
-        var vectors = await _embeddings.GenerateAsync(
-            batch.Select(c => EmbeddingText.Document(doc.FileName, c.Content)),
-            cancellationToken: ct);
-        for (int i = 0; i < batch.Length; i++)
-        {
-            batch[i].Embedding = new Vector(vectors[i].Vector);
-            batch[i].EmbeddingModel = model;
-        }
-    }
-
-    // 4: into the database — the document and all its parts together
-    _db.Documents.Add(doc);
-    await _db.SaveChangesAsync(ct);
-    return Ok(new { doc.Id, Chunks = doc.Chunks.Count });
-}
-```
-
-**ლექცია 10-თან შედარებით ახალი მხოლოდ ორი რამაა:** PDF-ის წაკითხვა და chunking. ვექტორი, prefix (`EmbeddingText.Document` — სათაურად ფაილის სახელი), `Chunk(100)`, `vector(768)` — ყველაფერი ნაცნობია.
-
-```note
-ეს endpoint ყველაფერს მოთხოვნის შიგნით აკეთებს — 18 გვერდზე რამდენიმე წამი. 500-გვერდიან დოკუმენტზე HTTP მოთხოვნა ამდენ ხანს ვერ დაელოდება: რეალურ სისტემებში ფაილი ინახება, ingestion კი background worker-ში მიმდინარეობს (სტატუსით: „მუშავდება…“). ⭐-ში — დოკუმენტის თავიდან ატვირთვა (ძველი ნაწილების წაშლა).
-```
-
-```terms
-IFormFile — ASP.NET Core-ის ტიპი ატვირთული ფაილისთვის (multipart/form-data)
-```
-  </aside>
-  <aside class="study-en">
-### Ingestion in code: `Document`, `DocumentChunk` and the upload
-
-**Two tables:** the document and its parts.
-
-```csharp Data/Document.cs
-public class Document
-{
-    public int Id { get; set; }
-    public string FileName { get; set; } = "";
-    public DateTime UploadedAt { get; set; }
-    public List<DocumentChunk> Chunks { get; set; } = [];
-}
-```
-
-```csharp Data/DocumentChunk.cs
-public class DocumentChunk
-{
-    public int Id { get; set; }
-    public int DocumentId { get; set; }
-    public Document Document { get; set; } = null!;
-    public int Page { get; set; }                       // for the source: “p. 3”
-    public string Content { get; set; } = "";           // the part's text — this goes into the context
-
-    [Column(TypeName = "vector(768)")]
-    public Vector? Embedding { get; set; }
-    public string? EmbeddingModel { get; set; }
-}
-```
-
-In `DataContext`: `DbSet<Document> Documents` and `DbSet<DocumentChunk> DocumentChunks`, an HNSW index on `DocumentChunk.Embedding` (the lecture 10 way) → a migration.
-
-**The upload endpoint:**
-
-```csharp Controllers/AiLabController.cs · UploadDocument
-[HttpPost("documents")]
-public async Task<IActionResult> UploadDocument(IFormFile file, CancellationToken ct)
-{
-    using var ms = new MemoryStream();
-    await file.CopyToAsync(ms, ct);
-
-    // 1–2: PDF → pages → parts
-    var doc = new Document { FileName = file.FileName, UploadedAt = DateTime.UtcNow };
-    foreach (var (page, text) in PdfText.ReadPages(ms.ToArray()))
-        foreach (string chunk in TextChunker.Split(text))
-            doc.Chunks.Add(new DocumentChunk { Page = page, Content = chunk });
-
-    // 3: vectors, in batches of 100
-    string model = _config["Gemini:EmbeddingModel"]!;
-    foreach (DocumentChunk[] batch in doc.Chunks.Chunk(100))
-    {
-        var vectors = await _embeddings.GenerateAsync(
-            batch.Select(c => EmbeddingText.Document(doc.FileName, c.Content)),
-            cancellationToken: ct);
-        for (int i = 0; i < batch.Length; i++)
-        {
-            batch[i].Embedding = new Vector(vectors[i].Vector);
-            batch[i].EmbeddingModel = model;
-        }
-    }
-
-    // 4: into the database — the document and all its parts together
-    _db.Documents.Add(doc);
-    await _db.SaveChangesAsync(ct);
-    return Ok(new { doc.Id, Chunks = doc.Chunks.Count });
-}
-```
-
-**Compared with lecture 10, only two things are new:** reading the PDF and chunking. The vector, the prefix (`EmbeddingText.Document` — the file name as the title), `Chunk(100)`, `vector(768)` — all familiar.
-
-```note
-This endpoint does everything inside the request — a few seconds for 18 pages. For a 500-page document an HTTP request can't wait that long: in real systems the file is stored and the ingestion runs in a background worker (with a status: “processing…”). In the ⭐ — re-uploading a document (deleting the old parts).
-```
-
-```terms
-IFormFile — ASP.NET Core's type for an uploaded file (multipart/form-data)
-```
-  </aside>
 </section>
 
 <section class="slide divider" data-section="შესვენება">
@@ -777,16 +291,6 @@ IFormFile — ASP.NET Core's type for an uploaded file (multipart/form-data)
     <p class="lead mt in" style="--d:.3s">retrieve · augment · [1] · „არ ვიცი“ · ჩატში</p>
   </div>
   <div class="big-num">03</div>
-  <aside class="study">
-## ნაწილი 3 · Query: პასუხი წყაროთი
-
-შეკითხვაზე ვპოულობთ 5 ყველაზე ახლოს მყოფ ნაწილს, ვსვამთ მათ prompt-ში გადანომრილ წყაროებად და ვწერთ წესებს: "only from the sources, with a number; if it isn't there — say". ბოლოს ეს ყველაფერი ლექცია 7-ის ჩატში ერთდება.
-  </aside>
-  <aside class="study-en">
-## Part 3 · Query: an answer with a source
-
-For the question we find the 5 closest parts, put them into the prompt as numbered sources and write the rules: “only from the sources, with the number, if it isn't written — say so”. Finally all of this joins lecture 7's chat.
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · query">
@@ -827,98 +331,6 @@ A booking for 8+ people requires…
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მოდელი პასუხში [1]-ს წერს — ვიცით ფაილი და გვერდი: მომხმარებელი ამოწმებს, ჩვენ ვხედავთ, რომელი ნაწილი იყო ცუდი</div>
     </div>
   </div>
-  <aside class="study">
-### Retrieve და augment
-
-**Retrieve** — ლექცია 10-ის ძებნა, ოღონდ ნაწილებზე და 5 შედეგით:
-
-```csharp Controllers/AiLabController.cs · SearchChunksAsync
-public record FoundChunk(string File, int Page, string Content, double Score);
-
-private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationToken ct)
-{
-    float minScore = _config.GetValue<float>("Rag:MinScore");   // by testing — like lecture 9's homework
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
-
-    List<FoundChunk> top = await _db.DocumentChunks
-        .Where(c => c.Embedding != null)
-        .OrderBy(c => c.Embedding!.CosineDistance(query))
-        .Select(c => new FoundChunk(c.Document.FileName, c.Page, c.Content,
-            1 - c.Embedding!.CosineDistance(query)))
-        .Take(5)
-        .ToListAsync(ct);
-
-    return top.Where(c => c.Score >= minScore).ToList();
-}
-```
-
-- **top 5** — რამდენიმე ნაწილი: პასუხი შეიძლება ორ ადგილას იყოს. მეტი — კონტექსტი ძვირდება და „ხმაური“ იზრდება.
-- **ზღვარი** — ლექცია 9-ის გაკვეთილი: ძებნა **ყოველთვის** რაღაცას პოულობს. "a borscht recipe" რესტორნის წესებში ხუთ „ყველაზე ახლოს“ ნაწილს მაინც დააბრუნებდა — და მოდელი მათზე დაყრდნობით რაღაცას „უპასუხებდა“. ზღვარი ასეთ შემთხვევაში 0 ნაწილს აბრუნებს.
-
-**Augment** — ნაწილებს prompt-ში გადანომრილ წყაროებად ვსვამთ:
-
-```csharp Controllers/AiLabController.cs · BuildContext
-private static string BuildContext(List<FoundChunk> chunks) =>
-    chunks.Count == 0
-        ? "(No relevant information was found in the sources)"
-        : string.Join("\n\n", chunks.Select((c, i) => $"[{i + 1}] ({c.File}, p. {c.Page})\n{c.Content}"));
-```
-
-რატომ ნომრები და გვერდი: მოდელს შეუძლია პასუხში დაწეროს `[1]` — და ჩვენ ვიცით, რომელ ფაილსა და გვერდს ნიშნავს. მომხმარებელი წყაროს თვითონ ამოწმებს, ჩვენ კი ვხედავთ, საიდან მოვიდა პასუხი (და არასწორი პასუხისას — რომელი ნაწილი იყო ცუდი).
-
-```terms
-Retrieve — შეკითხვისთვის რელევანტური ნაწილების პოვნა
-Augment — ნაპოვნი ნაწილების ჩასმა prompt-ში
-Citation (წყაროს მითითება) — პასუხში წყაროს ნომერი, რომელიც ფაილსა და გვერდზე მიუთითებს
-```
-  </aside>
-  <aside class="study-en">
-### Retrieve and augment
-
-**Retrieve** — lecture 10's search, but on parts and with 5 results:
-
-```csharp Controllers/AiLabController.cs · SearchChunksAsync
-public record FoundChunk(string File, int Page, string Content, double Score);
-
-private async Task<List<FoundChunk>> SearchChunksAsync(string q, CancellationToken ct)
-{
-    float minScore = _config.GetValue<float>("Rag:MinScore");   // by testing — like lecture 9's homework
-    var query = new Vector(await _embeddings.GenerateVectorAsync(
-        EmbeddingText.Query(q), cancellationToken: ct));
-
-    List<FoundChunk> top = await _db.DocumentChunks
-        .Where(c => c.Embedding != null)
-        .OrderBy(c => c.Embedding!.CosineDistance(query))
-        .Select(c => new FoundChunk(c.Document.FileName, c.Page, c.Content,
-            1 - c.Embedding!.CosineDistance(query)))
-        .Take(5)
-        .ToListAsync(ct);
-
-    return top.Where(c => c.Score >= minScore).ToList();
-}
-```
-
-- **top 5** — several parts: the answer may be in two places. More — the context gets expensive and the “noise” grows.
-- **The threshold** — lecture 9's lesson: a search **always** finds something. “A borscht recipe” would still return the five “closest” parts of the restaurant's rules — and the model would “answer” something based on them. In such a case the threshold returns 0 parts.
-
-**Augment** — we put the parts into the prompt as numbered sources:
-
-```csharp Controllers/AiLabController.cs · BuildContext
-private static string BuildContext(List<FoundChunk> chunks) =>
-    chunks.Count == 0
-        ? "(No relevant information was found in the sources)"
-        : string.Join("\n\n", chunks.Select((c, i) => $"[{i + 1}] ({c.File}, p. {c.Page})\n{c.Content}"));
-```
-
-Why numbers and the page: the model can write `[1]` in the answer — and we know which file and page it means. The user checks the source themselves, and we see where the answer came from (and with a wrong answer — which part was bad).
-
-```terms
-Retrieve — finding the parts relevant to the question
-Augment — putting the found parts into the prompt
-Citation — a source number in the answer that points to a file and a page
-```
-  </aside>
 </section>
 
 <section class="slide" data-section="3 · query">
@@ -965,110 +377,6 @@ The menu and prices — from the tools.</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ორივე რეალური გზაა: „ყოველთვის“ — მარტივი და პროგნოზირებადი; tool — ძებნა მხოლოდ საჭიროებისას (ლექცია 15)</div>
     </div>
   </div>
-  <aside class="study">
-### RAG ჩატში: ისტორია + წყაროები + შეკითხვა
-
-ლექცია 7-ის `/chat`-ს ერთი ნაბიჯი ემატება — **ძებნა** და **augmented** შეტყობინება:
-
-```csharp Controllers/AiLabController.cs · Chat
-List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
-
-List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);   // retrieve
-ChatMessage question = new(ChatRole.User, request.Prompt);
-ChatMessage augmented = new(ChatRole.User, $"""
-    Sources:
-    {BuildContext(sources)}
-
-    Question: {request.Prompt}
-    """);                                                                  // augment
-
-List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
-ChatResponse response = await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);   // generate
-
-await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
-return Ok(new { conversationId, response.Text,
-    Sources = sources.Select((s, i) => new { N = i + 1, s.File, s.Page }) });
-```
-
-**წესები `SystemPrompt()`-ში** (ლექცია 2-ის ტექნიკით):
-
-```text
-Answer about the restaurant's rules, allergens and policy only from the given sources
-and give the source number for every fact: [1], [2].
-If the answer isn't in the sources, say: “I don't have information on this” — and make nothing up.
-Data on the menu, prices and free tables — only from the tools (as before).
-```
-
-**სამი მნიშვნელოვანი დეტალი:**
-
-1. **ისტორიაში ორიგინალი შეკითხვა ინახება** (`question`), არა `augmented`. წყაროები მხოლოდ ამ მოთხოვნისთვისაა: შემდეგ შეკითხვაზე სხვა წყაროები მოიძებნება. თუ წყაროებს ისტორიაში შევინახავდით, ყოველი შეტყობინება ხუთი ნაწილით „გაიბერებოდა“ (ლექცია 7-ის ბიუჯეტი).
-2. **„ინფორმაცია არ მაქვს“** — ზუსტი ფრაზა: ასე კოდშიც შეგვიძლია ამოვიცნოთ (ლოგი, სტატისტიკა: რა შეკითხვებზე არ ვიცით პასუხი — რომელი დოკუმენტი აკლია).
-3. **წყაროები response-ში** — UI-ს შეუძლია `[1]`-ზე ბმული აჩვენოს: "rules.pdf, p. 3".
-
-**„ყოველთვის ვეძებთ“ vs tool.** ჩვენი ჩატი ძებნას **ყოველ** შეკითხვაზე აკეთებს — „გამარჯობა“-ზეც (ზღვარი 0 ნაწილს დააბრუნებს, მაგრამ embedding-ის გამოძახება მაინც ხდება). ლექცია 9-ის ⭐-ში `search_menu` tool იყო: მოდელი თვითონ წყვეტს, როდის მოძებნოს. ორივე რეალური გზაა:
-
-| | ყოველთვის ვეძებთ (დღეს) | ძებნა tool-ად (ლექცია 15) |
-|---|---|---|
-| პლიუსი | მარტივი, პროგნოზირებადი, მოდელი ძებნას „ვერ დაივიწყებს“ | ძებნა მხოლოდ საჭიროებისას; მოდელი შეკითხვას თვითონ აზუსტებს |
-| მინუსი | ზედმეტი ძებნა; შეკითხვა "And for children?" წინა კონტექსტის გარეშე იძებნება | მოდელმა შეიძლება არ მოძებნოს, როცა საჭიროა |
-
-```terms
-Augmented შეტყობინება — მომხმარებლის შეკითხვა, რომელსაც ნაპოვნი წყაროები ერთვის; მხოლოდ ამ მოთხოვნაში იგზავნება
-```
-  </aside>
-  <aside class="study-en">
-### RAG in the chat: history + sources + question
-
-Lecture 7's `/chat` gets one more step — the **search** and an **augmented** message:
-
-```csharp Controllers/AiLabController.cs · Chat
-List<ChatMessage> history = await _history.LoadAsync(conversationId, ct);
-IEnumerable<ChatMessage> recent = await Reducer.ReduceAsync(history, ct);
-
-List<FoundChunk> sources = await SearchChunksAsync(request.Prompt, ct);   // retrieve
-ChatMessage question = new(ChatRole.User, request.Prompt);
-ChatMessage augmented = new(ChatRole.User, $"""
-    Sources:
-    {BuildContext(sources)}
-
-    Question: {request.Prompt}
-    """);                                                                  // augment
-
-List<ChatMessage> messages = [SystemPrompt(), .. recent, augmented];
-ChatResponse response = await _chat.GetResponseAsync(messages, ChatToolOptions(), ct);   // generate
-
-await _history.AppendAsync(conversationId, [question, .. response.Messages], ct);
-return Ok(new { conversationId, response.Text,
-    Sources = sources.Select((s, i) => new { N = i + 1, s.File, s.Page }) });
-```
-
-**The rules in `SystemPrompt()`** (with lecture 2's techniques):
-
-```text
-Answer about the restaurant's rules, allergens and policy only from the given sources
-and give the source number for every fact: [1], [2].
-If the answer isn't in the sources, say: “I don't have information on this” — and make nothing up.
-Data on the menu, prices and free tables — only from the tools (as before).
-```
-
-**Three important details:**
-
-1. **The original question is stored in the history** (`question`), not `augmented`. The sources are only for this request: on the next question other sources will be found. If we stored the sources in the history, every message would be “inflated” with five parts (lecture 7's budget).
-2. **“I don't have information”** — an exact phrase: this way we can also recognize it in code (logs, statistics: which questions we can't answer — which document is missing).
-3. **The sources in the response** — the UI can show a link on `[1]`: “rules.pdf, p. 3”.
-
-**“We always search” vs a tool.** Our chat searches on **every** question — on “hello” too (the threshold returns 0 parts, but the embedding call still happens). In lecture 9's ⭐ there was a `search_menu` tool: the model decides by itself when to search. Both are real approaches:
-
-| | We always search (today) | Search as a tool (lecture 15) |
-|---|---|---|
-| Plus | simple, predictable, the model can't “forget” to search | search only when needed; the model refines the question by itself |
-| Minus | extra searches; the question “and for children?” is searched without the previous context | the model may not search when it's needed |
-
-```terms
-Augmented message — the user's question with the found sources attached; sent only in this request
-```
-  </aside>
 </section>
 
 <lecture-classwork/>
@@ -1093,32 +401,6 @@ Augmented message — the user's question with the found sources attached; sent 
         <p class="small"><b>RAG-ის გაზომვა და გაუმჯობესება</b>: golden set, hit@k, hybrid search, chunking-ის სტრატეგიები, groundedness</p></div>
     </div>
   </div>
-  <aside class="study">
-## შეჯამება
-
-- **RAG** (Retrieval-Augmented Generation) — მოდელი პასუხობს ჩვენი დოკუმენტებიდან: **retrieve** (რელევანტური ნაწილები) → **augment** (prompt-ში) → **generate** (პასუხი წყაროთი). მთელ დოკუმენტზე იაფია, fine-tuning-ზე მარტივი და წყაროს ასახელებს.
-- **Ingestion** (ერთხელ): PDF → ტექსტი გვერდებით (**PdfPig**, `ContentOrderTextExtractor`) → გაწმენდა → **chunks** → ვექტორები → `DocumentChunk` ცხრილი (ლექცია 10-ის გზით). სკანირებულ PDF-ს OCR სჭირდება.
-- **Chunking:** ~800 სიმბოლო, წინადადების საზღვარზე, **overlap** ერთი წინადადება; გვერდ-გვერდ — ზუსტი წყაროსთვის. ზომა — კომპრომისი სიზუსტესა და კონტექსტს შორის.
-- **Query:** top 5 ნაწილი + **ზღვარი** → გადანომრილი წყაროები `[1] (file, p. N)` → წესები system prompt-ში: მხოლოდ წყაროებიდან, ნომრით, "I don't have information on this".
-- **ჩატში:** ისტორიაში **ორიგინალი** შეკითხვა, წყაროები — მხოლოდ ამ მოთხოვნაში; response-ში — `sources`.
-
-### შემდეგ ლექციაზე
-
-RAG მუშაობს, მაგრამ ზოგჯერ არასწორ ნაწილს პოულობს — განსაკუთრებით ზუსტ სიტყვებზე (სახელები, რიცხვები). „ზოგჯერ“ რამდენჯერ ნიშნავს? chunk-ის ზომის შეცვლამ გააუმჯობესა თუ გააუარესა? ლექცია 12-ზე: **RAG-ის გაზომვა და გაუმჯობესება** — golden set, hit@k, hybrid search (full-text + ვექტორი), metadata filtering, chunking-ის სტრატეგიები და პასუხის groundedness.
-  </aside>
-  <aside class="study-en">
-## Summary
-
-- **RAG** (Retrieval-Augmented Generation) — the model answers from our documents: **retrieve** (the relevant parts) → **augment** (into the prompt) → **generate** (an answer with a source). It's cheaper than the whole document, simpler than fine-tuning, and it names the source.
-- **Ingestion** (once): PDF → text page by page (**PdfPig**, `ContentOrderTextExtractor`) → cleaning → **chunks** → vectors → the `DocumentChunk` table (the lecture 10 way). A scanned PDF needs OCR.
-- **Chunking:** ~800 characters, on a sentence boundary, an **overlap** of one sentence; page by page — for an exact source. The size is a compromise between precision and context.
-- **Query:** top 5 parts + a **threshold** → numbered sources `[1] (file, p. N)` → rules in the system prompt: only from the sources, with the number, “I don't have information on this”.
-- **In the chat:** the **original** question goes into the history, the sources — only into this request; `sources` in the response.
-
-### Next lecture
-
-RAG works, but sometimes it finds the wrong part — especially on exact words (names, numbers). How many times is “sometimes”? Did changing the chunk size make it better or worse? In lecture 12: **measuring and improving RAG** — a golden set, hit@k, hybrid search (full-text + vector), metadata filtering, chunking strategies and the answer's groundedness.
-  </aside>
 </section>
 
 <lecture-homework/>

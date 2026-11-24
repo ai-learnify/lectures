@@ -21,33 +21,85 @@
     {"title": "Iterating with async enumerables", "url": "https://learn.microsoft.com/dotnet/csharp/asynchronous-programming/generate-consume-asynchronous-stream", "note": "IAsyncEnumerable, await foreach, [EnumeratorCancellation]"}
   ],
   "quiz": [
-    {"q": "Gemini's answer takes 6 seconds. What changes with streaming?", "options": ["The answer arrives in 3 seconds", "The first word appears in under ~a second; the total time stays almost the same", "Tokens get cheaper", "Nothing"], "explain": "Streaming reduces the TTFT — Gemini writes at the same speed."},
-    {"q": "What does `GetStreamingResponseAsync` return?", "options": ["`Task<ChatResponse>`", "`IAsyncEnumerable<ChatResponseUpdate>`", "`List<string>`", "`Stream`"], "explain": "An asynchronous stream of pieces — read with await foreach."},
-    {"q": "How is `await foreach` different from an ordinary `foreach`?", "options": ["It's faster", "It waits for the next item — it doesn't exist yet and will arrive later", "It only works on strings", "It walks the items backwards"], "explain": "The items of an IAsyncEnumerable appear asynchronously — Gemini is still writing."},
-    {"q": "Do tools (lecture 4) work with streaming?", "options": ["No — only with GetResponseAsync", "Yes — UseFunctionInvocation runs the loop with streaming too", "Only one tool", "Only on OpenAI"], "explain": "The same options, the same loop; the text arrives after the tool's result."},
-    {"q": "In `/chat/chunks` Swagger showed all the pieces at once. Why?", "options": ["Gemini wasn't streaming", "We collected the pieces in a list and returned `Ok(chunks)` at the end", "A Swagger bug", "The Stopwatch held it up"], "explain": "The ms values show Gemini was streaming — the stream stopped in the Controller."},
-    {"q": "What does an empty line mean in SSE?", "options": ["The connection closes", "The end of one message", "An error", "Nothing — it's ignored"], "explain": "`data: …` + an empty line = one message. The connection stays open."},
-    {"q": "Why is SSE enough for an AI chat, with SignalR not required?", "options": ["SignalR costs money", "An AI answer is one-way (server → client); SSE is plain HTTP, with no extra library", "SSE is more secure", "SignalR is gone in .NET 10"], "explain": "For two-way communication (a game, a chat between people) — WebSocket/SignalR."},
-    {"q": "What does `yield return update.Text` do in an async iterator?", "options": ["Adds the text to a list", "Returns the piece to the caller right away — and ServerSentEvents sends it to the client", "Ends the method", "Sends a new request to Gemini"], "explain": "No list needed — the stream doesn't break between Gemini and the client."},
-    {"q": "You try `/chat/stream` in Swagger and the answer still appears all at once. What's going on?", "options": ["The endpoint is wrong", "Swagger waits for the response to finish — to see the stream use curl -N or EventSource", "SSE doesn't work on Windows", "The CancellationToken is missing"], "explain": "The endpoint streams correctly — the client is the one collecting."},
-    {"q": "Who fills in the action's `CancellationToken` parameter?", "options": ["We do — new CancellationToken()", "ASP.NET Core — HttpContext.RequestAborted, cancelled when the client leaves", "Gemini", "Swagger"], "explain": "Exactly as in the API course's async endpoints."},
-    {"q": "What happens if we don't pass the token to `GetStreamingResponseAsync`?", "options": ["A compile error", "After the client leaves, the request to Gemini may go on to the end — we pay for tokens for nothing", "No answer arrives", "Nothing — the token is optional and always unnecessary"], "explain": "Pass the token to every async call — AI requests are long and cost money."}
-  ],
-  "study": {
-    "summary": [
-      "**Streaming** shows the answer as it's written: the total time is the same, but the **TTFT** (time to the first word) drops from seconds to milliseconds.",
-      "**`GetStreamingResponseAsync`** → `IAsyncEnumerable<ChatResponseUpdate>` → **`await foreach`**. The same messages and options; tools work too.",
-      "**Collecting the pieces in a list** stops the stream in the Controller. **`yield return`** (an async iterator) returns each piece right away.",
-      "**SSE**: `text/event-stream`, `data: …` + an empty line, an open connection. **`TypedResults.ServerSentEvents`** (.NET 10). Swagger can't show a stream — **`curl -N`**.",
-      "**`CancellationToken`** in three places: the action parameter, `[EnumeratorCancellation]`, `GetStreamingResponseAsync`. The user left → Gemini stops."
-    ],
-    "chapters": {
-      "1 · სტრიმი Gemini-დან": {"title": "A stream from Gemini: GetStreamingResponseAsync", "goal": "You'll explain what streaming changes and get the answer from Gemini piece by piece, measuring each piece's time."},
-      "2 · SSE": {"title": "Server-Sent Events: the stream to the client", "goal": "You'll write an SSE endpoint with `TypedResults.ServerSentEvents` and see with `curl -N` how the answer appears piece by piece."},
-      "3 · გაუქმება": {"title": "Cancellation: CancellationToken", "goal": "You'll pass the token in three places and check that the Gemini request stops when the client leaves."},
-      "პრაქტიკა": {"title": "Classwork: a streaming version of your chat"},
-      "შეჯამება": {"title": "Summary"},
-      "საშინაო": {"title": "Homework"}
+    {
+      "q": "Gemini's answer takes 6 seconds. What changes with streaming?",
+      "options": [
+        "The answer arrives in 3 seconds",
+        "The first word appears in under ~a second; the total time stays almost the same",
+        "Tokens get cheaper",
+        "Nothing"
+      ],
+      "explain": "Streaming reduces the TTFT — Gemini writes at the same speed."
+    },
+    {
+      "q": "What does `GetStreamingResponseAsync` return?",
+      "options": [
+        "`Task<ChatResponse>`",
+        "`IAsyncEnumerable<ChatResponseUpdate>`",
+        "`List<string>`",
+        "`Stream`"
+      ],
+      "explain": "An asynchronous stream of pieces — read with await foreach."
+    },
+    {
+      "q": "Do tools (lecture 4) work with streaming?",
+      "options": [
+        "No — only with GetResponseAsync",
+        "Yes — UseFunctionInvocation runs the loop with streaming too",
+        "Only one tool",
+        "Only on OpenAI"
+      ],
+      "explain": "The same options, the same loop; the text arrives after the tool's result."
+    },
+    {
+      "q": "In `/chat/chunks` Swagger showed all the pieces at once. Why?",
+      "options": [
+        "Gemini wasn't streaming",
+        "We collected the pieces in a list and returned `Ok(chunks)` at the end",
+        "A Swagger bug",
+        "The Stopwatch held it up"
+      ],
+      "explain": "The ms values show Gemini was streaming — the stream stopped in the Controller."
+    },
+    {
+      "q": "Why is SSE enough for an AI chat, with SignalR not required?",
+      "options": [
+        "SignalR costs money",
+        "An AI answer is one-way (server → client); SSE is plain HTTP, with no extra library",
+        "SSE is more secure",
+        "SignalR is gone in .NET 10"
+      ],
+      "explain": "For two-way communication (a game, a chat between people) — WebSocket/SignalR."
+    },
+    {
+      "q": "What does `yield return update.Text` do in an async iterator?",
+      "options": [
+        "Adds the text to a list",
+        "Returns the piece to the caller right away — and ServerSentEvents sends it to the client",
+        "Ends the method",
+        "Sends a new request to Gemini"
+      ],
+      "explain": "No list needed — the stream doesn't break between Gemini and the client."
+    },
+    {
+      "q": "Who fills in the action's `CancellationToken` parameter?",
+      "options": [
+        "We do — new CancellationToken()",
+        "ASP.NET Core — HttpContext.RequestAborted, cancelled when the client leaves",
+        "Gemini",
+        "Swagger"
+      ],
+      "explain": "Exactly as in the API course's async endpoints."
+    },
+    {
+      "q": "What happens if we don't pass the token to `GetStreamingResponseAsync`?",
+      "options": [
+        "A compile error",
+        "After the client leaves, the request to Gemini may go on to the end — we pay for tokens for nothing",
+        "No answer arrives",
+        "Nothing — the token is optional and always unnecessary"
+      ],
+      "explain": "Pass the token to every async call — AI requests are long and cost money."
     }
-  }
+  ]
 }

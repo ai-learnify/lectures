@@ -8,7 +8,7 @@ With code · your project · a table in the README
 - **2 tools:** one **without parameters**, one **with at least 2 parameters**; both **only read**; `[Description]` on the methods and parameters; names are verb + what
 - **`POST /api/ai-lab/chat`:** System — the assistant's role, “data only from the tools”, today's date (if you have a date parameter); the response has `Text` and `ToolCalls` **with parameters**
 - **A table in the README — 5 texts:** no tool · the first tool · the second tool · both together · one where a parameter is missing. Columns: text · `toolCalls` (with arguments) · is the answer correct? · what you noticed
-- The **quiz** at the end of the notes (11 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

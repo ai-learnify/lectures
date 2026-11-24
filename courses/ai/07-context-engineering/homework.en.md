@@ -9,7 +9,7 @@ With code · your project · a table in the README
 - **A reducer:** `MessageCountingChatReducer` in both endpoints — everything in the database, the last N in the context
 - **`GET /conversations/{id}`** — the conversation for a UI: only the messages with text, `{ role, text }`
 - **README — a budget table:** one conversation with 6 questions (2 of them call a tool that returns a lot of data). Columns: question · InputTokenCount without a reducer · InputTokenCount with `MessageCountingChatReducer(6)`
-- The **quiz** at the end of the notes (10 questions) — write down your score
+- The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 

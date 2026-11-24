@@ -36,113 +36,53 @@ html[data-theme=dark] .code .o,html[data-theme=dark] .code .p,html[data-theme=da
 </style>
 <style>
 :root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;
-  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;
+  --accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;--green:#15803d;--amber:#b45309;--red:#b91c1c;--blue:#1d4ed8;
   --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
 *{box-sizing:border-box}
-html{scroll-padding-top:80px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:130px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-/* ---------- top bar ---------- */
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
-.top .back:hover{color:var(--ink)}
-.top .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
-.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 13px;white-space:nowrap;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
-.langbtn{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}
+.bar .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.bar .ttl{flex:1;min-width:0;font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:11px;border:1px solid var(--line2);color:var(--ink);background:var(--card);cursor:pointer}
+.acts .btn{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.acts .btn.lang{font:700 13px var(--mono)}
+.acts .btn svg{width:20px;height:20px}
+.btn:hover{border-color:var(--ink2)}
 .btn.play{background:var(--accent);border-color:var(--accent);color:var(--on)}
-.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.live.on{display:flex}
-.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
-.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
-@keyframes pulse{50%{opacity:.3}}
-/* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:270px minmax(0,900px);gap:36px;justify-content:center;padding:28px 24px 140px}
-nav.side{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;font-size:14.5px;line-height:1.35}
-.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:12px}
-.prog .pl{display:flex;justify-content:space-between;font:700 12.5px var(--mono);color:var(--muted)}
-.prog .pl b{color:var(--green)}
-.prog .bar{height:7px;border-radius:9px;background:var(--soft2);margin-top:7px;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .3s}
-nav.side a{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;color:var(--ink2);text-decoration:none}
-nav.side a:hover{background:var(--soft2)}
-nav.side a.cur{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-nav.side a.x{margin-top:2px}
-nav.side a.x:first-of-type{margin-top:14px}
-nav.side .nn{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:var(--accent-soft);color:var(--accent);position:relative}
-nav.side .nn.e{background:transparent;font-size:16px}
-nav.side a.ok .nn{background:var(--green);color:transparent}
-nav.side a.ok .nn::after{content:"✓";position:absolute;color:var(--on);font-size:13px}
-nav.side .nt{flex:1;min-width:0}
-nav.side .nm{flex:none;font:600 11.5px var(--mono);color:var(--muted)}
-nav.side .mats{margin-top:16px;display:flex;flex-direction:column;gap:6px}
-nav.side .mats a{padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
-/* ---------- hero + quick start ---------- */
-header.hero .k{font:600 14px var(--mono);color:var(--accent)}
-header.hero h1{font-size:36px;line-height:1.2;margin:6px 0 8px;letter-spacing:-.01em}
-header.hero p{color:var(--ink2);margin:0 0 18px;font-size:16px}
-header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
-.livehint{display:none}body.is-live .livehint{display:inline}
-.quick{display:grid;grid-template-columns:1.35fr 1fr;gap:0;background:var(--deep);color:#e8e6f2;border-radius:20px;overflow:hidden;margin-bottom:16px}
-.quick h2{font-size:24px;margin:0 0 2px;color:#fff}
-.quick .qk{padding:20px 24px}
-.quick .qs{margin:0 0 8px;color:#b9b5d6;font-size:15px}
-.take{margin:0;padding:0;list-style:none;counter-reset:t}
-.take li{counter-increment:t;position:relative;padding:7px 0 7px 38px;border-top:1px solid rgba(255,255,255,.08);font-size:16.5px;line-height:1.55}
-.take li:first-child{border-top:0}
-.take li::before{content:counter(t);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:#a78bfa;color:var(--ink);font:800 13px/26px var(--mono);text-align:center}
-.take strong{color:#fff}.take code{background:rgba(255,255,255,.12);color:#fff;border-radius:5px;padding:0 5px;font:600 .88em var(--mono)}
-.quick .qp{background:var(--deep2);padding:20px 22px}
-.quick h3{margin:0 0 8px;font-size:18px;color:#fff}
-.path{margin:0;padding-left:22px;font-size:15.5px}.path li{margin:7px 0}
-.path a{color:#c4b5fd;font-weight:700}
-.res{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 18px;margin-bottom:8px}
-.res h3{margin:0 0 4px;font-size:16px}
-.rlinks{margin:0;padding-left:20px;font-size:15.5px}.rlinks li{margin:3px 0}
-.rfiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.rf{font:600 13.5px var(--mono);color:var(--teal);text-decoration:none;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:8px;padding:4px 10px}
-/* ---------- chapters ---------- */
-.chap{position:relative;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;margin:34px 0 0;box-shadow:0 2px 10px rgba(40,30,10,.05)}
-.chap[data-num="0"]{border-top-color:var(--teal)}
-.chap.fin{border-top-color:var(--green)}
-.chap.ok{border-top-color:var(--green)}
-.chh{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line)}
-.chap.ok .chh{background:linear-gradient(90deg,var(--ok-soft),transparent 60%)}
-.cn{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font:800 21px var(--mono);background:var(--accent);color:var(--on)}
-.cn.e{background:var(--teal-soft);font-size:24px}
-.chap.fin .cn.e{background:var(--ok-soft)}
-.cht{flex:1;min-width:0}
-.ck{font:700 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.chh h2{font-size:26px;line-height:1.25;margin:2px 0 0}
-.goal{margin:8px 0 0;font-size:15.5px;color:var(--ink2);background:var(--accent-soft);border-radius:10px;padding:6px 12px;display:inline-block}
-.read{flex:none;font:700 13px var(--sans);border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:4px}
-.read:hover{border-color:var(--green);color:var(--green)}
-.chap.ok .read{background:var(--ok-soft);border-color:var(--ok-line);color:var(--green)}
-.cbody{padding:4px 22px 18px}
-.anchor{position:absolute;top:-70px}
-/* blocks inside a chapter */
-.blk{position:relative;padding:16px 0 6px;border-top:1px dashed var(--line2)}
-.blk:first-child{border-top:0}
-.blk.cur{margin:0 -22px;padding-left:19px;padding-right:22px;border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.blk.lead .bh h3{visibility:hidden;height:0;margin:0}.blk.lead{padding-top:10px;font-size:18.5px;color:var(--ink2)}
-.blk.check{margin-top:10px;border:1px solid var(--ok-line);border-radius:14px;background:var(--ok-soft);padding:10px 16px}
-.blk.check .selfcheck{border:0;background:transparent;padding:0;margin:0}
-.blk.check .selfcheck .sh{display:none}
-.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.bh h3{font-size:21px;line-height:1.35;margin:2px 0 6px}
-.blk.check .bh h3{color:var(--green);font-size:18px}
-.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
-.chip:hover{color:var(--accent);border-color:var(--accent)}
-/* ---------- markdown ---------- */
-.cbody p{margin:10px 0}
-.cbody ul,.cbody ol{padding-left:24px;margin:8px 0}
-.cbody li{margin:4px 0}
-.cbody h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
-.cbody h4{font-size:17px;margin:18px 0 4px}
-.cbody :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
-.cbody table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
-.cbody th,.cbody td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-.cbody th{background:var(--soft)}
+.tabs{display:flex;gap:4px;justify-content:center;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:700 15px var(--sans);border:0;background:transparent;color:var(--ink2);padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tabs button small{font:600 12px var(--mono);color:var(--muted);margin-left:4px}
+.tabs button.on{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+.hero .k{font:600 13px var(--mono);color:var(--muted)}
+.hero h1{font-size:30px;line-height:1.25;margin:4px 0 18px}
+.panel{display:none}.panel.on{display:block}
+.box{margin:16px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 22px}
+.box>h2{font-size:19px;margin:0 0 8px}
+.box.key{background:var(--deep);color:#e8e6f2;border:0}
+.box.key h2{color:#fff}.box.key strong{color:#fff}.box.key code{background:rgba(255,255,255,.12)!important;color:#fff!important}
+.box.key ol{margin:0;padding-left:24px}.box.key li{margin:8px 0}
+.box ul,.box ol{padding-left:22px}
+.path li{margin:6px 0}
+.topic{margin:18px 0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.topic>header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.topic .num{flex:none;min-width:32px;height:32px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font:800 15px/32px var(--mono);text-align:center}
+.topic h2{flex:1;margin:0;font-size:19.5px;line-height:1.3}
+.topic .sl{font:700 13px var(--mono);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tb{padding:4px 20px 10px}
+.tb p{margin:10px 0}.tb ul,.tb ol{padding-left:22px}.tb li{margin:4px 0}
+.tb :not(pre)>code,.box :not(pre)>code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
+.tb table,.box table{border-collapse:collapse;margin:12px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.tb th,.tb td,.box th,.box td{border:1px solid var(--line);padding:7px 12px;text-align:left;vertical-align:top}
+.tb th,.box th{background:var(--soft)}
+.task h3{font-size:20px;margin:4px 0 4px}.task h4{font-size:16.5px;margin:16px 0 4px}
+.hint{color:var(--muted);font-size:15px;margin:4px 0 0}
 .codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)df9}
 .codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line)}
 .copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
@@ -205,393 +145,121 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 .qq.no .verdict::before{content:"✗ არა.";color:var(--red);font-weight:700}
 .qsum{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--ok-line);background:var(--ok-soft)}
 .qsum.on{display:block}
-/* ---------- small screens / print ---------- */
-@media (max-width:1000px){
-  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 12px 110px}
-  nav.side{position:static;max-height:none;margin-bottom:10px}
-  nav.side details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
-  nav.side details>summary{cursor:pointer;font-weight:700}
-  header.hero h1{font-size:28px}
-  .top{padding:8px 12px}.top .ttl small{display:none}
-  .quick{grid-template-columns:1fr}
-  .chh{padding:14px;gap:12px;flex-wrap:wrap}.cht{flex:1 1 calc(100% - 56px)}.read{margin:0 0 0 52px}.cbody{padding:2px 14px 14px}
-  .cn{width:40px;height:40px;font-size:18px}.chh h2{font-size:22px}
-  .blk.cur{margin:0 -14px;padding-left:11px;padding-right:14px}
-  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
-}
-@media (min-width:1001px){nav.side details>summary{display:none}}
-@media print{.top,nav.side,.copy,.chip,.live,.read,.qscore{display:none!important}.wrap{display:block;padding:0}body{background:var(--card)}.selfcheck details{display:block}.chap{box-shadow:none}}
+.chip{font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px}
+.qscore{top:120px}
+@media (max-width:720px){.bar .ttl small{display:none}.tabs{justify-content:flex-start}.topic>header{flex-wrap:wrap}.terms dl{grid-template-columns:1fr}}
+@media print{.top{display:none}.panel{display:block!important}.selfcheck details{display:block}}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>📖 AI აგენტები .NET-ში · 9</small>Text Embeddings: ტექსტის ვექტორიზაცია</div>
-  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
-  <a class="btn langbtn" href="study.en.html" title="English">EN</a>
-  <button class="themebtn btn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
-  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+  <div class="bar">
+    <a class="back" href="../../">← ლექციები</a>
+    <div class="ttl"><small>📖 ლექცია 9</small>Text Embeddings: ტექსტის ვექტორიზაცია</div>
+    <div class="acts">
+      <a class="btn lang" href="study.en.html" title="English">EN</a>
+      <button class="themebtn btn" type="button" title="ღია / მუქი თემა" aria-label="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+      <a class="btn play" href="index.html" target="_blank" title="პრეზენტაცია" aria-label="პრეზენტაცია"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3"/><path d="m7 21 5-5 5 5"/><path d="M10 7.5v5l4-2.5z" fill="currentColor"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist"><button type="button" data-t="main">მთავარი</button><button type="button" data-t="topics">თემები<small>3</small></button><button type="button" data-t="tasks">დავალებები</button><button type="button" data-t="quiz">ტესტი<small>8</small></button></nav>
 </div>
-<div class="wrap">
-  <nav class="side"><details id="navd"><summary>სარჩევი</summary>
-    <div class="prog"><div class="pl"><span>წაკითხული</span><span><b id="pk">0</b> / <span id="pn">0</span></span></div><div class="bar"><i id="pbar"></i></div></div>
-    <a href="#c-1"><span class="nn e">•</span><span class="nt">გამეორება</span><span class="nm">1′</span></a><a href="#c-2"><span class="nn e">•</span><span class="nt">საშინაოს განხილვა</span><span class="nm">2′</span></a><a href="#c-3"><span class="nn">1</span><span class="nt">რა არის embedding</span><span class="nm">3′</span></a><a href="#c-4"><span class="nn">2</span><span class="nt">IEmbeddingGenerator და task prefix</span><span class="nm">2′</span></a><a href="#c-5"><span class="nn">3</span><span class="nt">Cosine similarity და სემანტიკური ძებნა</span><span class="nm">2′</span></a><a href="#c-6"><span class="nn e">✍️</span><span class="nt">კლასის დავალება: მსგავსების თამაში</span><span class="nm">2′</span></a><a href="#c-7"><span class="nn e">🏁</span><span class="nt">შეჯამება</span><span class="nm">1′</span></a><a href="#c-8"><span class="nn e">🏠</span><span class="nt">საშინაო დავალება</span><span class="nm">2′</span></a><a href="#quiz" class="x"><span class="nn e">✅</span><span class="nt">შეამოწმე ცოდნა</span><span class="nm">10</span></a><a href="#glossary" class="x"><span class="nn e">📘</span><span class="nt">ტერმინები</span><span class="nm">11</span></a>
-    <div class="mats"></div>
-  </details></nav>
-  <main>
-    <header class="hero">
-      <div class="k">📖 კონსპექტი · AI აგენტები .NET-ში · ლექცია 9</div>
-      <h1>Text Embeddings: ტექსტის ვექტორიზაცია</h1>
-      <p>ლექციის სრული მასალა თავებად, ~15 წუთი კითხვა. შენი პროგრესი ბრაუზერში ინახება.<span class="livehint"> ეს გვერდი პრეზენტაციას მიჰყვება: სლაიდის შეცვლისას შესაბამისი ნაწილი მოინიშნება.</span></p>
-    </header>
-    <section class="quick"><div class="qk"><h2>⚡ 5 წუთში</h2><p class="qs">თუ მხოლოდ ეს დაგამახსოვრდა, ლექციის მთავარი იცი:</p><ol class="take"><li><strong>Embedding</strong>: ტექსტი → ვექტორი (რიცხვების სია), სადაც <strong>მსგავსი მნიშვნელობა ახლოსაა</strong> — ენისა და სიტყვების მიუხედავად.</li><li>ვექტორს <strong>ცალკე embedding მოდელი</strong> აგენერირებს: <code>gemini-embedding-2</code>, <strong>768</strong> განზომილება. ერთი მოდელი = ერთი „რუკა“.</li><li><strong><code>IEmbeddingGenerator</code></strong>: <code>AddEmbeddingGenerator</code>, <code>AsIEmbeddingGenerator(model, defaultModelDimensions)</code>, <code>GenerateVectorAsync</code> / <code>GenerateAsync</code>.</li><li><strong>Task prefix</strong>: შეკითხვა — <code>task: search result | query: …</code>, დოკუმენტი — <code>title: … | text: …</code>; ყოველთვის ერთი წესით.</li><li><strong>Cosine similarity</strong> — ორი ვექტორის კუთხე (1 — მსგავსი, 0 — არაფერი საერთო); <code>TensorPrimitives.CosineSimilarity</code>. ძებნა: მენიუ ერთხელ → ვექტორები; შეკითხვა → cosine ყველასთან → top 3.</li></ol></div><div class="qp"><h3>📍 ლექცია გააცდინე?</h3><ol class="path"><li><a href="#c-1">წაიკითხე თავები</a> — სულ ~15 წთ. ყოველი თავის ბოლოს არის „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a> — 10 კითხვა, ქულით</li><li><a href="#classwork">გააკეთე კლასის დავალება</a> სახლში</li><li><a href="#homework">საშინაო დავალება</a> — შემდეგ ლექციაზე განვიხილავთ</li></ol></div></section>
-    <section class="res" id="resources"><h3>🔗 სასარგებლო ბმულები</h3><ul class="rlinks"><li><a href="https://ai.google.dev/gemini-api/docs/embeddings" target="_blank" rel="noopener">Gemini — Embeddings</a> — gemini-embedding-2, განზომილებები, task prefix-ები</li><li><a href="https://learn.microsoft.com/dotnet/ai/conceptual/embeddings" target="_blank" rel="noopener">Embeddings in .NET</a> — რა არის embedding და IEmbeddingGenerator</li><li><a href="https://googleapis.github.io/dotnet-genai/api/Microsoft.Extensions.AI.GoogleGenAIExtensions.html" target="_blank" rel="noopener">Google.GenAI — AsIEmbeddingGenerator</a> — Gemini → IEmbeddingGenerator, defaultModelDimensions</li><li><a href="https://learn.microsoft.com/dotnet/api/system.numerics.tensors.tensorprimitives.cosinesimilarity" target="_blank" rel="noopener">TensorPrimitives.CosineSimilarity</a> — cosine similarity SIMD-ით</li><li><a href="https://github.com/pgvector/pgvector" target="_blank" rel="noopener">pgvector</a> — შემდეგი ლექციისთვის: ვექტორები PostgreSQL-ში</li></ul></section>
-    <section class="chap" id="c-1" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>გამეორება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 2</a></div>
-<p>ლექცია 8 — <strong>Error Handling, Resilience და ხარჯის კონტროლი</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../08-resilience-cost/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რომელ შეცდომაზე შველის retry და რომელზე — არა? თითო მაგალითი.</summary><div class="ans">დროებითი — 429, 500/503, timeout, ქსელი: თავიდან ცდა შველის · მუდმივი — 400, 401, 403, 404: იგივე მოთხოვნა იგივე შეცდომას მოიტანს · შინაარსის (length, ცუდი JSON) — კოდში</div></details><details><summary>რატომ არ ვცდით თავიდან მაშინვე 10-ჯერ? რა არის backoff და jitter?</summary><div class="ans">გადატვირთულ სერვისს კიდევ მეტ მოთხოვნას ვუგზავნით · backoff — მზარდი პაუზა (2→4→8 წმ) · jitter — შემთხვევითი ნაწილი, რომ ბევრმა კლიენტმა ერთდროულად არ სცადოს · 429-ზე — Retry-After</div></details><details><summary>რატომ ვთიშავთ Google.GenAI-ის საკუთარ retry-ს?</summary><div class="ans">retry ერთ ადგილას უნდა იყოს · ორი retry ერთმანეთში = 4 × 4 = 16 ცდა და წუთობით ლოდინი · <code>HttpRetryOptions { Attempts = 1 }</code> + ჩვენი HttpClient <code>ClientOptions.HttpClientFactory</code>-ით</div></details><details><summary>სად დგას <code>FallbackChatClient</code> pipeline-ში და რომელ შეცდომას იჭერს?</summary><div class="ans">ყველაზე შიგნით (ბოლო <code>.Use</code>) — tool-ის ციკლის თითო მოთხოვნას თავისი fallback · მხოლოდ დროებითს: ApiException 429/5xx, ქსელი, timeout · <code>catch … when</code></div></details><details><summary>TokenCounter ბაზაში რატომ იღებს DbContext-ს <code>IServiceScopeFactory</code>-ით?</summary><div class="ans">pipeline Singleton-ია, DbContext — Scoped · პირდაპირ ჩასმა = captive dependency · ფენა ყოველ ჯერზე საკუთარ scope-ს ქმნის</div></details></div></article></div></section>
-<section class="chap" id="c-2" data-num="0"><header class="chh"><span class="cn e">•</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაოს განხილვა</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 3</a></div>
-<p>წინა ლექციის საშინაო: <strong>შეცდომებზე მდგრადი ჩატი და დღის ხარჯი</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
-<h3>მოთხოვნები</h3>
-<ul>
-<li><strong>resilience</strong> შენს პროექტში: <code>AddHttpClient("gemini").AddStandardResilienceHandler(...)</code> LLM-ისთვის გაზრდილი timeout-ით; Google.GenAI ამ HttpClient-ს იყენებს (<code>ClientOptions.HttpClientFactory</code>), მისი საკუთარი retry გამორთულია</li>
-<li><strong><code>FallbackChatClient</code></strong> — მხოლოდ დროებით შეცდომაზე (429, 5xx, ქსელი, timeout); სარეზერვო მოდელი <code>appsettings.json</code>-ში (<code>Gemini:FallbackModel</code>); pipeline-ში ყველაზე შიგნით</li>
-<li><strong><code>TokenCounterChatClient</code> ბაზაში</strong> (<code>AiUsage</code>) — <code>ReasoningTokenCount</code> output-ს ემატება</li>
-<li><strong><code>GET /api/ai-lab/usage/today</code></strong> — მოდელების მიხედვით: გამოძახებები, input, output და ფასი დოლარში; ფასები <code>appsettings.json</code>-ში (<code>AiPricing:&lt;მოდელი&gt;:InputPerMillion</code> / <code>OutputPerMillion</code>), კოდში — არა</li>
-<li><strong>README — შეცდომების ცხრილი:</strong> სამი ცდა <code>ChaosHandler</code>-ით და კონფიგურაციით: (1) ორი 503 · (2) არასწორი მოდელის სახელი · (3) ყოველთვის 503. სვეტები: ცდა · რამდენი მოთხოვნა წავიდა · რა მიიღო მომხმარებელმა · ლოგის 1–2 ხაზი</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (10 კითხვა) — ქულა ჩაწერე</li>
-</ul>
-<h3>ამოხსნა</h3>
-<p>ნიმუში — ბიბლიოთეკის API (საშინაო 7-ის გაგრძელება).</p>
-<div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · UsageToday</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ModelPrice</span><span class="p">(</span><span class="kt">decimal</span><span class="w"> </span><span class="n">InputPerMillion</span><span class="p">,</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">OutputPerMillion</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("usage/today")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">UsageToday</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">AiUsage</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">.</span><span class="n">Date</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">GroupBy</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">Model</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">g</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Key</span><span class="p">,</span><span class="w"> </span><span class="n">Calls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Count</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">Input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">InputTokens</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">g</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">u</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">OutputTokens</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">rows</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">ModelPrice</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_config</span><span class="p">.</span><span class="n">GetSection</span><span class="p">(</span><span class="s">$"AiPricing:{r.Model}"</span><span class="p">)</span><span class="p">.</span><span class="n">Get</span><span class="o">&lt;</span><span class="n">ModelPrice</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kt">decimal</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Input</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000m</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">InputPerMillion</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Output</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="n">_000_000m</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">OutputPerMillion</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Model</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Calls</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Input</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">Output</span><span class="p">,</span><span class="w"> </span><span class="n">CostUsd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="n">Round</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<div class="codebox"><div class="ch"><span>Program.cs · pipeline</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span><span class="n">sp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="cm">/* Gemini with our HttpClient, Attempts = 1 */</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="n">inner</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">LibraryGuardChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseFunctionInvocation</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TokenCounterChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">IServiceScopeFactory</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">UseLogging</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Use</span><span class="p">(</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">sp</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FallbackChatClient</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">fallback</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">sp</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">ILogger</span><span class="o">&lt;</span><span class="n">FallbackChatClient</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>ცდა</th>
-<th>მოთხოვნები Gemini-სთან</th>
-<th>მომხმარებელმა მიიღო</th>
-<th>ლოგი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ორი 503</td>
-<td>3 (2 ჩავარდა)</td>
-<td>პასუხი ~6 წამში</td>
-<td><code>Standard-Retry · Result: 503 · Attempt: 0</code>, <code>Attempt: 1</code>, მერე 200</td>
-</tr>
-<tr>
-<td><code>Gemini:Model = "gemini-0"</code></td>
-<td>1</td>
-<td>500 (404 NOT_FOUND)</td>
-<td>retry-ს ხაზი არ არის — 404 მუდმივია</td>
-</tr>
-<tr>
-<td>ყოველთვის 503</td>
-<td>4 მთავარზე + 1 სარეზერვოზე</td>
-<td>პასუხი ~14 წამში</td>
-<td>3 retry → <code>🛟 … fallback model</code>; <code>AiUsage.Model</code> = სარეზერვოს სახელი</td>
-</tr>
-</tbody>
-</table>
-<div class="callout note"><span class="ci">💡</span><div><p>retry ჯერ თავის სამ ცდას ამოწურავს (2 + 4 + 8 წამი ≈ 14 წამი), და მხოლოდ მერე ჩაერთვება fallback: ის retry-ის <strong>შიგნით</strong> არ არის, retry არის HttpClient-ში, fallback — IChatClient-ში. 404-ზე fallback-იც არ ჩაერთო: <code>IsTransient</code> 404-ს მუდმივად თვლის. ფასები <code>appsettings.json</code>-შია, ამიტომ <code>/usage/today</code> ახალი მოდელისთვის 0-ს აჩვენებს, სანამ ფასს არ ჩავწერთ — ეს შეგნებულია.</p></div></div></article></div></section>
-<section class="chap" id="c-3" data-num="1"><header class="chh"><span class="cn">1</span><div class="cht"><div class="ck">თავი 1 · ~3 წთ კითხვა</div><h2>რა არის embedding</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> ახსნი, როგორ აქცევს embedding ტექსტს ვექტორად და რატომ არის მსგავსი მნიშვნელობა ახლოს.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · რა არის embedding</h3><a class="chip" href="index.html#/6" data-go="6" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 6</a></div>
-<p>ჯერ ვხედავთ, რატომ არ გვყოფნის სიტყვებით ძებნა. მერე — იდეა: ტექსტის „მნიშვნელობის კოორდინატები“. და ბოლოს — რა მოდელი აკეთებს ამას და რამდენი რიცხვია ერთ ვექტორში.</p></article><article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>პრობლემა: სიტყვებით ძებნა მნიშვნელობას ვერ ხედავს</h3><a class="chip" href="index.html#/7" data-go="7" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 7</a></div>
-<p>მომხმარებელი წერს "something light, without meat". ჩვეულებრივი ძებნა სიტყვებს ეძებს:</p>
+<main>
+  <header class="hero"><div class="k">📖 AI აგენტები .NET-ში · ლექცია 9</div><h1>Text Embeddings: ტექსტის ვექტორიზაცია</h1></header>
+  <section class="panel" id="tab-main"><div class="box"><h2>🎯 ამ ლექციის შემდეგ შეძლებ</h2><ul><li>ახსნი, რა არის embedding და ვექტორი, რატომ არის მსგავსი მნიშვნელობა „ახლოს“ და რატომ არ შეედრება სხვადასხვა მოდელის ვექტორები</li><li><code>IEmbeddingGenerator</code>-ს დაარეგისტრირებ (<code>gemini-embedding-2</code>, 768 განზომილება) და <code>GenerateVectorAsync</code> / <code>GenerateAsync</code>-ით ვექტორებს მიიღებ</li><li>შეკითხვას და დოკუმენტს სწორი task prefix-ით ჩაწერ და ახსნი, რატომ არის ძებნა ასიმეტრიული</li><li>cosine similarity-ს გამოთვლი (ხელით და <code>TensorPrimitives</code>-ით) და მენიუს სემანტიკურ ძებნას დაწერ top 3-ით</li></ul></div><div class="box key"><h2>⚡ მთავარი</h2><ol><li><strong>Embedding:</strong> ტექსტი → ვექტორი (რიცხვების სია), სადაც <strong>მსგავსი მნიშვნელობა ახლოსაა</strong>, ენისა და სიტყვების მიუხედავად.</li><li>ვექტორს <strong>ცალკე embedding მოდელი</strong> ქმნის. ერთი მოდელი და ზომა = ერთი „რუკა“: მოდელის შეცვლა ყველაფრის თავიდან დათვლას ნიშნავს.</li><li><code>IEmbeddingGenerator</code>: <code>GenerateVectorAsync</code> ერთ ტექსტზე, <code>GenerateAsync</code> ბევრზე.</li><li><strong>task prefix:</strong> შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით, ყოველთვის ერთნაირად.</li><li><strong>cosine similarity</strong> კუთხეს ზომავს. შედეგებს ვადარებთ და ვალაგებთ, ციფრს ცალკე არ ვაფასებთ.</li></ol></div><div class="box"><h2>📍 ლექცია გააცდინე?</h2><ol class="path"><li><a href="index.html" target="_blank">ნახე პრეზენტაცია</a>: სლაიდები ლექციის მთელ გზას აჩვენებს</li><li><a href="#topics">წაიკითხე თემები</a>: ~6 წთ, თითოს ბოლოს „შეამოწმე თავი“</li><li><a href="#quiz">გაიარე ტესტი</a>: 8 კითხვა</li><li><a href="#tasks">გააკეთე დავალებები</a></li></ol></div><div class="box"><h2>🔗 ბმულები</h2><ul><li><a href="https://ai.google.dev/gemini-api/docs/embeddings" target="_blank" rel="noopener">Gemini — Embeddings</a> — gemini-embedding-2, განზომილებები, task prefix-ები</li><li><a href="https://learn.microsoft.com/dotnet/ai/conceptual/embeddings" target="_blank" rel="noopener">Embeddings in .NET</a> — რა არის embedding და IEmbeddingGenerator</li><li><a href="https://googleapis.github.io/dotnet-genai/api/Microsoft.Extensions.AI.GoogleGenAIExtensions.html" target="_blank" rel="noopener">Google.GenAI — AsIEmbeddingGenerator</a> — Gemini → IEmbeddingGenerator, defaultModelDimensions</li><li><a href="https://learn.microsoft.com/dotnet/api/system.numerics.tensors.tensorprimitives.cosinesimilarity" target="_blank" rel="noopener">TensorPrimitives.CosineSimilarity</a> — cosine similarity SIMD-ით</li><li><a href="https://github.com/pgvector/pgvector" target="_blank" rel="noopener">pgvector</a> — შემდეგი ლექციისთვის: ვექტორები PostgreSQL-ში</li></ul></div></section><section class="panel" id="tab-topics"><section class="topic"><header><span class="num">1</span><h2>რა არის embedding</h2><a class="sl" href="index.html#/6" target="_blank">▶ სლაიდები 6–9</a></header><div class="tb"><p>მომხმარებელი წერს "something light, without meat". სიტყვებით ძებნა (<code>LIKE</code>) ამას ვერ იპოვის, რადგან კერძის აღწერაში ეს სიტყვები არ წერია:</p>
 <div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">SELECT</span><span class="w"> </span><span class="ss">"Name"</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="ss">"Products"</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="ss">"Description"</span><span class="w"> </span><span class="k">ILIKE</span><span class="w"> </span><span class="s1">'%without meat%'</span><span class="p">;</span></span><span class="ln"><span class="c1">-- 0 results</span></span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>კერძი</th>
-<th>აღწერა</th>
-<th>LIKE</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ლობიო ქოთანში</td>
-<td>წითელი ლობიო, ხახვი, ქინძი, ცხელი მჭადით</td>
-<td>✗</td>
-</tr>
-<tr>
-<td>ბადრიჯანი ნიგვზით</td>
-<td>შემწვარი ბადრიჯანი, ნიგვზის პასტა, ბროწეული</td>
-<td>✗</td>
-</tr>
-<tr>
-<td>მწვადი</td>
-<td>ღორის ხორცი შამფურზე, ხახვით</td>
-<td>✗</td>
-</tr>
-<tr>
-<td>ხინკალი</td>
-<td>საქონლისა და ღორის ხორცი, ცომში</td>
-<td>✗</td>
-</tr>
-<tr>
-<td>პომიდვრის სალათი</td>
-<td>პომიდორი, კიტრი, ნიგოზი</td>
-<td>✗</td>
-</tr>
-</tbody>
-</table>
-<p>ადამიანი მაშინვე ხედავს, რომ ლობიო, ბადრიჯანი და სალათი შეესაბამება. ხოლო თუ სიტყვა „ხორცი“-ს მოვძებნით, LIKE ზუსტად <strong>არასწორ</strong> კერძებს იპოვის: მწვადს და ხინკალს. სიტყვა და მნიშვნელობა სხვადასხვა რამეა: "without meat", „ვეგეტარიანული“ და „vegetarian“ ერთსა და იმავეს ნიშნავს, ერთი ასოც არ ემთხვევა.</p>
-<p>ლექცია 7-ის ენით: გვინდა <strong>შერჩევა</strong> — კონტექსტში მხოლოდ ის კერძები, რომლებიც შეკითხვას შეესაბამება. ამისთვის მნიშვნელობით ძებნა გვჭირდება.</p></article><article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>embedding: ტექსტის „მნიშვნელობის კოორდინატები“</h3><a class="chip" href="index.html#/8" data-go="8" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 8</a></div>
-<p><strong>Embedding</strong> — ტექსტის გადაქცევა რიცხვების სიად: <code>"Lobio in a clay pot"</code> → <code>[0.021, -0.047, 0.009, 0.063, …]</code>. ამ სიას <strong>ვექტორი</strong> ჰქვია. ვექტორი სივრცეში წერტილია: ორ რიცხვს რუკაზე წერტილი შეესაბამება (x, y), 768 რიცხვს — წერტილი 768-განზომილებიან სივრცეში.</p>
-<p><strong>მთავარი თვისება:</strong> embedding მოდელი ისეა გავარჯიშებული, რომ <strong>მსგავსი მნიშვნელობის ტექსტები ახლოს</strong> დგანან:</p>
-<ul>
-<li>"Lobio in a clay pot", "Aubergine with walnuts", "Tomato salad" — ერთ მხარეს (ბოსტნეული, ხორცის გარეშე);</li>
-<li>„მწვადი“, „ხინკალი“ — მეორე მხარეს (ხორცი);</li>
-<li>შეკითხვა "without meat" პირველ ჯგუფთან ჯდება, და <strong>„vegetarian“-იც იქვე</strong>: ენა სხვაა, მნიშვნელობა — ერთი.</li>
-</ul>
-<p>სლაიდზე ორგანზომილებიანი ნახატია, რომ თვალით დავინახოთ. სინამდვილეში ერთ ვექტორში ასობით ან ათასობით რიცხვია, და თითოეული რიცხვი მნიშვნელობის რაღაც „მიმართულებაა“, რომელიც მოდელმა ვარჯიშისას თვითონ ისწავლა (ადამიანისთვის გასაგები სახელი არც ერთს არ აქვს).</p>
-<p>ლექცია 1-ის კითხვაზე „საიდან იცის მოდელმა, რას ნიშნავს ტოკენი 3293?“ — ეს არის პასუხი: მოდელის შიგნით ყოველ ტოკენს ასეთი ვექტორი აქვს.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Embedding</dt><dd>ტექსტის (ან სურათის) გადაქცევა რიცხვების სიად ისე, რომ მსგავსი მნიშვნელობა ახლოს იყოს</dd><dt>ვექტორი (vector)</dt><dd>რიცხვების სია; embedding-ის შედეგი; სივრცეში წერტილი</dd><dt>განზომილება (dimension)</dt><dd>რამდენი რიცხვია ვექტორში (მაგ. 768)</dd></dl></div></article><article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>embedding მოდელი: ცალკე მოდელი, ცალკე interface</h3><a class="chip" href="index.html#/9" data-go="9" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 9</a></div>
-<p>ვექტორს ჩატის მოდელი (<code>gemini-3.8-flash</code>) კი არ აგენერირებს, არამედ <strong>ცალკე embedding მოდელი</strong>:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>ჩატის მოდელი</th>
-<th>embedding მოდელი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>შედის</td>
-<td>შეტყობინებები</td>
-<td>ტექსტი</td>
-</tr>
-<tr>
-<td>გამოდის</td>
-<td>ტექსტი (ტოკენ-ტოკენ)</td>
-<td>ერთი ვექტორი (ერთბაშად)</td>
-</tr>
-<tr>
-<td>interface</td>
-<td><code>IChatClient</code></td>
-<td><code>IEmbeddingGenerator</code></td>
-</tr>
-<tr>
-<td>ფასი</td>
-<td>input + output</td>
-<td>მხოლოდ input — ბევრად იაფი</td>
-</tr>
-</tbody>
-</table>
-<p><strong>ჩვენი მოდელი: <code>gemini-embedding-2</code></strong> — Gemini-ს უახლესი embedding მოდელი (Stable). შესაყვანად 8 192 ტოკენამდე იღებს, ვექტორის ზომა 128-დან 3072-მდე შეიძლება იყოს. რეკომენდებული ზომებია 768, 1536 და 3072.</p>
-<p><strong>ჩვენ ვიღებთ 768-ს:</strong> ხარისხი კარგია, ვექტორი 4-ჯერ პატარაა (ბაზაში ნაკლები ადგილი, ძებნა სწრაფი), და ლექცია 10-ის pgvector ინდექსი ასეთ ზომას თავისუფლად ამუშავებს.</p>
-<p><strong>ერთი მოდელი — ერთი „რუკა“.</strong> ყველა embedding მოდელი თავის სივრცეს ქმნის. <code>gemini-embedding-2</code>-ის ვექტორს სხვა მოდელის (ან იმავე მოდელის სხვა ზომის) ვექტორს ვერ შევადარებთ — რიცხვები სხვა „რუკაზეა“. ამიტომ მოდელი და ზომა ერთხელ ირჩევა: თუ შევცვლით, ყველა შენახული ვექტორი თავიდან უნდა დავითვალოთ.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Embedding მოდელი</dt><dd>მოდელი, რომელიც ტექსტს ვექტორად აქცევს; ტექსტს არ წერს</dd><dt>IEmbeddingGenerator</dt><dd>Microsoft.Extensions.AI-ის interface embedding-ისთვის, IChatClient-ის მსგავსად</dd></dl></div></article></div></section>
-<section class="chap" id="c-4" data-num="1"><header class="chh"><span class="cn">2</span><div class="cht"><div class="ck">თავი 2 · ~2 წთ კითხვა</div><h2>IEmbeddingGenerator და task prefix</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> Gemini-თი ვექტორს მიიღებ და შეკითხვას და დოკუმენტს სწორი prefix-ით ჩაწერ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · ვექტორი კოდში</h3><a class="chip" href="index.html#/10" data-go="10" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 10</a></div>
-<p><code>IEmbeddingGenerator</code>-ს ვარეგისტრირებთ ისევე, როგორც ლექცია 3-ში <code>IChatClient</code>-ს, ვაგენერირებთ პირველ ვექტორს და ვხედავთ, რატომ იწერება შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით.</p></article><article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>IEmbeddingGenerator: რეგისტრაცია და პირველი ვექტორი</h3><a class="chip" href="index.html#/11" data-go="11" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 11</a></div>
-<p><strong>რეგისტრაცია</strong> — ლექცია 3-ის <code>AddChatClient</code>-ის მსგავსად:</p>
+<p><strong>Embedding</strong> ტექსტს რიცხვების სიად აქცევს: <code>"Lobio in a clay pot"</code> → <code>[0.021, -0.047, 0.009, …]</code>. წარმოიდგინე რუკა: მსგავსი მნიშვნელობის ტექსტები ახლოსაა, და "vegetarian" ლობიოს გვერდით დაჯდება, თუნდაც სიტყვა „ლობიო“ არ ახსენო. სინამდვილეში ეს 768 რიცხვია და არა 2.</p>
+<p>ვექტორს ჩატის მოდელი კი არ ქმნის, არამედ <strong>ცალკე embedding მოდელი</strong> (<code>gemini-embedding-2</code>). ის ტექსტს არ წერს, მხოლოდ ვექტორს აბრუნებს.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ერთი მოდელის ვექტორი მეორე მოდელის ვექტორს შეედრება?</summary><div class="ans">არა: ყოველ მოდელს თავისი „რუკა“ აქვს. მოდელის შეცვლისას ყველა ვექტორი თავიდან უნდა დავითვალოთ.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>embedding</dt><dd>ტექსტის გადაქცევა რიცხვების სიად ისე, რომ მსგავსი მნიშვნელობა ახლოს იყოს</dd><dt>ვექტორი</dt><dd>რიცხვების სია, embedding-ის შედეგი</dd></dl></div></div></section><section class="topic"><header><span class="num">2</span><h2>ვექტორი კოდში</h2><a class="sl" href="index.html#/10" target="_blank">▶ სლაიდები 10–12</a></header><div class="tb"><p>რეგისტრაცია ლექცია 3-ის <code>AddChatClient</code>-ის მსგავსია:</p>
 <div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">embeddingModel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:EmbeddingModel"</span><span class="p">]</span><span class="o">!</span><span class="p">;</span><span class="w">   </span><span class="c1">// "gemini-embedding-2"</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddEmbeddingGenerator</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">AsIEmbeddingGenerator</span><span class="p">(</span><span class="n">embeddingModel</span><span class="p">,</span><span class="w"> </span><span class="n">defaultModelDimensions</span><span class="p">:</span><span class="w"> </span><span class="mi">768</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<ul>
-<li><strong><code>AsIEmbeddingGenerator(model, defaultModelDimensions)</code></strong> — Google.GenAI-ის client-ს <code>IEmbeddingGenerator&lt;string, Embedding&lt;float&gt;&gt;</code>-ად „ახვევს“, ისევე როგორც <code>AsIChatClient</code>. <code>defaultModelDimensions: 768</code> — ვექტორის ზომა.</li>
-<li><strong><code>AddEmbeddingGenerator</code></strong> — DI-ში რეგისტრაცია (Singleton). მოდელის სახელი <code>appsettings.json</code>-შია: <code>"Gemini": { "EmbeddingModel": "gemini-embedding-2" }</code>.</li>
-</ul>
-<p><strong>პირველი ვექტორი:</strong></p>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · Embed</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// constructor: IEmbeddingGenerator&lt;string, Embedding&lt;float&gt;&gt; embeddings</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("embed")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Embed</span><span class="p">(</span><span class="n">AskRequest</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Prompt</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="n">Length</span><span class="p">,</span><span class="w"> </span><span class="n">First5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="p">.</span><span class="n">ToArray</span><span class="p">(</span><span class="p">)</span><span class="p">[</span><span class="p">.</span><span class="mf">.5</span><span class="p">]</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<ul>
-<li><strong><code>GenerateVectorAsync(text)</code></strong> — ერთი ტექსტი → ერთი ვექტორი (<code>ReadOnlyMemory&lt;float&gt;</code> — <code>float</code>-ების მასივის „ხედი“).</li>
-<li><strong>ბევრი ტექსტი ერთად:</strong> <code>GenerateAsync(texts)</code> — ერთი გამოძახებით მთელი სია (ნაწილი 3-ში მენიუსთვის).</li>
-</ul>
-<p>Swagger-ში: <code>length: 768</code> და პირველი ხუთი რიცხვი. ცალკეულ რიცხვს მნიშვნელობა არ აქვს — მნიშვნელობა აქვს <strong>ორი ვექტორის შედარებას</strong>.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>GenerateVectorAsync</dt><dd>ერთი ტექსტის ვექტორის მიღება IEmbeddingGenerator-ით</dd><dt>GenerateAsync</dt><dd>ბევრი ტექსტის ვექტორები ერთი გამოძახებით</dd></dl></div></article><article class="blk" data-slides="12,13"><span class="anchor" id="s-12"></span><span class="anchor" id="s-13"></span><div class="bh"><h3>task prefix: შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით</h3><a class="chip" href="index.html#/12" data-go="12" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 12</a></div>
-<p>შეკითხვა ("something light?") და მისი პასუხი (კერძის აღწერა) ერთნაირ ტექსტს არ ჰგავს: შეკითხვა მოკლეა და „სურვილს“ აღწერს, დოკუმენტი — გრძელი და „ფაქტებს“. ასეთ ძებნას <strong>ასიმეტრიული</strong> ჰქვია. <code>gemini-embedding-2</code>-ისთვის Google ტექსტურ ამოცანებზე <strong>გვირჩევს</strong>, რომ ტექსტს წინ ამოცანის აღწერა (prefix) მივუწეროთ:</p>
-<table>
-<thead>
-<tr>
-<th>რა</th>
-<th>ფორმატი</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>შეკითხვა</strong></td>
-<td><code>task: search result \| query: {query}</code></td>
-</tr>
-<tr>
-<td><strong>დოკუმენტი</strong></td>
-<td><code>title: {title} \| text: {text}</code> (სათაურის გარეშე — <code>title: none</code>)</td>
-</tr>
-</tbody>
-</table>
+<p><strong>task prefix.</strong> შეკითხვა მოკლეა, დოკუმენტი (კერძის აღწერა) გრძელი. მოდელს ვეუბნებით, რომელია რომელი:</p>
 <div class="codebox"><div class="ch"><span>Ai/EmbeddingText.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">EmbeddingText</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Query</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="s">$"task: search result | query: {q}"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Document</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="s">$"title: {title} | text: {text}"</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>prefix მოდელს ეუბნება, რომელი ტექსტი რა როლშია, და ძებნის ხარისხი იზრდება. ერთი წესი უცვლელია: <strong>ყველა დოკუმენტი ერთი ფორმატით, ყველა შეკითხვა — მეორით</strong>. თუ ნახევარს prefix-ით შევინახავთ, ნახევარს — უმისოდ, ვექტორები ერთმანეთს ცუდად შეედრება.</p>
-<p><code>search result</code>-ის ნაცვლად სხვა ამოცანებიც არსებობს (კითხვა-პასუხი, ფაქტის შემოწმება, კოდის ძებნა) — Gemini-ს embeddings გვერდზე.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>ასიმეტრიული ძებნა</dt><dd>მოკლე შეკითხვით გრძელი დოკუმენტის ძებნა; შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით</dd><dt>Task prefix</dt><dd>ტექსტის წინ მიწერილი ამოცანის აღწერა, რომელიც embedding-ის ხარისხს ზრდის</dd></dl></div></article></div></section>
-<section class="chap" id="c-5" data-num="1"><header class="chh"><span class="cn">3</span><div class="cht"><div class="ck">თავი 3 · ~2 წთ კითხვა</div><h2>Cosine similarity და სემანტიკური ძებნა</h2><p class="goal">🎯 <b>ამის შემდეგ:</b> მსგავსებას გაზომავ და მენიუს ძებნას მნიშვნელობით დაწერ.</p></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk lead" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაწილი 3 · მსგავსება და ძებნა</h3><a class="chip" href="index.html#/14" data-go="14" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 14</a></div>
-<p>ორი ვექტორი გვაქვს. რამდენად ახლოს არიან? ვსწავლობთ cosine similarity-ს, ვწერთ მას C#-ში და ვაწყობთ მენიუს სემანტიკურ ძებნას.</p></article><article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>cosine similarity: ორი ისრის კუთხე</h3><a class="chip" href="index.html#/15" data-go="15" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 15</a></div>
-<p>ვექტორი შეგვიძლია ისრად წარმოვიდგინოთ, რომელიც ცენტრიდან რაღაც მიმართულებით იყურება. <strong>cosine similarity</strong> ზომავს <strong>კუთხეს</strong> ორ ისარს შორის:</p>
-<table>
-<thead>
-<tr>
-<th>კუთხე</th>
-<th>cosine</th>
-<th>რას ნიშნავს</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0° — ერთი მიმართულება</td>
-<td>1</td>
-<td>ძალიან მსგავსი</td>
-</tr>
-<tr>
-<td>90° — პერპენდიკულარული</td>
-<td>0</td>
-<td>არაფერი საერთო</td>
-</tr>
-<tr>
-<td>180° — საპირისპირო</td>
-<td>−1</td>
-<td>(ტექსტებზე პრაქტიკულად არ ხდება)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>ფორმულა</strong> — სკალარული ნამრავლი გაყოფილი სიგრძეების ნამრავლზე:</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>prefix-ის წესი ყველგან ერთნაირი უნდა იყოს: ინდექსაციისასაც და ძებნისასაც.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>„ლობიო“ და „lobio“. ვექტორები ერთნაირი იქნება?</summary><div class="ans">რიცხვები სხვაა, მაგრამ ვექტორები ახლოსაა.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IEmbeddingGenerator</dt><dd>Microsoft.Extensions.AI-ის interface embedding-ისთვის</dd><dt>GenerateAsync</dt><dd>ბევრი ტექსტის ვექტორები ერთი გამოძახებით</dd></dl></div></div></section><section class="topic"><header><span class="num">3</span><h2>მსგავსება და ძებნა</h2><a class="sl" href="index.html#/14" target="_blank">▶ სლაიდები 14–16</a></header><div class="tb"><p>ვექტორი ისარია, რომელიც ცენტრიდან რაღაც მიმართულებით იყურება. <strong>cosine similarity</strong> ორი ისრის კუთხეს ზომავს: 1 ნიშნავს ერთ მიმართულებას, 0 კი 90°-ს. ხელით:</p>
 <div class="codebox"><div class="ch"><span>ხელით — როგორ ითვლება</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="nf">Cosine</span><span class="p">(</span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">ReadOnlySpan</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">na</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">nb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">dot</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span><span class="w">   </span><span class="c1">// the dot product</span></span><span class="ln"><span class="w">        </span><span class="n">na</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span><span class="w">   </span><span class="c1">// the length of a, squared</span></span><span class="ln"><span class="w">        </span><span class="n">nb</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span><span class="w">   </span><span class="c1">// the length of b, squared</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dot</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">na</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MathF</span><span class="p">.</span><span class="n">Sqrt</span><span class="p">(</span><span class="n">nb</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<p>.NET-ში ეს მზაა და სწრაფიც (SIMD — პროცესორი რამდენიმე რიცხვს ერთდროულად ამრავლებს):</p>
+<p>იგივე ერთი ხაზით:</p>
 <div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">System.Numerics.Tensors</span><span class="p">;</span><span class="w">   </span><span class="c1">// NuGet: System.Numerics.Tensors</span></span><span class="ln"><span class="kt">float</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TensorPrimitives</span><span class="p">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">Span</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">Span</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
-<p><strong>ციფრებს როგორ ვკითხულობთ.</strong> ნიმუში: "without meat" ↔ ლობიო <strong>0.71</strong>, ↔ მწვადი <strong>0.38</strong>. აბსოლუტური ციფრი მოდელზეა დამოკიდებული: ზოგ მოდელზე სრულიად უცხო ტექსტებიც 0.4-ს აჩვენებს. ამიტომ ციფრს ცალკე არ ვაფასებთ („0.7 კარგია?“), არამედ <strong>ვადარებთ</strong>: რომელია უფრო ახლოს. ძებნაში სწორედ ესაა საჭირო — დალაგება.</p>
-<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Cosine similarity</dt><dd>ორი ვექტორის მსგავსების საზომი მათ შორის კუთხით: 1 — ერთი მიმართულება, 0 — არაფერი საერთო</dd><dt>TensorPrimitives</dt><dd>System.Numerics.Tensors-ის კლასი ვექტორული გამოთვლებისთვის (CosineSimilarity, Dot…), SIMD-ით</dd></dl></div></article><article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>მენიუს სემანტიკური ძებნა</h3><a class="chip" href="index.html#/16" data-go="16" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 16</a></div>
-<p>ორი ნაბიჯი: <strong>ინდექსაცია</strong> — მენიუს ყველა კერძის ვექტორი ერთხელ ითვლება და ინახება; <strong>ძებნა</strong> — ყოველ შეკითხვაზე მხოლოდ შეკითხვის ვექტორი ითვლება და ყველა კერძს ედარება.</p>
-<p><strong>სად ვინახავთ ვექტორებს (ჯერ):</strong> მეხსიერებაში, Singleton სერვისში:</p>
+<p><strong>მენიუს ძებნა</strong> ორი ნაბიჯია: <strong>ინდექსაცია</strong> (ყველა კერძის ვექტორი ერთხელ ითვლება) და <strong>ძებნა</strong> (შეკითხვის ვექტორი და დალაგება მსგავსებით):</p>
 <div class="codebox"><div class="ch"><span>Ai/MenuIndex.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MenuIndex</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Vector</span><span class="p">)</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Items</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">Program</span><span class="p">.</span><span class="n">cs</span><span class="p">:</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSingleton</span><span class="o">&lt;</span><span class="n">MenuIndex</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
 <div class="codebox"><div class="ch"><span>Controllers/AiLabController.cs · menu/index, menu/search</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("menu/index")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">IndexMenu</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">GeneratedEmbeddings</span><span class="o">&lt;</span><span class="n">Embedding</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">vectors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">products</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Document</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Description</span><span class="p">)</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Clear</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">vectors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Vector</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Indexed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("menu/search")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SearchMenu</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">ReadOnlyMemory</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_embeddings</span><span class="p">.</span><span class="n">GenerateVectorAsync</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">EmbeddingText</span><span class="p">.</span><span class="n">Query</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">:</span><span class="w"> </span><span class="n">ct</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_menu</span><span class="p">.</span><span class="n">Items</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">Score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TensorPrimitives</span><span class="p">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">query</span><span class="p">.</span><span class="n">Span</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Vector</span><span class="p">.</span><span class="n">Span</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">OrderByDescending</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Score</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Take</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">top</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
-<ul>
-<li><strong><code>GenerateAsync(texts)</code></strong> — ყველა კერძი <strong>ერთი</strong> გამოძახებით; <code>vectors[i]</code> იმავე რიგითაა, რაც <code>products[i]</code>.</li>
-<li><strong>დოკუმენტი:</strong> <code>title: Name | text: Description</code>. embedding მხოლოდ იმას „ხედავს“, რასაც მივცემთ: თუ კერძს აღწერა არ აქვს, ძებნა სუსტია. (<code>Product</code>-ს <code>Description</code> თუ არ აქვს, დაამატე migration-ით.)</li>
-<li><strong>ძებნა:</strong> შეკითხვის ვექტორი (<code>task: search result | query: …</code>) → cosine ყველა კერძთან → დალაგება → სამი საუკეთესო.</li>
-</ul>
-<p><strong>შედეგი (ნიმუში):</strong> "without meat" → ლობიო 0.71, ბადრიჯანი 0.68, სალათი 0.63. LIKE-მა 0 იპოვა.</p>
-<p><strong>რატომ არ ვითვლით მენიუს ვექტორებს ყოველ შეკითხვაზე?</strong> 200 კერძი ყოველ ჯერზე — ფული და წამები. მენიუ იშვიათად იცვლება: ერთხელ ვითვლით და ვინახავთ. ხელახლა — მხოლოდ კერძის დამატებისას ან შეცვლისას.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>ვექტორები ჯერ <strong>მეხსიერებაშია</strong>: აპის რესტარტზე ქრება, და ძებნა ყველა ვექტორს სათითაოდ ადარებს. 200 კერძზე ეს მილიწამებია, მილიონ დოკუმენტზე — არა. ლექცია 10-ში ვექტორებს PostgreSQL-ში (pgvector) გადავიტანთ, ინდექსით.</p></div></div></article></div></section>
-<section class="chap" id="c-6" data-num="0"><span class="anchor" id="classwork"></span><header class="chh"><span class="cn e">✍️</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>კლასის დავალება: მსგავსების თამაში</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>კლასში დავალება: მსგავსების თამაში — ჯერ გამოიცანი, მერე გაზომე</h3><a class="chip" href="index.html#/17" data-go="17" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 17</a></div>
-<p>შენი პროექტი ან RestaurantApi · კოდით · Swagger და ცხრილი რვეულში</p>
-<h3>ნაბიჯები</h3>
-<ul>
-<li><strong>1 · რეგისტრაცია</strong> — <code>AddEmbeddingGenerator(new Client(apiKey: apiKey).AsIEmbeddingGenerator("gemini-embedding-2", defaultModelDimensions: 768))</code>; მოდელის სახელი <code>appsettings.json</code>-ში</li>
-<li><strong>2 · endpoint</strong> — <code>POST /api/ai-lab/similarity</code>, body <code>{ "a": "...", "b": "..." }</code>: ორი ვექტორი (<code>GenerateAsync([a, b])</code> — ერთი გამოძახებით) → <code>TensorPrimitives.CosineSimilarity</code> → <code>{ score }</code></li>
-<li><strong>3 · ჯერ გამოიცანი</strong> — რვეულში 5 წყვილი შენი პროექტის თემით და თითოეულზე <strong>შენი პროგნოზი</strong> (მაღალი / საშუალო / დაბალი) — Swagger-ის გაშვებამდე. ერთი წყვილი ქართული ↔ ინგლისური, ერთი — ერთნაირი სიტყვებით, მაგრამ სხვა მნიშვნელობით</li>
-<li><strong>4 · გაზომე</strong> — Swagger-ში ხუთივე; დაალაგე score-ით. სად შეცდი?</li>
-</ul>
-<h3>✓ მზადაა, როცა</h3>
-<p><code>/similarity</code> score-ს აბრუნებს; ცხრილში 5 წყვილი, პროგნოზი და რეალური score; ქართული ↔ ინგლისური წყვილი მაღლაა, ვიდრე „ერთნაირი სიტყვები — სხვა მნიშვნელობა“</p>
-<h3>⭐ ბონუსი</h3>
-<ul>
-<li>იგივე წყვილები <strong>prefix-ით</strong>: <code>a</code> — <code>EmbeddingText.Query</code>, <code>b</code> — <code>EmbeddingText.Document</code>. დალაგება შეიცვალა?</li>
-<li><code>defaultModelDimensions: 3072</code> — score-ები და დალაგება შეიცვალა? რამდენჯერ დიდია ვექტორი?</li>
-<li>cosine <strong>ხელით</strong> (სლაიდ 15-ის loop) — იგივე რიცხვი გამოდის, რაც <code>TensorPrimitives</code>-ით?</li>
-</ul>
-<h3>💡 თუ გაიჭედე</h3>
-<ul>
-<li><strong><code>TensorPrimitives</code> ვერ პოულობს?</strong> NuGet <code>System.Numerics.Tensors</code> და <code>using System.Numerics.Tensors;</code></li>
-<li><strong><code>AsIEmbeddingGenerator</code> ვერ პოულობს?</strong> <code>using Microsoft.Extensions.AI;</code> და Google.GenAI-ის ის ვერსია, რაც ლექცია 2-დან გაქვს</li>
-<li><strong>ვექტორები:</strong> <code>GeneratedEmbeddings&lt;Embedding&lt;float&gt;&gt; v = await _embeddings.GenerateAsync([a, b], cancellationToken: ct);</code> → <code>v[0].Vector.Span</code>, <code>v[1].Vector.Span</code></li>
-<li><strong>წყვილის იდეები:</strong> "booking a table" ↔ „book a table“ · "a spicy dish" ↔ "a hot dish" · „ხინკალი“ ↔ „ჩურჩხელა“</li>
-</ul></article></div></section>
-<section class="chap" id="c-7" data-num="0"><header class="chh"><span class="cn e">🏁</span><div class="cht"><div class="ck">~1 წთ კითხვა</div><h2>შეჯამება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk check" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/18" data-go="18" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 18</a></div>
-<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვერ პოულობს LIKE „ხორცის გარეშე“-ზე ლობიოს და რას აკეთებს embedding სხვანაირად?</summary><div class="ans">LIKE სიტყვებს ეძებს, ეს სიტყვები აღწერაში არ წერია · embedding ტექსტს ვექტორად აქცევს, სადაც მსგავსი მნიშვნელობა ახლოსაა — ენისა და სიტყვების მიუხედავად</div></details><details><summary>რით განსხვავდება embedding მოდელი ჩატის მოდელისგან? რომელს ვიყენებთ და რა ზომით?</summary><div class="ans">ტექსტს არ წერს — ერთ ვექტორს აბრუნებს, მხოლოდ input ფასდება · <code>IEmbeddingGenerator</code> · <code>gemini-embedding-2</code>, 768 განზომილება</div></details><details><summary>რატომ არ შეიძლება მოდელის „უბრალოდ“ შეცვლა, თუ ვექტორები უკვე შენახულია?</summary><div class="ans">ყველა მოდელს (და ზომას) თავისი „რუკა“ აქვს — სხვადასხვა მოდელის ვექტორები არ შეედრება · მოდელის შეცვლა = ყველა ვექტორის თავიდან დათვლა</div></details><details><summary>რა არის task prefix და რატომ აქვს შეკითხვას და დოკუმენტს სხვადასხვა?</summary><div class="ans">ასიმეტრიული ძებნა: მოკლე „სურვილი“ ↔ გრძელი „ფაქტები“ · <code>task: search result | query: …</code> და <code>title: … | text: …</code> · ყოველთვის ერთი წესით</div></details><details><summary>რას ზომავს cosine similarity და როგორ ვკითხულობთ ციფრს?</summary><div class="ans">ორი ვექტორის კუთხეს: 1 — ერთი მიმართულება, 0 — არაფერი საერთო · ციფრი მოდელზეა დამოკიდებული — ვადარებთ და ვალაგებთ, ცალკე არ ვაფასებთ</div></details></div></article><article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეჯამება</h3><a class="chip" href="index.html#/19" data-go="19" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 19</a></div>
-<ul>
-<li><strong>Embedding</strong> ტექსტს ვექტორად (რიცხვების სიად) აქცევს ისე, რომ <strong>მსგავსი მნიშვნელობა ახლოს</strong> იყოს — ენის მიუხედავადაც ("without meat" ≈ „vegetarian“). ასე ძებნა სიტყვებით კი არა, <strong>მნიშვნელობით</strong> ხდება.</li>
-<li>ვექტორს <strong>ცალკე embedding მოდელი</strong> აგენერირებს: ჩვენთან <code>gemini-embedding-2</code>, <strong>768</strong> განზომილებით. ერთი მოდელი — ერთი „რუკა“: სხვადასხვა მოდელის ვექტორები ერთმანეთს არ შეედრება.</li>
-<li><strong><code>IEmbeddingGenerator</code></strong> — Microsoft.Extensions.AI-ის interface (<code>IChatClient</code>-ის გვერდით): <code>AddEmbeddingGenerator</code>, <code>AsIEmbeddingGenerator(model, defaultModelDimensions)</code>, <code>GenerateVectorAsync</code> (ერთი) და <code>GenerateAsync</code> (ბევრი).</li>
-<li><strong>Task prefix:</strong> შეკითხვა — <code>task: search result | query: …</code>, დოკუმენტი — <code>title: … | text: …</code>. ყოველთვის ერთი და იგივე წესით.</li>
-<li><strong>Cosine similarity</strong> ორი ვექტორის კუთხეს ზომავს (1 — ძალიან მსგავსი, 0 — არაფერი საერთო). ციფრს ვადარებთ, ცალკე არ ვაფასებთ. .NET-ში: <code>TensorPrimitives.CosineSimilarity</code>.</li>
-<li><strong>სემანტიკური ძებნა:</strong> მენიუს ვექტორები ერთხელ (<code>GenerateAsync</code>), შეკითხვაზე — მხოლოდ შეკითხვის ვექტორი, cosine ყველასთან, top 3.</li>
-</ul>
-<h3>შემდეგ ლექციაზე</h3>
-<p>ვექტორები ახლა მეხსიერებაშია: აპის რესტარტზე ქრება, და ძებნა ყველა ვექტორს სათითაოდ ადარებს. 200 კერძზე ეს პრობლემა არ არის, ათასობით დოკუმენტზე — არის. ლექცია 10-ზე: <strong>PostgreSQL pgvector და EF Core</strong> — ვექტორები ბაზაში, ძებნა SQL-ით და HNSW ინდექსით.</p></article></div></section>
-<section class="chap" id="c-8" data-num="0"><span class="anchor" id="homework"></span><header class="chh"><span class="cn e">🏠</span><div class="cht"><div class="ck">~2 წთ კითხვა</div><h2>საშინაო დავალება</h2></div><button type="button" class="read">☐ წავიკითხე</button></header><div class="cbody"><article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>საშინაო დავალება: სემანტიკური ძებნა შენს პროექტში</h3><a class="chip" href="index.html#/20" data-go="20" target="_blank" title="ეს ნაწილი პრეზენტაციაში">სლაიდი 20</a></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ვექტორები ჯერ მეხსიერებაშია: რესტარტზე ქრება. ლექცია 10-ზე ბაზაში გადავიტანთ.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>მენიუს ვექტორებს ყოველ შეკითხვაზე რატომ არ ვითვლით?</summary><div class="ans">ფულიც და დროც: 200 კერძი ყოველ შეკითხვაზე. მენიუ იშვიათად იცვლება, ამიტომ ერთხელ ვითვლით.</div></details><details><summary>score 0.71 კარგია?</summary><div class="ans">ცალკე ციფრი არაფერს ამბობს. მნიშვნელოვანია დალაგება: რომელი შედეგია უმაღლესი.</div></details></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>cosine similarity</dt><dd>ორი ვექტორის მსგავსება მათ შორის კუთხით: 1 ერთი მიმართულებაა, 0 არაფერი საერთო</dd></dl></div></div></section></section><section class="panel" id="tab-tasks"><h2>🏠 საშინაო</h2><div class="box task"><h3>სემანტიკური ძებნა შენს პროექტში</h3>
 <p>კოდით · შენი პროექტი · README-ში შედარების ცხრილი</p>
-<h3>მოთხოვნები</h3>
+<h4>მოთხოვნები</h4>
 <ul>
 <li><strong><code>IEmbeddingGenerator</code></strong> შენს პროექტში: <code>gemini-embedding-2</code>, 768 განზომილება, მოდელი <code>appsettings.json</code>-ში</li>
 <li><strong><code>EmbeddingText</code></strong> — <code>Query</code> და <code>Document</code> prefix-ები; ყველა დოკუმენტი ერთი ფორმატით, ყველა შეკითხვა — მეორით</li>
 <li><strong>ინდექსი:</strong> <code>POST .../index</code> — შენი ძირითადი ჩანაწერები (კერძები, წიგნები, კურსები…) <code>GenerateAsync</code>-ით <strong>ერთ</strong> გამოძახებაში, ვექტორები Singleton-ში; თუ ჩანაწერს აღწერა არ აქვს — დაამატე</li>
 <li><strong>ძებნა:</strong> <code>GET .../search?q=</code> — top 3 score-ით, <strong>ზღვრით</strong>: თუ საუკეთესო score ზღვარზე დაბალია (ზღვარი — <code>appsettings.json</code>-ში), დააბრუნე ცარიელი სია. ზღვარი შენი ცდებით აირჩიე</li>
 <li><strong>README — შედარების ცხრილი:</strong> 5 შეკითხვა (ერთი ინგლისურად, ერთი — ისეთი, რაც შენს მონაცემებში საერთოდ არ არის). სვეტები: შეკითხვა · <code>LIKE</code>-ის შედეგი · embeddings-ის top 3 score-ებით · სწორია?</li>
-<li>კონსპექტის ბოლოს <strong>ტესტი</strong> (10 კითხვა) — ქულა ჩაწერე</li>
+<li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
 </ul>
-<h3>✓ მზადაა, როცა</h3>
+<h4>✓ მზადაა, როცა</h4>
 <p>„სინონიმით“ ან ინგლისურად დასმული შეკითხვა სწორ ჩანაწერს პოულობს, სადაც LIKE ვერაფერს; „არარსებულ“ შეკითხვაზე ზღვარი ცარიელს აბრუნებს; README-ში ცხრილი და ტესტის ქულა</p>
-<h3>⭐ ბონუსი</h3>
+<h4>⭐ ბონუსი</h4>
 <ul>
 <li><strong>tool ჩატისთვის:</strong> <code>search_menu(query)</code> — ლექცია 4-ის tool, რომელიც სემანტიკურ ძებნას იყენებს <code>get_menu</code>-ის ნაცვლად. ჰკითხე ჩატს "something light?" — რამდენი ტოკენი დაიზოგა (ლექცია 7-ის ბიუჯეტი)?</li>
 <li><strong>ინდექსის განახლება:</strong> ჩანაწერის დამატებისას/შეცვლისას მისი ვექტორი თავიდან ითვლება — მთელი ინდექსის გარეშე</li>
 <li><strong>ზომა:</strong> 768 vs 3072 — ინდექსაციის დრო, მეხსიერება (<code>768 × 4</code> ბაიტი ჩანაწერზე) და top 3-ის ცვლილება</li>
 </ul>
-<h3>💡 დეტალები</h3>
+<h4>💡 დეტალები</h4>
 <ul>
 <li>ინდექსი რესტარტზე ქრება — ეს ნორმალურია, ლექცია 10-მდე. გაშვების შემდეგ <code>/index</code> ერთხელ გამოიძახე</li>
 <li>ზღვრის ასარჩევად ჯერ ნახე score-ები სწორ და არასწორ შედეგებზე: სადაა „საზღვარი“? ზღვარი მოდელზეა დამოკიდებული</li>
 <li><code>GenerateAsync</code> ბევრ ტექსტზე: ერთ გამოძახებაში 100-მდე ჩანაწერი. მეტი თუ გაქვს — <code>Chunk(100)</code></li>
 <li><code>TensorPrimitives.CosineSimilarity</code> — <code>System.Numerics.Tensors</code></li>
-</ul></article></div></section><section class="chap fin" id="quiz-wrap"><header class="chh"><span class="cn e">✅</span><div class="cht"><div class="ck">ტესტი · ქულით</div><h2 id="quiz">შეამოწმე ცოდნა</h2><p class="goal">აირჩიე პასუხი — მაშინვე ნახავ, სწორია თუ არა და რატომ. ბოლოს გეცოდინება, რა გაიმეორო.</p></div></header><div class="cbody"><div class="qscore"><span id="qs">0</span> / 10 სწორი · <span id="qd">0</span> / 10 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>„ხორცის გარეშე“-ზე <code>LIKE</code> 0 შედეგს აბრუნებს. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ბაზაში ცარიელია</button><button type="button" class="opt" data-i="1">LIKE სიტყვებს ეძებს, მნიშვნელობას — არა: ეს სიტყვები აღწერებში არ წერია</button><button type="button" class="opt" data-i="2">ქართულს ვერ კითხულობს</button><button type="button" class="opt" data-i="3">ILIKE უნდა ყოფილიყო</button></div><div class="qe"><span class="verdict"></span> სიტყვა და მნიშვნელობა სხვადასხვაა — ამისთვის გვჭირდება embedding. <a class="chip" href="#s-7">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>რა არის embedding?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ტექსტის შეკუმშვა</button><button type="button" class="opt" data-i="1">ტექსტის გადაქცევა რიცხვების სიად (ვექტორად) ისე, რომ მსგავსი მნიშვნელობა ახლოს იყოს</button><button type="button" class="opt" data-i="2">ტექსტის თარგმნა</button><button type="button" class="opt" data-i="3">ტოკენების რაოდენობა</button></div><div class="qe"><span class="verdict"></span> ვექტორი სივრცეში წერტილია; მსგავსი მნიშვნელობის წერტილები ახლოს დგანან. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>„ხორცის გარეშე“ და „vegetarian“ — მათი ვექტორები:</div></div><div class="opts"><button type="button" class="opt" data-i="0">სრულიად განსხვავებულია — ენა სხვაა</button><button type="button" class="opt" data-i="1">ახლოსაა — მნიშვნელობა ერთია</button><button type="button" class="opt" data-i="2">ზუსტად ერთნაირია</button><button type="button" class="opt" data-i="3">ვერ შედარდება</button></div><div class="qe"><span class="verdict"></span> embedding მოდელი მნიშვნელობას ასახავს, ენას — ნაკლებად. <a class="chip" href="#s-8">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>ვექტორი <code>gemini-embedding-2</code>-ით შევინახეთ. ახლა სხვა embedding მოდელზე გადავდივართ. რა უნდა გავაკეთოთ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">არაფერი</button><button type="button" class="opt" data-i="1">ძველი ვექტორები ახალს ვერ შეედრება — ყველა თავიდან უნდა დავითვალოთ</button><button type="button" class="opt" data-i="2">მხოლოდ ზომა შევცვალოთ</button><button type="button" class="opt" data-i="3">ძველებს ნორმალიზაცია გავუკეთოთ</button></div><div class="qe"><span class="verdict"></span> ყოველ მოდელს თავისი „რუკა“ აქვს. <a class="chip" href="#s-9">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">5</span><div>რატომ ვიღებთ 768 განზომილებას 3072-ის ნაცვლად?</div></div><div class="opts"><button type="button" class="opt" data-i="0">3072 Gemini-ზე არ არსებობს</button><button type="button" class="opt" data-i="1">რეკომენდებული ზომაა: ხარისხი კარგი, ვექტორი 4-ჯერ პატარა — ნაკლები ადგილი და სწრაფი ძებნა</button><button type="button" class="opt" data-i="2">768 უფრო ზუსტია</button><button type="button" class="opt" data-i="3">უფასოა</button></div><div class="qe"><span class="verdict"></span> Google 768, 1536 და 3072-ს გვირჩევს; ჩვენი ამოცანისთვის 768 საკმარისია. <a class="chip" href="#s-9">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">6</span><div><code>GenerateVectorAsync</code>-ის შედეგი რა ტიპისაა?</div></div><div class="opts"><button type="button" class="opt" data-i="0">string</button><button type="button" class="opt" data-i="1">ChatResponse</button><button type="button" class="opt" data-i="2">ReadOnlyMemory<float> — რიცხვების სია</button><button type="button" class="opt" data-i="3">int[]</button></div><div class="qe"><span class="verdict"></span> embedding — float-ების სია; GenerateAsync ბევრ ტექსტზე GeneratedEmbeddings-ს აბრუნებს. <a class="chip" href="#s-11">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>რატომ იწერება შეკითხვა <code>task: search result | query: …</code>-ით, დოკუმენტი კი <code>title: … | text: …</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini სხვანაირად შეცდომას აბრუნებს</button><button type="button" class="opt" data-i="1">ძებნა ასიმეტრიულია: მოკლე შეკითხვა და გრძელი დოკუმენტი; prefix მოდელს როლს ეუბნება და ხარისხს ზრდის</button><button type="button" class="opt" data-i="2">ტოკენების დასაზოგად</button><button type="button" class="opt" data-i="3">ეს JSON-ის ფორმატია</button></div><div class="qe"><span class="verdict"></span> წესი ყველგან ერთნაირად: ყველა დოკუმენტი ერთი ფორმატით, ყველა შეკითხვა — მეორით. <a class="chip" href="#s-12">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>cosine similarity = 1 ნიშნავს:</div></div><div class="opts"><button type="button" class="opt" data-i="0">ტექსტები სრულიად განსხვავებულია</button><button type="button" class="opt" data-i="1">ვექტორები ერთი მიმართულებით იყურება — ძალიან მსგავსია</button><button type="button" class="opt" data-i="2">შეცდომაა</button><button type="button" class="opt" data-i="3">ვექტორი ცარიელია</button></div><div class="qe"><span class="verdict"></span> 1 — ერთი მიმართულება, 0 — პერპენდიკულარული (არაფერი საერთო). <a class="chip" href="#s-15">გაიმეორე · სლაიდი 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">9</span><div>ორი score: 0.71 და 0.38. სწორი დასკვნა:</div></div><div class="opts"><button type="button" class="opt" data-i="0">0.71 ცუდია — 1-ზე ნაკლებია</button><button type="button" class="opt" data-i="1">პირველი წყვილი უფრო მსგავსია; ციფრებს ვადარებთ, ცალკე არ ვაფასებთ — აბსოლუტური მნიშვნელობა მოდელზეა დამოკიდებული</button><button type="button" class="opt" data-i="2">0.38 ნიშნავს 38%-ით მსგავსს</button><button type="button" class="opt" data-i="3">ორივე შეცდომაა</button></div><div class="qe"><span class="verdict"></span> ძებნაში მნიშვნელოვანია დალაგება. <a class="chip" href="#s-15">გაიმეორე · სლაიდი 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">10</span><div>მენიუს ვექტორებს ერთხელ ვითვლით (<code>/menu/index</code>), შეკითხვაზე — მხოლოდ შეკითხვის ვექტორს. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე მოითხოვს IEmbeddingGenerator</button><button type="button" class="opt" data-i="1">მენიუ იშვიათად იცვლება; ყოველ შეკითხვაზე 200 კერძის ვექტორი = ფული და დრო</button><button type="button" class="opt" data-i="2">შეკითხვის ვექტორი არ შეიძლება შეინახოს</button><button type="button" class="opt" data-i="3">Gemini ერთ წუთში ერთ მოთხოვნას იღებს</button></div><div class="qe"><span class="verdict"></span> ერთხელ ვითვლით და ვინახავთ; ლექცია 10-ში — ბაზაში. <a class="chip" href="#s-16">გაიმეორე · სლაიდი 16</a></div></div><div class="qsum" id="qsum"></div></div></section><section class="chap fin" id="glossary"><header class="chh"><span class="cn e">📘</span><div class="cht"><div class="ck">ლექციის ყველა ტერმინი</div><h2>ტერმინები</h2></div></header><div class="cbody"><div class="terms"><dl><dt>Embedding</dt><dd>ტექსტის (ან სურათის) გადაქცევა რიცხვების სიად ისე, რომ მსგავსი მნიშვნელობა ახლოს იყოს</dd><dt>ვექტორი (vector)</dt><dd>რიცხვების სია; embedding-ის შედეგი; სივრცეში წერტილი</dd><dt>განზომილება (dimension)</dt><dd>რამდენი რიცხვია ვექტორში (მაგ. 768)</dd><dt>Embedding მოდელი</dt><dd>მოდელი, რომელიც ტექსტს ვექტორად აქცევს; ტექსტს არ წერს</dd><dt>IEmbeddingGenerator</dt><dd>Microsoft.Extensions.AI-ის interface embedding-ისთვის, IChatClient-ის მსგავსად</dd><dt>GenerateVectorAsync</dt><dd>ერთი ტექსტის ვექტორის მიღება IEmbeddingGenerator-ით</dd><dt>GenerateAsync</dt><dd>ბევრი ტექსტის ვექტორები ერთი გამოძახებით</dd><dt>ასიმეტრიული ძებნა</dt><dd>მოკლე შეკითხვით გრძელი დოკუმენტის ძებნა; შეკითხვა და დოკუმენტი სხვადასხვა ფორმატით</dd><dt>Task prefix</dt><dd>ტექსტის წინ მიწერილი ამოცანის აღწერა, რომელიც embedding-ის ხარისხს ზრდის</dd><dt>Cosine similarity</dt><dd>ორი ვექტორის მსგავსების საზომი მათ შორის კუთხით: 1 — ერთი მიმართულება, 0 — არაფერი საერთო</dd><dt>TensorPrimitives</dt><dd>System.Numerics.Tensors-ის კლასი ვექტორული გამოთვლებისთვის (CosineSimilarity, Dot…), SIMD-ით</dd></dl></div></div></section>
-  </main>
-</div>
+</ul></div><h2>📝 კლასის დავალება</h2><div class="box task"><h3>მსგავსების თამაში — ჯერ გამოიცანი, მერე გაზომე</h3>
+<p>შენი პროექტი ან RestaurantApi · კოდით · Swagger და ცხრილი რვეულში</p>
+<h4>ნაბიჯები</h4>
+<ul>
+<li><strong>1 · რეგისტრაცია</strong> — <code>AddEmbeddingGenerator(new Client(apiKey: apiKey).AsIEmbeddingGenerator("gemini-embedding-2", defaultModelDimensions: 768))</code>; მოდელის სახელი <code>appsettings.json</code>-ში</li>
+<li><strong>2 · endpoint</strong> — <code>POST /api/ai-lab/similarity</code>, body <code>{ "a": "...", "b": "..." }</code>: ორი ვექტორი (<code>GenerateAsync([a, b])</code> — ერთი გამოძახებით) → <code>TensorPrimitives.CosineSimilarity</code> → <code>{ score }</code></li>
+<li><strong>3 · ჯერ გამოიცანი</strong> — რვეულში 5 წყვილი შენი პროექტის თემით და თითოეულზე <strong>შენი პროგნოზი</strong> (მაღალი / საშუალო / დაბალი) — Swagger-ის გაშვებამდე. ერთი წყვილი ქართული ↔ ინგლისური, ერთი — ერთნაირი სიტყვებით, მაგრამ სხვა მნიშვნელობით</li>
+<li><strong>4 · გაზომე</strong> — Swagger-ში ხუთივე; დაალაგე score-ით. სად შეცდი?</li>
+</ul>
+<h4>✓ მზადაა, როცა</h4>
+<p><code>/similarity</code> score-ს აბრუნებს; ცხრილში 5 წყვილი, პროგნოზი და რეალური score; ქართული ↔ ინგლისური წყვილი მაღლაა, ვიდრე „ერთნაირი სიტყვები — სხვა მნიშვნელობა“</p>
+<h4>⭐ ბონუსი</h4>
+<ul>
+<li>იგივე წყვილები <strong>prefix-ით</strong>: <code>a</code> — <code>EmbeddingText.Query</code>, <code>b</code> — <code>EmbeddingText.Document</code>. დალაგება შეიცვალა?</li>
+<li><code>defaultModelDimensions: 3072</code> — score-ები და დალაგება შეიცვალა? რამდენჯერ დიდია ვექტორი?</li>
+<li>cosine <strong>ხელით</strong> (სლაიდ 15-ის loop) — იგივე რიცხვი გამოდის, რაც <code>TensorPrimitives</code>-ით?</li>
+</ul>
+<h4>💡 თუ გაიჭედე</h4>
+<ul>
+<li><strong><code>TensorPrimitives</code> ვერ პოულობს?</strong> NuGet <code>System.Numerics.Tensors</code> და <code>using System.Numerics.Tensors;</code></li>
+<li><strong><code>AsIEmbeddingGenerator</code> ვერ პოულობს?</strong> <code>using Microsoft.Extensions.AI;</code> და Google.GenAI-ის ის ვერსია, რაც ლექცია 2-დან გაქვს</li>
+<li><strong>ვექტორები:</strong> <code>GeneratedEmbeddings&lt;Embedding&lt;float&gt;&gt; v = await _embeddings.GenerateAsync([a, b], cancellationToken: ct);</code> → <code>v[0].Vector.Span</code>, <code>v[1].Vector.Span</code></li>
+<li><strong>წყვილის იდეები:</strong> "booking a table" ↔ „book a table“ · "a spicy dish" ↔ "a hot dish" · „ხინკალი“ ↔ „ჩურჩხელა“</li>
+</ul></div></section><section class="panel" id="tab-quiz"><p class="hint">აირჩიე პასუხი და მაშინვე ნახავ, სწორია თუ არა და რატომ.</p><div class="qscore"><span id="qs">0</span> / 8 სწორი · <span id="qd">0</span> / 8 პასუხი<button type="button" class="btn qreset">თავიდან</button></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">1</span><div>„ხორცის გარეშე“-ზე <code>LIKE</code> 0 შედეგს აბრუნებს. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ბაზაში ცარიელია</button><button type="button" class="opt" data-i="1">LIKE სიტყვებს ეძებს, მნიშვნელობას — არა: ეს სიტყვები აღწერებში არ წერია</button><button type="button" class="opt" data-i="2">ქართულს ვერ კითხულობს</button><button type="button" class="opt" data-i="3">ILIKE უნდა ყოფილიყო</button></div><div class="qe"><span class="verdict"></span> სიტყვა და მნიშვნელობა სხვადასხვაა — ამისთვის გვჭირდება embedding. <a class="chip" href="index.html#/7" target="_blank">გაიმეორე · სლაიდი 7</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">2</span><div>რა არის embedding?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ტექსტის შეკუმშვა</button><button type="button" class="opt" data-i="1">ტექსტის გადაქცევა რიცხვების სიად (ვექტორად) ისე, რომ მსგავსი მნიშვნელობა ახლოს იყოს</button><button type="button" class="opt" data-i="2">ტექსტის თარგმნა</button><button type="button" class="opt" data-i="3">ტოკენების რაოდენობა</button></div><div class="qe"><span class="verdict"></span> ვექტორი სივრცეში წერტილია; მსგავსი მნიშვნელობის წერტილები ახლოს დგანან. <a class="chip" href="index.html#/8" target="_blank">გაიმეორე · სლაიდი 8</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">3</span><div>ვექტორი <code>gemini-embedding-2</code>-ით შევინახეთ. ახლა სხვა embedding მოდელზე გადავდივართ. რა უნდა გავაკეთოთ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">არაფერი</button><button type="button" class="opt" data-i="1">ძველი ვექტორები ახალს ვერ შეედრება — ყველა თავიდან უნდა დავითვალოთ</button><button type="button" class="opt" data-i="2">მხოლოდ ზომა შევცვალოთ</button><button type="button" class="opt" data-i="3">ძველებს ნორმალიზაცია გავუკეთოთ</button></div><div class="qe"><span class="verdict"></span> ყოველ მოდელს თავისი „რუკა“ აქვს. <a class="chip" href="index.html#/9" target="_blank">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">4</span><div>რატომ ვიღებთ 768 განზომილებას 3072-ის ნაცვლად?</div></div><div class="opts"><button type="button" class="opt" data-i="0">3072 Gemini-ზე არ არსებობს</button><button type="button" class="opt" data-i="1">რეკომენდებული ზომაა: ხარისხი კარგი, ვექტორი 4-ჯერ პატარა — ნაკლები ადგილი და სწრაფი ძებნა</button><button type="button" class="opt" data-i="2">768 უფრო ზუსტია</button><button type="button" class="opt" data-i="3">უფასოა</button></div><div class="qe"><span class="verdict"></span> Google 768, 1536 და 3072-ს გვირჩევს; ჩვენი ამოცანისთვის 768 საკმარისია. <a class="chip" href="index.html#/9" target="_blank">გაიმეორე · სლაიდი 9</a></div></div><div class="qq" data-answer="2"><div class="qt"><span class="qn">5</span><div><code>GenerateVectorAsync</code>-ის შედეგი რა ტიპისაა?</div></div><div class="opts"><button type="button" class="opt" data-i="0">string</button><button type="button" class="opt" data-i="1">ChatResponse</button><button type="button" class="opt" data-i="2">ReadOnlyMemory<float> — რიცხვების სია</button><button type="button" class="opt" data-i="3">int[]</button></div><div class="qe"><span class="verdict"></span> embedding — float-ების სია; GenerateAsync ბევრ ტექსტზე GeneratedEmbeddings-ს აბრუნებს. <a class="chip" href="index.html#/11" target="_blank">გაიმეორე · სლაიდი 11</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">6</span><div>რატომ იწერება შეკითხვა <code>task: search result | query: …</code>-ით, დოკუმენტი კი <code>title: … | text: …</code>-ით?</div></div><div class="opts"><button type="button" class="opt" data-i="0">Gemini სხვანაირად შეცდომას აბრუნებს</button><button type="button" class="opt" data-i="1">ძებნა ასიმეტრიულია: მოკლე შეკითხვა და გრძელი დოკუმენტი; prefix მოდელს როლს ეუბნება და ხარისხს ზრდის</button><button type="button" class="opt" data-i="2">ტოკენების დასაზოგად</button><button type="button" class="opt" data-i="3">ეს JSON-ის ფორმატია</button></div><div class="qe"><span class="verdict"></span> წესი ყველგან ერთნაირად: ყველა დოკუმენტი ერთი ფორმატით, ყველა შეკითხვა — მეორით. <a class="chip" href="index.html#/12" target="_blank">გაიმეორე · სლაიდი 12</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">7</span><div>ორი score: 0.71 და 0.38. სწორი დასკვნა:</div></div><div class="opts"><button type="button" class="opt" data-i="0">0.71 ცუდია — 1-ზე ნაკლებია</button><button type="button" class="opt" data-i="1">პირველი წყვილი უფრო მსგავსია; ციფრებს ვადარებთ, ცალკე არ ვაფასებთ — აბსოლუტური მნიშვნელობა მოდელზეა დამოკიდებული</button><button type="button" class="opt" data-i="2">0.38 ნიშნავს 38%-ით მსგავსს</button><button type="button" class="opt" data-i="3">ორივე შეცდომაა</button></div><div class="qe"><span class="verdict"></span> ძებნაში მნიშვნელოვანია დალაგება. <a class="chip" href="index.html#/15" target="_blank">გაიმეორე · სლაიდი 15</a></div></div><div class="qq" data-answer="1"><div class="qt"><span class="qn">8</span><div>მენიუს ვექტორებს ერთხელ ვითვლით (<code>/menu/index</code>), შეკითხვაზე — მხოლოდ შეკითხვის ვექტორს. რატომ?</div></div><div class="opts"><button type="button" class="opt" data-i="0">ასე მოითხოვს IEmbeddingGenerator</button><button type="button" class="opt" data-i="1">მენიუ იშვიათად იცვლება; ყოველ შეკითხვაზე 200 კერძის ვექტორი = ფული და დრო</button><button type="button" class="opt" data-i="2">შეკითხვის ვექტორი არ შეიძლება შეინახოს</button><button type="button" class="opt" data-i="3">Gemini ერთ წუთში ერთ მოთხოვნას იღებს</button></div><div class="qe"><span class="verdict"></span> ერთხელ ვითვლით და ვინახავთ; ლექცია 10-ში — ბაზაში. <a class="chip" href="index.html#/16" target="_blank">გაიმეორე · სლაიდი 16</a></div></div><div class="qsum" id="qsum"></div></section>
+</main>
 <script>
-const DECK = "AI აგენტები .NET-ში · 9 — Text Embeddings: ტექსტის ვექტორიზაცია";
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem('study:' + DECK + ':' + k)); localStorage.setItem('study:' + DECK + ':' + k, JSON.stringify(v)); } catch (e) { return null; } };
-if (matchMedia('(min-width:1001px)').matches) $('#navd').open = true;
-const blocks = $$('.blk'), chaps = $$('.chap'), links = $$('nav.side a[href^="#"]');
-const linkOf = c => links.find(a => a.getAttribute('href') === '#' + c.id || (c.id === 'quiz-wrap' && a.getAttribute('href') === '#quiz'));
-const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
-
-// ✓ წავიკითხე
-const readable = chaps.filter(c => c.querySelector('.read'));
-let ok = store('read') || [];
-function paint() {
-  readable.forEach(c => { const on = ok.includes(c.id); c.classList.toggle('ok', on); linkOf(c)?.classList.toggle('ok', on);
-    c.querySelector('.read').textContent = on ? '✓ წავიკითხე' : '☐ წავიკითხე'; });
-  const n = readable.filter(c => ok.includes(c.id)).length;
-  $('#pk').textContent = n; $('#pn').textContent = readable.length; $('#pbar').style.width = (100 * n / (readable.length || 1)) + '%';
+const T = {"copy": "კოპირება", "copied": "✓ დაკოპირდა", "review": "გაიმეორე ეს კითხვები: ", "allright": "ყველაფერი სწორია! 🎉"};
+// tabs: #topics, #tasks, #quiz — the hash keeps the tab
+function show(id, scroll) {
+  if (!document.getElementById('tab-' + id)) id = 'main';
+  $$('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + id));
+  $$('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  if (scroll) scrollTo({ top: 0 });
 }
-document.addEventListener('click', e => {
-  const r = e.target.closest('.read'); if (!r) return;
-  const id = r.closest('.chap').id; ok = ok.includes(id) ? ok.filter(x => x !== id) : [...ok, id]; store('read', ok); paint();
+$$('.tabs button').forEach(b => b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); show(b.dataset.t, true); });
+document.addEventListener('click', e => {   // in-page links to a tab: <a href="#quiz">
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href').slice(1); if (!document.getElementById('tab-' + id)) return;
+  e.preventDefault(); history.replaceState(null, '', '#' + id); show(id, true);
 });
-paint();
-
-// copy buttons
+show(location.hash.slice(1) || 'main');
+// copy
 document.addEventListener('click', e => {
   const btn = e.target.closest('.copy'); if (!btn) return;
   const box = btn.closest('.codebox, .prompt');
   const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = T.copied; setTimeout(() => { btn.textContent = T.copy; }, 1600); });
 });
-
-// sidebar: current chapter while reading
-const curChap = c => links.forEach(a => a.classList.toggle('cur', a === linkOf(c)));
-const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) curChap(x.target); }), { rootMargin: '-25% 0px -65% 0px' });
-chaps.forEach(c => io.observe(c));
-
-// live mode: opened from the deck with P — follow the projector
-const live = new URLSearchParams(location.search).has('live');
-let follow = true, bc = null;
-if (live) {
-  document.body.classList.add('is-live');
-  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
-  const lb = $('#live'); lb.classList.add('on');
-  lb.onclick = () => { follow = !follow; lb.classList.toggle('off', !follow); lb.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
-  if (bc) {
-    bc.onmessage = ({ data }) => {
-      if (data.t !== 'state' || !follow) return;
-      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
-      blocks.forEach(x => x.classList.toggle('cur', x === b)); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    bc.postMessage({ t: 'hello' });
-  }
-  document.addEventListener('click', e => {   // slide chip → move the projector deck
-    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
-    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
-  });
-}
-
 // quiz
 const quiz = $$('.qq');
 function qUpdate() {
@@ -601,9 +269,7 @@ function qUpdate() {
   const sum = $('#qsum');
   if (done.length === quiz.length) {
     const bad = quiz.filter(q => q.classList.contains('no'));
-    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length
-      ? 'გაიმეორე ეს კითხვები: ' + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '. ახსნა თითოეულის ქვეშაა, „გაიმეორე“ კი სწორ ნაწილზე გადაგიყვანს.'
-      : 'ყველაფერი სწორია! შეგიძლია შემდეგ ლექციაზე გადახვიდე. 🎉');
+    sum.innerHTML = `<b>${good.length} / ${quiz.length}</b> — ` + (bad.length ? T.review + bad.map(q => q.querySelector('.qn').textContent).join(', ') + '.' : T.allright);
     sum.classList.add('on');
   } else sum.classList.remove('on');
 }
@@ -617,16 +283,10 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('.qreset')) {
     quiz.forEach(q => { q.classList.remove('done', 'ok', 'no'); q.querySelectorAll('.opt').forEach(b => { b.disabled = false; b.classList.remove('right', 'wrong'); }); });
-    qUpdate(); $('#quiz').scrollIntoView({ behavior: 'smooth' });
+    qUpdate(); scrollTo({ top: 0 });
   }
 });
-// KA ⇄ EN keeps the live mode and the current place
-document.querySelector('.langbtn')?.addEventListener('click', e => {
-  const cur = blocks.find(b => b.classList.contains('cur')) || blocks.find(b => b.getBoundingClientRect().bottom > 90);
-  e.currentTarget.href += location.search + (cur ? '#s-' + cur.dataset.slides.split(',')[0] : location.hash);
-});
-// deep link #s-12 → that part of the text
-const h = location.hash.match(/^#s-(\d+)$/);
-if (h) { const b = blockFor(+h[1]); if (b) { b.classList.add('cur'); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// KA ⇄ EN keeps the tab
+$('.lang')?.addEventListener('click', e => { e.currentTarget.href += location.hash; });
 </script>
 </body></html>
