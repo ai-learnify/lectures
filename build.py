@@ -543,20 +543,6 @@ def build_lecture(course, cdir, ldir, meta, prev):
     return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study,
             'classwork': (ldir / 'classwork.md').exists(), 'homework': (ldir / 'homework.md').exists(), 'quiz': len(meta.get('quiz', [])), 'lecturer': has_lecturer, 'study_en': has_study_en, 'deck_en': (out / 'index.en.html').exists()}, []
 
-# ლექტორის გვერდი. lecturer.md:
-#   ## სათაური                       ზოგადი ნაწილი (მიმოხილვა, ადგილი მოდულში, შეფასება…)
-#   ## 3 · ტოკენები · 15 წთ · 16–20   თემა: ნომერი · სათაური · დრო · სლაიდები (დრო → ლექციის მსვლელობაში ჩადის)
-#   ### 🎯 მთავარი სათქმელი           ბლოკი; ტიპს emoji წყვეტს (LECT_KINDS). ### 📋 ლექციაზე = შპარგალკა
-# lecture.json → "lecturer_quiz": [{"q", "options", "answer", "explain"}] — „✅ მზად ხარ?“
-LECT_KINDS = {'🎯': 'main', '🧠': 'deep', '🗣': 'how', '🙋': 'ask', '⚠': 'myth', '💡': 'ex', '❓': 'faq', '💻': 'code',
-              '📋': 'cheat', '✅': 'prep', '📌': 'must', '✂': 'cut', '⬅': 'prev', '➡': 'next', '🚫': 'no', '🏁': 'wrap',
-              '📏': 'rubric', '🔁': 'next', '📖': 'learn', '🎬': 'flow', '🎙': 'mono', '📚': 'src', '🔬': 'deeper', '⭐': 'star', '🆘': 'sos', '🚦': 'signals', '🧩': 'must'}
-LEARN_KINDS = ('learn', 'deeper', 'src')   # „📖 ისწავლე“ რეჟიმი — თემის სრული ახსნა ლექტორისთვის
-
-def lect_kind(h):
-    h = h.replace('️', '')
-    return next((v for k, v in LECT_KINDS.items() if h.startswith(k)), 'plain')
-
 def lect_heading(h):
     """'3 · ტოკენები · 15 წთ · 16–20' → (num, title, minutes, (from, to))"""
     num, mins, slides, rest = None, None, None, []
@@ -573,138 +559,7 @@ def lect_split(text):
     ch = re.split(r'^### (.+)$', text, flags=re.M)
     return [(None, ch[0])] + [(ch[i].strip(), ch[i + 1]) for i in range(1, len(ch), 2)]
 
-def render_lecturer_quiz(quiz):
-    items = []
-    for n, x in enumerate(quiz, 1):
-        opts = ''.join(f'<button type="button" class="opt" data-i="{i}">{md_inline(o)}</button>' for i, o in enumerate(x['options']))
-        items.append(f'<div class="qq" data-answer="{x["answer"]}"><div class="qt"><span class="qn">{n}</span><div>{md_inline(x["q"])}</div></div>'
-                     f'<div class="opts">{opts}</div><div class="qe"><span class="verdict"></span> {md_inline(x.get("explain", ""))}</div></div>')
-    return (f'<div class="qscore"><span id="qs">0</span> / {len(quiz)} სწორი · <span id="qd">0</span> / {len(quiz)} პასუხი'
-            f'<button type="button" class="btn qreset">თავიდან</button></div>{"".join(items)}<div class="qsum" id="qsum"></div>')
-
-def render_explain(items):
-    """lecture.json → lecturer_explain: [{"task", "points": [...]}] — „ახსენი ხმამაღლა“ (Feynman-ის შემოწმება)"""
-    if not items: return ''
-    cards = ''.join(f'<div class="xp"><div class="xq"><span class="qn">{n}</span><div>{md_inline(x["task"])}</div></div>'
-                    f'<details><summary>რა უნდა ახსენო — შეამოწმე თავი</summary><ul>{"".join(f"<li>{md_inline(p)}</li>" for p in x["points"])}</ul></details></div>'
-                    for n, x in enumerate(items, 1))
-    return ('<h3 class="xh">🎙️ ახსენი ხმამაღლა</h3><p class="pintro">ტაიმერი ჩართე და თითოეული ახსენი ხმამაღლა, თითქოს კლასის წინ დგახარ. '
-            'მერე გახსენი და შეამოწმე, ყველა პუნქტი თქვი თუ არა. თუ ჩაიჭერი, შესაბამის თემაში „📖 ისწავლე“ გადაიკითხე.</p>' + cards)
-
-def write_lecturer(out, course, meta, num, deck_title, ldir):
-    """lecturer.md (+ დავალებები, კითხვები, ტესტის პასუხები, „მზად ხარ?“) → lecturer.html, ცალკე კოდით"""
-    src = ldir / 'lecturer.md'
-    code = lecturer_code()
-    if not src.exists():
-        return False
-    if not code:
-        print('  ⚠ ლექტორის გვერდი არ აიწყო: .lecturer-code ფაილი ან LECTURER_CODE ცვლადი არ არის')
-        return False
-    t = re.sub(r'^# .+\n', '', src.read_text(), count=1, flags=re.M)
-    if '### 📖' not in t:   # ახალი მოკლე ფორმატი (გეგმა + თემების ბარათები)
-        return write_lecturer_plan(out, course, meta, num, deck_title, ldir, t, code)
-    chunks = re.split(r'^## (.+)$', t, flags=re.M)
-    intro = chunks[0].strip()
-    parts = []   # {id, num, title, mins, slides, group, html}
-    for i in range(1, len(chunks), 2):
-        n, title, mins, slides = lect_heading(chunks[i].strip())
-        subs, learn_raw = [], []
-        for h, b in lect_split(chunks[i + 1]):
-            if not b.strip(): continue
-            if h is None:
-                subs.append(f'<div class="pintro">{md(b)}</div>')
-            else:
-                k = lect_kind(h)
-                body = md(b)
-                if k == 'flow':   # „#### 17 · სათაური · 3 წთ“ → სლაიდის ღილაკი
-                    body = re.sub(r'<h4>(\d+) · (.*?)</h4>', lambda m: f'<h4 class="fs"><a class="ps" href="index.html#/{m.group(1)}" target="_blank" data-go="{m.group(1)}">▶ {m.group(1)}</a> {m.group(2)}</h4>', body)
-                if k == 'deeper':
-                    subs.append(f'<details class="sub k-{k}"><summary class="sl">{esc(h)} <small>· დააჭირე გასახსნელად</small></summary><div class="sb">{body}</div></details>')
-                else:
-                    subs.append(f'<div class="sub k-{k}"><div class="sl">{esc(h)}</div><div class="sb">{body}</div></div>')
-                if k in LEARN_KINDS: learn_raw.append(b)
-        parts.append({'num': n, 'title': title, 'mins': mins, 'slides': slides, 'html': ''.join(subs),
-                      'lmin': read_minutes(''.join(learn_raw), 85) if learn_raw else None})
-    timed = [i for i, p in enumerate(parts) if p['mins']]
-    first, last = (timed[0], timed[-1]) if timed else (len(parts), -1)
-    for i, p in enumerate(parts):
-        p['group'] = 'prep' if i < first else 'flow' if i <= last else 'after'
-    # ავტომატური მასალა — დავალებების სრული ტექსტი, კითხვები, პასუხები
-    def doc_md(path):
-        return re.sub(r'^# (.+)$', r'### \1', path.read_text(), count=1, flags=re.M).replace('\n## ', '\n#### ')
-    mat = []
-    if (ldir / 'classwork.md').exists(): mat.append(('📝 კლასის დავალება — სრული ტექსტი', doc_md(ldir / 'classwork.md')))
-    if (ldir / 'homework.md').exists(): mat.append(('🏠 საშინაო — სრული ტექსტი და ამოხსნა', doc_md(ldir / 'homework.md')))
-    if meta.get('review'): mat.append(('❓ შემოწმების კითხვები — პასუხებით', check_md(meta['review'])))
-    if meta.get('quiz'):
-        mat.append(('✅ სტუდენტის ტესტი — სწორი პასუხები', 'კონსპექტის ბოლოს სტუდენტი ამ კითხვებს თვითონ პასუხობს.\n\n' +
-                    '\n'.join(f'{n}. {x["q"]} → **{x["options"][x["answer"]]}**' for n, x in enumerate(meta['quiz'], 1))))
-    for h, b in mat:
-        parts.append({'num': None, 'title': h, 'mins': None, 'slides': None, 'group': 'mat', 'html': f'<div class="sb">{md(b)}</div>'})
-    if meta.get('lecturer_quiz'):
-        parts.append({'num': None, 'title': '✅ მზად ხარ?', 'mins': None, 'slides': None, 'group': 'ready',
-                      'html': '<div class="pintro"><p>ეს კითხვები შენთვისაა. თუ ყველას ზუსტად უპასუხე და ახსნაც გეთანხმება, ლექციისთვის მზად ხარ. '
-                              'შეცდომის შემთხვევაში ახსნას წაიკითხე და შესაბამისი თემა გადახედე.</p></div>' + render_lecturer_quiz(meta['lecturer_quiz'])
-                              + render_explain(meta.get('lecturer_explain', []))})
-    groups = {'prep': ('📚', 'მომზადება'), 'flow': ('🎬', 'ლექციის მსვლელობა'), 'after': ('🏠', 'ლექციის შემდეგ'),
-              'mat': ('📎', 'მასალა: დავალებები და პასუხები'), 'ready': ('✅', 'მზად ხარ?')}
-    # დრო: დაწყების წუთები
-    clock = 0
-    for p in parts:
-        if p['mins']:
-            p['start'] = clock; clock += p['mins']
-    total = clock
-    fmt = lambda m: f'{m // 60}:{m % 60:02d}'
-    nav, body, tl, cur = [], [], [], None
-    for i, p in enumerate(parts, 1):
-        pid = f'p-{i}'
-        if p['group'] != cur:
-            cur = p['group']
-            ico, name = groups[cur]
-            nav.append(f'<div class="ng" data-g="{cur}">{ico} {esc(name)}</div>')
-            body.append(f'<div class="grp" data-g="{cur}"><span>{ico}</span>{esc(name)}</div>')
-        badge, title = str(p['num']) if p['num'] else '', p['title']
-        em = re.match(r'^([^\w\s]+)\s+(.+)$', title)
-        if not badge and em:   # „☕ შესვენება“ → ☕ ბეჯში, სათაური emoji-ს გარეშე
-            badge, title = em.group(1), em.group(2)
-        p['title'] = title
-        meta_bits = []
-        if p['mins']:
-            meta_bits.append(f'<span class="pt">⏱ {p["mins"]} წთ · {fmt(p["start"])}–{fmt(p["start"] + p["mins"])}</span>')
-        if p['slides']:
-            a, b = p['slides']
-            meta_bits.append(f'<a class="ps" href="index.html#/{a}" target="_blank" data-go="{a}">▶ სლაიდ{"ები " + str(a) + "–" + str(b) if b != a else "ი " + str(a)}</a>')
-        done = '<button type="button" class="done" title="მონიშნე, როცა ამ ნაწილს მოემზადები">☐ მომზადებული ვარ</button>' if p['group'] in ('prep', 'flow', 'after') else ''
-        if p.get('lmin'):
-            meta_bits.append(f'<button type="button" class="tolearn" data-to="{"p-" + str(i)}">📖 ისწავლე · ~{p["lmin"]} წთ</button>')
-        attrs = f' data-g="{p["group"]}"' + (f' data-start="{p["start"]}" data-min="{p["mins"]}"' if p['mins'] else '') + \
-                (f' data-from="{p["slides"][0]}" data-to="{p["slides"][1]}"' if p['slides'] else '') + (' data-cheat' if 'k-cheat' in p['html'] else '') + (' data-learn' if p.get('lmin') or p['group'] == 'ready' else '')
-        fold = p['group'] == 'mat'
-        head = (f'<header class="ph"><span class="pn{"" if p["num"] else " e"}">{badge or "•"}</span><div class="pht"><h2>{esc(p["title"])}</h2>'
-                f'<div class="pm">{"".join(meta_bits)}</div></div>{done}</header>')
-        if fold:
-            body.append(f'<section class="part" id="{pid}"{attrs}><details><summary>{head}</summary><div class="pbody">{p["html"]}</div></details></section>')
-        else:
-            body.append(f'<section class="part" id="{pid}"{attrs}>{head}<div class="pbody">{p["html"]}</div></section>')
-        nav.append(f'<a href="#{pid}" data-g="{p["group"]}"{" data-learn" if p.get("lmin") or p["group"] == "ready" else ""}><span class="nn{"" if p["num"] else " e"}">{badge or "·"}</span><span class="nt">{esc(p["title"])}</span>'
-                   f'{"<span class=nm>" + str(p["mins"]) + "′</span>" if p["mins"] else ""}</a>')
-        if p['mins']:
-            short = title.split(':')[0]
-            tl.append(f'<a class="seg{" brk" if not p["num"] else ""}" href="#{pid}" style="flex:{p["mins"]}" data-start="{p["start"]}" data-min="{p["mins"]}" '
-                      f'title="{esc(p["title"])} · {p["mins"]} წთ"><b>{badge}</b><span>{esc(short)}</span><i>{p["mins"]}′</i></a>')
-    timeline = (f'<div class="tl"><div class="tlh"><b>ლექციის გეგმა</b><span>{total} წთ</span></div><div class="segs">{"".join(tl)}<div class="cursor" id="cursor"></div></div></div>'
-                if tl else '')
-    page = (ENGINE / 'lecturer.html').read_text()
-    for k, v in {'{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course['title']), '{{NUM}}': str(num),
-                 '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{NAV}}': ''.join(nav), '{{BODY}}': '\n'.join(body),
-                 '{{INTRO}}': md_inline(intro) if intro else '', '{{TIMELINE}}': timeline, '{{TOTAL}}': str(total),
-                 '{{LEARN_TOTAL}}': str(sum(p.get('lmin') or 0 for p in parts)),
-                 '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
-        page = page.replace(k, v)
-    write_locked(out / 'lecturer.html', page, code, 'lectures:lecturer', 'ლექტორის გვერდი')
-    return True
-
-# ლექტორის გვერდი — მოკლე ფორმატი. lecturer.md:
+# ლექტორის გვერდი. lecturer.md:
 #   ## 🎯 მთავარი                          ზოგადი ბარათი (### 📌 / ### ✅ მომზადება — ჩეკლისტი)
 #   ## 3 · ტოკენები · 11 წთ · 12–16        თემა: ნომერი · სათაური · დრო · სლაიდები → ლექციის გეგმაში ჩადის
 #   - სათქმელი (სია ბარათის თავში)
@@ -713,7 +568,16 @@ def write_lecturer(out, course, meta, num, deck_title, ldir):
 # ბოლოს ავტომატურად: კლასის დავალების და საშინაოს სრული ტექსტი (ამოხსნით), შემოწმების კითხვები — დაკეცილი.
 PLAN_KINDS = {'🙋': 'ask', '💡': 'ex', '🗣': 'how', '📌': 'must', '✅': 'prep', '📋': 'plain'}
 
-def write_lecturer_plan(out, course, meta, num, deck_title, ldir, t, code):
+def write_lecturer(out, course, meta, num, deck_title, ldir):
+    """lecturer.md (+ დავალებები, კითხვები) → lecturer.html, ცალკე კოდით"""
+    src = ldir / 'lecturer.md'
+    code = lecturer_code()
+    if not src.exists():
+        return False
+    if not code:
+        print('  ⚠ ლექტორის გვერდი არ აიწყო: .lecturer-code ფაილი ან LECTURER_CODE ცვლადი არ არის')
+        return False
+    t = re.sub(r'^# .+\n', '', src.read_text(), count=1, flags=re.M)
     chunks = re.split(r'^## (.+)$', t, flags=re.M)
     parts = []
     for i in range(1, len(chunks), 2):
@@ -772,9 +636,11 @@ def write_lecturer_plan(out, course, meta, num, deck_title, ldir, t, code):
     if mat:
         cards.append('<section class="card"><header><span class="num">📎</span><h2>სრული ტექსტები</h2></header><div class="cb">'
                      + ''.join(f'<details class="mat"><summary>{esc(h)}</summary>{md(b)}</details>' for h, b in mat) + '</div></section>')
-    page = (ENGINE / 'lecturer-plan.html').read_text()
+    page = (ENGINE / 'lecturer.html').read_text()
     for k, v in {'{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course['title']), '{{NUM}}': str(num),
                  '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{BODY}}': '\n'.join(cards), '{{TOTAL}}': str(total),
+                 '{{CODE_BTN}}': (f'<a class="btn ico" href="../project/{num:02d}.html" target="_blank" title="ლექციის კოდი" aria-label="ლექციის კოდი">💻</a>'
+                                  if (ldir.parent / 'project' / f'{num:02d}.md').exists() else ''),
                  '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS + THEME_HEAD, '{{PAGE_THEME}}': PAGE_THEME}.items():
         page = page.replace(k, v)
     write_locked(out / 'lecturer.html', page, code, 'lectures:lecturer', 'ლექტორის გვერდი')
