@@ -843,13 +843,26 @@ def write_syllabus(cdir, course):
     has_proj = bool(briefs) and bool(lecturer_code())
     def lec(m):
         num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
-        slug = built.get(num)
-        proj = (f'<a class="proj" href="project/{num:02d}.html" title="რას ისწავლის სტუდენტი და რას ვწერთ პროექტში — სრული კოდით (ლექტორის კოდით)">💻 კოდი</a>'
-                if has_proj and num in briefs else '')
-        links = ((f'<a href="{slug}/">▶ პრეზენტაცია</a>'
-                  + (f'<a href="{slug}/study.html">📖 კონსპექტი</a>' if (OUT / cdir.name / slug / 'study.html').exists() else '')) if slug else '') + proj
-        go = f'<span class="go">{links}</span>' if links else ''
-        return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{go}</h3>{desc}</div>'
+        slug, b = built.get(num), briefs.get(num, {})
+        proj = b.get('project')
+        links = []   # ⋯ მენიუ: მხოლოდ ის, რაც ნამდვილად არსებობს
+        if slug:
+            links.append(f'<a href="{slug}/">▶ პრეზენტაცია</a>')
+            if (cdir / slug / 'study.md').exists():
+                links.append(f'<a href="{slug}/study.html">📖 კონსპექტი</a>')
+        if has_proj and num in briefs:
+            links.append(f'<a href="project/{num:02d}.html">💻 კოდი{f" · {esc(proj)}" if proj else ""}</a>')
+        menu = (f'<span class="mw"><button class="more" type="button" title="გახსნა" aria-label="მენიუ">⋯</button>'
+                f'<span class="menu">{"".join(links)}</span></span>') if links else ''
+        body = desc
+        if b.get('learn'):
+            body += '<h4>🎯 რას ისწავლის სტუდენტი</h4><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['learn']) + '</ul>'
+        if b.get('build'):
+            body += f'<h4>🛠 რას ვწერთ{f" {esc(proj)}-ში" if proj else ""}</h4><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['build']) + '</ul>'
+        tag = f'<span class="pj">{esc(proj)}</span>' if proj else ''
+        return (f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><div class="lh" role="button" tabindex="0">'
+                f'<span class="chev">›</span><h3>{m.group(1)}. {title}</h3>{tag}{menu}</div>'
+                f'<div class="lb">{body}</div></div>')
     h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
     titles = {int(a): b_ for a, b_ in re.findall(r'^### (\d+)\.\s*(.+)$', src.read_text(), re.M)}
     write_project_pages(cdir, course, briefs, titles, built)
