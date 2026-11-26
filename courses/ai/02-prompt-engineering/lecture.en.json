@@ -5,7 +5,7 @@
     "call Gemini from your own API with `IChatClient` and keep the key safe",
     "set `ChatOptions` and read the tokens (`Usage`) and `FinishReason` from the response",
     "write a system prompt that sets the assistant's role, topics and answer format",
-    "tell zero-shot from few-shot and get an exact answer with few-shot"
+    "tell zero-shot from few-shot and explain why AI works better with examples"
   ],
   "review": [
     {

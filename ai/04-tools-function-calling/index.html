@@ -514,8 +514,8 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <div class="grid2" style="grid-template-columns:1fr 1.25fr;align-items:start;gap:30px">
     <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">📝</span>რა უნდა გაგეკეთებინათ</h3><ul class="clean small">
 <li><strong>DI:</strong> Controller-ებში <code class="i">new Client(...)</code> არსად — <code class="i">IChatClient</code> მხოლოდ <code class="i">AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code class="i">appsettings.json</code>-ში</li>
-<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code class="i">POST /api/assistant/classify</code> გადაწერე <code class="i">GetResponseAsync&lt;შენი enum&gt;</code>-ით (few-shot მაგალითების გარეშე)</li>
-<li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · <code class="i">inputTokens</code> ორივეზე</li>
+<li><strong>classify enum-ით:</strong> საშინაო 2-ის <code class="i">POST /api/assistant/classify</code> გადაწერე <code class="i">GetResponseAsync&lt;შენი enum&gt;</code>-ით (System-ში „Answer with one word only“ აღარ გჭირდება)</li>
+<li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — prompt (საშინაო 2) vs enum. ცხრილი: ტექსტი · prompt-ის პასუხი · enum-ის პასუხი · სად შეიცვალა ✗ → ✓</li>
 <li><strong>ტექსტიდან ჩანაწერი:</strong> ერთი endpoint შენი პროექტის <strong>ნამდვილ</strong> Controller-ში (არა ასისტენტის controller-ში): ტექსტი → <code class="i">record</code> → C# შემოწმება (სავალდებულო ველი <code class="i">null</code> → <code class="i">400</code> კითხვით) → შენი არსებული ლოგიკით <strong>ბაზაში</strong> ჩაწერა</li>
 <li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
 </ul></div>

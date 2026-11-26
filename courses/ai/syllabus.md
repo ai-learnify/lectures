@@ -24,6 +24,7 @@ Generative AI-ისა და LLM-ების მიმოხილვა; რ
 📚 როგორ ქმნის LLM ტექსტს: ტოკენები, next-token prediction, context window
 📚 Temperature, Top-P და Max Tokens — რომელი როდის
 📚 პროვაიდერის არჩევა და თვის ხარჯის დათვლა ტოკენებით
+📚 რას ვიყენებთ კურსზე: Gemini (რეკომენდაცია; უფასო და ფასიანი ლიმიტის განსხვავება), ლოკალური Ollama — ალტერნატივა სახლისთვის
 🛠 RestaurantApi | კოდი არ იწერება — თეორიული ლექციაა. ლექციის ბოლოს ჩანს, რა AI-ფუნქციები დაემატება RestaurantApi-ს მოდულის განმავლობაში
 
 ### 02. Prompt Engineering C# დეველოპერებისთვის
@@ -33,24 +34,24 @@ Generative AI-ისა და LLM-ების მიმოხილვა; რ
 📚 Gemini-ს გამოძახება საკუთარი API-დან `IChatClient`-ით, key — User Secrets-ში
 📚 `ChatOptions` (Temperature, MaxOutputTokens) და პასუხის `Usage` / `FinishReason`
 📚 System prompt, რომელიც ასისტენტის როლს, თემებს და პასუხის ფორმას ზღუდავს
-📚 Zero-shot vs few-shot: few-shot-ით ზუსტი პასუხი
+📚 Zero-shot vs few-shot (თეორია): რატომ მუშაობს AI მაგალითებით უკეთ
 🛠 RestaurantApi | NuGet: `Google.GenAI`, `Microsoft.Extensions.AI`; `Gemini:ApiKey` — User Secrets-ში
 🛠 `AiDiagnosticsController`: `POST /api/diagnostics/ai/ask` — პირველი გამოძახება, `ChatOptions`-ით
 🛠 `AssistantController`: `POST /api/assistant/chat` — რესტორნის ასისტენტი system prompt-ით
-🛠 `FeedbackController`: `POST /api/feedback/sentiment` — შეფასების კლასიფიკაცია few-shot-ით
-🛠 DTO-ები `Dtos/`-ში: `PromptRequest` / `PromptResponse` (ტოკენები და FinishReason), `ChatRequest` / `ChatReply`, `SentimentRequest` / `SentimentResponse`
+🛠 DTO-ები `Dtos/`-ში: `PromptRequest` / `PromptResponse` (ტოკენები და FinishReason), `ChatRequest` / `ChatReply`
+🛠 ⭐ თუ დრო დარჩა: `FeedbackController` — შეფასების კლასიფიკაცია few-shot-ით
 
 ### 03. Microsoft.Extensions.AI
 
 რა არის Microsoft.Extensions.AI და რატომ არის ის .NET-ში AI-ის სტანდარტული ფენა; `IChatClient` და `IEmbeddingGenerator` აბსტრაქციები; რეგისტრაცია DI-ში (`AddChatClient`); კონფიგურაცია; პროვაიდერის შეცვლა კოდის შეცვლის გარეშე.
 
 📚 `IChatClient`-ის რეგისტრაცია DI-ში `AddChatClient`-ით: key — User Secrets-ში, მოდელი — `appsettings.json`-ში
-📚 `GetResponseAsync<T>` enum-ით და რატომ არის ეს few-shot-ზე საიმედო
+📚 `GetResponseAsync<T>` enum-ით და რატომ არის ეს prompt-ზე (მაგალითებითაც) საიმედო
 📚 ტექსტიდან ობიექტის ამოღება `record`-ით: nullable ველები, `Description`, დღევანდელი თარიღი prompt-ში
 📚 ფორმა გარანტირებულია, შინაარსი — არა: მიღებული ობიექტის შემოწმება C#-ში
 🛠 RestaurantApi | `Program.cs`: `AddChatClient`, მოდელის სახელი `Gemini:Model`-ში
-🛠 სამივე controller იღებს `IChatClient`-ს constructor-ით (client-ის შექმნა controller-იდან ქრება)
-🛠 `/api/feedback/sentiment` → `GetResponseAsync<Sentiment>` (enum)
+🛠 controller-ები იღებს `IChatClient`-ს constructor-ით (client-ის შექმნა controller-იდან ქრება)
+🛠 ახალი `FeedbackController`: `POST /api/feedback/sentiment` → `GetResponseAsync<Sentiment>` (enum); `SentimentRequest` / `SentimentResponse`
 🛠 არსებულ `BookingsController`-ში `POST /api/bookings/parse` — ტექსტიდან `BookingDetails` (თარიღი, სტუმრები)
 
 ### 04. Tools და Function Calling

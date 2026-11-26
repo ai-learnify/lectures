@@ -5,7 +5,7 @@
 - `IChatClient` ერთხელ იქმნება `Program.cs`-ში (`AddChatClient`) და DI-ში Singleton-ად რეგისტრირდება. Controller მას **constructor-ით** იღებს, როგორც `DbContext`-ს.
 - key User Secrets-შია, მოდელის სახელი `appsettings.json`-ში. მოდელის შეცვლა კონფიგურაციის შეცვლაა.
 - `GetResponseAsync<T>` → `ChatResponse<T>` → `.Result` უკვე C# ტიპია.
-- few-shot ფორმას **სთხოვს**, structured output კი **აიძულებს**: სქემა მოთხოვნასთან ერთად მიდის.
+- prompt-ი (few-shot მაგალითებითაც) ფორმას **სთხოვს**, structured output კი **აიძულებს**: სქემა მოთხოვნასთან ერთად მიდის.
 - nullable ველები და „დატოვე null“, რომ მოდელმა არ მოიგონოს. **ფორმა გარანტირებულია, შინაარსი არა**: ობიექტს ბაზაში ჩაწერამდე C# ამოწმებს.
 
 ## 1 · IChatClient DI-ში · 6–9
@@ -52,7 +52,7 @@ public class AssistantController : ControllerBase
         _chat = chat;
     }
 
-    // chat — unchanged (the same change in AiDiagnostics and Feedback)
+    // chat — unchanged (the same change in AiDiagnostics)
 }
 ```
 
@@ -72,7 +72,7 @@ User Secrets — დეველოპერის კომპიუტერ�
 
 ## 2 · Structured output: enum · 10–13
 
-few-shot „თითქმის“ ყოველთვის აბრუნებს ზუსტ სიტყვას, მაგრამ ხანდახან მოდის `Search.` ან `search`, და `if` ჩავარდება. „თითქმის“ კოდისთვის საკმარისი არ არის.
+prompt-ით (საშინაო 2) მოდელი „თითქმის“ ყოველთვის აბრუნებს ზუსტ სიტყვას, მაგრამ ხანდახან მოდის `Search.` ან `search`, და `if` ჩავარდება. „თითქმის“ კოდისთვის საკმარისი არ არის.
 
 **Structured output:** პასუხის ტიპს C#-ში ვწერთ, და მოდელი მის გარეთ ვერაფერს დაწერს:
 

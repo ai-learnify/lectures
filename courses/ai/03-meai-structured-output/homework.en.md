@@ -5,8 +5,8 @@ With code · your project · a table in the README
 ## Requirements
 
 - **DI:** no `new Client(...)` in any Controller — `IChatClient` only through `AddChatClient`; the key in User Secrets, the model in `appsettings.json`
-- **classify with an enum:** rewrite homework 2's `POST /api/assistant/classify` with `GetResponseAsync<your enum>` (without few-shot examples)
-- **A comparison in the README:** the same 5 texts — few-shot (homework 2) vs enum. Table: text · few-shot answer · enum answer · `inputTokens` for both
+- **classify with an enum:** rewrite homework 2's `POST /api/assistant/classify` with `GetResponseAsync<your enum>` (you no longer need “Answer with one word only” in System)
+- **A comparison in the README:** the same 5 texts — prompt (homework 2) vs enum. Table: text · prompt answer · enum answer · where ✗ turned into ✓
 - **A record from text:** one endpoint in a **real** Controller of your project (not in the assistant controller): text → `record` → a C# check (a required field is `null` → `400` with a question) → saved **to the database** with your existing logic
 - The study notes **quiz** (8 questions) — write down your score
 
@@ -87,12 +87,12 @@ public async Task<IActionResult> FromText(ReservationTextRequest request)
 }
 ```
 
-| Text | few-shot | enum | `inputTokens` few-shot / enum |
-|---|---|---|---|
-| “Where are your detective novels?” | `Search` | `Search` | ~95 / ~35 |
-| “Hold this book for me until Monday” | `Reserve.` | `Reserve` | ~95 / ~35 |
-| “How much is it to replace a card?” | `Question` | `Question` | ~95 / ~35 |
+| Text | prompt | enum |
+|---|---|---|
+| “Where are your detective novels?” | `Search` ✓ | `Search` ✓ |
+| “Hold this book for me until Monday” | `Reserve.` ✗ | `Reserve` ✓ |
+| “How much is it to replace a card?” | “Question — this is about fees” ✗ | `Question` ✓ |
 
 ```note
-The enum version has no examples — so `inputTokens` drops, and an answer like `Reserve.` can't appear anymore. `from-text` creates a record only after the check: the model gives the shape, C# checks what must hold. `_reservations` is the service you already create reservations with in the library API; in the Controller it comes through the constructor, next to `IChatClient`.
+In the enum version the schema guards the form, so an answer like `Reserve.` or a sentence can't appear anymore — we no longer need to ask for it in the prompt. `from-text` creates a record only after the check: the model gives the shape, C# checks what must hold. `_reservations` is the service you already create reservations with in the library API; in the Controller it comes through the constructor, next to `IChatClient`.
 ```

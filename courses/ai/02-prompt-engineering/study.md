@@ -6,7 +6,7 @@
 - API key **User Secrets**-შია (`Gemini:ApiKey`), არასდროს კოდში ან Git-ში.
 - `ChatOptions` ცალკეულ მოთხოვნას ეყენება. პასუხში **`Usage`** (ტოკენები, ფიქრის ტოკენების ჩათვლით) და **`FinishReason`** (`stop` / `length`) გვეუბნება, რა დაჯდა და რატომ გაჩერდა.
 - მოდელს **შეტყობინებების სიას** ვუგზავნით: **System** (ჩვენი წესები), **User**, **Assistant**.
-- კარგი **system prompt** = როლი + თემები + ფორმა + საზღვრები. **Few-shot** მაგალითები პასუხს ზუსტ ფორმატში აფიქსირებს, რომ C# კოდმა გამოიყენოს.
+- კარგი **system prompt** = როლი + თემები + ფორმა + საზღვრები. AI **მაგალითებით** უკეთ მუშაობს (**few-shot**): მაგალითები პასუხს ზუსტ ფორმატში აფიქსირებს, რომ C# კოდმა გამოიყენოს.
 
 ## 1 · პირველი გამოძახება · 6–10
 
@@ -86,6 +86,16 @@ Swagger-ში `POST /api/diagnostics/ai/ask` დააბრუნებს ტ
 
 ```note
 `new Client(...)` Controller-ის შიგნით დროებითია. ლექცია 3-ზე `IChatClient`-ს DI-ში გადავიტანთ.
+```
+
+```tip
+**სახლში Ollama-ზე?** ჩვენი რეკომენდაცია Gemini-ა (ლექცია 1). თუ მაინც ლოკალურ მოდელს იყენებ (ინსტალაცია — ლექცია 1-ის სლაიდზე), `Google.GenAI`-ის ნაცვლად `dotnet add package OllamaSharp`, და constructor-ში იცვლება მხოლოდ ერთი ხაზი. key არ სჭირდება (კოდი ქვემოთაა).
+
+`OllamaApiClient` თვითონ არის `IChatClient`, ამიტომ დანარჩენი კოდი იგივე რჩება. პატარა მოდელი სუსტია: პასუხები Gemini-სგან განსხვავდება.
+```
+
+```csharp Controllers/AiDiagnosticsController.cs · constructor · Ollama
+_chat = new OllamaApiClient(new Uri("http://localhost:11434"), "qwen3.5:4b");
 ```
 
 ```check
@@ -203,14 +213,16 @@ system prompt — ასისტენტის როლი, საზღვ�
 ChatMessage — ერთი შეტყობინება როლით (System / User / Assistant) და ტექსტით
 ```
 
-## 4 · zero-shot და few-shot · 19–20
+## 4 · zero-shot და few-shot · 19
 
 - **Zero-shot:** მოდელს მხოლოდ ვუხსნით, რა გააკეთოს.
 - **Few-shot:** ახსნას 3–5 მაგალითს ვუმატებთ („შეკითხვა → სწორი პასუხი“).
 
-პასუხს ხშირად **C# კოდი** იყენებს, მაგალითად `if (label == "Negative")`. zero-shot შეიძლება შინაარსით სწორი, მაგრამ ფორმით არასწორი იყოს („უარყოფითი“, `Negative.`). მაგალითები ფორმას აფიქსირებს. კოდში ისინი User/Assistant წყვილებია სიაში:
+მთავარი აზრი: **AI მაგალითებით უკეთ მუშაობს.** მაგალითები აჩვენებს პასუხის ფორმას, ტონს და რთულ შემთხვევებს.
 
-შეფასებების კლასიფიკაცია `FeedbackController`-შია (`SentimentRequest(string Text)`, `SentimentResponse(string Sentiment)`):
+პასუხს ხშირად **C# კოდი** იყენებს, მაგალითად `if (label == "Negative")`. zero-shot შეიძლება შინაარსით სწორი, მაგრამ ფორმით არასწორი იყოს („უარყოფითი“, `Negative.`). მაგალითები ფორმას აფიქსირებს. კოდში ისინი User/Assistant წყვილებად იგზავნება, ყოველ მოთხოვნაზე.
+
+**⭐ კოდში (დამატებითი, ლექციაზე მხოლოდ დრო თუ დარჩა).** შეფასებების კლასიფიკაცია `FeedbackController`-ში (`SentimentRequest(string Text)`, `SentimentResponse(string Sentiment)`):
 
 ```csharp Controllers/FeedbackController.cs · AnalyzeSentiment
 [HttpPost("sentiment")]

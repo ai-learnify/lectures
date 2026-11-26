@@ -170,7 +170,7 @@ public class AssistantController : ControllerBase
         _chat = chat;
     }
 
-    // chat — unchanged (the same change in AiDiagnostics and Feedback)
+    // chat — unchanged (the same change in AiDiagnostics)
 }
     </code-block>
     <div class="col" style="gap:14px">
@@ -196,7 +196,7 @@ public class AssistantController : ControllerBase
 
 <section class="slide" data-section="2 · Structured output">
   <div class="kicker">საშინაოდან · classify</div>
-  <h2>few-shot: <span class="c-red">თითქმის</span> ყოველთვის</h2>
+  <h2>prompt: <span class="c-red">თითქმის</span> ყოველთვის</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:30px;align-items:start;margin-top:8px">
     <div class="col" style="gap:14px">
       <p class="sec-l">მოდელმა დააბრუნა (string):</p>
@@ -212,11 +212,11 @@ public class AssistantController : ControllerBase
       <div class="callout" style="--a:var(--net);font-size:20px">სხვა მნიშვნელობა <b>ფიზიკურად ვერ</b> მოვა — enum-ში მხოლოდ სამია</div>
     </div>
   </div>
-  <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">few-shot <b>სთხოვს</b> ფორმას. structured output ფორმას <b>აიძულებს</b></div>
+  <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">prompt-ი (მაგალითებითაც) ფორმას <b>სთხოვს</b>. structured output ფორმას <b>აიძულებს</b></div>
 </section>
 
 <section class="slide" data-section="2 · Structured output">
-  <div class="kicker">🧑‍💻 ვცვლით · feedback/sentiment</div>
+  <div class="kicker">🧑‍💻 ვწერთ ერთად · ახალი FeedbackController</div>
   <h2><span class="mono c-api">GetResponseAsync&lt;Sentiment&gt;</span></h2>
   <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:24px">
     <code-block id="c3" lang="csharp" cls="sm" title="Controllers/FeedbackController.cs · AnalyzeSentiment">
@@ -244,7 +244,7 @@ public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
       <i class="codestep" data-for="c3" data-lines="1"></i>
       <div class="callout step" data-with style="--a:var(--net)"><b>enum</b> = დასაშვები პასუხების სია</div>
       <i class="codestep" data-for="c3" data-lines="8"></i>
-      <div class="callout step" data-with style="--a:var(--muted)">"Answer in one word" და მაგალითები <b>აღარ</b> გვჭირდება ფორმისთვის</div>
+      <div class="callout step" data-with style="--a:var(--muted)">"Answer in one word" <b>აღარ</b> გვჭირდება — ფორმას ტიპი იცავს</div>
       <i class="codestep" data-for="c3" data-lines="12-13"></i>
       <div class="callout step" data-with style="--a:var(--api)"><b>&lt;T&gt;</b> — რა ფორმით გვინდა პასუხი</div>
       <i class="codestep" data-for="c3" data-lines="15-16"></i>

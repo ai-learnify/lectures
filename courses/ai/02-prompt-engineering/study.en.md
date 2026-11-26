@@ -6,7 +6,7 @@
 - The API key lives in **User Secrets** (`Gemini:ApiKey`), never in code or Git.
 - `ChatOptions` apply to a single request. In the response, **`Usage`** (tokens, including thinking tokens) and **`FinishReason`** (`stop` / `length`) tell you what it cost and why it stopped.
 - We send the model **a list of messages**: **System** (our rules), **User**, **Assistant**.
-- A good **system prompt** = role + topics + format + boundaries. **Few-shot** examples pin the answer to an exact format so C# code can use it.
+- A good **system prompt** = role + topics + format + boundaries. AI works better **with examples** (**few-shot**): examples pin the answer to an exact format so C# code can use it.
 
 ## 1 · First call · 6–10
 
@@ -86,6 +86,16 @@ In Swagger, `POST /api/diagnostics/ai/ask` returns the text and the tokens: `inp
 
 ```note
 `new Client(...)` inside the controller is temporary. In lecture 3 we move `IChatClient` into DI.
+```
+
+```tip
+**Using Ollama at home?** Our recommendation is Gemini (lecture 1). If you still use a local model (installation is on the lecture 1 slide), run `dotnet add package OllamaSharp` instead of `Google.GenAI`, and only one line in the constructor changes. No key needed (code below).
+
+`OllamaApiClient` is itself an `IChatClient`, so the rest of the code stays the same. A small model is weaker: answers differ from Gemini's.
+```
+
+```csharp Controllers/AiDiagnosticsController.cs · constructor · Ollama
+_chat = new OllamaApiClient(new Uri("http://localhost:11434"), "qwen3.5:4b");
 ```
 
 ```check
@@ -203,14 +213,16 @@ system prompt — the assistant's role, boundaries and answer format; written by
 ChatMessage — one message with a role (System / User / Assistant) and text
 ```
 
-## 4 · Zero-shot and few-shot · 19–20
+## 4 · Zero-shot and few-shot · 19
 
 - **Zero-shot:** we only explain to the model what to do.
 - **Few-shot:** we add 3–5 examples to the explanation ("question → correct answer").
 
-The answer is often used by **C# code**, for example `if (label == "Negative")`. Zero-shot may be right in content but wrong in form ("negative", `Negative.`). Examples pin down the form. In code they are User/Assistant pairs in the list:
+The main idea: **AI works better with examples.** Examples show the answer's form, tone and hard cases.
 
-Review classification lives in `FeedbackController` (`SentimentRequest(string Text)`, `SentimentResponse(string Sentiment)`):
+The answer is often used by **C# code**, for example `if (label == "Negative")`. Zero-shot may be right in content but wrong in form ("negative", `Negative.`). Examples pin down the form. In code they are sent as User/Assistant pairs, with every request.
+
+**⭐ In code (extra — in class only if time remains).** Review classification in `FeedbackController` (`SentimentRequest(string Text)`, `SentimentResponse(string Sentiment)`):
 
 ```csharp Controllers/FeedbackController.cs · AnalyzeSentiment
 [HttpPost("sentiment")]

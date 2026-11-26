@@ -391,45 +391,9 @@ private static ChatMessage SystemPrompt() => new(ChatRole.System, """
     <div class="ifc step"><span class="kw">if</span> (label == <span class="st">"Negative"</span>) NotifyManager();</div>
     <div class="callout step" data-with style="--a:var(--api);font-size:20px">C# კოდს <b>ზუსტი სიტყვა</b> სჭირდება — „უარყოფითი“ ან აბზაცი ამას ვერ გაივლის</div>
   </div>
+  <div class="callout step mt" style="--a:var(--mvc);font-size:21px">💡 AI <b>მაგალითებით</b> უკეთ მუშაობს: ფორმა, ტონი, რთული შემთხვევა. კოდში მაგალითები <b>User / Assistant წყვილებად</b> იგზავნება — ყოველ მოთხოვნაზე</div>
 </section>
 
-<section class="slide" data-section="3 · Prompt engineering">
-  <div class="kicker">🧑‍💻 few-shot კოდში</div>
-  <h2>მაგალითები = <span class="c-mvc">User / Assistant წყვილები</span></h2>
-  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:24px">
-    <code-block id="c4" lang="csharp" cls="sm" title="Controllers/FeedbackController.cs · AnalyzeSentiment">
-[HttpPost("sentiment")]
-public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
-{
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, "Classify the guest's review of the restaurant. " +
-            "Answer with one word only: Positive, Negative or Mixed."),
-        new(ChatRole.User, "The khinkali was delicious and the service was fast"),
-        new(ChatRole.Assistant, "Positive"),
-        new(ChatRole.User, "We waited an hour and the food came cold"),
-        new(ChatRole.Assistant, "Negative"),
-        new(ChatRole.User, "The dishes are good, but the prices are very high"),
-        new(ChatRole.Assistant, "Mixed"),
-        new(ChatRole.User, request.Text)
-    ];
-
-    ChatResponse response = await _chat.GetResponseAsync(messages);
-    return Ok(new SentimentResponse(response.Text));
-}
-    </code-block>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="c4" data-lines="6-7"></i>
-      <div class="callout step" data-with style="--a:var(--net)"><b>ახსნა</b> — დასაშვები პასუხები</div>
-      <i class="codestep" data-for="c4" data-lines="8-13"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)"><b>3 მაგალითი</b> — მოდელისთვის „წინა საუბარი“</div>
-      <i class="codestep" data-for="c4" data-lines="14"></i>
-      <div class="callout step" data-with style="--a:var(--api)"><b>ნამდვილი</b> შეფასება — ბოლოს</div>
-      <div class="callout ask step">🙋 რა მოხდება, თუ <b>Mixed</b>-ის მაგალითს ამოვიღებთ?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მოდელი Mixed-ს იშვიათად აირჩევს ან სხვა სიტყვით უპასუხებს — მაგალითი ფორმატსაც და ვარიანტებსაც აფიქსირებს</div>
-    </div>
-  </div>
-</section>
 
 <lecture-classwork/>
 

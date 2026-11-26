@@ -527,7 +527,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <h2><span class="grad">პირველი გამოძახება და Prompt Engineering</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
     <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">წინა ლექციაზე ვნახეთ, როგორ მუშაობს მოდელი. დღეს მას პირველად გამოვიძახებთ ჩვენი API-დან: ვნახავთ ტოკენებს, პარამეტრებს და finish reason-ს არა სლაიდზე, არამედ ჩვენი კოდის პასუხში. მეორე ნახევარში ვისწავლით, როგორ ვუთხრათ მოდელს, ვინ არის, რას აკეთებს და რა ფორმით უპასუხოს — ესაა prompt engineering, ყველა შემდეგი AI ფუნქციის საფუძველი.</p></div>
-    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li><code class="i">IChatClient</code>-ით Gemini-ს გამოძახება საკუთარი API-დან და key-ის უსაფრთხოდ შენახვა</li><li><code class="i">ChatOptions</code>-ის დაყენება და პასუხიდან ტოკენების (<code class="i">Usage</code>) და <code class="i">FinishReason</code>-ის წაკითხვა</li><li>System prompt-ის დაწერა, რომელიც ასისტენტის როლს, თემებს და პასუხის ფორმას ზღუდავს</li><li>Zero-shot-ისა და few-shot-ის გარჩევა და few-shot-ით ზუსტი პასუხის მიღება</li></ul></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li><code class="i">IChatClient</code>-ით Gemini-ს გამოძახება საკუთარი API-დან და key-ის უსაფრთხოდ შენახვა</li><li><code class="i">ChatOptions</code>-ის დაყენება და პასუხიდან ტოკენების (<code class="i">Usage</code>) და <code class="i">FinishReason</code>-ის წაკითხვა</li><li>System prompt-ის დაწერა, რომელიც ასისტენტის როლს, თემებს და პასუხის ფორმას ზღუდავს</li><li>Zero-shot-ისა და few-shot-ის გარჩევა და ახსნა, რატომ მუშაობს AI მაგალითებით უკეთ</li></ul></div>
   </div>
 </section>
 
@@ -768,25 +768,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="ifc step"><span class="kw">if</span> (label == <span class="st">"Negative"</span>) NotifyManager();</div>
     <div class="callout step" data-with style="--a:var(--api);font-size:20px">C# კოდს <b>ზუსტი სიტყვა</b> სჭირდება — „უარყოფითი“ ან აბზაცი ამას ვერ გაივლის</div>
   </div>
+  <div class="callout step mt" style="--a:var(--mvc);font-size:21px">💡 AI <b>მაგალითებით</b> უკეთ მუშაობს: ფორმა, ტონი, რთული შემთხვევა. კოდში მაგალითები <b>User / Assistant წყვილებად</b> იგზავნება — ყოველ მოთხოვნაზე</div>
 </section>
 
-<section class="slide" data-section="3 · Prompt engineering">
-  <div class="kicker">🧑‍💻 few-shot კოდში</div>
-  <h2>მაგალითები = <span class="c-mvc">User / Assistant წყვილები</span></h2>
-  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:24px">
-    <pre class="code sm" id="c4"><span class="ttl">Controllers/FeedbackController.cs · AnalyzeSentiment</span><code><span class="ln"><span class="na">[HttpPost("sentiment")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalyzeSentiment</span><span class="p">(</span><span class="n">SentimentRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the guest's review of the restaurant. " +</span></span><span class="ln"><span class="na">            "Answer with one word only: Positive, Negative or Mixed."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The khinkali was delicious and the service was fast"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Positive"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "We waited an hour and the food came cold"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Negative"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The dishes are good, but the prices are very high"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Mixed"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Text)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SentimentResponse</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="c4" data-lines="6-7"></i>
-      <div class="callout step" data-with style="--a:var(--net)"><b>ახსნა</b> — დასაშვები პასუხები</div>
-      <i class="codestep" data-for="c4" data-lines="8-13"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)"><b>3 მაგალითი</b> — მოდელისთვის „წინა საუბარი“</div>
-      <i class="codestep" data-for="c4" data-lines="14"></i>
-      <div class="callout step" data-with style="--a:var(--api)"><b>ნამდვილი</b> შეფასება — ბოლოს</div>
-      <div class="callout ask step">🙋 რა მოხდება, თუ <b>Mixed</b>-ის მაგალითს ამოვიღებთ?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 მოდელი Mixed-ს იშვიათად აირჩევს ან სხვა სიტყვით უპასუხებს — მაგალითი ფორმატსაც და ვარიანტებსაც აფიქსირებს</div>
-    </div>
-  </div>
-</section>
 
 <section class="slide" data-section="პრაქტიკა">
   <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში</div>
@@ -838,22 +822,22 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 
 <section class="slide" data-section="საშინაო">
   <div class="kicker">🏠 საშინაო დავალება</div>
-  <h2>Few-shot კლასიფიკატორი შენს პროექტში</h2>
+  <h2>კლასიფიკატორი შენს პროექტში</h2>
   <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
     <div class="card accent" style="--a:var(--net)">
       <h3><span class="ico">🏠</span>კოდით · endpoint + ცხრილი README-ში</h3>
       <ul class="clean small">
 <li><strong>endpoint</strong> <code class="i">POST /api/assistant/classify</code> — მომხმარებლის ტექსტი → <strong>ერთი</strong> კატეგორია შენი პროექტისთვის (მინიმუმ 3 კატეგორია, მაგ. <code class="i">Search</code> / <code class="i">Order</code> / <code class="i">Question</code>)</li>
-<li><strong>few-shot:</strong> System + მინიმუმ <strong>3 მაგალითი</strong> User/Assistant წყვილებად</li>
-<li><strong>შედარება README-ში:</strong> 5 ტექსტი — zero-shot (მაგალითების გარეშე) vs few-shot. ცხრილი: ტექსტი · zero-shot პასუხი · few-shot პასუხი · <code class="i">inputTokens</code> ორივეზე</li>
+<li><strong>System prompt:</strong> ამოცანა + კატეგორიების სია + „Answer with one word only“ (მაგალითების გარეშე)</li>
+<li><strong>შემოწმება README-ში:</strong> 5 განსხვავებული ტექსტი Swagger-ში. ცხრილი: ტექსტი · მოდელის პასუხი · გაივლის თუ არა <code class="i">if (category == "Search")</code>-ის მსგავს შემოწმებას (✓ / ✗) · <code class="i">inputTokens</code></li>
 <li><strong>ენა:</strong> ერთი და იგივე ტექსტი ქართულად და ინგლისურად — <code class="i">inputTokens</code> ცხრილში</li>
 <li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
 </ul>
-      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: endpoint 5-ვე ტექსტზე აბრუნებს ზუსტად ერთ კატეგორიას შენი სიიდან; README-ში არის შედარების ცხრილი და ტესტის ქულა</p>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: endpoint 5-ვე ტექსტზე პასუხობს; README-ში არის ცხრილი (პასუხი, ✓ / ✗, ტოკენები) და ტესტის ქულა</p>
     </div>
     <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3><ul class="clean small">
-<li>ტექსტი, რომელიც არცერთ კატეგორიაში არ ჯდება — რას აბრუნებს? დაამატე კატეგორია <code class="i">Other</code> და ერთი მაგალითი</li>
-<li>Controller-ში შეამოწმე პასუხი: თუ სიაში არ არის → <code class="i">Other</code>. რატომ არ ვენდობით მოდელს ბოლომდე?</li>
+<li><strong>few-shot:</strong> დაამატე 3 მაგალითი User/Assistant წყვილებად (კონსპექტის ⭐ კოდი) და ცხრილს დაუმატე სვეტი „few-shot პასუხი“. სად შეიცვალა ✗ → ✓? რამდენით გაიზარდა <code class="i">inputTokens</code>?</li>
+<li>ტექსტი, რომელიც არცერთ კატეგორიაში არ ჯდება — რას აბრუნებს? დაამატე <code class="i">Other</code> და Controller-ში შეამოწმე: თუ პასუხი სიაში არ არის → <code class="i">Other</code></li>
 </ul></div>
   </div>
   <div class="callout mt" style="--a:var(--api)">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>

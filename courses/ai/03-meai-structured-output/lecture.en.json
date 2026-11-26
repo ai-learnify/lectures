@@ -1,9 +1,9 @@
 {
   "title": "Microsoft.Extensions.AI: DI and Structured Output",
-  "why": "In lecture 2 we created `IChatClient` in the Controller with `new`, and the answer was free text — “almost” exact even with few-shot. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.",
+  "why": "In lecture 2 we created `IChatClient` in the Controller with `new`, and the answer was free text — “almost” exact with a prompt. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.",
   "outcomes": [
     "Register `IChatClient` in DI with `AddChatClient`: the key in User Secrets, the model in `appsettings.json`",
-    "Get an enum with `GetResponseAsync<T>` and explain why it's more reliable than few-shot",
+    "Get an enum with `GetResponseAsync<T>` and explain why it's more reliable than a prompt (even with examples)",
     "Extract an object from text with a `record`: nullable fields, `Description`, today's date in the prompt",
     "Explain why the shape is guaranteed but the content is not, and check the received object in C#"
   ],
@@ -94,14 +94,14 @@
       "slide": 9
     },
     {
-      "q": "The few-shot classify sometimes returns `Search.`. Why doesn't this happen with `GetResponseAsync<RequestType>`?",
+      "q": "The prompt-based classify sometimes returns `Search.`. Why doesn't this happen with `GetResponseAsync<RequestType>`?",
       "options": [
         "Gemini guesses enums better",
         "The JSON Schema goes with the request and the model can't choose a token outside the schema",
         "C# fixes `Search.` automatically",
         "Temperature automatically becomes 0"
       ],
-      "explain": "Few-shot asks for a shape, structured output forces it. The allowed values are in the schema, and the model chooses only among them.",
+      "explain": "A prompt asks for a shape, structured output forces it. The allowed values are in the schema, and the model chooses only among them.",
       "answer": 1,
       "slide": 11
     },

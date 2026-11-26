@@ -1,29 +1,29 @@
-# A few-shot classifier in your project
+# A classifier in your project
 
 With code · an endpoint + a table in the README
 
 ## Requirements
 
 - **An endpoint** `POST /api/assistant/classify` — the user's text → **one** category for your project (at least 3 categories, e.g. `Search` / `Order` / `Question`)
-- **Few-shot:** System + at least **3 examples** as User/Assistant pairs
-- **A comparison in the README:** 5 texts — zero-shot (without examples) vs few-shot. Table: text · zero-shot answer · few-shot answer · `inputTokens` for both
+- **System prompt:** the task + the list of categories + “Answer with one word only” (no examples)
+- **A check in the README:** 5 different texts in Swagger. Table: text · the model's answer · does it pass a check like `if (category == "Search")` (✓ / ✗) · `inputTokens`
 - **Language:** the same text in Georgian and in English — `inputTokens` in the table
 - The study notes **quiz** (8 questions) — write down your score
 
 ## ✓ Done when
 
-The endpoint returns exactly one category from your list for all 5 texts; the README has the comparison table and the quiz score
+The endpoint answers all 5 texts; the README has the table (answer, ✓ / ✗, tokens) and the quiz score
 
 ## ⭐ Bonus
 
-- A text that fits no category — what does it return? Add an `Other` category and one example
-- Check the answer in the Controller: if it's not in the list → `Other`. Why don't we trust the model completely?
+- **Few-shot:** add 3 examples as User/Assistant pairs (the ⭐ code in the study notes) and add a “few-shot answer” column to the table. Where did ✗ turn into ✓? How much did `inputTokens` grow?
+- A text that fits no category — what does it return? Add `Other` and check in the Controller: if the answer isn't in the list → `Other`
 
 ## 💡 Details
 
 - Classification doesn't need a long answer, but keep `MaxOutputTokens` with room to spare (e.g. 200) — Gemini thinks first
-- Keep the examples short and **different**: at least one per category
-- For zero-shot use the same endpoint, temporarily commenting out the examples
+- If the model writes `Search.`, `search` or a whole sentence, **don't fix it** in code — put ✗ in the table. That's lecture 3 material
+- Pick texts so that one or two are “on the boundary” (e.g. a question and an order at once)
 
 ## Solution
 
@@ -43,12 +43,6 @@ public async Task<IActionResult> Classify(ClassifyRequest request)
     [
         new(ChatRole.System, "Classify the library request. " +
             "Answer with one word only: Search, Reserve or Question."),
-        new(ChatRole.User, "Do you have anything by Haruki Murakami?"),
-        new(ChatRole.Assistant, "Search"),
-        new(ChatRole.User, "Please hold “Jaqo's Dispossessed” for me until tomorrow"),
-        new(ChatRole.Assistant, "Reserve"),
-        new(ChatRole.User, "Until what time are you open on Saturday?"),
-        new(ChatRole.Assistant, "Question"),
         new(ChatRole.User, request.Text)
     ];
 
@@ -57,12 +51,12 @@ public async Task<IActionResult> Classify(ClassifyRequest request)
 }
 ```
 
-| Text | zero-shot | few-shot |
+| Text | Answer | `if` |
 |---|---|---|
-| “Where are your detective novels?” | “This is a search request, because…” | `Search` |
-| “Keep this book for me until Monday” | “reservation” | `Reserve` |
-| “How much does it cost to restore a card?” | “Question / information” | `Question` |
+| “Where are your detective novels?” | `Search` | ✓ |
+| “Hold this book for me until Monday” | `Reserve.` | ✗ |
+| “How much does replacing a library card cost?” | “Question — this is about fees” | ✗ |
 
 ```note
-A zero-shot answer is often right in **content** but not in **form**: “reservation” or a whole sentence won't pass `if (label == "Reserve")`. Few-shot fixes the form. Still, in the Controller we should check the answer against the list — the model writes what's likely. In lecture 3, with structured output, a C# type (an enum) will guard this.
+The answer is often right in **content** but not in **form**: `Reserve.` or a whole sentence won't pass `if (category == "Reserve")`. Examples (few-shot, ⭐) reduce this but don't rule it out — the model writes what's likely. In lecture 3, with structured output, a C# type (an enum) will guard the form.
 ```

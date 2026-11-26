@@ -5,7 +5,7 @@
 - `IChatClient` is created once in `Program.cs` (`AddChatClient`) and registered in DI as a Singleton. The controller receives it **through the constructor**, like a `DbContext`.
 - The key lives in User Secrets, the model name in `appsettings.json`. Switching models is a configuration change.
 - `GetResponseAsync<T>` → `ChatResponse<T>` → `.Result` is already a C# type.
-- Few-shot **asks** for a format; structured output **enforces** it: the schema travels with the request.
+- A prompt (even with few-shot examples) **asks** for a format; structured output **enforces** it: the schema travels with the request.
 - Nullable fields and "leave null" so the model does not invent values. **The form is guaranteed, the content is not**: C# checks the object before it reaches the database.
 
 ## 1 · IChatClient in DI · 6–9
@@ -52,7 +52,7 @@ public class AssistantController : ControllerBase
         _chat = chat;
     }
 
-    // chat — unchanged (the same change in AiDiagnostics and Feedback)
+    // chat — unchanged (the same change in AiDiagnostics)
 }
 ```
 
@@ -72,7 +72,7 @@ User Secrets — secret settings stored on the developer's machine, outside the 
 
 ## 2 · Structured output: enum · 10–13
 
-Few-shot returns the exact word "almost" always, but sometimes you get `Search.` or `search`, and the `if` fails. "Almost" is not enough for code.
+With a prompt (homework 2) the model returns the exact word "almost" always, but sometimes you get `Search.` or `search`, and the `if` fails. "Almost" is not enough for code.
 
 **Structured output:** we write the answer type in C#, and the model cannot write anything outside it:
 

@@ -5,8 +5,8 @@
 ## მოთხოვნები
 
 - **DI:** Controller-ებში `new Client(...)` არსად — `IChatClient` მხოლოდ `AddChatClient`-ით; key — User Secrets-ში, მოდელი — `appsettings.json`-ში
-- **classify enum-ით:** საშინაო 2-ის `POST /api/assistant/classify` გადაწერე `GetResponseAsync<შენი enum>`-ით (few-shot მაგალითების გარეშე)
-- **შედარება README-ში:** იგივე 5 ტექსტი — few-shot (საშინაო 2) vs enum. ცხრილი: ტექსტი · few-shot პასუხი · enum პასუხი · `inputTokens` ორივეზე
+- **classify enum-ით:** საშინაო 2-ის `POST /api/assistant/classify` გადაწერე `GetResponseAsync<შენი enum>`-ით (System-ში „Answer with one word only“ აღარ გჭირდება)
+- **შედარება README-ში:** იგივე 5 ტექსტი — prompt (საშინაო 2) vs enum. ცხრილი: ტექსტი · prompt-ის პასუხი · enum-ის პასუხი · სად შეიცვალა ✗ → ✓
 - **ტექსტიდან ჩანაწერი:** ერთი endpoint შენი პროექტის **ნამდვილ** Controller-ში (არა ასისტენტის controller-ში): ტექსტი → `record` → C# შემოწმება (სავალდებულო ველი `null` → `400` კითხვით) → შენი არსებული ლოგიკით **ბაზაში** ჩაწერა
 - კონსპექტის **ტესტი** (8 კითხვა) — ქულა ჩაწერე
 
@@ -87,12 +87,12 @@ public async Task<IActionResult> FromText(ReservationTextRequest request)
 }
 ```
 
-| ტექსტი | few-shot | enum | `inputTokens` few-shot / enum |
-|---|---|---|---|
-| "Where are your detective novels?" | `Search` | `Search` | ~95 / ~35 |
-| "Hold this book for me until Monday" | `Reserve.` | `Reserve` | ~95 / ~35 |
-| "How much does replacing a library card cost?" | `Question` | `Question` | ~95 / ~35 |
+| ტექსტი | prompt | enum |
+|---|---|---|
+| "Where are your detective novels?" | `Search` ✓ | `Search` ✓ |
+| "Hold this book for me until Monday" | `Reserve.` ✗ | `Reserve` ✓ |
+| "How much does replacing a library card cost?" | "Question — this is about fees" ✗ | `Question` ✓ |
 
 ```note
-enum-ის ვერსიაში მაგალითები აღარ არის — ამიტომ `inputTokens` მცირდება, და `Reserve.`-ის მსგავსი პასუხი ვეღარ მოვა. `from-text` ჩანაწერს მხოლოდ შემოწმების შემდეგ ქმნის: მოდელი ფორმას იძლევა, აუცილებელს C# ამოწმებს. `_reservations` — ის სერვისი, რომლითაც ბიბლიოთეკის API-ში ჯავშანს უკვე ქმნი; Controller-ში ის `IChatClient`-ის გვერდით, constructor-ით მოდის.
+enum-ის ვერსიაში ფორმას სქემა იცავს, ამიტომ `Reserve.`-ის ან წინადადების მსგავსი პასუხი ვეღარ მოვა — prompt-ში ამის თხოვნა აღარ გვჭირდება. `from-text` ჩანაწერს მხოლოდ შემოწმების შემდეგ ქმნის: მოდელი ფორმას იძლევა, აუცილებელს C# ამოწმებს. `_reservations` — ის სერვისი, რომლითაც ბიბლიოთეკის API-ში ჯავშანს უკვე ქმნი; Controller-ში ის `IChatClient`-ის გვერდით, constructor-ით მოდის.
 ```

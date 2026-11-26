@@ -527,7 +527,7 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <h2><span class="grad">The first call and Prompt Engineering</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
     <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🤔</span>Why you need this</h3><p class="small">In the previous lecture we saw how the model works. Today we call it from our API for the first time: we see tokens, parameters and the finish reason not on a slide but in our own code's response. In the second half we learn how to tell the model who it is, what it does and in what form to answer — that's prompt engineering, the basis of every AI feature that follows.</p></div>
-    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>By the end of the lecture you can</h3><ul class="clean small"><li>call Gemini from your own API with <code class="i">IChatClient</code> and keep the key safe</li><li>set <code class="i">ChatOptions</code> and read the tokens (<code class="i">Usage</code>) and <code class="i">FinishReason</code> from the response</li><li>write a system prompt that sets the assistant's role, topics and answer format</li><li>tell zero-shot from few-shot and get an exact answer with few-shot</li></ul></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>By the end of the lecture you can</h3><ul class="clean small"><li><code class="i">IChatClient</code> — call Gemini from your own API and keep the key safe</li><li><code class="i">ChatOptions</code> — set it and read the tokens (<code class="i">Usage</code>) and <code class="i">FinishReason</code> from the response</li><li>write a system prompt that sets the assistant's role, topics and answer format</li><li>tell zero-shot from few-shot and explain why AI works better with examples</li></ul></div>
   </div>
 </section>
 
@@ -768,25 +768,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="ifc step"><span class="kw">if</span> (label == <span class="st">"Negative"</span>) NotifyManager();</div>
     <div class="callout step" data-with style="--a:var(--api);font-size:20px">C# code needs <b>the exact word</b> — “negative” or a paragraph won't pass</div>
   </div>
+  <div class="callout step mt" style="--a:var(--mvc);font-size:21px">💡 AI <b>with examples</b> AI works better: form, tone, hard cases. In code, examples are sent as <b>User / Assistant pairs</b> — with every request</div>
 </section>
 
-<section class="slide" data-section="3 · Prompt engineering">
-  <div class="kicker">🧑‍💻 few-shot in code</div>
-  <h2>Examples = <span class="c-mvc">User / Assistant pairs</span></h2>
-  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:24px">
-    <pre class="code sm" id="c4"><span class="ttl">Controllers/FeedbackController.cs · AnalyzeSentiment</span><code><span class="ln"><span class="na">[HttpPost("sentiment")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalyzeSentiment</span><span class="p">(</span><span class="n">SentimentRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the guest's review of the restaurant. " +</span></span><span class="ln"><span class="na">            "Answer with one word only: Positive, Negative or Mixed."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The khinkali was delicious and the service was fast"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Positive"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "We waited an hour and the food came cold"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Negative"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, "The dishes are good, but the prices are very high"),</span></span><span class="ln"><span class="na">        new(ChatRole.Assistant, "Mixed"),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Text)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SentimentResponse</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Text</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="c4" data-lines="6-7"></i>
-      <div class="callout step" data-with style="--a:var(--net)"><b>Explanation</b> — the allowed answers</div>
-      <i class="codestep" data-for="c4" data-lines="8-13"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)"><b>3 examples</b> — a “previous conversation” for the model</div>
-      <i class="codestep" data-for="c4" data-lines="14"></i>
-      <div class="callout step" data-with style="--a:var(--api)"><b>The real</b> review — last</div>
-      <div class="callout ask step">🙋 What happens if we remove the <b>Mixed</b> example?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 The model will rarely pick Mixed or will answer with another word — an example fixes both the format and the options</div>
-    </div>
-  </div>
-</section>
 
 <section class="slide" data-section="Practice">
   <div class="kicker">🧑‍💻 You do it · in class</div>
@@ -835,20 +819,23 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 
 <section class="slide" data-section="Homework">
   <div class="kicker">🏠 Homework</div>
-  <h2>A few-shot classifier in your project</h2>
-  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
+  <h2>A classifier in your project</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
     <div class="card accent" style="--a:var(--net)">
       <h3><span class="ico">🏠</span>With code · an endpoint + a table in the README</h3>
       <ul class="clean small">
-<li><strong>An endpoint</strong> <code class="i">POST /api/assistant/classify</code> — the user's text → <strong>one</strong> category for your project (at least 3 categories, e.g. <code class="i">Search</code> / <code class="i">Order</code> / <code class="i">Question</code>)</li>
-<li><strong>Few-shot:</strong> System + at least <strong>3 examples</strong> as User/Assistant pairs</li>
-<li><strong>A comparison in the README:</strong> 5 texts — zero-shot (without examples) vs few-shot. Table: text · zero-shot answer · few-shot answer · <code class="i">inputTokens</code> for both</li>
+<li><strong>endpoint</strong> <code class="i">POST /api/assistant/classify</code> — the user's text → <strong>one</strong> category for your project (at least 3 categories, e.g. <code class="i">Search</code> / <code class="i">Order</code> / <code class="i">Question</code>)</li>
+<li><strong>System prompt:</strong> the task + the list of categories + “Answer with one word only” (no examples)</li>
+<li><strong>A check in the README:</strong> 5 different texts in Swagger. Table: text · the model's answer · does it pass a check like <code class="i">if (category == "Search")</code>(✓ / ✗) · <code class="i">inputTokens</code></li>
 <li><strong>Language:</strong> the same text in Georgian and in English — <code class="i">inputTokens</code> in the table</li>
 <li>The study notes <strong>quiz</strong> (8 questions) — write down your score</li>
 </ul>
-      
+      <p class="tiny" style="margin-top:14px">✓ Done when: the endpoint answers all 5 texts; the README has the table (answer, ✓ / ✗, tokens) and the quiz score</p>
     </div>
-    
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">⭐</span>Bonus</h3><ul class="clean small">
+<li><strong>few-shot:</strong> add 3 examples as User/Assistant pairs (the ⭐ code in the study notes) and add a “few-shot answer” column to the table. Where did ✗ turn into ✓? How much did it grow: <code class="i">inputTokens</code>?</li>
+<li>A text that fits no category — what does it return? Add <code class="i">Other</code> and check in the Controller: if the answer isn't in the list → <code class="i">Other</code></li>
+</ul></div>
   </div>
   <div class="callout mt" style="--a:var(--api)">At the start of the next lecture we'll <b>go through this homework together</b></div>
 </section>

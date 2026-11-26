@@ -8,7 +8,7 @@
 
 1. `IChatClient` DI-ში ერთხელ რეგისტრირდება `AddChatClient`-ით (Singleton). Controller მას constructor-ით **იღებს**. key User Secrets-შია, მოდელი `appsettings.json`-ში.
 2. `GetResponseAsync<T>` აბრუნებს `ChatResponse<T>`-ს, და `.Result` უკვე C# ტიპია.
-3. few-shot ფორმას **სთხოვს**, structured output კი **აიძულებს** (სქემა მოთხოვნასთან ერთად მიდის).
+3. prompt-ი (few-shot მაგალითებითაც) ფორმას **სთხოვს**, structured output კი **აიძულებს** (სქემა მოთხოვნასთან ერთად მიდის).
 4. nullable ველები + „დატოვე null“, რომ მოდელმა არ მოიგონოს. თარიღს prompt-ში ვაწვდით.
 5. **ფორმა ≠ შინაარსი:** მიღებულ ობიექტს ბაზაში ჩაწერამდე C# ამოწმებს.
 
@@ -16,14 +16,14 @@
 
 - RestaurantApi-ში წინასწარ გააკეთე ნაწილი 2 (DI) და გაუშვი `/ask`. ლექციაზე ერთად გადააკეთებთ, მაგრამ იცი, რომ მუშაობს
 - User Secrets შენთან უკვე იყოს. პროექტორზე key-ს **არ** აჩვენებ
-- `BookingDetails` და `BookingsController.Parse` ცალკე ფაილში მოამზადე
+- `BookingDetails`, `BookingsController.Parse` და `FeedbackController`-ის კარკასი (class + constructor `IChatClient`-ით) ცალკე ფაილში მოამზადე
 - შეამოწმე [მოდელების სიაში](https://ai.google.dev/gemini-api/docs/models) `gemini-3.8-flash`. შეარჩიე მეორე მოდელიც „მოდელის შეცვლის“ საჩვენებლად
 - სლაიდ 17-ის 3 ტექსტი ერთხელ გაუშვი, რომ იცოდე, „8-ზე“ რას აბრუნებს ახლა (08:00 თუ 20:00)
 
 ## 1 · გამეორება და საშინაო · 8 წთ · 1–5
 
 - გამეორება (2): 5 კითხვა ლექცია 2-დან, ჯერ სტუდენტი პასუხობს
-- საშინაო (3): 1–2 სტუდენტის შედარების ცხრილი. სად იყო zero-shot „შინაარსით სწორი, ფორმით არასწორი“?
+- საშინაო (3): 1–2 სტუდენტის ცხრილი. რამდენ ტექსტზე იყო პასუხი „შინაარსით სწორი, ფორმით არასწორი“ (✗)?
 - დღის თემა (4) და 2 ნაბიჯი (5): 1 წუთი
 
 ### 🆘 თუ ვერ გაიგეს
@@ -48,9 +48,9 @@
 
 ## 3 · Structured output: enum · 12 წთ · 10–13
 
-- few-shot „თითქმის“ მუშაობს (11): საშინაოში მოვიდა `Search.` და `search`, და `if` ჩავარდა
-- **„few-shot სთხოვს, structured output აიძულებს“**
-- `FeedbackController.AnalyzeSentiment`-ს **ვცვლით** (12): enum, System მოკლდება, `GetResponseAsync<Sentiment>`, `.Result`. Swagger-ში 2–3 შეფასება
+- prompt „თითქმის“ მუშაობს (11): საშინაოში მოვიდა `Search.` და `search`, და `if` ჩავარდა
+- **„prompt-ი სთხოვს (მაგალითებითაც), structured output აიძულებს“**
+- **ახალი** `FeedbackController` (12): კარკასს ჩასვამ (constructor, როგორც 9-ზე), `AnalyzeSentiment`-ს ერთად წერთ: enum, მოკლე System, `GetResponseAsync<Sentiment>`, `.Result`. Swagger-ში 2–3 შეფასება
 - შიგნით (13): ტიპი → სქემა → Gemini → `.Result`
 - ✂ ჩამორჩი? სლაიდი 13: მხოლოდ ისრები, `data`-ს გარეშე
 
