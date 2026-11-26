@@ -4,7 +4,6 @@ With code · your project · a table in the README
 
 ## Requirements
 
-- **DI:** no `new Client(...)` in any Controller — `IChatClient` only through `AddChatClient`; the key in User Secrets, the model in `appsettings.json`
 - **classify with an enum:** rewrite homework 2's `POST /api/assistant/classify` with `GetResponseAsync<your enum>` (you no longer need “Answer with one word only” in System)
 - **A comparison in the README:** the same 5 texts — prompt (homework 2) vs enum. Table: text · prompt answer · enum answer · where ✗ turned into ✓
 - **A record from text:** one endpoint in a **real** Controller of your project (not in the assistant controller): text → `record` → a C# check (a required field is `null` → `400` with a question) → saved **to the database** with your existing logic
@@ -30,60 +29,69 @@ With code · your project · a table in the README
 
 A sample — the library API (a continuation of homework 2).
 
-```csharp Dtos/Assistant/ClassifyDtos.cs!
-public enum RequestType { Search, Reserve, Question }
-
-public record ClassifyRequest(string Text);
-
-public record ClassifyResponse(string Category, long? InputTokens);
+```csharp Enums/RequestType.cs!
+public enum RequestType
+{
+    Search,
+    Reserve,
+    Question
+}
 ```
 
 ```csharp Controllers/AssistantController.cs · Classify!
 [HttpPost("classify")]
-public async Task<IActionResult> Classify(ClassifyRequest request)
+public async Task<IActionResult> Classify(ClassifyRequest req)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the library user's request."),
-        new(ChatRole.User, request.Text)
+        new(ChatRole.System, "Classify the library user's request"),
+        new(ChatRole.User, req.Message)
     ];
 
-    ChatResponse<RequestType> response =
-        await _chat.GetResponseAsync<RequestType>(messages);
+    var response = await chat.GetResponseAsync<RequestType>(messages);
 
     return Ok(new ClassifyResponse(response.Result.ToString(), response.Usage?.InputTokenCount));
 }
 ```
 
-```csharp Controllers/ReservationsController.cs · FromText
-public record ReservationTextRequest(string Text);
+```csharp Contracts/Reservations/ReservationParseRequest.cs!
+public sealed record ReservationParseRequest(string Message);
+```
 
-public record ReservationDraft(
+```csharp Contracts/Reservations/ReservationParseResponse.cs!
+public sealed record ReservationParseResponse(
     [property: Description("Book title")] string? Title,
-    [property: Description("Hold until which day")] DateOnly? Until);
+    [property: Description("Hold until which day")] DateOnly? Until
+);
+```
 
-[HttpPost("from-text")]
-public async Task<IActionResult> FromText(ReservationTextRequest request)
+```csharp Controllers/ReservationsController.cs · Parse!
+[HttpPost("parse")]
+public async Task<IActionResult> Parse(ReservationParseRequest req)
 {
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            Extract the book reservation details from the text.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            Leave null whatever is not in the text.
-            """),
-        new(ChatRole.User, request.Text)
+                              Extract the book reservation details from the message.
+                              Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+                              Leave null whatever is not in the message.
+                              """),
+        new(ChatRole.User, req.Message)
     ];
 
-    ChatResponse<ReservationDraft> response =
-        await _chat.GetResponseAsync<ReservationDraft>(messages);
-    ReservationDraft d = response.Result;
+    var response = await chat.GetResponseAsync<ReservationParseResponse>(messages);
 
-    if (d.Title is null) return BadRequest("Which book?");
-    if (d.Until is null) return BadRequest("Until which day should we hold it?");
+    if (response.Result.Title is null)
+        return BadRequest("Which book?");
 
-    Reservation created = await _reservations.CreateAsync(d.Title, d.Until.Value);
-    return Ok(created);
+    if (response.Result.Until is null)
+        return BadRequest("Until which day should we hold it?");
+
+    var reservation = new Reservation { Title = response.Result.Title, Until = response.Result.Until.Value };
+    db.Reservations.Add(reservation);
+    await db.SaveChangesAsync();
+
+    return Ok(reservation);
 }
 ```
 
@@ -94,5 +102,5 @@ public async Task<IActionResult> FromText(ReservationTextRequest request)
 | “How much is it to replace a card?” | “Question — this is about fees” ✗ | `Question` ✓ |
 
 ```note
-In the enum version the schema guards the form, so an answer like `Reserve.` or a sentence can't appear anymore — we no longer need to ask for it in the prompt. `from-text` creates a record only after the check: the model gives the shape, C# checks what must hold. `_reservations` is the service you already create reservations with in the library API; in the Controller it comes through the constructor, next to `IChatClient`.
+In the enum version the schema guards the form, so an answer like `Reserve.` or a sentence can't appear anymore — we no longer need to ask for it in the prompt. `parse` creates a record only after the check: the model gives the shape, C# checks what must hold. The record is created the same way your library API already creates it (`DataContext`); `IChatClient` is added to the Controller constructor: `ReservationsController(DataContext db, IChatClient chat)`. `ClassifyRequest(Message)`/`ClassifyResponse` are unchanged from homework 2.
 ```

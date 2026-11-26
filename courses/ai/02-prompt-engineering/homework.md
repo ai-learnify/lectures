@@ -29,24 +29,26 @@ endpoint 5-ვე ტექსტზე პასუხობს; README-ში 
 
 ნიმუში — ბიბლიოთეკის API (ლექცია 1-ის საშინაოდან: „მოთხოვნის ტიპი“).
 
-```csharp Dtos/Assistant/ClassifyDtos.cs!
-public record ClassifyRequest(string Text);
+```csharp Contracts/Assistant/ClassifyRequest.cs!
+public sealed record ClassifyRequest(string Message);
+```
 
-public record ClassifyResponse(string Category, long? InputTokens);
+```csharp Contracts/Assistant/ClassifyResponse.cs!
+public sealed record ClassifyResponse(string Category, long? InputTokens);
 ```
 
 ```csharp Controllers/AssistantController.cs · Classify!
 [HttpPost("classify")]
-public async Task<IActionResult> Classify(ClassifyRequest request)
+public async Task<IActionResult> Classify(ClassifyRequest req)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the library request. " +
-            "Answer with one word only: Search, Reserve or Question."),
-        new(ChatRole.User, request.Text)
+        new(ChatRole.System, "Classify the library request. Answer with one word only: Search, Reserve or Question."),
+        new(ChatRole.User, req.Message)
     ];
 
-    ChatResponse response = await _chat.GetResponseAsync(messages);
+    var response = await chat.GetResponseAsync(messages);
+
     return Ok(new ClassifyResponse(response.Text, response.Usage?.InputTokenCount));
 }
 ```

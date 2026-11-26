@@ -1,32 +1,32 @@
 {
-  "title": "Microsoft.Extensions.AI: DI and Structured Output",
-  "why": "In lecture 2 we created `IChatClient` in the Controller with `new`, and the answer was free text — “almost” exact with a prompt. Today we put the client in the right place (DI and configuration, as in the API course) and force the model to return a C# type instead of text: an enum or an object that goes straight into our existing logic. This is the bridge between a user's free text and our code.",
+  "title": "Structured Output: the AI's answer as a C# type",
+  "why": "In lecture 2 the model's answer was free text — “almost” exact with a prompt (even with few-shot). But “almost” isn't enough for code: `if (label == \"Negative\")` needs the exact value. Today we force the model to return a C# type instead of text: an enum or an object that goes straight into our logic. This is the bridge between a user's free text and our code.",
   "outcomes": [
-    "Register `IChatClient` in DI with `AddChatClient`: the key in User Secrets, the model in `appsettings.json`",
+    "Drive code with a typed answer (Negative → notify the manager) and tell `response.Result` from `response.Text`",
     "Get an enum with `GetResponseAsync<T>` and explain why it's more reliable than a prompt (even with examples)",
     "Extract an object from text with a `record`: nullable fields, `Description`, today's date in the prompt",
     "Explain why the shape is guaranteed but the content is not, and check the received object in C#"
   ],
   "review": [
     {
-      "q": "What's wrong with `new Client(...).AsIChatClient(...)` inside a Controller, and how do we fix it?",
-      "a": "A new client on every request · the model name is in the code · we can't plug a fake client into a test → `AddChatClient` in `Program.cs` (Singleton) + constructor injection in the Controller"
+      "q": "Why do we return `response.Result.ToString()` and not `response.Text`?",
+      "a": "`Text` is the model's raw JSON: `{\"data\": \"Negative\"}` · the typed value lives only in `Result` · `ToString()` → `\"Negative\"`, so the API client doesn't get a number (`1`)"
     },
     {
-      "q": "Where do we keep the Gemini key and where the model name? Why in different places?",
-      "a": "The key — in User Secrets (it's a secret, it must not get into Git; on a server — an environment variable) · the model — in `appsettings.json` (not a secret; change it without changing code)"
+      "q": "In `FeedbackController`, what does the code do on a Negative review? Why do we need an enum for it?",
+      "a": "`Console.WriteLine(\"SMS: notify the manager\")` — in a real system an SMS/notification service · `if (response.Result == Sentiment.Negative)` always works, because no value outside the schema can come back; with text (`Negative.`) it would fail"
     },
     {
       "q": "How does few-shot differ from structured output?",
       "a": "Few-shot **asks** for a shape with examples — by probability · structured output **forces** it: a JSON Schema from the C# type goes with the request, the model can't write outside the schema, `.Result` is already a C# type"
     },
     {
-      "q": "Why `int? Guests` and not `int` in `BookingDetails`? And why do we put today's date in the prompt?",
+      "q": "Why `int? Guests` and not `int` in `BookingParseResponse`? And why do we put today's date in the prompt?",
       "a": "`?` gives the model the right to say “I don't know” (null); with `int` it's forced to write something and will make it up · the model doesn't know today's date (stateless, training date) — we provide it for “tomorrow”"
     },
     {
-      "q": "Structured output gave us a `BookingDetails`. Can we write it straight to the database?",
-      "a": "No · the shape is guaranteed, the content isn't: “at 8” → 08:00, the guests are missing (null) · C# checks the fields before the database"
+      "q": "Structured output gave us a `BookingParseResponse`. Can we write it straight to the database?",
+      "a": "No · the shape is guaranteed, the content isn't: “23:30” → a valid object, but we're closed; the guests are missing (null) · C# checks and returns a 400 with a question for the guest"
     }
   ],
   "resources": [
@@ -58,42 +58,6 @@
   ],
   "quiz": [
     {
-      "q": "Why is it bad to create `IChatClient` with `new` in a Controller field?",
-      "options": [
-        "The Controller is created on every request — and with it a new client and HTTP connection",
-        "A client created with `new` can't call Gemini",
-        "Fields are forbidden in Controllers",
-        "The key costs more that way"
-      ],
-      "explain": "ASP.NET Core creates the Controller anew for every request. Besides, the model name is in the code and we can't plug a fake client into a test.",
-      "answer": 0,
-      "slide": 7
-    },
-    {
-      "q": "With what lifetime does `AddChatClient` register `IChatClient` by default?",
-      "options": [
-        "Transient — a new one every time",
-        "Scoped — one per request",
-        "Singleton — one for the whole application",
-        "None — we must specify it"
-      ],
-      "explain": "The client holds HTTP connections and is thread-safe, so one is enough for the whole application.",
-      "answer": 2,
-      "slide": 8
-    },
-    {
-      "q": "We want OpenAI instead of Gemini. Which file changes?",
-      "options": [
-        "Every Controller",
-        "Only `appsettings.json`",
-        "Only `Program.cs` — the line that creates the client (and the package)",
-        "The DTOs"
-      ],
-      "explain": "The Controllers know only `IChatClient`. The provider is created in one place — `Program.cs`. Switching to another Gemini model is only `appsettings.json`.",
-      "answer": 2,
-      "slide": 9
-    },
-    {
       "q": "The prompt-based classify sometimes returns `Search.`. Why doesn't this happen with `GetResponseAsync<RequestType>`?",
       "options": [
         "Gemini guesses enums better",
@@ -103,7 +67,7 @@
       ],
       "explain": "A prompt asks for a shape, structured output forces it. The allowed values are in the schema, and the model chooses only among them.",
       "answer": 1,
-      "slide": 11
+      "slide": 7
     },
     {
       "q": "The endpoint returns `Ok(response.Result)` where `Result` = `Sentiment.Mixed`. What do we see in Swagger?",
@@ -115,7 +79,18 @@
       ],
       "explain": "That's why on the slide we return `sentiment.ToString()`. The alternative is `JsonStringEnumConverter` in `Program.cs`.",
       "answer": 1,
-      "slide": 12
+      "slide": 8
+    },
+    {
+      "q": "If `FeedbackController` returned `Ok(response.Text)`, what would we see in Swagger?",
+      "options": [
+        "`\"Negative\"`",
+        "`{\"data\":\"Negative\"}` — the model's raw JSON",
+        "`1`",
+        "an empty string"
+      ],
+      "explain": "`Text` is the text of the model's answer, and with structured output that's JSON with a wrapper. The typed value is in `Result`, hence `response.Result.ToString()`.",
+      "slide": 8
     },
     {
       "q": "“There are four of us, tomorrow at 8” — why do we write `Today is {DateTime.Now:…}` in the system prompt?",
@@ -127,10 +102,10 @@
       ],
       "explain": "The model is stateless and its knowledge stops at its training date. Today's date is context we provide — with the lecture 2 prompt template.",
       "answer": 1,
-      "slide": 16
+      "slide": 12
     },
     {
-      "q": "Structured output returned a `BookingDetails`. What is guaranteed?",
+      "q": "Structured output returned a `BookingParseResponse`. What is guaranteed?",
       "options": [
         "That all values are correct",
         "That the answer has the shape of `BookingDetails`; C# has to check the values",
@@ -139,7 +114,7 @@
       ],
       "explain": "The shape is guaranteed, the content is not: “at 8” may become 08:00, a field may be null. C# checks before the database.",
       "answer": 1,
-      "slide": 17
+      "slide": 13
     },
     {
       "q": "In a structured output prompt, is it better to write “return JSON with fields at and guests”?",
@@ -151,7 +126,7 @@
       ],
       "explain": "Google recommends not repeating the schema in the prompt — it lowers quality. The schema sets the shape, the prompt sets the rules (e.g. “leave null whatever is not in the text”).",
       "answer": 1,
-      "slide": 16
+      "slide": 12
     }
   ]
 }

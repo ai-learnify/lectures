@@ -4,10 +4,9 @@
 
 ## ნაბიჯები
 
-- **1 · DI** — თუ ჯერ არ გაგიკეთებია: `AddChatClient` `Program.cs`-ში, key — User Secrets-ში, AI controller-ები — constructor-ით
-- **2 · შენი ტიპი** — `record` **მინიმუმ 3 ველით** შენი პროექტის ტექსტისთვის; ერთი ველი — **enum**, არასავალდებულო ველები — **nullable** (`?`)
-- **3 · endpoint** `POST /api/{resource}/parse` — System: **რა** ამოიღოს და "Leave null whatever is not in the text" → `GetResponseAsync<შენი ტიპი>` → `Ok(response.Result)`
-- **4 · Swagger-ში 3 ტექსტი:** სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე
+- **1 · შენი ტიპი** — `record` **მინიმუმ 3 ველით** შენი პროექტის ტექსტისთვის; ერთი ველი — **enum**, არასავალდებულო ველები — **nullable** (`?`)
+- **2 · endpoint** `POST /api/{resource}/parse` — System: **რა** ამოიღოს და "Leave null whatever is not in the text" → `GetResponseAsync<შენი ტიპი>` → `Ok(response.Result)`
+- **3 · Swagger-ში 3 ტექსტი:** სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე
 
 ## ✓ მზადაა, როცა
 

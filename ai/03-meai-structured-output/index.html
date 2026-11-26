@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI აგენტები .NET-ში · 3 — Microsoft.Extensions.AI: DI და Structured Output</title>
+<title>AI აგენტები .NET-ში · 3 — Structured Output: AI-ის პასუხი C# ტიპად</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
 <style>:root{
   --bg:#0a0c16; --bg2:#11142a; --bg3:#171b36; --card:#151935; --line:#272c52; --line2:#353b6b;
@@ -468,18 +468,18 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 
 
 <!-- =========================================================
-     AI · ლექცია 3 — Microsoft.Extensions.AI: DI და Structured Output
+     AI · ლექცია 3 — Structured Output: AI-ის პასუხი C# ტიპად
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/მოდელი = იისფერი · ტოკენი/კონფიგურაცია = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — ლექცია 2-ის controller-ები + BookingsController
+     პროექტი: RestaurantApi (ai-learnify/RESTAURANT_RAG_API, tag lecture-03) — FeedbackController (ახალი) + BookingsController.Parse
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
   <div class="vcenter" style="max-width:780px">
-    <div class="kicker in" style="color:var(--net)">AI · ლექცია 3 · Microsoft.Extensions.AI</div>
-    <h1 class="in" style="--d:.15s">IChatClient DI-ში<br>და <span class="grad">Structured Output</span></h1>
-    <p class="lead in mt" style="--d:.35s">დღეს IChatClient-ს სწორ ადგილზე ვსვამთ — და მოდელი ტექსტის ნაცვლად C# ობიექტს გვიბრუნებს</p>
+    <div class="kicker in" style="color:var(--net)">AI · ლექცია 3</div>
+    <h1 class="in" style="--d:.15s">AI-ის პასუხი —<br><span class="grad">C# ტიპად</span></h1>
+    <p class="lead in mt" style="--d:.35s">Structured output: მოდელი ტექსტის ნაცვლად C# ტიპს გვიბრუნებს — და ეს ტიპი ჩვენს კოდს მართავს</p>
   </div>
   <div class="abs" style="right:90px;top:220px;width:520px">
     <div class="swr c-post in" style="--d:.6s">
@@ -510,100 +510,41 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <li><strong>ენა:</strong> ერთი და იგივე ტექსტი ქართულად და ინგლისურად — <code class="i">inputTokens</code> ცხრილში</li>
 <li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>
 </ul></div>
-    <div class="step"><pre class="code sm"><span class="ttl">Dtos/Assistant/ClassifyDtos.cs</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ClassifyRequest</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Text</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ClassifyResponse</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Category</span><span class="p">,</span><span class="w"> </span><span class="kt">long?</span><span class="w"> </span><span class="n">InputTokens</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+    <div class="step"><pre class="code sm"><span class="ttl">Contracts/Assistant/ClassifyRequest.cs</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">ClassifyRequest</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">Message</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
   </div>
   <div class="callout step mt" data-with style="--a:var(--api)">შეადარეთ თქვენს კოდს. რა გამოგივიდათ სხვანაირად — და რატომ?</div>
 </section>
 
 <section class="slide" data-section="დღის თემა">
   <div class="kicker">დღის თემა</div>
-  <h2><span class="grad">Microsoft.Extensions.AI: DI და Structured Output</span></h2>
+  <h2><span class="grad">Structured Output: AI-ის პასუხი C# ტიპად</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
-    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">ლექცია 2-ზე <code class="i">IChatClient</code> Controller-ში <code class="i">new</code>-ით შევქმენით, პასუხი კი თავისუფალი ტექსტი იყო — prompt-ით „თითქმის“ ზუსტი. დღეს client-ს სწორ ადგილზე ვსვამთ (DI და კონფიგურაცია, როგორც API კურსზე), ხოლო მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს არსებულ ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.</p></div>
-    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li><code class="i">IChatClient</code>-ის რეგისტრაცია DI-ში <code class="i">AddChatClient</code>-ით: key — User Secrets-ში, მოდელი — <code class="i">appsettings.json</code>-ში</li><li><code class="i">GetResponseAsync&lt;T&gt;</code>-ით enum-ის მიღება და ახსნა, რატომ არის ეს prompt-ზე (მაგალითებითაც) საიმედო</li><li>ტექსტიდან ობიექტის ამოღება <code class="i">record</code>-ით: nullable ველები, <code class="i">Description</code>, დღევანდელი თარიღი prompt-ში</li><li>ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში</li></ul></div>
+    <div class="card accent" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">ლექცია 2-ზე მოდელის პასუხი თავისუფალი ტექსტი იყო — prompt-ით (few-shot-ითაც) „თითქმის“ ზუსტი. კოდს კი „თითქმის“ არ ყოფნის: <code class="i">if (label == "Negative")</code> ზუსტ მნიშვნელობას ითხოვს. დღეს მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li>ტიპიზებული პასუხით კოდის მართვა (Negative → მენეჯერს შეტყობინება) და <code class="i">response.Result</code>-ისა და <code class="i">response.Text</code>-ის განსხვავება</li><li><code class="i">GetResponseAsync&lt;T&gt;</code>-ით enum-ის მიღება და ახსნა, რატომ არის ეს prompt-ზე (მაგალითებითაც) საიმედო</li><li>ტექსტიდან ობიექტის ამოღება <code class="i">record</code>-ით: nullable ველები, <code class="i">Description</code>, დღევანდელი თარიღი prompt-ში</li><li>ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში</li></ul></div>
   </div>
 </section>
 
 <section class="slide" data-section="შესავალი">
   <div class="kicker">დღის გზა</div>
-  <h2>2 ნაბიჯი: <span class="c-api">სწორი ადგილი</span> → <span class="c-net">სწორი ფორმა</span></h2>
+  <h2>2 ნაბიჯი: <span class="c-net">ერთი მნიშვნელობა</span> → <span class="c-api">მთელი ობიექტი</span></h2>
   <div class="route">
-    <div class="stop" style="--a:var(--api)"><span class="sn">1</span><h3>🔌 IChatClient DI-ში</h3><p>new-ის ნაცვლად — რეგისტრაცია Program.cs-ში, key User Secrets-ში, მოდელი appsettings-ში. API კურსიდან ნაცნობი ნიმუში</p><span class="from">AddChatClient · constructor injection</span></div>
-    <div class="stop" style="--a:var(--net)"><span class="sn">2</span><h3>🧱 Structured output</h3><p>მოდელი ტექსტის ნაცვლად C# ტიპს აბრუნებს: ჯერ ერთ მნიშვნელობას (enum), მერე მთელ ობიექტს</p><span class="from">GetResponseAsync&lt;T&gt; · ChatResponse&lt;T&gt;</span></div>
+    <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>🧱 enum</h3><p>სტუმრის შეფასება → Positive, Negative ან Mixed. Negative-ზე კოდი მენეჯერს ატყობინებს</p><span class="from">FeedbackController · GetResponseAsync&lt;Sentiment&gt;</span></div>
+    <div class="stop" style="--a:var(--api)"><span class="sn">2</span><h3>📦 record</h3><p>„ხვალ 8-ზე 4 ვიქნებით“ → დრო და სტუმრები. რაც აკლია — null, ბიზნესის წესებს კი C# ამოწმებს</p><span class="from">BookingsController.Parse · GetResponseAsync&lt;BookingParseResponse&gt;</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>ტექსტი → ობიექტი</b> — შენს პროექტში, შენი ტიპით</div>
 </section>
 
-<!-- ================= 1 · IChatClient DI-ში ================= -->
-<section class="slide divider" data-section="1 · IChatClient DI-ში">
+<!-- ================= 1 · Structured output ================= -->
+<section class="slide divider" data-section="1 · Structured output">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
-    <h1 class="in" style="--d:.1s">IChatClient —<br><span class="grad">DI-ში</span></h1>
-    <p class="lead mt in" style="--d:.3s">AddChatClient · User Secrets · appsettings · constructor injection</p>
+    <h1 class="in" style="--d:.1s">ტექსტის ნაცვლად —<br><span class="grad">C# ტიპი</span></h1>
+    <p class="lead mt in" style="--d:.3s">Structured output · GetResponseAsync&lt;T&gt; · JSON Schema</p>
   </div>
   <div class="big-num">01</div>
 </section>
 
-<section class="slide" data-section="1 · IChatClient DI-ში">
-  <div class="kicker">ლექცია 2-ის კითხვა</div>
-  <h2>რა არის <span class="c-red">ცუდი</span> ამ ორ ხაზში?</h2>
-  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:34px;align-items:start;margin-top:10px">
-    <div class="col" style="gap:16px">
-      <pre class="code sm"><span class="ttl">Controllers/AssistantController.cs · ლექცია 2</span><code><span class="ln"><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">config</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="s">"gemini-3.8-flash"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">      </span></span></code></pre>
-      <div class="callout ask">🙋 API კურსზე <b>DbContext</b>-ს Controller-ში <b>new</b>-ით ქმნიდით?</div>
-      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 არა — DI-დან (AddDbContext). IChatClient-იც ასე უნდა: AddChatClient</div>
-    </div>
-    <div class="col" style="gap:12px">
-      <div class="prob step" style="--a:var(--red)"><span class="pi">♻️</span><div><b>ყოველ request-ზე ახალი client</b><span>Controller ყოველ მოთხოვნაზე იქმნება — და მასთან ერთად client და მისი HTTP კავშირიც</span></div></div>
-      <div class="prob step" style="--a:var(--asp)"><span class="pi">📌</span><div><b>მოდელი კოდშია ჩაწერილი</b><span>სხვა მოდელზე გადასვლა = კოდის შეცვლა და ხელახლა deploy</span></div></div>
-      <div class="prob step" style="--a:var(--net)"><span class="pi">🧪</span><div><b>ვერ ვცდით</b><span>Controller თვითონ ქმნის Gemini-ს — ყალბ (fake) client-ს ვერ ჩავუსვამთ</span></div></div>
-    </div>
-  </div>
-  <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">პასუხი უკვე იცით: <b>Controller არ ქმნის, Controller იღებს</b> — DI</div>
-</section>
-
-<section class="slide" data-section="1 · IChatClient DI-ში">
-  <div class="kicker">🧑‍💻 ვწერთ ერთად · Program.cs</div>
-  <h2>ერთი რეგისტრაცია: <span class="mono c-api">AddChatClient</span></h2>
-  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:26px">
-    <pre class="code sm" id="c1"><span class="ttl">Program.cs</span><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Google.GenAI</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.Extensions.AI</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">apiKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:ApiKey"</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="o">??</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InvalidOperationException</span><span class="p">(</span><span class="s">"Gemini:ApiKey is missing"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">[</span><span class="s">"Gemini:Model"</span><span class="p">]</span></span><span class="ln"><span class="w">    </span><span class="o">??</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InvalidOperationException</span><span class="p">(</span><span class="s">"Gemini:Model is missing"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddChatClient</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Client</span><span class="p">(</span><span class="n">apiKey</span><span class="p">:</span><span class="w"> </span><span class="n">apiKey</span><span class="p">)</span><span class="p">.</span><span class="n">AsIChatClient</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="c1">// ... the rest — as it was</span></span><span class="ln"><span class="w">    </span></span></code></pre>
-    <div class="col" style="gap:12px">
-      <pre class="code sm"><span class="ttl">appsettings.json</span><code><span class="ln"><span class="nt">"Gemini"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gemini-3.8-flash"</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
-      <pre class="code sm"><span class="ttl">secrets.json · ლექცია 2-დან</span><code><span class="ln"><span class="nt">"Gemini"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"ApiKey"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AIza…"</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
-      <div class="callout" style="--a:var(--asp);font-size:18px">ერთი სექცია <b>Gemini</b>, ორი წყარო — <code class="i">Configuration</code> აერთიანებს</div>
-      <i class="codestep" data-for="c1" data-lines="11-12"></i>
-      <div class="callout step" data-with style="--a:var(--api)"><b>Singleton</b>: ერთი client მთელ აპლიკაციაზე</div>
-    </div>
-  </div>
-</section>
-
-<section class="slide" data-section="1 · IChatClient DI-ში">
-  <div class="kicker">🧑‍💻 Controller · constructor injection</div>
-  <h2>Controller <span class="c-mvc">იღებს</span>, არ ქმნის</h2>
-  <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:28px">
-    <pre class="code sm" id="c2"><span class="ttl">Controllers/AssistantController.cs</span><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/assistant")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">AssistantController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">IChatClient</span><span class="w"> </span><span class="n">_chat</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">AssistantController</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">chat</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_chat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chat</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// chat — unchanged (the same change in AiDiagnostics)</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
-    <div class="col" style="gap:14px">
-      <i class="codestep" data-for="c2" data-lines="5-10"></i>
-      <div class="callout step" data-with style="--a:var(--api)">შეიცვალა <b>მხოლოდ ეს</b>. <code class="i">_chat</code> იგივე სახელია — endpoint-ებს არ ვეხებით</div>
-      <i class="codestep" data-for="c2" data-lines="12"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)">Swagger → <b>/chat</b> → მუშაობს, როგორც ადრე</div>
-      <div class="callout ask step">🙋 Gemini-ს ნაცვლად <b>OpenAI</b> რომ გვინდოდეს — რომელ ფაილს შევცვლიდით?</div>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:19px">მხოლოდ <b>Program.cs</b>-ს. სხვა მოდელი Gemini-ში — მხოლოდ <b>appsettings.json</b>-ს</div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= 2 · Structured output ================= -->
-<section class="slide divider" data-section="2 · Structured output">
-  <div class="vcenter">
-    <div class="kicker in">ნაწილი 2</div>
-    <h1 class="in" style="--d:.1s">ტექსტის ნაცვლად —<br><span class="grad">C# ტიპი</span></h1>
-    <p class="lead mt in" style="--d:.3s">Structured output · GetResponseAsync&lt;T&gt; · JSON Schema</p>
-  </div>
-  <div class="big-num">02</div>
-</section>
-
-<section class="slide" data-section="2 · Structured output">
+<section class="slide" data-section="1 · Structured output">
   <div class="kicker">საშინაოდან · classify</div>
   <h2>prompt: <span class="c-red">თითქმის</span> ყოველთვის</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:30px;align-items:start;margin-top:8px">
@@ -624,25 +565,28 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <div class="callout step mt2" style="--a:var(--mvc);font-size:22px">prompt-ი (მაგალითებითაც) ფორმას <b>სთხოვს</b>. structured output ფორმას <b>აიძულებს</b></div>
 </section>
 
-<section class="slide" data-section="2 · Structured output">
+<section class="slide" data-section="1 · Structured output">
   <div class="kicker">🧑‍💻 ვწერთ ერთად · ახალი FeedbackController</div>
   <h2><span class="mono c-api">GetResponseAsync&lt;Sentiment&gt;</span></h2>
   <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:24px">
-    <pre class="code sm" id="c3"><span class="ttl">Controllers/FeedbackController.cs · AnalyzeSentiment</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">Sentiment</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Positive</span><span class="p">,</span><span class="w"> </span><span class="n">Negative</span><span class="p">,</span><span class="w"> </span><span class="n">Mixed</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("sentiment")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalyzeSentiment</span><span class="p">(</span><span class="n">SentimentRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, "Classify the guest's review of the restaurant."),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Text)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">Sentiment</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">Sentiment</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Sentiment</span><span class="w"> </span><span class="n">sentiment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sentiment</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Sentiment</span><span class="p">.</span><span class="n">Negative</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* notify the manager */</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SentimentResponse</span><span class="p">(</span><span class="n">sentiment</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
+    <pre class="code sm" id="c3"><span class="ttl">Controllers/FeedbackController.cs</span><code><span class="ln"><span class="na">[ApiController, Route("api/feedback/ai")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nf">FeedbackController</span><span class="p">(</span><span class="n">IChatClient</span><span class="w"> </span><span class="n">chat</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="na">[HttpPost("sentiment")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalyzeSentiment</span><span class="p">(</span><span class="n">SentimentRequest</span><span class="w"> </span><span class="n">req</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="na">[</span></span><span class="ln"><span class="na">            new(ChatRole.System, "Classify the guest's review of the restaurant"),</span></span><span class="ln"><span class="na">            new(ChatRole.User, req.Message)</span></span><span class="ln"><span class="na">        ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">Sentiment</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Sentiment</span><span class="p">.</span><span class="n">Negative</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"SMS: notify the manager"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SentimentResponse</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
     <div class="col" style="gap:12px">
-      <i class="codestep" data-for="c3" data-lines="1"></i>
-      <div class="callout step" data-with style="--a:var(--net)"><b>enum</b> = დასაშვები პასუხების სია</div>
-      <i class="codestep" data-for="c3" data-lines="8"></i>
+      <pre class="code sm"><span class="ttl">Enums/Sentiment.cs</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">Sentiment</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Positive</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Negative</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Mixed</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">      </span></span></code></pre>
+      <div class="callout" style="--a:var(--net)"><b>enum</b> = დასაშვები პასუხების სია</div>
+      <i class="codestep" data-for="c3" data-lines="9"></i>
       <div class="callout step" data-with style="--a:var(--muted)">"Answer in one word" <b>აღარ</b> გვჭირდება — ფორმას ტიპი იცავს</div>
-      <i class="codestep" data-for="c3" data-lines="12-13"></i>
+      <i class="codestep" data-for="c3" data-lines="13"></i>
       <div class="callout step" data-with style="--a:var(--api)"><b>&lt;T&gt;</b> — რა ფორმით გვინდა პასუხი</div>
-      <i class="codestep" data-for="c3" data-lines="15-16"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)"><b>.Result</b> — უკვე C# enum. if-ი ყოველთვის მუშაობს</div>
+      <i class="codestep" data-for="c3" data-lines="15"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)"><b>.Result</b> — უკვე C# enum: AI-ის პასუხი კოდის ლოგიკას მართავს</div>
+      <i class="codestep" data-for="c3" data-lines="17"></i>
+      <div class="callout ask step" data-with>🙋 რატომ <b>Result.ToString()</b> და არა <b>response.Text</b>?</div>
+      <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 Text — მოდელის ნედლი JSON: {"data": "Negative"}. ტიპიზებული მნიშვნელობა მხოლოდ Result-შია</div>
     </div>
   </div>
 </section>
 
-<section class="slide" data-section="2 · Structured output">
+<section class="slide" data-section="1 · Structured output">
   <div class="kicker">რა ხდება შიგნით</div>
   <h2>C# ტიპი → <span class="c-asp">JSON Schema</span> → მოდელი → <span class="c-mvc">C# ობიექტი</span></h2>
   <div class="flow">
@@ -675,59 +619,75 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
   <div class="big-num">☕</div>
 </section>
 
-<!-- ================= 3 · ტექსტი → ობიექტი ================= -->
-<section class="slide divider" data-section="3 · ტექსტი → ობიექტი">
+<!-- ================= 2 · ტექსტი → ობიექტი ================= -->
+<section class="slide divider" data-section="2 · ტექსტი → ობიექტი">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 3</div>
+    <div class="kicker in">ნაწილი 2</div>
     <h1 class="in" style="--d:.1s">ტექსტი →<br><span class="grad">ობიექტი</span></h1>
     <p class="lead mt in" style="--d:.3s">record · რამდენიმე ველი · null · ფორმა ≠ შინაარსი</p>
   </div>
-  <div class="big-num">03</div>
+  <div class="big-num">02</div>
 </section>
 
-<section class="slide" data-section="3 · ტექსტი → ობიექტი">
+<section class="slide" data-section="2 · ტექსტი → ობიექტი">
   <div class="kicker">🧑‍💻 ვწერთ · bookings/parse</div>
-  <h2>"There are four of us, tomorrow at 8" → <span class="mono c-api">BookingDetails</span></h2>
+  <h2>"There are four of us, tomorrow at 8" → <span class="mono c-api">BookingParseResponse</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:22px">
-    <pre class="code sm" id="c4"><span class="ttl">Controllers/BookingsController.cs · Parse</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">BookingDetails</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Booking date and time")]</span><span class="w"> </span><span class="n">DateTime</span><span class="o">?</span><span class="w"> </span><span class="n">At</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Number of guests")]</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">Guests</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("parse")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Parse</span><span class="p">(</span><span class="n">BookingParseRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">            Extract the booking details from the guest's message.</span></span><span class="ln"><span class="na">            Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">            Leave null whatever is not in the message.</span></span><span class="ln"><span class="na">            """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, request.Text)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">ChatResponse</span><span class="o">&lt;</span><span class="n">BookingDetails</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="n">_chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">BookingDetails</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
+    <pre class="code sm" id="c4"><span class="ttl">Controllers/BookingsController.cs · Parse</span><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">BookingParseResponse</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Booking date and time")]</span><span class="w"> </span><span class="n">DateTime</span><span class="o">?</span><span class="w"> </span><span class="n">At</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="na">[property: Description("Number of guests")]</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">Guests</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost("parse")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Parse</span><span class="p">(</span><span class="n">BookingParseRequest</span><span class="w"> </span><span class="n">req</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ChatMessage</span><span class="o">&gt;</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="w">    </span><span class="na">[</span></span><span class="ln"><span class="na">        new(ChatRole.System, $"""</span></span><span class="ln"><span class="na">                              Extract the booking details from the guest's message.</span></span><span class="ln"><span class="na">                              Today is {DateTime.Now:yyyy-MM-dd, dddd}.</span></span><span class="ln"><span class="na">                              Leave null whatever is not in the message.</span></span><span class="ln"><span class="na">                              """),</span></span><span class="ln"><span class="na">        new(ChatRole.User, req.Message)</span></span><span class="ln"><span class="na">    ]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">BookingParseResponse</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre>
     <div class="col" style="gap:12px">
+      <div class="callout" style="--a:var(--muted);font-size:17px">📋 <b>Contracts/Bookings</b> — BookingParseRequest(Message), BookingParseResponse. controller-ის constructor-ს <b>IChatClient</b> ემატება</div>
       <div class="callout ask">🙋 მოდელმა <b>იცის</b>, დღეს რა რიცხვია?</div>
-      <i class="codestep" data-for="c4" data-lines="12"></i>
-      <div class="callout step" data-with style="--a:var(--net)">არა — stateless და ძველი. „ხვალ“-ისთვის დღეს ჩვენ ვეუბნებით: <b>შაბლონი</b> ლექცია 2-დან</div>
-      <i class="codestep" data-for="c4" data-lines="1-3"></i>
-      <div class="callout step" data-with style="--a:var(--api)"><b>?</b> = „შეიძლება არ ვიცოდეთ“. <b>Description</b> სქემაში მიდის — მოდელის მინიშნება</div>
       <i class="codestep" data-for="c4" data-lines="13"></i>
+      <div class="callout step" data-with style="--a:var(--net)">არა — stateless და ძველი. „ხვალ“-ისთვის დღეს ჩვენ ვეუბნებით</div>
+      <i class="codestep" data-for="c4" data-lines="1-4"></i>
+      <div class="callout step" data-with style="--a:var(--api)"><b>?</b> = „შეიძლება არ ვიცოდეთ“. <b>Description</b> სქემაში მიდის — მოდელის მინიშნება</div>
+      <i class="codestep" data-for="c4" data-lines="14"></i>
       <div class="callout step" data-with style="--a:var(--red)">მოგონების ნაცვლად — <b>null</b></div>
     </div>
   </div>
 </section>
 
-<section class="slide" data-section="3 · ტექსტი → ობიექტი">
+<section class="slide" data-section="2 · ტექსტი → ობიექტი">
   <div class="kicker"><span class="game">🔮 რას დააბრუნებს?</span></div>
   <h2>3 ტექსტი — <span class="c-net">ერთი ტიპი</span></h2>
   <div class="grid3" style="gap:20px;margin-top:6px;align-items:start">
     <div class="col" style="gap:10px">
-      <div class="txt"><span class="who">1 · სრული</span>there are four of us, tomorrow at 8</div>
-      <div class="obj step" style="--a:var(--asp)">{ <span class="k">at</span>: <span class="n">"…T08:00"</span>,
-  <span class="k">guests</span>: <span class="n">4</span> }</div>
-      <div class="callout step" data-with style="--a:var(--red);font-size:17px">დილის 8? რესტორანი <b>12:00</b>-დან მუშაობს</div>
-    </div>
-    <div class="col" style="gap:10px">
-      <div class="txt"><span class="who">2 · ნაწილობრივი</span>I'd like a table on Saturday evening</div>
+      <div class="txt"><span class="who">1 · ნაწილობრივი</span>I'd like a table on Saturday evening</div>
       <div class="obj step" style="--a:var(--asp)">{ <span class="k">at</span>: <span class="n">"…T19:00"</span>,
   <span class="k">guests</span>: <span class="z">null</span> }</div>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:17px">„საღამო“ → 19:00 — <b>მოდელის ვარაუდი</b></div>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px">„საღამო“ → საათი — <b>მოდელის ვარაუდი</b>; სტუმრები — null</div>
     </div>
     <div class="col" style="gap:10px">
-      <div class="txt"><span class="who">3 · სხვა თემა</span>How much is khinkali?</div>
+      <div class="txt"><span class="who">2 · სხვა თემა</span>How much is khinkali?</div>
       <div class="obj step" style="--a:var(--asp)">{ <span class="k">at</span>: <span class="z">null</span>,
   <span class="k">guests</span>: <span class="z">null</span> }</div>
       <div class="callout step" data-with style="--a:var(--mvc);font-size:17px">ფორმა მაინც სწორია</div>
     </div>
+    <div class="col" style="gap:10px">
+      <div class="txt"><span class="who">3 · დახურულია</span>Two of us, tomorrow at 23:30</div>
+      <div class="obj step" style="--a:var(--asp)">{ <span class="k">at</span>: <span class="n">"…T23:30"</span>,
+  <span class="k">guests</span>: <span class="n">2</span> }</div>
+      <div class="callout step" data-with style="--a:var(--red);font-size:17px">სრულიად სწორი ობიექტი — მაგრამ რესტორანი <b>23:00</b>-მდე მუშაობს</div>
+    </div>
   </div>
-  <div class="grid2 mt" style="grid-template-columns:1fr 1.1fr;gap:24px;align-items:center">
-    <div class="callout step" style="--a:var(--mvc);font-size:21px"><b>ფორმა</b> გარანტირებულია. <b>შინაარსი</b> — არა</div>
-    <div class="ifc step" data-with style="font-size:17px"><span class="kw">if</span> (b.Guests <span class="kw">is null</span>) <span class="kw">return</span> BadRequest(<span class="st">"რამდენი ხართ?"</span>);<br><span class="kw">if</span> (b.At?.Hour &lt; 12) …  <span style="color:var(--muted)">// C# ამოწმებს</span></div>
+  <div class="callout step mt2" style="--a:var(--mvc);font-size:22px"><b>ფორმა</b> გარანტირებულია. <b>შინაარსი</b> — არა → ბიზნესის წესებს <b>C# ამოწმებს</b></div>
+</section>
+
+<section class="slide" data-section="2 · ტექსტი → ობიექტი">
+  <div class="kicker">🧑‍💻 ვამატებთ · C#-ის შემოწმებები</div>
+  <h2>მოდელი <span class="c-net">ამოიღებს</span> — C# <span class="c-mvc">გადაწყვეტს</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:24px">
+    <pre class="code sm" id="c5"><span class="ttl">Controllers/BookingsController.cs · Parse</span><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">chat</span><span class="p">.</span><span class="n">GetResponseAsync</span><span class="o">&lt;</span><span class="n">BookingParseResponse</span><span class="o">&gt;</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">At</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"Which day and what time?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">At</span><span class="p">.</span><span class="n">Value</span><span class="p">.</span><span class="n">Hour</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">23</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"We're open 12:00–23:00"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">Guests</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"How many of you?"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">Result</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span></span></code></pre>
+    <div class="col" style="gap:10px">
+      <div class="obj" style="--a:var(--mvc);font-size:16px">"There are four of us, tomorrow at 8" → <b>200</b></div>
+      <i class="codestep" data-for="c5" data-lines="3-4"></i>
+      <div class="obj step" data-with style="--a:var(--red);font-size:16px">"How much is khinkali?" → <b>400</b> Which day and what time?</div>
+      <i class="codestep" data-for="c5" data-lines="6-7"></i>
+      <div class="obj step" data-with style="--a:var(--red);font-size:16px">"Two of us, tomorrow at 23:30" → <b>400</b> We're open 12:00–23:00</div>
+      <i class="codestep" data-for="c5" data-lines="9-10"></i>
+      <div class="obj step" data-with style="--a:var(--red);font-size:16px">"I'd like a table on Saturday evening" → <b>400</b> How many of you?</div>
+      <div class="callout step" style="--a:var(--net);font-size:18px">400-ის ტექსტი — <b>კითხვა სტუმრისთვის</b>: frontend მას აჩვენებს და სტუმარი ავსებს</div>
+    </div>
   </div>
 </section>
 
@@ -738,10 +698,9 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="card accent" style="--a:var(--mvc)">
       <h3><span class="ico">📝</span>შენი პროექტი ან RestaurantApi · კოდით · Swagger-ში</h3>
       <ul class="clean small">
-<li><strong>1 · DI</strong> — თუ ჯერ არ გაგიკეთებია: <code class="i">AddChatClient</code> <code class="i">Program.cs</code>-ში, key — User Secrets-ში, AI controller-ები — constructor-ით</li>
-<li><strong>2 · შენი ტიპი</strong> — <code class="i">record</code> <strong>მინიმუმ 3 ველით</strong> შენი პროექტის ტექსტისთვის; ერთი ველი — <strong>enum</strong>, არასავალდებულო ველები — <strong>nullable</strong> (<code class="i">?</code>)</li>
-<li><strong>3 · endpoint</strong> <code class="i">POST /api/{resource}/parse</code> — System: <strong>რა</strong> ამოიღოს და "Leave null whatever is not in the text" → <code class="i">GetResponseAsync&lt;შენი ტიპი&gt;</code> → <code class="i">Ok(response.Result)</code></li>
-<li><strong>4 · Swagger-ში 3 ტექსტი:</strong> სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე</li>
+<li><strong>1 · შენი ტიპი</strong> — <code class="i">record</code> <strong>მინიმუმ 3 ველით</strong> შენი პროექტის ტექსტისთვის; ერთი ველი — <strong>enum</strong>, არასავალდებულო ველები — <strong>nullable</strong> (<code class="i">?</code>)</li>
+<li><strong>2 · endpoint</strong> <code class="i">POST /api/{resource}/parse</code> — System: <strong>რა</strong> ამოიღოს და "Leave null whatever is not in the text" → <code class="i">GetResponseAsync&lt;შენი ტიპი&gt;</code> → <code class="i">Ok(response.Result)</code></li>
+<li><strong>3 · Swagger-ში 3 ტექსტი:</strong> სრული · ნაწილობრივი (რაღაც აკლია) · სხვა თემაზე</li>
 </ul>
       <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: სამივე ტექსტზე ბრუნდება შენი ტიპი; რაც ტექსტში არ წერია, <code>null</code>-ია და არა მოგონილი; enum-ის ველში მხოლოდ შენი სიის მნიშვნელობაა</p>
     </div>
@@ -756,16 +715,15 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
 <section class="slide" data-section="შეჯამება">
   <div class="kicker">შევამოწმოთ</div>
   <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">რა არის ცუდი <code class="i">new Client(...).AsIChatClient(...)</code>-ში Controller-ის შიგნით და როგორ ვასწორებთ?</span><span class="a step">ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → <code class="i">AddChatClient</code> <code class="i">Program.cs</code>-ში (Singleton) + Controller-ში constructor injection</span></div><div class="qa"><span class="n">2</span><span class="q">სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?</span><span class="a step">key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — <code class="i">appsettings.json</code>-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)</span></div><div class="qa"><span class="n">3</span><span class="q">რით განსხვავდება few-shot structured output-ისგან?</span><span class="a step">few-shot ფორმას <strong>სთხოვს</strong> მაგალითებით — ალბათობით · structured output <strong>აიძულებს</strong>: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, <code class="i">.Result</code> უკვე C# ტიპია</span></div><div class="qa"><span class="n">4</span><span class="q"><code class="i">BookingDetails</code>-ში რატომ <code class="i">int? Guests</code> და არა <code class="i">int</code>? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?</span><span class="a step"><code class="i">?</code> მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); <code class="i">int</code>-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით</span></div><div class="qa"><span class="n">5</span><span class="q">structured output-ით მივიღეთ <code class="i">BookingDetails</code>. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?</span><span class="a step">არა · ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ → 08:00, აკლია სტუმრები (null) · ბაზამდე C# ამოწმებს ველებს</span></div>
+  <div class="qa"><span class="n">1</span><span class="q">რატომ ვაბრუნებთ <code class="i">response.Result.ToString()</code>-ს და არა <code class="i">response.Text</code>-ს?</span><span class="a step"><code class="i">Text</code> მოდელის ნედლი JSON-ია: <code class="i">{"data": "Negative"}</code> · ტიპიზებული მნიშვნელობა მხოლოდ <code class="i">Result</code>-შია · <code class="i">ToString()</code> → <code class="i">"Negative"</code>, რომ API-ის კლიენტმა რიცხვი (<code class="i">1</code>) არ მიიღოს</span></div><div class="qa"><span class="n">2</span><span class="q"><code class="i">FeedbackController</code>-ში Negative შეფასებაზე კოდი რას აკეთებს? რატომ გვჭირდება ამისთვის enum?</span><span class="a step"><code class="i">Console.WriteLine("SMS: notify the manager")</code> — რეალურ სისტემაში SMS/შეტყობინების სერვისი · <code class="i">if (response.Result == Sentiment.Negative)</code> ყოველთვის მუშაობს, რადგან სქემის გარეთ მნიშვნელობა ვერ მოვა; ტექსტზე (<code class="i">Negative.</code>) ჩავარდებოდა</span></div><div class="qa"><span class="n">3</span><span class="q">რით განსხვავდება few-shot structured output-ისგან?</span><span class="a step">few-shot ფორმას <strong>სთხოვს</strong> მაგალითებით — ალბათობით · structured output <strong>აიძულებს</strong>: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, <code class="i">.Result</code> უკვე C# ტიპია</span></div><div class="qa"><span class="n">4</span><span class="q"><code class="i">BookingParseResponse</code>-ში რატომ <code class="i">int? Guests</code> და არა <code class="i">int</code>? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?</span><span class="a step"><code class="i">?</code> მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); <code class="i">int</code>-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით</span></div><div class="qa"><span class="n">5</span><span class="q">structured output-ით მივიღეთ <code class="i">BookingParseResponse</code>. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?</span><span class="a step">არა · ფორმა გარანტირებულია, შინაარსი — არა: „23:30“ → სწორი ობიექტი, მაგრამ დახურულია; აკლია სტუმრები (null) · C# ამოწმებს და 400-ით სტუმარს კითხვას უბრუნებს</span></div>
 </section>
 
 <section class="slide" data-section="შეჯამება">
   <div class="kicker in" style="color:var(--net)">დღეს</div>
-  <h2 class="in" style="--d:.1s">IChatClient <span class="grad">სწორ ადგილზე</span> — პასუხი <span class="grad">C# ტიპად</span></h2>
+  <h2 class="in" style="--d:.1s">AI-ის პასუხი <span class="grad">C# ტიპად</span> — და ის კოდს მართავს</h2>
   <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
     <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small">
-      <li><b>AddChatClient</b> — ერთი client, Singleton; Controller იღებს constructor-ით</li>
-      <li><b>key</b> — User Secrets-ში, <b>მოდელი</b> — appsettings-ში</li>
+      <li><b>.Result</b> — ტიპიზებული მნიშვნელობა; <b>.Text</b> — ნედლი JSON</li>
       <li><b>GetResponseAsync&lt;T&gt;</b> — ტიპი → JSON Schema → მოდელი → <b>.Result</b></li>
       <li><b>enum</b> — ერთი მნიშვნელობა სიიდან; <b>record</b> — რამდენიმე ველი</li>
       <li><b>T?</b> და „დატოვე null“ — არ მოიგონოს</li>
@@ -787,7 +745,6 @@ border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;line-height:1.25}
     <div class="card accent" style="--a:var(--net)">
       <h3><span class="ico">🏠</span>კოდით · შენი პროექტი · README-ში ცხრილი</h3>
       <ul class="clean small">
-<li><strong>DI:</strong> Controller-ებში <code class="i">new Client(...)</code> არსად — <code class="i">IChatClient</code> მხოლოდ <code class="i">AddChatClient</code>-ით; key — User Secrets-ში, მოდელი — <code class="i">appsettings.json</code>-ში</li>
 <li><strong>classify enum-ით:</strong> საშინაო 2-ის <code class="i">POST /api/assistant/classify</code> გადაწერე <code class="i">GetResponseAsync&lt;შენი enum&gt;</code>-ით (System-ში „Answer with one word only“ აღარ გჭირდება)</li>
 <li><strong>შედარება README-ში:</strong> იგივე 5 ტექსტი — prompt (საშინაო 2) vs enum. ცხრილი: ტექსტი · prompt-ის პასუხი · enum-ის პასუხი · სად შეიცვალა ✗ → ✓</li>
 <li><strong>ტექსტიდან ჩანაწერი:</strong> ერთი endpoint შენი პროექტის <strong>ნამდვილ</strong> Controller-ში (არა ასისტენტის controller-ში): ტექსტი → <code class="i">record</code> → C# შემოწმება (სავალდებულო ველი <code class="i">null</code> → <code class="i">400</code> კითხვით) → შენი არსებული ლოგიკით <strong>ბაზაში</strong> ჩაწერა</li>

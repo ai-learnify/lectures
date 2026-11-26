@@ -4,7 +4,6 @@
 
 ## მოთხოვნები
 
-- **DI:** Controller-ებში `new Client(...)` არსად — `IChatClient` მხოლოდ `AddChatClient`-ით; key — User Secrets-ში, მოდელი — `appsettings.json`-ში
 - **classify enum-ით:** საშინაო 2-ის `POST /api/assistant/classify` გადაწერე `GetResponseAsync<შენი enum>`-ით (System-ში „Answer with one word only“ აღარ გჭირდება)
 - **შედარება README-ში:** იგივე 5 ტექსტი — prompt (საშინაო 2) vs enum. ცხრილი: ტექსტი · prompt-ის პასუხი · enum-ის პასუხი · სად შეიცვალა ✗ → ✓
 - **ტექსტიდან ჩანაწერი:** ერთი endpoint შენი პროექტის **ნამდვილ** Controller-ში (არა ასისტენტის controller-ში): ტექსტი → `record` → C# შემოწმება (სავალდებულო ველი `null` → `400` კითხვით) → შენი არსებული ლოგიკით **ბაზაში** ჩაწერა
@@ -30,60 +29,69 @@
 
 ნიმუში — ბიბლიოთეკის API (საშინაო 2-ის გაგრძელება).
 
-```csharp Dtos/Assistant/ClassifyDtos.cs!
-public enum RequestType { Search, Reserve, Question }
-
-public record ClassifyRequest(string Text);
-
-public record ClassifyResponse(string Category, long? InputTokens);
+```csharp Enums/RequestType.cs!
+public enum RequestType
+{
+    Search,
+    Reserve,
+    Question
+}
 ```
 
 ```csharp Controllers/AssistantController.cs · Classify!
 [HttpPost("classify")]
-public async Task<IActionResult> Classify(ClassifyRequest request)
+public async Task<IActionResult> Classify(ClassifyRequest req)
 {
     List<ChatMessage> messages =
     [
-        new(ChatRole.System, "Classify the library user's request."),
-        new(ChatRole.User, request.Text)
+        new(ChatRole.System, "Classify the library user's request"),
+        new(ChatRole.User, req.Message)
     ];
 
-    ChatResponse<RequestType> response =
-        await _chat.GetResponseAsync<RequestType>(messages);
+    var response = await chat.GetResponseAsync<RequestType>(messages);
 
     return Ok(new ClassifyResponse(response.Result.ToString(), response.Usage?.InputTokenCount));
 }
 ```
 
-```csharp Controllers/ReservationsController.cs · FromText
-public record ReservationTextRequest(string Text);
+```csharp Contracts/Reservations/ReservationParseRequest.cs!
+public sealed record ReservationParseRequest(string Message);
+```
 
-public record ReservationDraft(
+```csharp Contracts/Reservations/ReservationParseResponse.cs!
+public sealed record ReservationParseResponse(
     [property: Description("Book title")] string? Title,
-    [property: Description("Hold until which day")] DateOnly? Until);
+    [property: Description("Hold until which day")] DateOnly? Until
+);
+```
 
-[HttpPost("from-text")]
-public async Task<IActionResult> FromText(ReservationTextRequest request)
+```csharp Controllers/ReservationsController.cs · Parse!
+[HttpPost("parse")]
+public async Task<IActionResult> Parse(ReservationParseRequest req)
 {
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            Extract the book reservation details from the text.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            Leave null whatever is not in the text.
-            """),
-        new(ChatRole.User, request.Text)
+                              Extract the book reservation details from the message.
+                              Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+                              Leave null whatever is not in the message.
+                              """),
+        new(ChatRole.User, req.Message)
     ];
 
-    ChatResponse<ReservationDraft> response =
-        await _chat.GetResponseAsync<ReservationDraft>(messages);
-    ReservationDraft d = response.Result;
+    var response = await chat.GetResponseAsync<ReservationParseResponse>(messages);
 
-    if (d.Title is null) return BadRequest("Which book?");
-    if (d.Until is null) return BadRequest("Until which day should we hold it?");
+    if (response.Result.Title is null)
+        return BadRequest("Which book?");
 
-    Reservation created = await _reservations.CreateAsync(d.Title, d.Until.Value);
-    return Ok(created);
+    if (response.Result.Until is null)
+        return BadRequest("Until which day should we hold it?");
+
+    var reservation = new Reservation { Title = response.Result.Title, Until = response.Result.Until.Value };
+    db.Reservations.Add(reservation);
+    await db.SaveChangesAsync();
+
+    return Ok(reservation);
 }
 ```
 
@@ -94,5 +102,5 @@ public async Task<IActionResult> FromText(ReservationTextRequest request)
 | "How much does replacing a library card cost?" | "Question — this is about fees" ✗ | `Question` ✓ |
 
 ```note
-enum-ის ვერსიაში ფორმას სქემა იცავს, ამიტომ `Reserve.`-ის ან წინადადების მსგავსი პასუხი ვეღარ მოვა — prompt-ში ამის თხოვნა აღარ გვჭირდება. `from-text` ჩანაწერს მხოლოდ შემოწმების შემდეგ ქმნის: მოდელი ფორმას იძლევა, აუცილებელს C# ამოწმებს. `_reservations` — ის სერვისი, რომლითაც ბიბლიოთეკის API-ში ჯავშანს უკვე ქმნი; Controller-ში ის `IChatClient`-ის გვერდით, constructor-ით მოდის.
+enum-ის ვერსიაში ფორმას სქემა იცავს, ამიტომ `Reserve.`-ის ან წინადადების მსგავსი პასუხი ვეღარ მოვა — prompt-ში ამის თხოვნა აღარ გვჭირდება. `parse` ჩანაწერს მხოლოდ შემოწმების შემდეგ ქმნის: მოდელი ფორმას იძლევა, აუცილებელს C# ამოწმებს. ჩანაწერი ისე იქმნება, როგორც ბიბლიოთეკის API-ში უკვე ქმნი (`DataContext`); Controller-ის constructor-ს `IChatClient` ემატება: `ReservationsController(DataContext db, IChatClient chat)`. `ClassifyRequest(Message)`/`ClassifyResponse` საშინაო 2-დან უცვლელია.
 ```

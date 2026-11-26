@@ -50,7 +50,7 @@
 
 ## 3 · ვექტორი კოდში · 12 წთ · 10–12
 
-- (11) **ერთად წერთ:** `AddEmbeddingGenerator` (ლექცია 3-ის `AddChatClient`-ის ტყუპისცალი), constructor-ში `IEmbeddingGenerator<string, Embedding<float>>`, `/embed`. Swagger: 768 და პირველი 5 რიცხვი
+- (11) **ერთად წერთ:** `AddEmbeddingGenerator` (ლექცია 2-ის `AddChatClient`-ის ტყუპისცალი), constructor-ში `IEmbeddingGenerator<string, Embedding<float>>`, `/embed`. Swagger: 768 და პირველი 5 რიცხვი
 - (12) prefix: შეკითხვა და დოკუმენტი ორი ფორმატით. `EmbeddingInput` **ჩასვი**
 - ⚠️ prefix-ის წესი ყველგან ერთნაირი უნდა იყოს
 

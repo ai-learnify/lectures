@@ -58,15 +58,15 @@
   ],
   "quiz": [
     {
-      "q": "რას აკეთებს `new Client(apiKey: config[\"Gemini:ApiKey\"]).AsIChatClient(\"gemini-3.8-flash\")`?",
+      "q": "რას აკეთებს `services.AddChatClient(new Client(apiKey: config[\"Gemini:ApiKey\"]!).AsIChatClient(config[\"Gemini:Model\"]))`?",
       "options": [
-        "ქმნის Gemini-ს client-ს და აქცევს მას `IChatClient`-ად; key-ს კონფიგურაციიდან (User Secrets) იღებს",
+        "ქმნის Gemini-ს client-ს, აქცევს მას `IChatClient`-ად და DI-ში არეგისტრირებს; key — User Secrets-იდან, მოდელი — `appsettings.json`-იდან",
         "მოდელს ჩვენს კომპიუტერზე ჩამოტვირთავს",
         "Gemini-ს ანგარიშს ქმნის",
         "მოდელს ჩვენს მენიუზე ავარჯიშებს"
       ],
       "answer": 0,
-      "explain": "`Client` Google-ის SDK-ა, `AsIChatClient` კი მას საერთო interface-ად „ახვევს“. მოდელი Google-ის სერვერზე რჩება — ჩვენ მას HTTP-ით ვიძახებთ.",
+      "explain": "`Client` Google-ის SDK-ა, `AsIChatClient` კი მას საერთო interface-ად „ახვევს“, `AddChatClient` — DI-ში არეგისტრირებს, და controller-ები მას constructor-ით იღებენ. მოდელი Google-ის სერვერზე რჩება — ჩვენ მას HTTP-ით ვიძახებთ.",
       "slide": 10
     },
     {
@@ -91,7 +91,7 @@
       ],
       "answer": 1,
       "explain": "დაბალი Temperature ყველაზე სავარაუდო ტოკენს ირჩევს, ამიტომ პასუხები ერთმანეთს ჰგავს. მაღალზე — ყოველ ჯერზე სხვაა.",
-      "slide": 14
+      "slide": 15
     },
     {
       "q": "`ReasoningTokens` = 180, `OutputTokens` = 0, `FinishReason` = `length`. რა მოხდა?",
@@ -103,7 +103,7 @@
       ],
       "answer": 1,
       "explain": "ფიქრის ტოკენები `MaxOutputTokens`-ში ითვლება. reasoning მოდელს ლიმიტი მარაგით სჭირდება.",
-      "slide": 14
+      "slide": 15
     },
     {
       "q": "რომელია კარგი system prompt-ის ნაწილი?",
@@ -115,7 +115,7 @@
       ],
       "answer": 1,
       "explain": "ზოგადი „იყავი კარგი“ მოდელს არაფერს ეუბნება. კონკრეტული როლი, საზღვრები და ფორმა — ეუბნება.",
-      "slide": 18
+      "slide": 19
     },
     {
       "q": "კლიენტმა ასისტენტს წერილის დაწერა სთხოვა, ის კი რესტორნის ასისტენტია. სწორი ქცევა?",
@@ -127,7 +127,7 @@
       ],
       "answer": 1,
       "explain": "ეს საზღვარი system prompt-მა უნდა დააწესოს: „სხვა თემაზე თავაზიანად უარს ამბობ“.",
-      "slide": 19
+      "slide": 20
     },
     {
       "q": "შეფასების კლასიფიკაციის პასუხს C# კოდი იყენებს: `if (label == \"Negative\")`. რატომ ჯობია few-shot?",
@@ -139,7 +139,7 @@
       ],
       "answer": 1,
       "explain": "zero-shot-მა შეიძლება „უარყოფითი“ ან მთელი აბზაცი დაწეროს — `if` ამას ვერ დაიჭერს. მაგალითები ფორმატს აფიქსირებს.",
-      "slide": 20
+      "slide": 21
     },
     {
       "q": "few-shot-ის მაგალითები prompt-ში C#-ით როგორ იგზავნება?",
@@ -151,7 +151,7 @@
       ],
       "answer": 1,
       "explain": "მოდელისთვის ეს „წინა საუბარია“: User კითხულობდა, Assistant პასუხობდა. ბოლოს ნამდვილი კითხვა მიდის.",
-      "slide": 20
+      "slide": 21
     }
   ]
 }

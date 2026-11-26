@@ -28,31 +28,32 @@ Generative AI-ისა და LLM-ების მიმოხილვა; რ
 
 ### 02. Prompt Engineering C# დეველოპერებისთვის
 
-პრომპტ ინჟინერიის სტანდარტები და ტექნიკები (Zero-Shot, Few-Shot, System/User/Assistant შეტყობინებები); პრომპტის შაბლონები კოდში; Structured Output: LLM-ის პასუხი პირდაპირ C# ობიექტად (`GetResponseAsync<T>`, JSON Schema).
+პირველი გამოძახება საკუთარი API-დან: `IChatClient`-ის რეგისტრაცია DI-ში (`AddChatClient`) და კონფიგურაცია; პრომპტ ინჟინერიის სტანდარტები და ტექნიკები (System/User/Assistant შეტყობინებები, Zero-Shot, Few-Shot); პრომპტის შაბლონები კოდში.
 
-📚 Gemini-ს გამოძახება საკუთარი API-დან `IChatClient`-ით, key — User Secrets-ში
-📚 რას ვიყენებთ კურსზე: Gemini (რეკომენდაცია; უფასო და ფასიანი ლიმიტის განსხვავება), ლოკალური Ollama — ალტერნატივა სახლისთვის
+📚 Gemini-ს გამოძახება საკუთარი API-დან `IChatClient`-ით: რეგისტრაცია DI-ში `AddChatClient`-ით, key — User Secrets-ში, მოდელი — `appsettings.json`-ში
+📚 რას ვიყენებთ კურსზე: Gemini (რეკომენდაცია; უფასო და ფასიანი ლიმიტის განსხვავება, 503-ზე lite მოდელი), ლოკალური Ollama — ალტერნატივა სახლისთვის
 📚 `ChatOptions` (Temperature, MaxOutputTokens) და პასუხის `Usage` / `FinishReason`
 📚 System prompt, რომელიც ასისტენტის როლს, თემებს და პასუხის ფორმას ზღუდავს
 📚 Zero-shot vs few-shot (თეორია): რატომ მუშაობს AI მაგალითებით უკეთ
-🛠 RestaurantApi | NuGet: `Google.GenAI`, `Microsoft.Extensions.AI`; `Gemini:ApiKey` — User Secrets-ში
-🛠 `AiDiagnosticsController`: `POST /api/diagnostics/ai/ask` — პირველი გამოძახება, `ChatOptions`-ით
-🛠 `AssistantController`: `POST /api/assistant/chat` — რესტორნის ასისტენტი system prompt-ით
-🛠 DTO-ები `Dtos/`-ში: `PromptRequest` / `PromptResponse` (ტოკენები და FinishReason), `ChatRequest` / `ChatReply`
-🛠 ⭐ თუ დრო დარჩა: `FeedbackController` — შეფასების კლასიფიკაცია few-shot-ით
+🛠 RestaurantApi | NuGet: `Google.GenAI`, `Microsoft.Extensions.AI`; `Gemini:ApiKey` — User Secrets-ში, `Gemini:Model` — `appsettings.json`-ში
+🛠 `AddChatClient` სერვისების რეგისტრაციაში (`Extensions/ServiceExtensions.cs`)
+🛠 `AiDiagnosticsController` (`IChatClient` constructor-ით): `POST /api/diagnostics/ai/ask` — პირველი გამოძახება, `ChatOptions`-ით
+🛠 `AiDiagnosticsController`: `POST /api/diagnostics/ai/chat` — რესტორნის ასისტენტი system prompt-ით
+🛠 DTO-ები `Contracts/Diagnostics/`-ში: `AskRequest` / `AskResponse` (ტოკენები და Reason), `ChatRequest` / `ChatReply`
+🛠 ⭐ თუ დრო დარჩა: `POST /api/diagnostics/ai/sentiment` — შეფასების კლასიფიკაცია few-shot-ით
 
-### 03. Microsoft.Extensions.AI
+### 03. Structured Output
 
-რა არის Microsoft.Extensions.AI და რატომ არის ის .NET-ში AI-ის სტანდარტული ფენა; `IChatClient` და `IEmbeddingGenerator` აბსტრაქციები; რეგისტრაცია DI-ში (`AddChatClient`); კონფიგურაცია; პროვაიდერის შეცვლა კოდის შეცვლის გარეშე.
+Structured Output: LLM-ის პასუხი პირდაპირ C# ტიპად (`GetResponseAsync<T>`, JSON Schema); enum და record; ტიპიზებული პასუხით კოდის მართვა; ტექსტიდან ობიექტის ამოღება და შემოწმება C#-ში.
 
-📚 `IChatClient`-ის რეგისტრაცია DI-ში `AddChatClient`-ით: key — User Secrets-ში, მოდელი — `appsettings.json`-ში
 📚 `GetResponseAsync<T>` enum-ით და რატომ არის ეს prompt-ზე (მაგალითებითაც) საიმედო
+📚 `response.Result` (ტიპიზებული მნიშვნელობა) vs `response.Text` (ნედლი JSON)
 📚 ტექსტიდან ობიექტის ამოღება `record`-ით: nullable ველები, `Description`, დღევანდელი თარიღი prompt-ში
 📚 ფორმა გარანტირებულია, შინაარსი — არა: მიღებული ობიექტის შემოწმება C#-ში
-🛠 RestaurantApi | `Program.cs`: `AddChatClient`, მოდელის სახელი `Gemini:Model`-ში
-🛠 controller-ები იღებს `IChatClient`-ს constructor-ით (client-ის შექმნა controller-იდან ქრება)
-🛠 ახალი `FeedbackController`: `POST /api/feedback/sentiment` → `GetResponseAsync<Sentiment>` (enum); `SentimentRequest` / `SentimentResponse`
-🛠 არსებულ `BookingsController`-ში `POST /api/bookings/parse` — ტექსტიდან `BookingDetails` (თარიღი, სტუმრები)
+🛠 RestaurantApi | `Enums/Sentiment.cs`; ახალი `FeedbackController`: `POST /api/feedback/ai/sentiment` → `GetResponseAsync<Sentiment>`, Negative → მენეჯერს შეტყობინება
+🛠 DTO-ები `Contracts/Feedback/` (`SentimentRequest` / `SentimentResponse`) და `Contracts/Bookings/` (`BookingParseRequest` / `BookingParseResponse`)
+🛠 არსებულ `BookingsController`-ში `POST /api/bookings/parse` — ტექსტიდან `BookingParseResponse` (თარიღი, სტუმრები) და C#-ის შემოწმებები (`400` კითხვით)
+🛠 02-ის ⭐ few-shot `sentiment` `AiDiagnosticsController`-იდან იშლება
 
 ### 04. Tools და Function Calling
 

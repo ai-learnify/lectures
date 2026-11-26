@@ -1,110 +1,73 @@
-# Microsoft.Extensions.AI: DI and Structured Output
+# Structured Output: the AI's answer as a C# type
 
 ## ⚡ Key points
 
-- `IChatClient` is created once in `Program.cs` (`AddChatClient`) and registered in DI as a Singleton. The controller receives it **through the constructor**, like a `DbContext`.
-- The key lives in User Secrets, the model name in `appsettings.json`. Switching models is a configuration change.
-- `GetResponseAsync<T>` → `ChatResponse<T>` → `.Result` is already a C# type.
+- `GetResponseAsync<T>` → `ChatResponse<T>` → `.Result` is already a C# type. `.Text` is the model's raw JSON (`{"data": …}`).
+- The typed answer drives the code: Negative → notify the manager.
 - A prompt (even with few-shot examples) **asks** for a format; structured output **enforces** it: the schema travels with the request.
 - Nullable fields and "leave null" so the model does not invent values. **The form is guaranteed, the content is not**: C# checks the object before it reaches the database.
 
-## 1 · IChatClient in DI · 6–9
-
-In lecture 2 we created `IChatClient` in the controller with `new`. That has three problems: a new client on every request, the model name in code, and the controller creating its own dependency. We use the same pattern as for `DbContext` in the API course:
-
-```csharp Program.cs
-using Google.GenAI;
-using Microsoft.Extensions.AI;
-
-var builder = WebApplication.CreateBuilder(args);
-
-string apiKey = builder.Configuration["Gemini:ApiKey"]
-    ?? throw new InvalidOperationException("Gemini:ApiKey is missing");
-string model = builder.Configuration["Gemini:Model"]
-    ?? throw new InvalidOperationException("Gemini:Model is missing");
-
-builder.Services.AddChatClient(
-    new Client(apiKey: apiKey).AsIChatClient(model));
-
-builder.Services.AddControllers();
-// ... the rest — as it was
-```
-
-```json appsettings.json
-{
-  "Gemini": {
-    "Model": "gemini-3.8-flash"
-  }
-}
-```
-
-The controller receives the client through its constructor. The field name stays the same (`_chat`), so the rest of the code does not change:
-
-```csharp Controllers/AssistantController.cs
-[ApiController]
-[Route("api/assistant")]
-public class AssistantController : ControllerBase
-{
-    private readonly IChatClient _chat;
-
-    public AssistantController(IChatClient chat)
-    {
-        _chat = chat;
-    }
-
-    // chat — unchanged (the same change in AiDiagnostics)
-}
-```
-
-```note
-There are no User Secrets on a server: the same value comes from an environment variable, `Gemini__ApiKey` (two underscores = `:`). The code does not change.
-```
-
-```check
-? If we wanted OpenAI instead of Gemini, which file would we change?
-= Only `Program.cs` (creating the client and the package). For another Gemini model, only `appsettings.json`.
-```
-
-```terms
-AddChatClient — registers IChatClient in DI (Singleton by default)
-User Secrets — secret settings stored on the developer's machine, outside the project
-```
-
-## 2 · Structured output: enum · 10–13
+## 1 · Structured output: enum · 6–9
 
 With a prompt (homework 2) the model returns the exact word "almost" always, but sometimes you get `Search.` or `search`, and the `if` fails. "Almost" is not enough for code.
 
-**Structured output:** we write the answer type in C#, and the model cannot write anything outside it:
+**Structured output:** we write the answer type in C#, and the model cannot write anything outside it. Review analysis lives in a new `FeedbackController` (if you wrote lecture 2's ⭐ few-shot `sentiment`, delete it from `AiDiagnosticsController`):
 
-```csharp Dtos/Feedback/SentimentDtos.cs
-public enum Sentiment { Positive, Negative, Mixed }
+```csharp Enums/Sentiment.cs
+namespace RestaurantApi.Enums;
+
+public enum Sentiment
+{
+    Positive,
+    Negative,
+    Mixed
+}
 ```
 
-```csharp Controllers/FeedbackController.cs · AnalyzeSentiment
-[HttpPost("sentiment")]
-public async Task<IActionResult> AnalyzeSentiment(SentimentRequest request)
+```csharp Contracts/Feedback/SentimentRequest.cs
+public sealed record SentimentRequest(string Message);
+```
+
+```csharp Contracts/Feedback/SentimentResponse.cs
+public sealed record SentimentResponse(string Text);
+```
+
+```csharp Controllers/FeedbackController.cs
+using RestaurantApi.Contracts.Feedback;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.AI;
+using RestaurantApi.Enums;
+
+namespace RestaurantApi.Controllers;
+
+[ApiController, Route("api/feedback/ai")]
+public sealed class FeedbackController(IChatClient chat) : ControllerBase
 {
-    List<ChatMessage> messages =
-    [
-        new(ChatRole.System, "Classify the guest's review of the restaurant."),
-        new(ChatRole.User, request.Text)
-    ];
+    [HttpPost("sentiment")]
+    public async Task<IActionResult> AnalyzeSentiment(SentimentRequest req)
+    {
+        List<ChatMessage> messages =
+        [
+            new(ChatRole.System, "Classify the guest's review of the restaurant"),
+            new(ChatRole.User, req.Message)
+        ];
 
-    ChatResponse<Sentiment> response =
-        await _chat.GetResponseAsync<Sentiment>(messages);
+        var response = await chat.GetResponseAsync<Sentiment>(messages);
 
-    Sentiment sentiment = response.Result;
-    if (sentiment == Sentiment.Negative) { /* notify the manager */ }
+        if (response.Result == Sentiment.Negative) Console.WriteLine("SMS: notify the manager");
 
-    return Ok(new SentimentResponse(sentiment.ToString()));
+        return Ok(new SentimentResponse(response.Result.ToString()));
+    }
 }
 ```
 
 Inside there are four steps: C# type → JSON Schema → the schema goes to Gemini with the request → the answer is read as a C# object (`.Result`).
 
 ```note
-An enum, a number or a list is not a JSON object, so the answer comes wrapped: `{"data": "Positive"}`. `.Result` unwraps it for you.
+An enum, a number or a list is not a JSON object, so the answer comes wrapped: `{"data": "Positive"}`. `.Result` unwraps it for you. That's why we return `response.Result.ToString()` and **not** `response.Text` — that is exactly this raw JSON.
 ```
+
+**Try `POST /api/feedback/ai/sentiment`:** `"Everything was perfect, we'll definitely come back!"` → `Positive` · `"The waiter was rude and the mtsvadi was burnt."` → `Negative` (the console shows `SMS: notify the manager`) · `"Great wine, but the music was too loud."` → `Mixed`.
 
 ```check
 ? What does the schema change in how the model picks tokens?
@@ -116,36 +79,41 @@ structured output — a model answer in a predefined shape (JSON Schema) that co
 JSON Schema — a description of a JSON shape: which fields and of which types
 ```
 
-## 3 · Text → object · 15–17
+## 2 · Text → object · 11–14
 
-The user writes "There are four of us, tomorrow at 8", but a booking needs a `DateTime` and an `int`. Structured output bridges the two:
+The user writes "There are four of us, tomorrow at 8", but a booking needs a `DateTime` and an `int`. Structured output bridges the two. `BookingParseResponse` is both the model's answer schema and the API response:
 
-```csharp Dtos/Bookings/BookingParseDtos.cs
+```csharp Contracts/Bookings/BookingParseRequest.cs
+public sealed record BookingParseRequest(string Message);
+```
+
+```csharp Contracts/Bookings/BookingParseResponse.cs
 using System.ComponentModel;
 
-public record BookingParseRequest(string Text);
+namespace RestaurantApi.Contracts.Bookings;
 
-public record BookingDetails(
+public sealed record BookingParseResponse(
     [property: Description("Booking date and time")] DateTime? At,
-    [property: Description("Number of guests")] int? Guests);
+    [property: Description("Number of guests")] int? Guests
+);
 ```
 
 ```csharp Controllers/BookingsController.cs · Parse
 [HttpPost("parse")]
-public async Task<IActionResult> Parse(BookingParseRequest request)
+public async Task<IActionResult> Parse(BookingParseRequest req)
 {
     List<ChatMessage> messages =
     [
         new(ChatRole.System, $"""
-            Extract the booking details from the guest's message.
-            Today is {DateTime.Now:yyyy-MM-dd, dddd}.
-            Leave null whatever is not in the message.
-            """),
-        new(ChatRole.User, request.Text)
+                              Extract the booking details from the guest's message.
+                              Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+                              Leave null whatever is not in the message.
+                              """),
+        new(ChatRole.User, req.Message)
     ];
 
-    ChatResponse<BookingDetails> response =
-        await _chat.GetResponseAsync<BookingDetails>(messages);
+    var response = await chat.GetResponseAsync<BookingParseResponse>(messages);
+
     return Ok(response.Result);
 }
 ```
@@ -154,22 +122,28 @@ public async Task<IActionResult> Parse(BookingParseRequest request)
 - **Today's date in the prompt:** the model does not know today's date, so it cannot work out "tomorrow" on its own.
 - **`Description`** explains the meaning of a field to the model.
 
-**The form is guaranteed, the content is not.** "At 8" may become 08:00, and for "khinkali" every field will be null. So C# checks:
+`IChatClient` is added to the `BookingsController` constructor: `BookingsController(DataContext db, IChatClient chat)`.
 
-```csharp
-BookingDetails b = response.Result;
+**The form is guaranteed, the content is not.** For "Saturday evening" the model guesses the hour and guests is null, for "khinkali" every field is null, and for "23:30" the object is valid but the restaurant is closed. So C# checks and answers the guest with a question:
 
-if (b.At is null) return BadRequest("Which day and what time?");
-if (b.Guests is null) return BadRequest("How many of you?");
-if (b.At.Value.Hour < 12 || b.At.Value.Hour >= 23)
+```csharp Controllers/BookingsController.cs · Parse
+var response = await chat.GetResponseAsync<BookingParseResponse>(messages);
+
+if (response.Result.At is null)
+    return BadRequest("Which day and what time?");
+
+if (response.Result.At.Value.Hour is < 12 or >= 23)
     return BadRequest("We're open 12:00–23:00");
 
-// from here — your existing booking logic
+if (response.Result.Guests is null)
+    return BadRequest("How many of you?");
+
+return Ok(response.Result);
 ```
 
 ```check
 ? Why `int? Guests` and not `int`?
 = An `int` cannot be empty, so if the text does not give a number, the model invents one. `null` means "not said".
-? We got a `BookingDetails`. Can we write it straight to the database?
+? We got a `BookingParseResponse`. Can we write it straight to the database?
 = No. First we check it in C# (nulls, a past date, the size), because the content may be wrong.
 ```

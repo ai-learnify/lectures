@@ -33,7 +33,7 @@ embedding — ტექსტის გადაქცევა რიცხვ�
 
 ## 2 · ვექტორი კოდში · 10–12
 
-რეგისტრაცია ლექცია 3-ის `AddChatClient`-ის მსგავსია:
+რეგისტრაცია ლექცია 2-ის `AddChatClient`-ის მსგავსია:
 
 ```csharp Program.cs
 string embeddingModel = builder.Configuration["Gemini:EmbeddingModel"]!;   // "gemini-embedding-2"

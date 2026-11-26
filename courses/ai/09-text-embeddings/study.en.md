@@ -33,7 +33,7 @@ vector — a list of numbers, the result of an embedding
 
 ## 2 · A vector in code · 10–12
 
-Registration is like lecture 3's `AddChatClient`:
+Registration is like lecture 2's `AddChatClient`:
 
 ```csharp Program.cs
 string embeddingModel = builder.Configuration["Gemini:EmbeddingModel"]!;   // "gemini-embedding-2"

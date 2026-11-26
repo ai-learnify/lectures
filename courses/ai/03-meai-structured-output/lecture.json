@@ -1,32 +1,32 @@
 {
-  "title": "Microsoft.Extensions.AI: DI და Structured Output",
-  "why": "ლექცია 2-ზე `IChatClient` Controller-ში `new`-ით შევქმენით, პასუხი კი თავისუფალი ტექსტი იყო — prompt-ით „თითქმის“ ზუსტი. დღეს client-ს სწორ ადგილზე ვსვამთ (DI და კონფიგურაცია, როგორც API კურსზე), ხოლო მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს არსებულ ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.",
+  "title": "Structured Output: AI-ის პასუხი C# ტიპად",
+  "why": "ლექცია 2-ზე მოდელის პასუხი თავისუფალი ტექსტი იყო — prompt-ით (few-shot-ითაც) „თითქმის“ ზუსტი. კოდს კი „თითქმის“ არ ყოფნის: `if (label == \"Negative\")` ზუსტ მნიშვნელობას ითხოვს. დღეს მოდელს ვაიძულებთ, ტექსტის ნაცვლად C# ტიპი დააბრუნოს: enum ან ობიექტი, რომელიც პირდაპირ ჩვენს ლოგიკაში მიდის. ესაა ხიდი მომხმარებლის თავისუფალ ტექსტსა და ჩვენს კოდს შორის.",
   "outcomes": [
-    "`IChatClient`-ის რეგისტრაცია DI-ში `AddChatClient`-ით: key — User Secrets-ში, მოდელი — `appsettings.json`-ში",
+    "ტიპიზებული პასუხით კოდის მართვა (Negative → მენეჯერს შეტყობინება) და `response.Result`-ისა და `response.Text`-ის განსხვავება",
     "`GetResponseAsync<T>`-ით enum-ის მიღება და ახსნა, რატომ არის ეს prompt-ზე (მაგალითებითაც) საიმედო",
     "ტექსტიდან ობიექტის ამოღება `record`-ით: nullable ველები, `Description`, დღევანდელი თარიღი prompt-ში",
     "ახსნა, რატომ არის ფორმა გარანტირებული და შინაარსი — არა, და მიღებული ობიექტის შემოწმება C#-ში"
   ],
   "review": [
     {
-      "q": "რა არის ცუდი `new Client(...).AsIChatClient(...)`-ში Controller-ის შიგნით და როგორ ვასწორებთ?",
-      "a": "ყოველ request-ზე ახალი client · მოდელის სახელი კოდშია · ყალბ client-ს ვერ ჩავსვამთ ტესტში → `AddChatClient` `Program.cs`-ში (Singleton) + Controller-ში constructor injection"
+      "q": "რატომ ვაბრუნებთ `response.Result.ToString()`-ს და არა `response.Text`-ს?",
+      "a": "`Text` მოდელის ნედლი JSON-ია: `{\"data\": \"Negative\"}` · ტიპიზებული მნიშვნელობა მხოლოდ `Result`-შია · `ToString()` → `\"Negative\"`, რომ API-ის კლიენტმა რიცხვი (`1`) არ მიიღოს"
     },
     {
-      "q": "სად ვინახავთ Gemini-ს key-ს და სად მოდელის სახელს? რატომ სხვადასხვა ადგილას?",
-      "a": "key — User Secrets-ში (საიდუმლოა, Git-ში არ უნდა მოხვდეს; სერვერზე — გარემოს ცვლადი) · მოდელი — `appsettings.json`-ში (საიდუმლო არ არის; შეცვლა კოდის შეცვლის გარეშე)"
+      "q": "`FeedbackController`-ში Negative შეფასებაზე კოდი რას აკეთებს? რატომ გვჭირდება ამისთვის enum?",
+      "a": "`Console.WriteLine(\"SMS: notify the manager\")` — რეალურ სისტემაში SMS/შეტყობინების სერვისი · `if (response.Result == Sentiment.Negative)` ყოველთვის მუშაობს, რადგან სქემის გარეთ მნიშვნელობა ვერ მოვა; ტექსტზე (`Negative.`) ჩავარდებოდა"
     },
     {
       "q": "რით განსხვავდება few-shot structured output-ისგან?",
       "a": "few-shot ფორმას **სთხოვს** მაგალითებით — ალბათობით · structured output **აიძულებს**: C# ტიპიდან JSON Schema მოთხოვნასთან მიდის, მოდელი სქემის გარეთ ვერ წერს, `.Result` უკვე C# ტიპია"
     },
     {
-      "q": "`BookingDetails`-ში რატომ `int? Guests` და არა `int`? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?",
+      "q": "`BookingParseResponse`-ში რატომ `int? Guests` და არა `int`? და რატომ ვწერთ prompt-ში დღევანდელ თარიღს?",
       "a": "`?` მოდელს „არ ვიცი“-ს უფლებას აძლევს (null); `int`-ზე იძულებულია რაიმე დაწეროს და მოიგონებს · მოდელმა დღევანდელი თარიღი არ იცის (stateless, ვარჯიშის თარიღი) — „ხვალ“-ისთვის ჩვენ ვაწვდით"
     },
     {
-      "q": "structured output-ით მივიღეთ `BookingDetails`. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?",
-      "a": "არა · ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ → 08:00, აკლია სტუმრები (null) · ბაზამდე C# ამოწმებს ველებს"
+      "q": "structured output-ით მივიღეთ `BookingParseResponse`. შეგვიძლია პირდაპირ ბაზაში ჩავწეროთ?",
+      "a": "არა · ფორმა გარანტირებულია, შინაარსი — არა: „23:30“ → სწორი ობიექტი, მაგრამ დახურულია; აკლია სტუმრები (null) · C# ამოწმებს და 400-ით სტუმარს კითხვას უბრუნებს"
     }
   ],
   "resources": [
@@ -58,42 +58,6 @@
   ],
   "quiz": [
     {
-      "q": "რატომ არის ცუდი `IChatClient`-ის შექმნა Controller-ის ველში `new`-ით?",
-      "options": [
-        "Controller ყოველ request-ზე იქმნება — მასთან ერთად ახალი client და HTTP კავშირიც",
-        "`new`-ით შექმნილი client Gemini-ს ვერ იძახებს",
-        "Controller-ში ველები აკრძალულია",
-        "key ასე უფრო ძვირი ჯდება"
-      ],
-      "answer": 0,
-      "explain": "ASP.NET Core Controller-ს ყოველ მოთხოვნაზე ახლიდან ქმნის. გარდა ამისა, მოდელის სახელი კოდშია და ტესტში ყალბ client-ს ვერ ჩავსვამთ.",
-      "slide": 7
-    },
-    {
-      "q": "რა lifetime-ით არეგისტრირებს `AddChatClient` `IChatClient`-ს ნაგულისხმევად?",
-      "options": [
-        "Transient — ყოველ ჯერზე ახალი",
-        "Scoped — ყოველ request-ზე ერთი",
-        "Singleton — ერთი მთელ აპლიკაციაზე",
-        "არცერთით — ხელით უნდა მივუთითოთ"
-      ],
-      "answer": 2,
-      "explain": "client-ს შიგნით HTTP კავშირები აქვს და thread-safe-ია, ამიტომ ერთი საკმარისია მთელ აპლიკაციას.",
-      "slide": 8
-    },
-    {
-      "q": "Gemini-ს ნაცვლად OpenAI გვინდა. რომელი ფაილი იცვლება?",
-      "options": [
-        "ყველა Controller",
-        "მხოლოდ `appsettings.json`",
-        "მხოლოდ `Program.cs` — client-ის შექმნის ხაზი (და package)",
-        "DTO-ები"
-      ],
-      "answer": 2,
-      "explain": "Controller-ები მხოლოდ `IChatClient`-ს იცნობენ. პროვაიდერი ერთ ადგილას იქმნება — `Program.cs`-ში. სხვა Gemini მოდელზე გადასვლა კი მხოლოდ `appsettings.json`-ია.",
-      "slide": 9
-    },
-    {
       "q": "classify (prompt-ით) ზოგჯერ აბრუნებს `Search.`-ს. რატომ არ ხდება ეს `GetResponseAsync<RequestType>`-ით?",
       "options": [
         "Gemini enum-ებს უკეთ ხვდება",
@@ -103,7 +67,7 @@
       ],
       "answer": 1,
       "explain": "prompt-ი ფორმას სთხოვს, structured output — აიძულებს. დასაშვები მნიშვნელობები სქემაშია, და მოდელი მხოლოდ მათ შორის ირჩევს.",
-      "slide": 11
+      "slide": 7
     },
     {
       "q": "endpoint აბრუნებს `Ok(response.Result)`-ს, სადაც `Result` = `Sentiment.Mixed`. Swagger-ში რას ვხედავთ?",
@@ -114,8 +78,20 @@
         "`{\"data\":\"Mixed\"}`"
       ],
       "answer": 1,
-      "explain": "ამიტომ სლაიდზე `sentiment.ToString()`-ს ვაბრუნებთ. ალტერნატივა — `JsonStringEnumConverter` `Program.cs`-ში.",
-      "slide": 12
+      "explain": "ამიტომ `SentimentResponse`-ში `response.Result.ToString()`-ს ვაბრუნებთ (`\"Mixed\"`). ალტერნატივა — `JsonStringEnumConverter`.",
+      "slide": 8
+    },
+    {
+      "q": "`FeedbackController` `Ok(response.Text)`-ს რომ აბრუნებდეს, Swagger-ში რას ვნახავდით?",
+      "options": [
+        "`\"Negative\"`",
+        "`{\"data\":\"Negative\"}` — მოდელის ნედლი JSON",
+        "`1`",
+        "ცარიელ სტრიქონს"
+      ],
+      "answer": 1,
+      "explain": "`Text` მოდელის პასუხის ტექსტია, structured output-ზე კი ეს JSON-ია wrapper-ით. ტიპიზებული მნიშვნელობა `Result`-შია, ამიტომ `response.Result.ToString()`.",
+      "slide": 8
     },
     {
       "q": "„ოთხნი ვართ, ხვალ 8-ზე“ — რატომ ვწერთ System prompt-ში `დღეს არის {DateTime.Now:…}`?",
@@ -127,10 +103,10 @@
       ],
       "answer": 1,
       "explain": "მოდელი stateless-ია და მისი ცოდნა ვარჯიშის თარიღზე ჩერდება. დღევანდელი თარიღი კონტექსტია, რომელსაც ჩვენ ვაწვდით — ლექცია 2-ის prompt შაბლონით.",
-      "slide": 16
+      "slide": 12
     },
     {
-      "q": "structured output-მა `BookingDetails` დააბრუნა. რა არის გარანტირებული?",
+      "q": "structured output-მა `BookingParseResponse` დააბრუნა. რა არის გარანტირებული?",
       "options": [
         "რომ ყველა მნიშვნელობა სწორია",
         "რომ პასუხი `BookingDetails`-ის ფორმისაა; მნიშვნელობები C#-მა უნდა შეამოწმოს",
@@ -139,7 +115,7 @@
       ],
       "answer": 1,
       "explain": "ფორმა გარანტირებულია, შინაარსი — არა: „8-ზე“ შეიძლება 08:00 გახდეს, ველი შეიძლება null იყოს. ბაზამდე C# ამოწმებს.",
-      "slide": 17
+      "slide": 13
     },
     {
       "q": "structured output-ის prompt-ში ჯობია დავწეროთ „დააბრუნე JSON ველებით at და guests“?",
@@ -151,7 +127,7 @@
       ],
       "answer": 1,
       "explain": "Google-ის რეკომენდაციაა სქემა prompt-ში არ გავიმეოროთ — ეს ხარისხს აუარესებს. ფორმას სქემა აწესებს, prompt — წესებს (მაგ. „რაც არ წერია, დატოვე null“).",
-      "slide": 16
+      "slide": 12
     }
   ]
 }

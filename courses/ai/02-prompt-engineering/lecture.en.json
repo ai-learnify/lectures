@@ -58,14 +58,14 @@
   ],
   "quiz": [
     {
-      "q": "What does `new Client(apiKey: config[\"Gemini:ApiKey\"]).AsIChatClient(\"gemini-3.8-flash\")` do?",
+      "q": "What does `services.AddChatClient(new Client(apiKey: config[\"Gemini:ApiKey\"]!).AsIChatClient(config[\"Gemini:Model\"]))` do?",
       "options": [
-        "creates a Gemini client and turns it into an `IChatClient`; takes the key from configuration (User Secrets)",
+        "creates a Gemini client, turns it into an `IChatClient` and registers it in DI; the key comes from User Secrets, the model from `appsettings.json`",
         "downloads the model to our computer",
         "creates a Gemini account",
         "trains the model on our menu"
       ],
-      "explain": "`Client` is Google's SDK, and `AsIChatClient` wraps it in the common interface. The model stays on Google's server — we call it over HTTP."
+      "explain": "`Client` is Google's SDK, `AsIChatClient` wraps it in the common interface, and `AddChatClient` registers it in DI, so controllers receive it through the constructor. The model stays on Google's server — we call it over HTTP."
     },
     {
       "q": "Where is the Gemini API key stored?",

@@ -2,23 +2,22 @@
 
 ## 🎯 მთავარი
 
-კოდს კლასთან ერთად წერ. დიდ ბლოკებს (`BookingDetails`, `BookingsController.Parse`) წინასწარ ამზადებ, ჩასვამ და ახსნი. სრული კოდი 💻 ღილაკზეა.
+კოდს კლასთან ერთად წერ. დიდ ბლოკებს (`BookingParseResponse`, `BookingsController.Parse`) წინასწარ ამზადებ, ჩასვამ და ახსნი. სრული კოდი 💻 ღილაკზეა და საცნობარო პროექტში: [RESTAURANT_RAG_API](https://github.com/ai-learnify/RESTAURANT_RAG_API), `git diff lecture-02 lecture-03`. DI ლექცია 2-ში გაკეთდა, ამიტომ დღეს მხოლოდ structured output-ია.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
-1. `IChatClient` DI-ში ერთხელ რეგისტრირდება `AddChatClient`-ით (Singleton). Controller მას constructor-ით **იღებს**. key User Secrets-შია, მოდელი `appsettings.json`-ში.
-2. `GetResponseAsync<T>` აბრუნებს `ChatResponse<T>`-ს, და `.Result` უკვე C# ტიპია.
+1. `GetResponseAsync<T>` აბრუნებს `ChatResponse<T>`-ს, და `.Result` უკვე C# ტიპია. `.Text` მოდელის ნედლი JSON-ია (`{"data": …}`).
+2. ტიპიზებული პასუხი კოდის ლოგიკას მართავს: Negative → მენეჯერს შეტყობინება.
 3. prompt-ი (few-shot მაგალითებითაც) ფორმას **სთხოვს**, structured output კი **აიძულებს** (სქემა მოთხოვნასთან ერთად მიდის).
 4. nullable ველები + „დატოვე null“, რომ მოდელმა არ მოიგონოს. თარიღს prompt-ში ვაწვდით.
 5. **ფორმა ≠ შინაარსი:** მიღებულ ობიექტს ბაზაში ჩაწერამდე C# ამოწმებს.
 
 ### ✅ მომზადება
 
-- RestaurantApi-ში წინასწარ გააკეთე ნაწილი 2 (DI) და გაუშვი `/ask`. ლექციაზე ერთად გადააკეთებთ, მაგრამ იცი, რომ მუშაობს
-- User Secrets შენთან უკვე იყოს. პროექტორზე key-ს **არ** აჩვენებ
-- `BookingDetails`, `BookingsController.Parse` და `FeedbackController`-ის კარკასი (class + constructor `IChatClient`-ით) ცალკე ფაილში მოამზადე
-- შეამოწმე [მოდელების სიაში](https://ai.google.dev/gemini-api/docs/models) `gemini-3.8-flash`. შეარჩიე მეორე მოდელიც „მოდელის შეცვლის“ საჩვენებლად
-- სლაიდ 17-ის 3 ტექსტი ერთხელ გაუშვი, რომ იცოდე, „8-ზე“ რას აბრუნებს ახლა (08:00 თუ 20:00)
+- RestaurantApi ლექცია 2-ის მდგომარეობაშია (`git checkout lecture-02`), `ask`/`chat` მუშაობს
+- `BookingParseResponse`, `BookingsController.Parse` და `FeedbackController`-ის კარკასი (`[ApiController, Route(...)]` + primary constructor `IChatClient`-ით) ცალკე ფაილში მოამზადე
+- ⚠ მოდელი: ჯერ `gemini-3.8-flash` სცადე. უფასო ლიმიტზე ხშირად 503-ს აბრუნებს — მაშინ `appsettings.json`-ში `"LiteModel": "gemini-3.1-flash-lite"` და რეგისტრაციაში `config["Gemini:LiteModel"]`. structured output ორივეზე მუშაობს
+- `requests.http`-ის 03-ის 7 მოთხოვნა ერთხელ გაუშვი (3 sentiment, 4 parse), რომ იცოდე, რა პასუხები მოდის ახლა
 
 ## 1 · გამეორება და საშინაო · 8 წთ · 1–5
 
@@ -30,29 +29,16 @@
 
 - **საშინაო ცოტას აქვს →** აჩვენე ამოხსნის სლაიდი. დღეს classify-ს enum-ით გადავაკეთებთ, ვინც ვერ დაწერა, სახლში ორივეს გააკეთებს.
 
-## 2 · IChatClient DI-ში · 10 წთ · 6–9
+## 2 · Structured output: enum · 12 წთ · 6–9
 
-- „რა არის ცუდი ამ ორ ხაზში?“ (7): ჯერ კლასი. პასუხი: **„Controller არ ქმნის, Controller იღებს“**
-- **ერთად წერთ** (8): `Program.cs`-ში `AddChatClient`, `appsettings.json`-ში `Gemini:Model`, ტერმინალში `user-secrets`
-- Controller (9): constructor, იგივე `_chat` სახელით, და `/ask` მუშაობს
-- DI-ს თეორიას თავიდან არ ხსნი. მხოლოდ თუ ჭედავს, იხ. 🆘
-- ✂ ჩამორჩი? ვისაც User Secrets ვერ გაუკეთდა, დროებით `appsettings.Development.json`-ში ჩაწეროს და სახლში გადაიტანოს
-
-### 🙋 ჰკითხე
-
-**„Gemini-ს ნაცვლად OpenAI რომ გვინდოდეს, რომელ ფაილს შევცვლიდით?“** სწორი: მხოლოდ `Program.cs`-ს (client-ის შექმნის ხაზი + package). სხვა Gemini მოდელზე გადასვლისთვის კი მხოლოდ `appsettings.json`-ს.
-
-### 🆘 თუ ვერ გაიგეს
-
-- **DI ჭედავს →** დაფაზე ორი სვეტი: „API კურსი“ `AddDbContext<DataContext>` / `ProductsController(DataContext db)` და „დღეს“ `AddChatClient` / `AssistantController(IChatClient chat)`. „იგივე ორი ხაზია, მხოლოდ ტიპი შეიცვალა“.
-
-## 3 · Structured output: enum · 12 წთ · 10–13
-
-- prompt „თითქმის“ მუშაობს (11): საშინაოში მოვიდა `Search.` და `search`, და `if` ჩავარდა
+- prompt „თითქმის“ მუშაობს (7): საშინაოში მოვიდა `Search.` და `search`, და `if` ჩავარდა
 - **„prompt-ი სთხოვს (მაგალითებითაც), structured output აიძულებს“**
-- **ახალი** `FeedbackController` (12): კარკასს ჩასვამ (constructor, როგორც 9-ზე), `AnalyzeSentiment`-ს ერთად წერთ: enum, მოკლე System, `GetResponseAsync<Sentiment>`, `.Result`. Swagger-ში 2–3 შეფასება
-- შიგნით (13): ტიპი → სქემა → Gemini → `.Result`
-- ✂ ჩამორჩი? სლაიდი 13: მხოლოდ ისრები, `data`-ს გარეშე
+- **ახალი** `FeedbackController` (8): `Enums/Sentiment.cs`, DTO-ები `Contracts/Feedback/`-ში (`SentimentRequest(Message)`, `SentimentResponse(Text)`), კარკასს ჩასვამ, `AnalyzeSentiment`-ს ერთად წერთ: მოკლე System, `GetResponseAsync<Sentiment>`, `.Result`, Negative → `Console.WriteLine("SMS: notify the manager")`
+- ჰკითხე: რატომ `response.Result.ToString()` და არა `response.Text`? → `Text` ნედლი JSON-ია (`{"data": "Negative"}`). სურვილისამებრ აჩვენე: `Ok(response.Text)` და ნახეთ Swagger-ში
+- 02-ის ⭐ few-shot `sentiment` თუ დაწერეთ: `AiDiagnosticsController`-იდან წაშალეთ, DTO-ები `Contracts/Feedback/`-ში გადაიტანეთ
+- Swagger-ში 3 შეფასება (Positive, Negative, Mixed). Negative-ზე კონსოლი აჩვენე
+- შიგნით (9): ტიპი → სქემა → Gemini → `.Result`
+- ✂ ჩამორჩი? სლაიდი 9: მხოლოდ ისრები, `data`-ს გარეშე
 
 ### 🙋 ჰკითხე
 
@@ -64,20 +50,22 @@
 
 ### 🆘 თუ ვერ გაიგეს
 
-- **`ChatResponse<Sentiment>` აბნევს →** `ChatResponse` კონვერტია (ტოკენები, finish reason, ტექსტი). `ChatResponse<Sentiment>` იგივე კონვერტია, შიგნით უკვე გახსნილი `Result`-ით.
+- **`ChatResponse<Sentiment>` აბნევს →** `ChatResponse` კონვერტია (ტოკენები, finish reason, ტექსტი). `ChatResponse<Sentiment>` იგივე კონვერტია, შიგნით უკვე გახსნილი `Result`-ით. `var`-ის ნაცვლად ტიპი ცხადად დაწერე, რომ დაინახონ.
 
-## ☕ შესვენება · 10 წთ · 14
+## ☕ შესვენება · 10 წთ · 10
 
-## 4 · ტექსტი → ობიექტი · 15 წთ · 15–17
+## 3 · ტექსტი → ობიექტი · 18 წთ · 11–14
 
-- `BookingDetails` (16): კოდს **ჩასვამ** და ნაბიჯებად ხსნი: nullable ველები, `Description`, „დატოვე null“, თარიღი prompt-ში
-- 3 ტექსტი (17): თითოზე ჯერ პროგნოზი, მერე Swagger. „8-ზე“ → 08:00? „საღამოს“ → ვარაუდი. „ხინკალი“ → ყველაფერი null
-- დასკვნა: **ფორმა გარანტირებულია, შინაარსი არა**, ამიტომ C# ამოწმებს (`if … is null`)
-- ✂ ჩამორჩი? 17-ზე მხოლოდ ტექსტები 1 და 2
+- `BookingParseResponse` და `Parse` (12): კოდს **ჩასვამ** და ნაბიჯებად ხსნი: nullable ველები, `Description`, „დატოვე null“, თარიღი prompt-ში. `BookingsController`-ის constructor-ს `IChatClient` ემატება. ჯერ შემოწმებების გარეშე: `return Ok(response.Result)`
+- `"There are four of us, tomorrow at 8"` → `{ at: …T20:00, guests: 4 }`
+- 3 ტექსტი (13): თითოზე ჯერ პროგნოზი, მერე Swagger. „საღამოს“ → საათს ვარაუდობს, guests null. „ხინკალი“ → ყველაფერი null. „23:30“ → სწორი ობიექტი, მაგრამ დახურულია
+- დასკვნა: **ფორმა გარანტირებულია, შინაარსი არა**
+- C#-ის შემოწმებები (14): სამი `if` → `BadRequest` სტუმრისთვის კითხვით. 4 მოთხოვნა `requests.http`-დან: 200 · 400 · 400 · 400
+- ✂ ჩამორჩი? 13-ზე მხოლოდ ტექსტები 1 და 3, 14-ზე შემოწმებები ჩასვი და ახსენი
 
 ### 🙋 ჰკითხე
 
-**„მოდელმა იცის, დღეს რა რიცხვია?“** არ იცის, ამიტომ თარიღს prompt-ში ვწერთ. მერე: **„‚ოთხნი ვართ, ხვალ 8-ზე‘. რა იქნება `at`?“** თარიღს ჩვენი prompt-იდან გამოითვლის, საათს კი ვარაუდობს. ამიტომ C# ამოწმებს.
+**„მოდელმა იცის, დღეს რა რიცხვია?“** არ იცის, ამიტომ თარიღს prompt-ში ვწერთ. მერე: **„‚ოთხნი ვართ, ხვალ 8-ზე‘. რა იქნება `at`?“** თარიღს ჩვენი prompt-იდან გამოითვლის, საათს კი ვარაუდობს (ჩვეულებრივ 20:00 — რესტორნისთვის ლოგიკურია, მაგრამ გარანტია არაა). ამიტომ სამუშაო საათებს C# ამოწმებს.
 
 ### 💡 მაგალითი
 
@@ -88,9 +76,9 @@
 - **`[property: Description(...)]` აბნევს →** სურვილისამებრაა. ეს კომენტარია, რომელსაც მოდელი კითხულობს. თუ ძალიან აბნევს, ამოიღონ, კოდი იმუშავებს.
 - **თარიღში წელი ან თვე არასწორია →** System prompt-ში დღევანდელი თარიღი არ ჩასვეს, ან `$` დაავიწყდათ.
 
-## 📝 კლასის დავალება · 32 წთ · 18
+## 📝 კლასის დავალება · 32 წთ · 15
 
-- **ნიმუში, ~3 წთ:** დაუბრუნდი 16-ს: „ტიპი → System (რა ამოიღოს + null + თარიღი) → `GetResponseAsync<T>`. ზუსტად იგივე თქვენს პროექტზე, ოღონდ ერთი ველი enum იყოს“
+- **ნიმუში, ~3 წთ:** დაუბრუნდი 12-ს: „ტიპი → System (რა ამოიღოს + null + თარიღი) → `GetResponseAsync<T>`. ზუსტად იგივე თქვენს პროექტზე, ოღონდ ერთი ველი enum იყოს“
 - **ისინი, ~25 წთ:** record 3+ ველით (ერთი enum, nullable ველები), `extract` endpoint, Swagger-ში 3 ტექსტი
 - **ბოლოს, ~4 წთ:** ერთი სტუდენტი აჩვენებს თავის ტიპს და ნაწილობრივ ტექსტს. სად დაბრუნდა null?
 - ✂ ჩამორჩი? ტიპი 2 ველით, Swagger-ში 2 ტექსტი
@@ -103,31 +91,28 @@
 
 - **იდეა არ აქვთ →** დაფაზე: ბიბლიოთეკა `{ Title, Until, Action }`, სპორტდარბაზი `{ Class, At, People }`, მაღაზია `{ Product, Size, Color, Quantity }`.
 - **პროექტი არ ეშვება →** RestaurantApi-ზე, სხვა ტიპით: `{ Dish, Quantity, Spicy: enum Low/Medium/Hot }`.
-- **DI ჯერ არ აქვთ →** ჯერ ნაბიჯი 1, 3 წუთი. ვისაც არ გამოდის, დროებით ლექცია 2-ის ველით გააგრძელოს.
 - **enum Swagger-ში რიცხვად ჩანს →** ეს ნორმალურია. სურვილისამებრ `JsonStringEnumConverter`.
 
-## 🏁 შეჯამება და საშინაო · 5 წთ · 19–21
+## 🏁 შეჯამება და საშინაო · 5 წთ · 16–18
 
-- 5 კითხვა (19): ჯერ სტუდენტი, მერე პასუხი
-- შეჯამება (20): „მოდელმა ჯავშანი ამოიღო. იცის, მაგიდა თავისუფალია?“ → ლექცია 4: tools
-- საშინაო (21): DI, classify enum-ით და ტექსტიდან ჩანაწერი ბაზაში
+- 5 კითხვა (16): ჯერ სტუდენტი, მერე პასუხი
+- შეჯამება (17): „მოდელმა ჯავშანი ამოიღო. იცის, მაგიდა თავისუფალია?“ → ლექცია 4: tools
+- საშინაო (18): classify enum-ით და ტექსტიდან ჩანაწერი ბაზაში
 
 ## ⭐ თუ დრო დარჩა
 
 მხოლოდ ლექციის ბოლოს. აირჩიე 1–3.
 
-- **🔁 მოდელის შეცვლა კონფიგურაციით · 4 წთ:** `/ask`-ზე ერთი კითხვა, ჩაიწერე ტოკენები. `appsettings.json`-ში `"Model"` შეცვალე მეორეზე, გადატვირთე და შეადარე
+- **🔁 მოდელის შეცვლა კონფიგურაციით · 4 წთ:** `/ask`-ზე ერთი კითხვა, ჩაიწერე ტოკენები. რეგისტრაციაში `Gemini:Model` ↔ `Gemini:LiteModel`, გადატვირთე და შეადარე (`reasoningTokens`!). controller-ებში არაფერი იცვლება
 - **💥 როცა JSON ვერ მოვიდა · 5 წთ:** `BookingsController.Parse`-ში `MaxOutputTokens = 20`. „რა მოხდება?“ → `500`, რადგან `.Result` ვერ იკითხება. დასკვნა: შეცდომა უნდა დავიჭიროთ (ლექცია 8)
-- **🧪 ყალბი IChatClient · 8 წთ:** კლასი, რომელიც `IChatClient`-ს ახორციელებს და ყოველთვის ერთსა და იმავე JSON-ს აბრუნებს. DI-ში ჩაანაცვლე, და Controller ვერ ამჩნევს. ესაა DI-ის სარგებელი (ლექცია 22)
 - **📝 Description-ის ეფექტი · 5 წთ:** `Description`-ის გარეშე "There are four of us, tomorrow at 8" 3-ჯერ, მერე `At`-ზე აღწერით („ambiguous hour means the evening“). შეადარეთ საათები
 - **🍽️ სია ტექსტიდან · 5 წთ:** `GetResponseAsync<List<OrderItem>>` → "Two khinkali, one khachapuri and three lemonades". ტიპი ნებისმიერი შეიძლება, სიაც
 - **❓ კითხვა-პასუხი** ან კლასის დავალების ⭐ ბონუსი
 
 ## ❓ შეიძლება ჰკითხონ
 
-- **„რატომ Singleton და არა Scoped, როგორც DbContext?“** → client-ს მდგომარეობა არ აქვს და thread-safe-ია. ერთი ეგზემპლარი საკმარისია.
-- **„`Model` appsettings-შია, `ApiKey` secrets-ში. როგორ ერთიანდება?“** → .NET კონფიგურაცია ყველა წყაროს ერთ `Gemini` სექციად აერთიანებს.
-- **„პასუხში `{"data": …}` რა არის?“** → enum-ს და სიას wrapper ობიექტი სჭირდება, `.Result` თვითონ ამოიღებს.
+- **„პასუხში `{"data": …}` რა არის?“** → enum-ს და სიას wrapper ობიექტი სჭირდება, `.Result` თვითონ ამოიღებს. ამიტომ `response.Text`-ს არ ვაბრუნებთ.
+- **„enum Swagger-ში რიცხვად რატომ არ ჩანს?“** → `SentimentResponse`-ში `string`-ია: `Result.ToString()` → `"Negative"`.
 - **„სქემაც ტოკენია?“** → კი, input-ში მიდის და ვიხდით.
 - **„სხვა თემის ტექსტზე მაინც ავსებს ველებს“** → System-ში „თუ არ არის, დატოვე null“ და C#-ში შემოწმება.
 
