@@ -136,20 +136,7 @@ Flash:  18 × 0.75 + 2.7 × 3.75 ≈ $23.6 a month
 Pro:    18 × 2    + 2.7 × 12   ≈ $68.4 a month
 ```
 
-In the course we use **Gemini**, and we recommend it at home too: it gives good results and has a free tier for learning (key: [aistudio.google.com](https://aistudio.google.com) → Get API key). For better performance you can turn on the paid tier (billing). A local model (on your own server) is needed when the data must not leave.
-
-```warn
-**On the free tier** the number of requests is limited, and Google may use the text you send and the responses to improve its products. Don't send personal or customer data there. On the paid tier Google doesn't use your data for that.
-```
-
-**An alternative for home — Ollama.** It's free and works without the internet: [ollama.com/download](https://ollama.com/download) → install, then in the terminal:
-
-```bash
-ollama pull qwen3.5:4b   # 8 GB RAM; 16 GB+ → qwen3.5:9b
-ollama run qwen3.5:4b    # try it in the terminal
-```
-
-A small model is weaker than Gemini: in some lectures (tools, structured output, embeddings) results differ. What changes in code is in the lecture 2 study notes.
+In the course we use **Gemini**: it writes Georgian well and has a free tier for learning. A local model (on your own server) is needed when the data must not leave.
 
 ```warn
 Prices change often. For a real estimate always open [Gemini's pricing page](https://ai.google.dev/gemini-api/docs/pricing).

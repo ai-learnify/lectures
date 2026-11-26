@@ -374,5 +374,34 @@
 "<section class=\"slide\" data-section=\"საშინაო\">\n  <div class=\"kicker\">🏠 საშინაო დავალება</div>\n  <h2>Few-shot კლასიფიკატორი შენს პროექტში</h2>\n  <div class=\"grid2\" style=\"grid-template-columns:1.5fr 1fr;align-items:start\">\n    <div class=\"card accent\" style=\"--a:var(--net)\">\n      <h3><span class=\"ico\">🏠</span>კოდით · endpoint + ცხრილი README-ში</h3>\n      <ul class=\"clean small\">\n<li><strong>endpoint</strong> <code class=\"i\">POST /api/assistant/classify</code> — მომხმარებლის ტექსტი → <strong>ერთი</strong> კატეგორია შენი პროექტისთვის (მინიმუმ 3 კატეგორია, მაგ. <code class=\"i\">Search</code> / <code class=\"i\">Order</code> / <code class=\"i\">Question</code>)</li>\n<li><strong>few-shot:</strong> System + მინიმუმ <strong>3 მაგალითი</strong> User/Assistant წყვილებად</li>\n<li><strong>შედარება README-ში:</strong> 5 ტექსტი — zero-shot (მაგალითების გარეშე) vs few-shot. ცხრილი: ტექსტი · zero-shot პასუხი · few-shot პასუხი · <code class=\"i\">inputTokens</code> ორივეზე</li>\n<li><strong>ენა:</strong> ერთი და იგივე ტექსტი ქართულად და ინგლისურად — <code class=\"i\">inputTokens</code> ცხრილში</li>\n<li>კონსპექტის <strong>ტესტი</strong> (8 კითხვა) — ქულა ჩაწერე</li>\n</ul>\n      <p class=\"tiny\" style=\"margin-top:14px\">✓ მზადაა, როცა: endpoint 5-ვე ტექსტზე აბრუნებს ზუსტად ერთ კატეგორიას შენი სიიდან; README-ში არის შედარების ცხრილი და ტესტის ქულა</p>\n    </div>\n    <div class=\"card accent\" style=\"--a:var(--asp)\"><h3><span class=\"ico\">⭐</span>ბონუსი</h3><ul class=\"clean small\">\n<li>ტექსტი, რომელიც არცერთ კატეგორიაში არ ჯდება — რას აბრუნებს? დაამატე კატეგორია <code class=\"i\">Other</code> და ერთი მაგალითი</li>\n<li>Controller-ში შეამოწმე პასუხი: თუ სიაში არ არის → <code class=\"i\">Other</code>. რატომ არ ვენდობით მოდელს ბოლომდე?</li>\n</ul></div>\n  </div>\n  <div class=\"callout mt\" style=\"--a:var(--api)\">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>\n</section>",
 "<section class=\"slide\" data-section=\"საშინაო\">\n  <div class=\"kicker\">🏠 საშინაო დავალება</div>\n  <h2>A few-shot classifier in your project</h2>\n  <div class=\"grid2\" style=\"grid-template-columns:1fr;align-items:start\">\n    <div class=\"card accent\" style=\"--a:var(--net)\">\n      <h3><span class=\"ico\">🏠</span>With code · an endpoint + a table in the README</h3>\n      <ul class=\"clean small\">\n<li><strong>An endpoint</strong> <code class=\"i\">POST /api/assistant/classify</code> — the user's text → <strong>one</strong> category for your project (at least 3 categories, e.g. <code class=\"i\">Search</code> / <code class=\"i\">Order</code> / <code class=\"i\">Question</code>)</li>\n<li><strong>Few-shot:</strong> System + at least <strong>3 examples</strong> as User/Assistant pairs</li>\n<li><strong>A comparison in the README:</strong> 5 texts — zero-shot (without examples) vs few-shot. Table: text · zero-shot answer · few-shot answer · <code class=\"i\">inputTokens</code> for both</li>\n<li><strong>Language:</strong> the same text in Georgian and in English — <code class=\"i\">inputTokens</code> in the table</li>\n<li>The study notes <strong>quiz</strong> (8 questions) — write down your score</li>\n</ul>\n      \n    </div>\n    \n  </div>\n  <div class=\"callout mt\" style=\"--a:var(--api)\">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>\n</section>"
 ]
-]
+],
+"_slides": {
+"8": {
+"კურსზე": "In the course",
+"რას": "What do we",
+"ვიყენებთ?": "use?",
+"Gemini — ჩვენი რეკომენდაცია": "Gemini — our recommendation",
+"ლექციაზე ლექტორი": "In class the lecturer works with",
+"-ით მუშაობს (": " (",
+"სახლში: key —": "At home: key —",
+"უფასო ლიმიტი": "the free tier",
+"საკმარისია; უკეთესი მუშაობისთვის —": "is enough; for better performance —",
+"ფასიანი": "paid",
+"უფასო ლიმიტზე:": "On the free tier:",
+"მოთხოვნების რაოდენობა შეზღუდულია, და Google-ს შეუძლია გაგზავნილი ტექსტი და პასუხები": "the number of requests is limited, and Google may use the text you send and the responses",
+"პროდუქტის გასაუმჯობესებლად": "to improve its products",
+"გამოიყენოს. პირადი ან კლიენტის მონაცემი იქ": ". Do",
+"არ": "not",
+"გაგზავნო. ფასიანზე ასე არ ხდება": "send personal or customer data there. The paid tier doesn't do this",
+"Ollama — ალტერნატივა სახლისთვის": "Ollama — an alternative for home",
+"ollama.com/download → ინსტალაცია": "ollama.com/download → install",
+"უფასოა და ინტერნეტის გარეშე მუშაობს, მაგრამ პატარა მოდელი": "Free and works without the internet, but a small model is",
+"სუსტია": "weaker",
+": ზოგ ლექციაზე (tools, structured output, embeddings) შედეგი Gemini-სგან განსხვავდება": ": in some lectures (tools, structured output, embeddings) results differ from Gemini's",
+"სწავლისთვის": "For learning",
+": ზოგ ლექციაზე (tools, structured output, embeddings) შედეგი Gemini-სგან განსხვავდება. კოდში იცვლება": ": in some lectures (tools, structured output, embeddings) results differ from Gemini's. In code,",
+"ერთი ხაზი": "one line",
+"— კონსპექტშია": "changes — see the study notes"
+}
+}
 }

@@ -770,31 +770,31 @@
 "რომელ ტოკენს აირჩევს": "which token the model picks",
 "მოდელი": ""
 },
-"32": {
+"31": {
 "„ფიქრის“ ტოკენებს": "“Thinking” tokens are",
 "ვიხდით": "paid for",
 "(როგორც output), ხშირად ვერც ვხედავთ": "(as output), often without us seeing them"
 },
-"36": {
+"35": {
 "ტოკენზე": "per token",
 "რატომ": "why"
 },
-"37": {
+"36": {
 "ტოკენზე": "per token",
 "აკეთებს": "on it"
 },
-"38": {
+"37": {
 "რამდენი": "how much",
 "გამოვა? მერე აქ შევამოწმებთ": "do you get? Then we'll check here",
 "🙋 ჯერ ფურცელზე: A და B მოდელით": "🙋 On paper first: with models A and B,"
 },
-"41": {
+"40": {
 "ბაზიდან": "from the database"
 },
-"43": {
+"42": {
 "შემდეგი ტოკენი": "Next token"
 },
-"44": {
+"43": {
 "აიღე და": "— get it and set"
 },
 "16": {
@@ -802,29 +802,6 @@
 },
 "5": {
 "მოდელს": "We"
-},
-"30": {
-"კურსზე": "In the course",
-"რას": "What do we",
-"ვიყენებთ?": "use?",
-"Gemini — ჩვენი რეკომენდაცია": "Gemini — our recommendation",
-"ლექციაზე ლექტორი": "In class the lecturer works with",
-"-ით მუშაობს (": " (",
-"სახლში: key —": "At home: key —",
-"უფასო ლიმიტი": "the free tier",
-"საკმარისია; უკეთესი მუშაობისთვის —": "is enough; for better performance —",
-"ფასიანი": "paid",
-"უფასო ლიმიტზე:": "On the free tier:",
-"მოთხოვნების რაოდენობა შეზღუდულია, და Google-ს შეუძლია გაგზავნილი ტექსტი და პასუხები": "the number of requests is limited, and Google may use the text you send and the responses",
-"პროდუქტის გასაუმჯობესებლად": "to improve its products",
-"გამოიყენოს. პირადი ან კლიენტის მონაცემი იქ": ". Do",
-"არ": "not",
-"გაგზავნო. ფასიანზე ასე არ ხდება": "send personal or customer data there. The paid tier doesn't do this",
-"Ollama — ალტერნატივა სახლისთვის": "Ollama — an alternative for home",
-"ollama.com/download → ინსტალაცია": "ollama.com/download → install",
-"უფასოა და ინტერნეტის გარეშე მუშაობს, მაგრამ პატარა მოდელი": "Free and works without the internet, but a small model is",
-"სუსტია": "weaker",
-": ზოგ ლექციაზე (tools, structured output, embeddings) შედეგი Gemini-სგან განსხვავდება": ": in some lectures (tools, structured output, embeddings) results differ from Gemini's"
 }
 },
 "_html": [

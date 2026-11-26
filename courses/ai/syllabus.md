@@ -24,7 +24,6 @@ Generative AI-ისა და LLM-ების მიმოხილვა; რ
 📚 როგორ ქმნის LLM ტექსტს: ტოკენები, next-token prediction, context window
 📚 Temperature, Top-P და Max Tokens — რომელი როდის
 📚 პროვაიდერის არჩევა და თვის ხარჯის დათვლა ტოკენებით
-📚 რას ვიყენებთ კურსზე: Gemini (რეკომენდაცია; უფასო და ფასიანი ლიმიტის განსხვავება), ლოკალური Ollama — ალტერნატივა სახლისთვის
 🛠 RestaurantApi | კოდი არ იწერება — თეორიული ლექციაა. ლექციის ბოლოს ჩანს, რა AI-ფუნქციები დაემატება RestaurantApi-ს მოდულის განმავლობაში
 
 ### 02. Prompt Engineering C# დეველოპერებისთვის
@@ -32,6 +31,7 @@ Generative AI-ისა და LLM-ების მიმოხილვა; რ
 პრომპტ ინჟინერიის სტანდარტები და ტექნიკები (Zero-Shot, Few-Shot, System/User/Assistant შეტყობინებები); პრომპტის შაბლონები კოდში; Structured Output: LLM-ის პასუხი პირდაპირ C# ობიექტად (`GetResponseAsync<T>`, JSON Schema).
 
 📚 Gemini-ს გამოძახება საკუთარი API-დან `IChatClient`-ით, key — User Secrets-ში
+📚 რას ვიყენებთ კურსზე: Gemini (რეკომენდაცია; უფასო და ფასიანი ლიმიტის განსხვავება), ლოკალური Ollama — ალტერნატივა სახლისთვის
 📚 `ChatOptions` (Temperature, MaxOutputTokens) და პასუხის `Usage` / `FinishReason`
 📚 System prompt, რომელიც ასისტენტის როლს, თემებს და პასუხის ფორმას ზღუდავს
 📚 Zero-shot vs few-shot (თეორია): რატომ მუშაობს AI მაგალითებით უკეთ

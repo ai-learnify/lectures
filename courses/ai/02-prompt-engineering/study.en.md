@@ -8,9 +8,24 @@
 - We send the model **a list of messages**: **System** (our rules), **User**, **Assistant**.
 - A good **system prompt** = role + topics + format + boundaries. AI works better **with examples** (**few-shot**): examples pin the answer to an exact format so C# code can use it.
 
-## 1 · First call · 6–10
+## 1 · First call · 6–11
 
 **Microsoft.Extensions.AI** is to language models what EF Core is to databases: you write code against one interface (`IChatClient`), and a **provider** talks to the actual service (`Google.GenAI` for Gemini).
+
+**What we use.** In class we use **Gemini**, and we recommend it at home too: it gives good results and has a free tier for learning. For better performance you can turn on the paid tier (billing).
+
+```warn
+**On the free tier** the number of requests is limited, and Google may use the text you send and the responses to improve its products. Don't send personal or customer data there. On the paid tier Google doesn't use your data for that.
+```
+
+**An alternative for home — Ollama.** It's free and works without the internet: [ollama.com/download](https://ollama.com/download) → install, then in the terminal:
+
+```bash
+ollama pull qwen3.5:4b   # 8 GB RAM; 16 GB+ → qwen3.5:9b
+ollama run qwen3.5:4b    # try it in the terminal
+```
+
+A small model is weaker than Gemini: in some lectures (tools, structured output, embeddings) results differ. What changes in code is below (after step 3).
 
 **1. key → User Secrets.** Get the key at [aistudio.google.com](https://aistudio.google.com), then in the project folder:
 
@@ -89,7 +104,7 @@ In Swagger, `POST /api/diagnostics/ai/ask` returns the text and the tokens: `inp
 ```
 
 ```tip
-**Using Ollama at home?** Our recommendation is Gemini (lecture 1). If you still use a local model (installation is on the lecture 1 slide), run `dotnet add package OllamaSharp` instead of `Google.GenAI`, and only one line in the constructor changes. No key needed (code below).
+**Using Ollama at home?** Our recommendation is Gemini. If you still use a local model (installation is above), run `dotnet add package OllamaSharp` instead of `Google.GenAI`, and only one line in the constructor changes. No key needed (code below).
 
 `OllamaApiClient` is itself an `IChatClient`, so the rest of the code stays the same. A small model is weaker: answers differ from Gemini's.
 ```
@@ -109,7 +124,7 @@ provider — a library that implements the common interface for a specific servi
 finishReason — why the model stopped: stop (finished) or length (hit the limit)
 ```
 
-## 2 · Parameters in code · 11–13
+## 2 · Parameters in code · 12–14
 
 Lecture 1's parameters live in `ChatOptions` in C#: `Temperature`, `TopP`, `MaxOutputTokens`. We add two optional fields to `PromptRequest`:
 
@@ -144,7 +159,7 @@ On a reasoning model always set the limit with room to spare. Ask for a short an
 = Gemini thinks before answering, and thinking used up the whole limit.
 ```
 
-## 3 · Roles and the system prompt · 15–18
+## 3 · Roles and the system prompt · 16–19
 
 We send the model not one text but **a list of messages**. Each has its own role:
 
@@ -213,7 +228,7 @@ system prompt — the assistant's role, boundaries and answer format; written by
 ChatMessage — one message with a role (System / User / Assistant) and text
 ```
 
-## 4 · Zero-shot and few-shot · 19
+## 4 · Zero-shot and few-shot · 20
 
 - **Zero-shot:** we only explain to the model what to do.
 - **Few-shot:** we add 3–5 examples to the explanation ("question → correct answer").
