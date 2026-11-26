@@ -451,7 +451,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
     has_lecturer = write_lecturer(out, course, meta, num, title, ldir)
     print(f'  {cdir.name}/{ldir.name}: {len(slides)} slides')
     return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study,
-            'classwork': (ldir / 'classwork.md').exists(), 'homework': (ldir / 'homework.md').exists(), 'quiz': len(meta.get('quiz', [])), 'lecturer': has_lecturer, 'study_en': has_study_en, 'deck_en': (out / 'index.en.html').exists()}, []
+            'classwork': (ldir / 'classwork.md').exists(), 'homework': (ldir / 'homework.md').exists(), 'quiz': len(meta.get('quiz', [])), 'lecturer': has_lecturer, 'project': bool(lecturer_code()) and (ldir.parent / 'project' / f'{num:02d}.md').exists(), 'study_en': has_study_en, 'deck_en': (out / 'index.en.html').exists()}, []
 
 def lect_heading(h):
     """'3 · ტოკენები · 15 წთ · 16–20' → (num, title, minutes, (from, to))"""
