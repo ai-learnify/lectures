@@ -2,34 +2,31 @@
 
 ## 🎯 მთავარი
 
-`get_menu`-ს კლასთან ერთად წერ, `CheckAvailability`-ს კი მზას ჩასვამ და ახსნი. სრული კოდი 💻 ღილაკზეა.
+`AssistantController`-ს და `get_menu`-ს კლასთან ერთად წერ, `CheckAvailability`-ს ჯერ `DateTime`-ით ჩასვამ, აჩვენებ დროის პრობლემას და გამოასწორებ. სრული კოდი 💻 ღილაკზეა და საცნობარო პროექტში: [RESTAURANT_RAG_API](https://github.com/ai-learnify/RESTAURANT_RAG_API), `git diff lecture-03 lecture-04`.
 
 ### 📌 სტუდენტს უნდა დარჩეს
 
 1. მოდელი ბაზას ვერ ხედავს და მეთოდს ვერ იძახებს. ის **ითხოვს**, **ჩვენი კოდი** კი ასრულებს. Gemini-სთან მინიმუმ 2 მოთხოვნა მიდის.
 2. Tool = სახელი + აღწერა + პარამეტრების JSON Schema. კოდს მოდელი ვერ ხედავს, ამიტომ **აღწერა** გადამწყვეტია.
-3. `AIFunctionFactory.Create(method, name: "...")` → `ChatOptions.Tools` → `GetResponseAsync(messages, options)`.
-4. `.UseFunctionInvocation()` ციკლს ჩვენ მაგივრად ატრიალებს (რა არის, ლექცია 5-ზე).
-5. მოდელი **ირჩევს** tool-ს (ან არცერთს) და **ავსებს** პარამეტრებს. დღეს მხოლოდ **კითხვის** tool-ებია.
+3. `AIFunctionFactory.Create(method, name: "...")` → `ChatOptions.Tools` → `GetResponseAsync(messages, options)`. `.UseFunctionInvocation()` ციკლს ჩვენ მაგივრად ატრიალებს (რა არის, ლექცია 5-ზე).
+4. მოდელი **ირჩევს** tool-ს (ან არცერთს) და **ავსებს** პარამეტრებს. დღეს მხოლოდ **კითხვის** tool-ებია.
+5. **დრო:** ბაზაში ნამდვილი UTC, სტუმარი და მოდელი — რესტორნის დრო offset-ით (`DateTimeOffset`), „ახლა“ — `TimeProvider`-იდან. `DateTime.Now` სერვერზე UTC-ია.
 
 ### ✅ მომზადება
 
-- RestaurantApi-ში წინასწარ დაწერე `RestaurantTools` (ორივე მეთოდი) და `/chat`, და გაუშვი
-- ბაზაში: 6–10 კერძი სხვადასხვა ფასით (რამდენიმე 15 ₾-მდე, 1–2 ვეგეტარიანული), 3–4 მაგიდა და **ხვალ 20:00-ზე** 1–2 ჯავშანი
-- სლაიდებზე `_db.Products`, `p.Price`, `_db.Tables`, `t.Seats`, `_db.Bookings`, `b.At` წერია. თუ შენთან სახელები სხვაა, ლექციაზე ერთი წინადადებით თქვი
-- სლაიდ 13-ის და 17-ის ტექსტები ერთხელ გაუშვი. `/ask` (ლექცია 2-დან) მზად იყოს შედარებისთვის
+- RestaurantApi ლექცია 3-ის მდგომარეობაშია (`git checkout lecture-03`). ცალკე საქაღალდეში `lecture-04` გაუშვი, რომ ყველაფერი ნახო
+- **ბაზა reseed:** `DELETE FROM "Bookings";` → `dotnet ef database update`. seed-ის ჯავშნები „ხვალისაა“ ბაზის შექმნის დღიდან, და ხვალ 19:00–20:30-ზე 4, 5, 7 და 1 მაგიდებია დაკავებული
+- `TableTools`-ის პირველი ვერსია (`DateTime at`) და გამოსწორება (`TimeProviderExtensions`, `DateTimeOffset`, prompt-ები, seed) ცალკე ფაილში მოამზადე: ჩასვამ და ახსნი
+- `requests.http`-ის 04-ის 4 მოთხოვნა ერთხელ გაუშვი. `/ask` (ლექცია 2-დან) მზად იყოს შედარებისთვის
+- ⚠ მოდელი: lite (`Gemini:LiteModel`). tool-ები ორივე მოდელზე მუშაობს
 
-## 1 · გამეორება და საშინაო · 8 წთ · 1–5
+## 1 · გამეორება და საშინაო · 7 წთ · 1–5
 
 - გამეორება (2): 5 კითხვა ლექცია 3-დან
 - საშინაო (3): 1–2 სტუდენტის „ტექსტიდან ჩანაწერი“. ბოლოს ჰკითხე: „ჯავშანი ჩაიწერა, მაგრამ ის დრო თავისუფალი იყო?“
 - დღის თემა (4) და 3 ნაბიჯი (5): 1 წუთი
 
-### 🆘 თუ ვერ გაიგეს
-
-- **DI ვიღაცას ჯერ არ აქვს →** დღეს `AddChatClient`-ს `.UseFunctionInvocation()` ემატება, ამიტომ DI აუცილებელია. შესვენებაზე ან classwork-ის დასაწყისში 3 წუთი.
-
-## 2 · მოდელი და ჩვენი ბაზა · 12 წთ · 6–9
+## 2 · მოდელი და ჩვენი ბაზა · 9 წთ · 6–9
 
 - (7) „ადგილი გაქვთ?“: ორი ცუდი პასუხი. მოისმინე 2–3 იდეა, როგორ მივაწოდოთ ბაზა („prompt-ში ჩავწეროთ“), და ახსენი, რატომ არა
 - (8) **ციკლი 4 ნაბიჯად**, ნელა, თითო ნაბიჯი ცალკე
@@ -47,46 +44,51 @@
 
 - **„Gemini ჩვენს ბაზას უკავშირდება“ →** დაფაზე ორი ყუთი: „ჩვენი სერვერი + ბაზა“ და „Google — Gemini“, შუაში მხოლოდ ტექსტიანი ისრები. „ბაზასთან ისარი მხოლოდ ჩვენი სერვერიდან მიდის“.
 
-## 3 · პირველი tool · 12 წთ · 10–13
+## 3 · პირველი tool · 12 წთ · 10–14
 
-- (11) **ერთად წერთ** `RestaurantTools` + `GetMenu` + `AddScoped`: DbContext constructor-ით, `[Description]` მოდელისთვის, LINQ („AI აქ არაფერია“)
-- (12) Controller: `/chat`, `AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")` **ფრჩხილების გარეშე**. Program.cs-ში `.UseFunctionInvocation()` (ახსნა ლექცია 5-ზე)
-- (13) Swagger: ჯერ `/ask` „15 ლარამდე?“ და მოიგონებს, მერე `/chat` და ბაზიდან მოდის, `Tools called`-ით
+- (11) **AssistantController:** `chat` გადმოდის `AiDiagnosticsController`-იდან (`api/assistant/chat`), `ChatRequest`/`ChatReply` → `Contracts/Assistant/`, `FeedbackController`-ის route → `api/feedback`. ჩასვამ, 2 წუთი. ჰკითხე, რატომ
+- (12) **ერთად წერთ** `Tools/MenuTools.cs` + `AddScoped<MenuTools>()`: `DataContext` constructor-ით, `[Description]` მოდელისთვის, LINQ („AI აქ არაფერია“), entity-ს ნაცვლად `MenuItemInfo`
+- (13) `AssistantController`: `MenuTools` constructor-ში, `ChatOptions.Tools`, `AIFunctionFactory.Create(menu.GetMenu, name: "get_menu")` **ფრჩხილების გარეშე**. `ServiceExtensions`-ში `.UseFunctionInvocation()` (ახსნა ლექცია 5-ზე). System prompt-იდან „Never invent prices…“ აღარ გვჭირდება
+- (14) Swagger: ჯერ `/ask` „How much is lobio?“ და მოიგონებს, მერე `/chat` → 14 ₾ ბაზიდან
 - ✂ ჩამორჩი? `/ask`-ის შედარება გამოტოვე
 
 ### 🙋 ჰკითხე
 
-**„‚გამარჯობა!‘-ზე get_menu-ს გამოიძახებს?“** ფიქრობენ, რომ კი. სწორი: **არა**, მოდელი თვითონ წყვეტს. გაუშვი და აჩვენე `toolCalls: []`.
+**„‚Hi!‘-ზე get_menu-ს გამოიძახებს?“** ფიქრობენ, რომ კი. სწორი: **არა**, მოდელი თვითონ წყვეტს. აჩვენე: breakpoint `GetMenu`-ში და გაუშვი „Hi!“ — debugger არ გაჩერდება, „How much is lobio?“-ზე კი გაჩერდება.
 
 ### 🆘 თუ ვერ გაიგეს
 
-- **`Cannot consume scoped service from singleton` →** `AddSingleton<RestaurantTools>` დაწერეს. უნდა იყოს `AddScoped`, რადგან შიგნით `DbContext`-ია.
-- **`Create(_tools.GetMenu())` ფრჩხილებით →** „მეთოდს ვაძლევთ და არა მის შედეგს. მოდელი მერე გადაწყვეტს, გამოიძახოს თუ არა“.
-- **`Tools called` და `text` ცარიელია →** `options` არ გადასცეს `GetResponseAsync`-ს, ან `.UseFunctionInvocation()` აკლია.
+- **`Cannot consume scoped service from singleton` →** `AddSingleton<MenuTools>` დაწერეს. უნდა იყოს `AddScoped`, რადგან შიგნით `DataContext`-ია.
+- **`Create(menu.GetMenu())` ფრჩხილებით →** „მეთოდს ვაძლევთ და არა მის შედეგს. მოდელი მერე გადაწყვეტს, გამოიძახოს თუ არა“.
+- **`text` ცარიელია →** `options` არ გადასცეს `GetResponseAsync`-ს, ან `.UseFunctionInvocation()` აკლია.
 
-## ☕ შესვენება · 10 წთ · 14
+## ☕ შესვენება · 10 წთ · 15
 
-## 4 · პარამეტრები და დიზაინი · 10 წთ · 15–18
+## 4 · პარამეტრები და დრო · 18 წთ · 16–21
 
-- (16) `CheckAvailability` **ჩასვი** და ახსენი: `[Description]` პარამეტრებზე, ლოგიკა ჩვენია. Controller-ში მეორე tool და **დღევანდელი თარიღი** System-ში
-- (17) 🔮 თამაში: 4 ტექსტი, ჯერ კლასი გამოიცნობს, მერე Swagger. მე-4 ტექსტზე ორი tool გამოიძახება
-- (18) ცუდი vs კარგი tool, 4 წესი
-- ✂ ჩამორჩი? თამაში: მხოლოდ ტექსტები 1 და 3
+- (17) `TableTools.CheckAvailability` **ჩასვი** (`DateTime at`-ით) და ახსენი: `[Description]` პარამეტრებზე, ერთი SQL (`NOT EXISTS`). Controller-ში მეორე tool
+- (18) Swagger: "There are four of us, tomorrow at 8" → შეცდომა (`Kind=Unspecified`) ან `Z`-იანი დრო → არასწორი საათი. ჰკითხე: რა დროს ინახავს ბაზა, რა დროზე ლაპარაკობს სტუმარი? → წესი
+- (19) **გამოსწორება**, ჩასვი და ახსენი: `TimeProvider.System` (Singleton), `TimeProviderExtensions` (`GetRestaurantNow`, `ToUtc`, C# 14-ის `extension`), `DateTimeOffset at` + `at.UtcDateTime`, „Now in the restaurant“ ორივე prompt-ში (`Chat`, `Parse`), `BookingParseResponse.At` → `DateTimeOffset?`, seed → `ToUtc`. **reseed!** `TimeProvider`-ს სიღრმეში არ ხსნი: „სისტემური საათი DI-ში — ერთ ადგილას“
+- (20) 🔮 თამაში: 4 ტექსტი, ჯერ კლასი გამოიცნობს, მერე Swagger. 1 → 2 თავისუფალი (6, 8); 3 → tool არ არის, პასუხი System prompt-იდან; 4 → ორივე tool
+- (21) ცუდი vs კარგი tool, 4 წესი
+- ✂ ჩამორჩი? თამაში: მხოლოდ ტექსტები 1 და 3; 18-ზე მხოლოდ ერთი შეცდომა
 
 ### 🙋 ჰკითხე
 
-**„რატომ არ ვაძლევთ მოდელს create_booking-ს?“** სწორი: შესაძლებელია, მაგრამ საშიშია. „8-ზე“ შეიძლება 08:00 ეგონოს და ჯავშანი ისე შექმნას, რომ არავის ჰკითხოს. ჩანაწერს დადასტურება სჭირდება (ლექცია 15).
+**„რატომ არ ვაძლევთ მოდელს create_booking-ს?“** სწორი: შესაძლებელია, მაგრამ საშიშია. მოდელი ალბათობით მუშაობს: „8-ზე“ შეიძლება 08:00 ეგონოს და ჯავშანი ისე შექმნას, რომ არავის ჰკითხოს. ჩანაწერს დადასტურება სჭირდება (ლექცია 15).
 
 ### 🆘 თუ ვერ გაიგეს
 
 - **„მოდელმა `at` როგორ შეავსო?“ →** „იგივეა, რაც `BookingParseResponse`-ში: ტექსტი → სქემა. ახლა სქემა tool-ის პარამეტრებია“.
-- **შედეგი არასწორია `DateTime`-ის გამო →** PostgreSQL `timestamp with time zone` და `DateTime.Kind`. სატესტო ჯავშნები ისე ჩაწერე, რომ შედარება მუშაობდეს.
+- **„რატომ არა უბრალოდ `DateTime.Now`?“ →** სერვერზე (Docker, ღრუბელი) ის UTC-ია: თბილისში 02:00-ზე სერვერისთვის ჯერ კიდევ გუშინდელი 22:00-ია — „ხვალ“ ერთი დღით აცდება.
+- **`TimeZoneNotFoundException: Asia/Tbilisi` →** ძველი Windows ან Docker image tzdata-ს გარეშე. Windows 10+ და .NET 6+ IANA სახელს იცნობს.
+- **0 თავისუფალი მაგიდა ან ყველა თავისუფალია →** reseed არ გაუკეთებიათ: ჯავშნები ძველ „ხვალზეა“ ან ყალბ `Z`-ზე.
 
-## 📝 კლასის დავალება · 32 წთ · 19
+## 📝 კლასის დავალება · 24 წთ · 22
 
-- **ნიმუში, ~3 წთ:** დაუბრუნდი 12-ს: „Tools კლასი → `[Description]` → `AIFunctionFactory.Create` → `Tools` → `UseFunctionInvocation`. ერთი tool, ოღონდ პარამეტრით, და ერთი ტექსტი, რომელზეც tool **არ** უნდა გამოიძახოს“
-- **ისინი, ~25 წთ:** საკუთარ პროექტში Tools კლასი, tool **პარამეტრით**, `/chat`, Swagger-ში 3 ტექსტი
-- **ბოლოს, ~4 წთ:** ერთი სტუდენტი აჩვენებს ტექსტს, სადაც tool არ გამოიძახა. რატომ?
+- **ნიმუში, ~3 წთ:** დაუბრუნდი 12–13-ს: „Tools კლასი → `[Description]` → `AIFunctionFactory.Create` → `Tools` → `UseFunctionInvocation`. ერთი tool, ოღონდ პარამეტრით, და ერთი ტექსტი, რომელზეც tool **არ** უნდა გამოიძახოს“
+- **ისინი, ~18 წთ:** საკუთარ პროექტში Tools კლასი, tool **პარამეტრით**, `/chat`, Swagger-ში 3 ტექსტი
+- **ბოლოს, ~3 წთ:** ერთი სტუდენტი აჩვენებს ტექსტს, სადაც tool არ გამოიძახა. რატომ?
 - ✂ ჩამორჩი? tool პარამეტრის გარეშეც მისაღებია
 
 ### 🙋 სანამ დადიხარ, ჰკითხე
@@ -96,22 +98,22 @@
 ### 🆘 თუ ვერ იწყებენ
 
 - **იდეა არ აქვთ →** ბიბლიოთეკა `find_books(author)`, სპორტდარბაზი `get_classes(DayOfWeek day)`, მაღაზია `get_products_under(decimal maxPrice)`.
-- **პროექტი არ ეშვება →** RestaurantApi-ზე სხვა tool-ით: `get_dish(string name)` ან `get_orders_today()`.
+- **პროექტი არ ეშვება →** RestaurantApi-ზე სხვა tool-ით: `get_dish(string name)` ან `get_bookings_for_day(DateOnly day)`.
 - **`A possible object cycle was detected` →** tool entity-ს აბრუნებს. DTO დააბრუნონ.
 
-## 🏁 შეჯამება და საშინაო · 5 წთ · 20–22
+## 🏁 შეჯამება და საშინაო · 5 წთ · 23–25
 
-- 5 კითხვა (20): ჯერ სტუდენტი, მერე პასუხი
-- შეჯამება (21): „`.UseFunctionInvocation()` რა არის? სად გინახავთ `.Use…()`?“ → ლექცია 5: middleware
-- საშინაო (22): 2 tool (ერთი 2+ პარამეტრით), `/chat`, 5 ტექსტის ცხრილი
+- 5 კითხვა (23): ჯერ სტუდენტი, მერე პასუხი
+- შეჯამება (24): „`.UseFunctionInvocation()` რა არის? სად გინახავთ `.Use…()`?“ → ლექცია 5: middleware
+- საშინაო (25): 2 tool (ერთი 2+ პარამეტრით), `/chat`, 5 ტექსტის ცხრილი
 
 ## ⭐ თუ დრო დარჩა
 
 მხოლოდ ლექციის ბოლოს. აირჩიე 1–3.
 
-- **🔧 ციკლი ხელით · 8 წთ:** დროებით გამორთე `.UseFunctionInvocation()`. `/chat` "How much is lobio?" → `text` ცარიელია, `toolCalls: ["get_menu"]`. მოდელმა ითხოვა, მაგრამ არავინ შეასრულა. ეს არის ლექცია 5-ის წინასწარი ნახვა
+- **🔧 ციკლი ხელით · 8 წთ:** დროებით გამორთე `.UseFunctionInvocation()`. `/chat` "How much is lobio?" → `text` ცარიელია: მოდელმა `get_menu` ითხოვა (`response.Messages`-ში `FunctionCallContent`), მაგრამ არავინ შეასრულა. ეს არის ლექცია 5-ის წინასწარი ნახვა
 - **🧨 tool ვარდება · 4 წთ:** `GetMenu`-ში `throw new InvalidOperationException("The database is unavailable")`. „500 მოვა?“ → არა, მოდელი წერს „მენიუს ვერ ვხედავ“, რადგან exception-ს client იჭერს
-- **📝 ცუდი აღწერა · 5 წთ:** `CheckAvailability`-ს `[Description]` წაშალე, სახელი `"data"`. სლაიდ 17-ის ტექსტები 1 და 4: იძახებს? დასკვნა: მოდელი tool-ს მხოლოდ სახელით და აღწერით იცნობს
+- **📝 ცუდი აღწერა · 5 წთ:** `CheckAvailability`-ს `[Description]` წაშალე, სახელი `"data"`. სლაიდ 20-ის ტექსტები 1 და 4: იძახებს? დასკვნა: მოდელი tool-ს მხოლოდ სახელით და აღწერით იცნობს
 - **✍️ create_booking დაფაზე · 6 წთ:** კოდის გარეშე. „რა შეიძლება ცუდად წავიდეს?“ (08:00, სხვისი სახელი, ორჯერ დაჯავშნა, „დამიჯავშნე 50 მაგიდა“). „როგორ დავიცვათ?“ → ლექცია 15
 - **🔍 ისტორია შიგნიდან · 4 წთ:** `/chat`-მა დააბრუნოს `response.Messages`-ის როლები და Content-ის ტიპები: `FunctionCallContent` → `FunctionResultContent` → `TextContent`
 
@@ -121,6 +123,8 @@
 - **„tool-ების აღწერები ყოველ მოთხოვნაზე მიდის? ფასი იზრდება?“** → კი, input-ში. ამიტომ tool-ების რაოდენობა და აღწერის სიგრძე მნიშვნელოვანია.
 - **„რატომ `name: "get_menu"`?“** → მოდელისთვის გასაგები, სტაბილური სახელია, C#-ის მეთოდის სახელისგან დამოუკიდებელი.
 - **„tool-მა შეიძლება სხვა API გამოიძახოს?“** → კი, tool ჩვეულებრივი C# მეთოდია.
+- **„`CheckAvailability` სამუშაო საათებს ამოწმებს?“** → არა: 23:30-ზეც „free“-ს დააბრუნებს. სამუშაო საათები System prompt-შია, და მოდელი მას ჩვეულებრივ იცავს — მაგრამ გარანტია არაა (ლექცია 3: ფორმა ≠ შინაარსი).
+- **„რატომ `DateTimeOffset` და არა `DateTime` ბაზაშიც?“** → Npgsql `timestamptz`-ში `DateTimeOffset`-ს მხოლოდ offset 0-ით წერს. ამიტომ ბაზაში `DateTime` (UTC), კიდეებზე `DateTimeOffset`.
 - **„მოდელი tool-ს ერთ კითხვაზე ორჯერ იძახებს“** → შეიძლება, მაგ. ორ კერძზე. ეს ნორმალურია.
 
 ## 🏠 საშინაოს შემოწმება (შემდეგ ლექციაზე)

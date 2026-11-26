@@ -59,14 +59,14 @@ public IResult ChatStream(string message, CancellationToken cancellationToken) =
 private async IAsyncEnumerable<string> StreamAnswer(string message,
     [EnumeratorCancellation] CancellationToken cancellationToken)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, """
             You are a library assistant. Answer briefly.
             Take book and genre data only from the tools.
             """),
         new(ChatRole.User, message)
-    ];
+    };
 
     await foreach (ChatResponseUpdate update in
         _chat.GetStreamingResponseAsync(messages, CreateChatOptions(), cancellationToken))

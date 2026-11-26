@@ -185,11 +185,11 @@ We send the model not one text but **a list of messages**. Each has its own role
 | **Assistant** | the model | the model's answer |
 
 ```csharp
-List<ChatMessage> messages =
-[
+var messages = new List<ChatMessage>
+{
     new(ChatRole.System, "You are…"),
     new(ChatRole.User, req.Message)
-];
+};
 
 var response = await chat.GetResponseAsync(messages);
 ```
@@ -210,11 +210,11 @@ public sealed record ChatReply(string Text);
 [HttpPost("chat")]
 public async Task<IActionResult> Chat(ChatRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, SystemPrompt),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync(messages);
 
@@ -262,8 +262,8 @@ The answer is often used by **C# code**, for example `if (label == "Negative")`.
 [HttpPost("sentiment")]
 public async Task<IActionResult> AnalyzeSentiment(SentimentRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, "Classify the guest's review of the restaurant. Answer with one word only: Positive, Negative or Mixed."),
         new(ChatRole.User, "The khinkali was delicious and the service was fast"),
         new(ChatRole.Assistant, "Positive"),
@@ -272,7 +272,7 @@ public async Task<IActionResult> AnalyzeSentiment(SentimentRequest req)
         new(ChatRole.User, "The dishes are good, but the prices are very high"),
         new(ChatRole.Assistant, "Mixed"),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync(messages);
 

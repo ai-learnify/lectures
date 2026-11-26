@@ -340,11 +340,11 @@ public sealed record AskRequest(
     </div>
     <div class="col step" style="gap:14px">
       <code-block lang="csharp" cls="sm" title="C#-ში">
-List<ChatMessage> messages =
-[
+var messages = new List<ChatMessage>
+{
     new(ChatRole.System, "You are…"),
     new(ChatRole.User, req.Message)
-];
+};
 
 await chat.GetResponseAsync(messages);
       </code-block>
@@ -361,11 +361,11 @@ await chat.GetResponseAsync(messages);
 [HttpPost("chat")]
 public async Task<IActionResult> Chat(ChatRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, SystemPrompt),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync(messages);
 

@@ -57,15 +57,16 @@ Structured Output: LLM-ის პასუხი პირდაპირ C# ტ
 
 ### 04. Tools და Function Calling
 
-C#-ის მეთოდების გატანა AI Tool-ებად (`AIFunctionFactory.Create`, `[Description]`); როგორ მუშაობს tool call-ის ციკლი; ფუნქციების ავტომატური გამოძახება (`UseFunctionInvocation`); კარგი tool-ის დიზაინი: სახელი, აღწერა, პარამეტრები.
+C#-ის მეთოდების გატანა AI Tool-ებად (`AIFunctionFactory.Create`, `[Description]`); როგორ მუშაობს tool call-ის ციკლი; ფუნქციების ავტომატური გამოძახება (`UseFunctionInvocation`); კარგი tool-ის დიზაინი: სახელი, აღწერა, პარამეტრები; დრო რეალურ სისტემაში: UTC და რესტორნის დრო.
 
 📚 Function calling-ის ციკლი: tool-ების სია → გამოძახების თხოვნა → ჩვენი კოდი → შედეგი → პასუხი
-📚 C# მეთოდი tool-ად: `AIFunctionFactory.Create`, `[Description]`, `ChatOptions.Tools`
-📚 `UseFunctionInvocation` და `response.Messages`: რომელი tool გამოიძახა მოდელმა
+📚 C# მეთოდი tool-ად: `AIFunctionFactory.Create`, `[Description]`, `ChatOptions.Tools`, `UseFunctionInvocation`
 📚 კარგი tool: სახელი, აღწერა, ტიპიზებული პარამეტრები; რატომ არის tool-ები ჯერ მხოლოდ კითხვისთვის
-🛠 RestaurantApi | `Ai/Tools/RestaurantTools`: `GetMenu` და `CheckAvailability` (ბაზიდან, read-only)
-🛠 `Program.cs`: `.UseFunctionInvocation()`, `RestaurantTools` — Scoped
-🛠 `POST /api/assistant/chat` — ასისტენტი tool-ებით (`CreateChatOptions()`); გამოძახებული tool-ები ლოგში
+📚 დრო: ბაზაში ნამდვილი UTC, სტუმარი და მოდელი — რესტორნის დრო offset-ით (`DateTimeOffset`), „ახლა“ — `TimeProvider`-იდან
+🛠 RestaurantApi | ახალი `AssistantController`: `POST /api/assistant/chat` გადმოდის `AiDiagnosticsController`-იდან, DTO-ები → `Contracts/Assistant/`; `FeedbackController` → `api/feedback`
+🛠 `Tools/MenuTools` (`get_menu`) და `Tools/TableTools` (`check_availability`) — ბაზიდან, read-only, Scoped
+🛠 `.UseFunctionInvocation()` chat client-ის რეგისტრაციაში
+🛠 `TimeProvider.System` + `Extensions/TimeProviderExtensions` (`GetRestaurantNow`, `ToUtc`); `DateTimeOffset` tool-ში და `BookingParseResponse.At`-ში; „ახლა რესტორანში“ `Chat`-ისა და `Parse`-ის prompt-ში; seed ნამდვილ UTC-ში
 
 ### 05. Chat Client Pipeline და Middleware
 

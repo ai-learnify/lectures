@@ -42,11 +42,11 @@ public enum RequestType
 [HttpPost("classify")]
 public async Task<IActionResult> Classify(ClassifyRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, "Classify the library user's request"),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync<RequestType>(messages);
 
@@ -69,15 +69,15 @@ public sealed record ReservationParseResponse(
 [HttpPost("parse")]
 public async Task<IActionResult> Parse(ReservationParseRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, $"""
                               Extract the book reservation details from the message.
                               Today is {DateTime.Now:yyyy-MM-dd, dddd}.
                               Leave null whatever is not in the message.
                               """),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync<ReservationParseResponse>(messages);
 

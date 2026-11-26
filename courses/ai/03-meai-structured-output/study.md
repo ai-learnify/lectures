@@ -46,11 +46,11 @@ public sealed class FeedbackController(IChatClient chat) : ControllerBase
     [HttpPost("sentiment")]
     public async Task<IActionResult> AnalyzeSentiment(SentimentRequest req)
     {
-        List<ChatMessage> messages =
-        [
+        var messages = new List<ChatMessage>
+        {
             new(ChatRole.System, "Classify the guest's review of the restaurant"),
             new(ChatRole.User, req.Message)
-        ];
+        };
 
         var response = await chat.GetResponseAsync<Sentiment>(messages);
 
@@ -102,15 +102,15 @@ public sealed record BookingParseResponse(
 [HttpPost("parse")]
 public async Task<IActionResult> Parse(BookingParseRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, $"""
                               Extract the booking details from the guest's message.
                               Today is {DateTime.Now:yyyy-MM-dd, dddd}.
                               Leave null whatever is not in the message.
                               """),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync<BookingParseResponse>(messages);
 

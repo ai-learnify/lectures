@@ -58,7 +58,7 @@
      დრო: 65 წთ შინაარსი (+10 შესვენება) · დანარჩენი რეზერვია (იხ. ლექტორის გვერდი)
      ფერები: LLM/მოდელი = იისფერი · tool/გამოძახება = ქარვისფერი · ჩვენი კოდი (C#) = ლურჯი
              სწორი = მწვანე · შეცდომა/რისკი = წითელი · თამაში/ჩართულობა = ვარდისფერი
-     პროექტი: RestaurantApi — AssistantController (ლექცია 3-დან) + RestaurantTools
+     პროექტი: RestaurantApi (ai-learnify/RESTAURANT_RAG_API, tag lecture-04) — AssistantController (ახალი) + Tools/MenuTools, Tools/TableTools + TimeProvider
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
@@ -70,7 +70,7 @@
   <div class="abs" style="right:90px;top:230px;width:520px">
     <div class="col" style="gap:12px">
       <div class="txt in" style="--d:.5s"><span class="who">მომხმარებელი</span>There are four of us, tomorrow at 8 — do you have a table?</div>
-      <div class="tc in" style="--d:.8s">📞 check_availability(at: …T20:00, guests: 4)</div>
+      <div class="tc in" style="--d:.8s">📞 check_availability(at: …T20:00:00+04:00, guests: 4)</div>
       <div class="tc in" style="--d:1s;--asp:var(--mvc)">📦 { available: true, freeTables: 2 }</div>
       <div class="txt in" style="--d:1.2s"><span class="who">ასისტენტი</span>Yes, tomorrow at 20:00 there are two free tables for four.</div>
     </div>
@@ -85,11 +85,11 @@
 
 <section class="slide" data-section="შესავალი">
   <div class="kicker">დღის გზა</div>
-  <h2>3 ნაბიჯი: <span class="c-net">ციკლი</span> → <span class="c-asp">პირველი tool</span> → <span class="c-api">კარგი tool</span></h2>
+  <h2>3 ნაბიჯი: <span class="c-net">ციკლი</span> → <span class="c-asp">პირველი tool</span> → <span class="c-api">პარამეტრები და დრო</span></h2>
   <div class="route" style="grid-template-columns:repeat(3,1fr)">
     <div class="stop" style="--a:var(--net)"><span class="sn">1</span><h3>🔄 როგორ მუშაობს</h3><p>მოდელი მეთოდს არ იძახებს, ის გამოძახებას ითხოვს. ოთხი ნაბიჯი: სია → თხოვნა → შედეგი → პასუხი</p><span class="from">FunctionCallContent · FunctionResultContent</span></div>
-    <div class="stop" style="--a:var(--asp)"><span class="sn">2</span><h3>🍽️ პირველი tool</h3><p>მენიუ ბაზიდან: C# მეთოდი → tool, და ერთი ხაზი, რომელიც ციკლს ჩვენ მაგივრად ატრიალებს</p><span class="from">AIFunctionFactory · UseFunctionInvocation</span></div>
-    <div class="stop" style="--a:var(--api)"><span class="sn">3</span><h3>🪑 პარამეტრები</h3><p>თავისუფალი მაგიდის შემოწმება: მოდელი პარამეტრებს ტექსტიდან ავსებს. რით განსხვავდება კარგი tool ცუდისგან</p><span class="from">[Description] · სახელი · აღწერა</span></div>
+    <div class="stop" style="--a:var(--asp)"><span class="sn">2</span><h3>🍽️ პირველი tool</h3><p>ჩატი — ახალ AssistantController-ში. მენიუ ბაზიდან: C# მეთოდი → tool, და ერთი ხაზი, რომელიც ციკლს ჩვენ მაგივრად ატრიალებს</p><span class="from">MenuTools · AIFunctionFactory · UseFunctionInvocation</span></div>
+    <div class="stop" style="--a:var(--api)"><span class="sn">3</span><h3>🪑 პარამეტრები</h3><p>თავისუფალი მაგიდის შემოწმება: მოდელი პარამეტრებს ტექსტიდან ავსებს. რეალური პრობლემა — დრო: UTC ბაზაში, offset სტუმართან</p><span class="from">TableTools · DateTimeOffset · TimeProvider</span></div>
   </div>
   <div class="callout mt2" style="--a:var(--mvc);font-size:22px">ბოლოს: <b>შენი tool</b> — შენს პროექტში, შენი ბაზიდან</div>
 </section>
@@ -160,7 +160,7 @@
       <div class="obj" style="--a:var(--asp)">"functionCall": {
   <span class="k">"name"</span>: <span class="n">"check_availability"</span>,
   <span class="k">"args"</span>: {
-    <span class="k">"at"</span>: <span class="n">"2026-11-26T20:00"</span>,
+    <span class="k">"at"</span>: <span class="n">"2026-11-28T20:00:00+04:00"</span>,
     <span class="k">"guests"</span>: <span class="n">4</span>
   }
 }</div>
@@ -178,7 +178,7 @@
     </div>
   </div>
   <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:22px">
-    <div class="callout step" style="--a:var(--net);font-size:20px">პარამეტრები = <b>JSON Schema</b>, ზუსტად ისე, როგორც ლექცია 3-ის <code class="i">BookingDetails</code></div>
+    <div class="callout step" style="--a:var(--net);font-size:20px">პარამეტრები = <b>JSON Schema</b>, ზუსტად ისე, როგორც ლექცია 3-ის <code class="i">BookingParseResponse</code></div>
     <div class="callout ask step">🙋 ვინ ასრულებს მეთოდს: <b>Gemini</b> თუ <b>ჩვენი სერვერი</b>?</div>
       <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ჩვენი სერვერი. მოდელი მხოლოდ ითხოვს (functionCall) — ჩვენ ვასრულებთ და შედეგს ვუბრუნებთ</div>
   </div>
@@ -189,96 +189,106 @@
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2</div>
     <h1 class="in" style="--d:.1s">პირველი tool:<br><span class="grad">მენიუ</span></h1>
-    <p class="lead mt in" style="--d:.3s">RestaurantTools · AIFunctionFactory · UseFunctionInvocation</p>
+    <p class="lead mt in" style="--d:.3s">AssistantController · MenuTools · AIFunctionFactory · UseFunctionInvocation</p>
   </div>
   <div class="big-num">02</div>
 </section>
 
 <section class="slide" data-section="2 · პირველი tool">
-  <div class="kicker">🧑‍💻 ვწერთ · Ai/RestaurantTools.cs</div>
+  <div class="kicker">🧑‍💻 ვაწყობთ · AssistantController</div>
+  <h2>ჩატი იზრდება — <span class="c-api">თავის controller-ში</span></h2>
+  <div class="vs" style="margin-top:6px">
+    <div class="card accent" style="--a:var(--muted)"><h3>ადრე (ლექცია 2–3)</h3><ul class="clean small">
+      <li><code class="i">AiDiagnosticsController</code>: ask, <b>chat</b></li>
+      <li><code class="i">Contracts/Diagnostics/</code>: ChatRequest, ChatReply</li>
+      <li><code class="i">api/feedback/ai/sentiment</code></li></ul></div>
+    <div class="card accent step" style="--a:var(--api)"><h3>ახლა</h3><ul class="clean small">
+      <li><code class="i">AiDiagnosticsController</code>: მხოლოდ <b>ask</b></li>
+      <li>ახალი <code class="i">AssistantController</code>: <b>api/assistant/chat</b></li>
+      <li><code class="i">Contracts/Assistant/</code>: ChatRequest, ChatReply</li>
+      <li><code class="i">api/feedback/sentiment</code></li></ul></div>
+  </div>
+  <div class="callout ask step mt">🙋 რატომ გადავიტანეთ <b>chat</b>?</div>
+  <div class="callout ans step" style="--a:var(--mvc);font-size:17px">💡 ჩატი პროდუქტის ფუნქციაა: დღეს tool-ებს იღებს, მერე ისტორიას (07) და RAG-ს (11). diagnostics-ში მხოლოდ დეველოპერის ცდები რჩება. route კი აღწერს, რას აკეთებს endpoint — არა იმას, AI-ით აკეთებს თუ არა</div>
+</section>
+
+<section class="slide" data-section="2 · პირველი tool">
+  <div class="kicker">🧑‍💻 ვწერთ · Tools/MenuTools.cs</div>
   <h2>tool = ჩვეულებრივი <span class="c-api">C# მეთოდი</span> + <span class="c-asp">აღწერა</span></h2>
   <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:24px">
-    <code-block id="c1" lang="csharp" cls="sm" title="Ai/RestaurantTools.cs">
-using System.ComponentModel;
+    <code-block id="c1" lang="csharp" cls="sm" title="Tools/MenuTools.cs">
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using RestaurantApi.Data;
+
+namespace RestaurantApi.Tools;
 
 public record MenuItemInfo(string Name, decimal Price);
 
-public class RestaurantTools
+public sealed class MenuTools(DataContext db)
 {
-    private readonly DataContext _db;
-
-    public RestaurantTools(DataContext db)
-    {
-        _db = db;
-    }
-
     [Description("Returns the restaurant menu: dish name and price in GEL")]
     public async Task<List<MenuItemInfo>> GetMenu()
     {
-        return await _db.Products
+        return await db.Products
             .Select(p => new MenuItemInfo(p.Name, p.Price))
             .ToListAsync();
     }
 }
     </code-block>
     <div class="col" style="gap:12px">
-      <code-block lang="csharp" cls="sm" title="Program.cs">
-builder.Services.AddScoped<RestaurantTools>();
+      <code-block lang="csharp" cls="sm" title="Extensions/ServiceExtensions.cs">
+services.AddScoped<MenuTools>();
       </code-block>
-      <i class="codestep" data-for="c1" data-lines="8-13"></i>
-      <div class="callout step" data-with style="--a:var(--api);font-size:19px"><b>DbContext</b> — DI-დან, როგორც API კურსზე. <b>Scoped</b>, რადგან DbContext Scoped-ია</div>
-      <i class="codestep" data-for="c1" data-lines="15"></i>
+      <i class="codestep" data-for="c1" data-lines="9"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:19px"><b>DataContext</b> — DI-დან, როგორც controller-ში. <b>Scoped</b>, რადგან DataContext Scoped-ია</div>
+      <i class="codestep" data-for="c1" data-lines="11"></i>
       <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><b>Description</b> — მოდელისთვის: <b>რას</b> აკეთებს. კოდს მოდელი ვერ ხედავს</div>
-      <i class="codestep" data-for="c1" data-lines="16-21"></i>
-      <div class="callout step" data-with style="--a:var(--mvc);font-size:19px">შიგნით <b>ჩვეულებრივი LINQ</b>. AI აქ არაფერია</div>
+      <i class="codestep" data-for="c1" data-lines="14-16"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:19px">შიგნით <b>ჩვეულებრივი LINQ</b>. AI აქ არაფერია. entity-ს არა — <b>MenuItemInfo</b>-ს ვაბრუნებთ</div>
     </div>
   </div>
 </section>
 
 <section class="slide" data-section="2 · პირველი tool">
-  <div class="kicker">🧑‍💻 ვწერთ · Program.cs + AssistantController</div>
+  <div class="kicker">🧑‍💻 ვწერთ · AssistantController + UseFunctionInvocation</div>
   <h2>tool-ების სია და <span class="c-asp">ერთი ხაზი</span>, რომელიც ციკლს ატრიალებს</h2>
   <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start;gap:22px">
-    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AssistantController.cs · Chat">
-[HttpPost("chat")]
-public async Task<IActionResult> Chat(ChatRequest request)
+    <code-block id="c2" lang="csharp" cls="sm" title="Controllers/AssistantController.cs">
+[ApiController, Route("api/assistant")]
+public sealed class AssistantController(IChatClient chat, MenuTools menu) : ControllerBase
 {
-    List<ChatMessage> messages =
-    [
-        SystemPrompt(),
-        new(ChatRole.User, request.Message)
-    ];
+    [HttpPost("chat")]
+    public async Task<IActionResult> Chat(ChatRequest req)
+    {
+        var messages = new List<ChatMessage>
+        {
+            new(ChatRole.System, SystemPrompt()),
+            new(ChatRole.User, req.Message)
+        };
 
-    ChatResponse response = await _chat.GetResponseAsync(messages, CreateChatOptions());
+        var options = new ChatOptions
+        {
+            Tools = [AIFunctionFactory.Create(menu.GetMenu, name: "get_menu")]
+        };
 
-    List<string> toolCalls = response.Messages
-        .SelectMany(m => m.Contents)
-        .OfType<FunctionCallContent>()
-        .Select(c => c.Name)
-        .ToList();
-    _logger.LogInformation("Tools called: {Tools}", string.Join(", ", toolCalls));
+        var response = await chat.GetResponseAsync(messages, options);
 
-    return Ok(new ChatReply(response.Text));
+        return Ok(new ChatReply(response.Text));
+    }
 }
-
-private ChatOptions CreateChatOptions() => new()
-{
-    Tools = [AIFunctionFactory.Create(_tools.GetMenu, name: "get_menu")]
-};
     </code-block>
     <div class="col" style="gap:12px">
-      <code-block id="c3" lang="csharp" cls="sm" title="Program.cs">
-builder.Services.AddChatClient(
-        new Client(apiKey: apiKey).AsIChatClient(model))
+      <code-block id="c3" lang="csharp" cls="sm" title="Extensions/ServiceExtensions.cs">
+services.AddChatClient(…)
     .UseFunctionInvocation();
       </code-block>
-      <i class="codestep" data-for="c2" data-lines="22-25"></i>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>AIFunctionFactory.Create</b>: მეთოდი → tool (სახელი, აღწერა, სქემა)</div>
-      <i class="codestep" data-for="c3" data-lines="3"></i>
+      <i class="codestep" data-for="c2" data-lines="2"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px">tool-ების კლასი — constructor-ით, როგორც <b>DataContext</b></div>
+      <i class="codestep" data-for="c2" data-lines="13-16"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>AIFunctionFactory.Create</b>: მეთოდი → tool (სახელი, აღწერა, სქემა). მეთოდი <b>ფრჩხილების გარეშე</b></div>
+      <i class="codestep" data-for="c3" data-lines="2"></i>
       <div class="callout step" data-with style="--a:var(--net);font-size:18px">ციკლის 2–3 ნაბიჯს <b>ეს ხაზი</b> ასრულებს. რა არის შიგნით — ლექცია 5</div>
-      <i class="codestep" data-for="c2" data-lines="12-17"></i>
-      <div class="callout step" data-with style="--a:var(--api);font-size:18px">ისტორიაში ჩანს, <b>რომელი tool</b> გამოიძახა</div>
     </div>
   </div>
 </section>
@@ -288,29 +298,26 @@ builder.Services.AddChatClient(
   <h2>იგივე კითხვა: <span class="c-red">/ask</span> vs <span class="c-mvc">/chat</span></h2>
   <div class="vs" style="margin-top:8px">
     <div class="col" style="gap:12px">
-      <div class="txt"><span class="who">prompt</span>What dishes do you have under 15 GEL?</div>
+      <div class="txt"><span class="who">prompt</span>How much is lobio?</div>
       <div class="swr c-post step" style="--c:#f93e3e">
         <div class="rh"><span class="m">POST</span><span class="p">/api/diagnostics/ai/ask</span></div>
         <pre class="rb">{
-  <span class="k">"text"</span>: <span class="s">"We have khachapuri, khinkali,
-    mtsvadi, lobiani…"</span>
+  <span class="k">"text"</span>: <span class="s">"Lobio usually costs around
+    8–12 GEL in Georgian restaurants…"</span>
 }</pre>
       </div>
-      <div class="callout step" data-with style="--a:var(--red);font-size:18px">"a typical Georgian menu" — <b>ჩვენი არ არის</b></div>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px">„ჩვეულებრივ“ — <b>ჩვენი ფასი არ არის</b></div>
     </div>
     <div class="col" style="gap:12px">
       <div class="swr c-post step">
         <div class="rh"><span class="m">POST</span><span class="p">/api/assistant/chat</span></div>
         <pre class="rb">{
-  <span class="k">"text"</span>: <span class="s">"Under 15 GEL: lobio in a clay pot
-    (12 ₾) and mchadi (4 ₾)."</span>
+  <span class="k">"text"</span>: <span class="s">"Lobio in a clay pot costs 14 GEL."</span>
 }</pre>
-        <div class="lab">Console</div>
-        <pre class="rb">info: Tools called: <span class="s">get_menu</span></pre>
       </div>
-      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ფასები <b>ჩვენი ბაზიდან</b>. ფილტრი (15 ₾) მოდელმა თვითონ გააკეთა</div>
-      <div class="callout ask step">🙋 „გამარჯობა!“-ზე გამოიძახებს get_menu-ს?</div>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">არა: ლოგში <code class="i">Tools called:</code> ცარიელია. <b>როდის</b> გამოიძახოს, მოდელი წყვეტს</div>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ფასი <b>ჩვენი ბაზიდან</b> — get_menu</div>
+      <div class="callout ask step">🙋 „Hi!“-ზე გამოიძახებს get_menu-ს? როგორ შევამოწმოთ?</div>
+      <div class="callout ans step" style="--a:var(--asp);font-size:17px">💡 არა — <b>როდის</b> გამოიძახოს, მოდელი წყვეტს. შემოწმება: breakpoint <b>GetMenu</b>-ში — debugger არ გაჩერდება. ლოგში ამას ლექცია 5-ზე ვნახავთ</div>
     </div>
   </div>
 </section>
@@ -324,75 +331,138 @@ builder.Services.AddChatClient(
   <div class="big-num">☕</div>
 </section>
 
-<!-- ================= 3 · პარამეტრები და დიზაინი ================= -->
-<section class="slide divider" data-section="3 · პარამეტრები და დიზაინი">
+<!-- ================= 3 · პარამეტრები და დრო ================= -->
+<section class="slide divider" data-section="3 · პარამეტრები და დრო">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3</div>
-    <h1 class="in" style="--d:.1s">პარამეტრები და<br><span class="grad">კარგი tool</span></h1>
-    <p class="lead mt in" style="--d:.3s">check_availability · [Description] პარამეტრზე · სახელი, აღწერა, ტიპები</p>
+    <h1 class="in" style="--d:.1s">პარამეტრები და<br><span class="grad">დრო</span></h1>
+    <p class="lead mt in" style="--d:.3s">check_availability · [Description] პარამეტრზე · UTC და რესტორნის დრო · კარგი tool</p>
   </div>
   <div class="big-num">03</div>
 </section>
 
-<section class="slide" data-section="3 · პარამეტრები და დიზაინი">
-  <div class="kicker">🧑‍💻 ვწერთ · CheckAvailability</div>
+<section class="slide" data-section="3 · პარამეტრები და დრო">
+  <div class="kicker">🧑‍💻 ვწერთ · Tools/TableTools.cs</div>
   <h2>tool <span class="c-asp">პარამეტრებით</span></h2>
-  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:22px">
-    <code-block id="c4" lang="csharp" cls="sm" title="Ai/RestaurantTools.cs · CheckAvailability">
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:22px">
+    <code-block id="c4" lang="csharp" cls="sm" title="Tools/TableTools.cs">
 public record AvailabilityInfo(bool Available, int FreeTables);
 
-[Description("Checks whether a table is free at the given time")]
-public async Task<AvailabilityInfo> CheckAvailability(
-    [Description("Booking date and time")] DateTime at,
-    [Description("Number of guests")] int guests)
+public sealed class TableTools(DataContext db)
 {
-    var busyTableIds = await _db.Bookings
-        .Where(b => b.At > at.AddHours(-2) && b.At < at.AddHours(2))
-        .Select(b => b.TableId)
-        .ToListAsync();
+    [Description("Checks whether a table is free at the given time")]
+    public async Task<AvailabilityInfo> CheckAvailability(
+        [Description("Booking date and time")] DateTime at,
+        [Description("Number of guests")] int guests
+    )
+    {
+        var from = at.AddHours(-2);
+        var to = at.AddHours(2);
 
-    int free = await _db.Tables
-        .CountAsync(t => t.Seats >= guests && !busyTableIds.Contains(t.Id));
+        var free = await db.Tables.CountAsync(t =>
+            t.Seats >= guests &&
+            !db.Bookings.Any(b => b.TableId == t.Id && b.At > from && b.At < to)
+        );
 
-    return new AvailabilityInfo(free > 0, free);
+        return new AvailabilityInfo(free > 0, free);
+    }
 }
     </code-block>
     <div class="col" style="gap:12px">
-      <code-block id="c5" lang="csharp" cls="sm" title="AssistantController.cs · CreateChatOptions">
-// In System: Today is {DateTime.Now:yyyy-MM-dd, dddd}.
+      <code-block lang="csharp" cls="sm" title="AssistantController.cs · Tools">
 Tools =
 [
-    AIFunctionFactory.Create(
-        _tools.GetMenu, name: "get_menu"),
-    AIFunctionFactory.Create(
-        _tools.CheckAvailability,
-        name: "check_availability")
+    AIFunctionFactory.Create(menu.GetMenu, name: "get_menu"),
+    AIFunctionFactory.Create(table.CheckAvailability, name: "check_availability")
 ]
       </code-block>
-      <i class="codestep" data-for="c4" data-lines="5-6"></i>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>Description</b> პარამეტრზეც: სქემაში ჯდება, როგორც ლექცია 3-ის ველებზე</div>
-      <i class="codestep" data-for="c5" data-lines="1"></i>
-      <div class="callout ask step" data-with>🙋 რატომ გვჭირდება <b>დღევანდელი თარიღი</b>?</div>
-      <div class="callout step" data-with style="--a:var(--net);font-size:18px">„ხვალ“ → <code class="i">at</code>-ის შესავსებად. მოდელმა დღევანდელი თარიღი არ იცის (ლექცია 3)</div>
+      <i class="codestep" data-for="c4" data-lines="7-8"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">პარამეტრებს მოდელი <b>ტექსტიდან</b> ავსებს. <b>Description</b> სქემაში მიდის — როგორც ლექცია 3-ის ველებზე</div>
+      <i class="codestep" data-for="c4" data-lines="14-17"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ერთი SQL: საკმარისი ადგილი და ±2 საათში ჯავშანი <b>არ</b> აქვს</div>
     </div>
   </div>
 </section>
 
-<section class="slide" data-section="3 · პარამეტრები და დიზაინი">
+<section class="slide" data-section="3 · პარამეტრები და დრო">
+  <div class="kicker">🐞 Swagger · "There are four of us, tomorrow at 8"</div>
+  <h2>რატომ <span class="c-red">ვერ</span> იმუშავა?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <div class="prob" style="--a:var(--red)"><span class="pi">💥</span><div><b>მოდელმა გამოგზავნა 2026-11-28T20:00:00</b><span>Npgsql: <code class="i">Cannot write DateTime with Kind=Unspecified to 'timestamp with time zone'</code></span></div></div>
+      <div class="prob step" style="--a:var(--asp)"><span class="pi">🕗</span><div><b>ან …T20:00:00Z</b><span>„Z“ = UTC → თბილისში ეს <strong>00:00</strong>-ია. შემოწმება სხვა საათზე ხდება</span></div></div>
+      <div class="prob step" style="--a:var(--net)"><span class="pi">🖥️</span><div><b>და DateTime.Now სერვერზე</b><span>Docker-ში და ღრუბელში <strong>UTC</strong>-ია — „დღეს“ და „ახლა“ შეიძლება არასწორი იყოს</span></div></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout ask step">🙋 რა დროს ინახავს ბაზა და რა დროზე ლაპარაკობს სტუმარი?</div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">📐</span>წესი</h3><ul class="clean small">
+        <li><b>ბაზაში</b> — ნამდვილი <b>UTC</b> (timestamptz)</li>
+        <li><b>სტუმარი და მოდელი</b> — რესტორნის დრო <b>offset-ით</b>: <code class="i">…T20:00:00+04:00</code></li>
+        <li><b>გადაყვანა კიდეზე</b>: tool-ის დასაწყისში და prompt-ში</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="3 · პარამეტრები და დრო">
+  <div class="kicker">🔧 ვასწორებთ · TimeProvider + DateTimeOffset</div>
+  <h2>დრო <span class="c-api">ერთ ადგილას</span> — გადაყვანა <span class="c-mvc">კიდეზე</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:22px">
+    <div class="col" style="gap:12px">
+      <code-block id="c5" lang="csharp" cls="sm" title="Extensions/TimeProviderExtensions.cs">
+public static class TimeProviderExtensions
+{
+    private static readonly TimeZoneInfo RestaurantZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
+
+    extension(TimeProvider time)
+    {
+        public DateTimeOffset GetRestaurantNow() =>
+            TimeZoneInfo.ConvertTime(time.GetUtcNow(), RestaurantZone);
+
+        public DateTime ToUtc(DateTime restaurantTime) =>
+            TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(restaurantTime, DateTimeKind.Unspecified), RestaurantZone);
+    }
+}
+      </code-block>
+      <code-block lang="csharp" cls="sm" title="Extensions/ServiceExtensions.cs">
+services.AddSingleton(TimeProvider.System);
+      </code-block>
+    </div>
+    <div class="col" style="gap:10px">
+      <code-block id="c6" lang="csharp" cls="sm" title="Tools/TableTools.cs · CheckAvailability">
+[Description("Booking date and time")] DateTimeOffset at,
+…
+var utc = at.UtcDateTime;
+var from = utc.AddHours(-2);
+var to = utc.AddHours(2);
+      </code-block>
+      <code-block lang="csharp" cls="sm" title="AssistantController.cs · SystemPrompt()">
+Now in the restaurant: {time.GetRestaurantNow():yyyy-MM-dd'T'HH:mm:sszzz, dddd}.
+      </code-block>
+      <i class="codestep" data-for="c5" data-lines="7-8"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:17px"><b>„ახლა“ რესტორანში</b> offset-ით — prompt-ისთვის. DateTime.Now აღარსად</div>
+      <i class="codestep" data-for="c6" data-lines="1"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px"><b>DateTimeOffset</b>: მოდელის დრო ცალსახაა (+04:00)</div>
+      <i class="codestep" data-for="c6" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:17px">UTC-ში — <b>query-მდე</b>. იგივე: Parse-ის prompt, BookingParseResponse.At, seed (<b>ToUtc</b>)</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-section="3 · პარამეტრები და დრო">
   <div class="kicker"><span class="game">🔮 რომელ tool-ს გამოიძახებს?</span></div>
   <h2>4 ტექსტი — <span class="c-asp">2 tool</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:18px 26px;margin-top:6px">
     <div class="col" style="gap:8px">
       <div class="txt"><span class="who">1</span>There are four of us, tomorrow at 8 — do you have a table?</div>
-      <div class="step"><span class="tc">📞 check_availability(at: …26T20:00, guests: 4)</span></div>
+      <div class="step"><span class="tc">📞 check_availability(at: …T20:00:00+04:00, guests: 4)</span> <span class="tc" style="--asp:var(--mvc)">📦 2 free</span></div>
     </div>
     <div class="col" style="gap:8px">
       <div class="txt"><span class="who">2</span>How much is lobio?</div>
-      <div class="step"><span class="tc">📞 get_menu()</span></div>
+      <div class="step"><span class="tc">📞 get_menu()</span> <span class="tc" style="--asp:var(--mvc)">📦 14 ₾</span></div>
     </div>
     <div class="col" style="gap:8px">
       <div class="txt"><span class="who">3</span>Hi, until what time are you open?</div>
-      <div class="step"><span class="tc none">tool არ არის — "I don't have information about that"</span></div>
+      <div class="step"><span class="tc none">tool არ არის — პასუხი System prompt-იდან: 12:00–23:00</span></div>
     </div>
     <div class="col" style="gap:8px">
       <div class="txt"><span class="who">4</span>Two of us are coming on Saturday at 7. What vegetarian dishes do you have?</div>
@@ -406,7 +476,7 @@ Tools =
   </div>
 </section>
 
-<section class="slide" data-section="3 · პარამეტრები და დიზაინი">
+<section class="slide" data-section="3 · პარამეტრები და დრო">
   <div class="kicker">კარგი tool · 4 წესი</div>
   <h2><span class="c-red">ცუდი</span> vs <span class="c-mvc">კარგი</span> tool</h2>
   <div class="vs" style="margin-top:4px">
@@ -426,14 +496,14 @@ public string Check(string data) { … }
       <code-block lang="csharp" cls="sm">
 [Description("Checks for a free table…")]
 Task<AvailabilityInfo> CheckAvailability(
-    [Description("…")] DateTime at,
+    [Description("…")] DateTimeOffset at,
     [Description("…")] int guests)
 // name: "check_availability"
       </code-block>
       <ul class="clean small">
         <li><b>სახელი</b> = ზმნა + რა: check_availability, get_menu</li>
         <li><b>აღწერა</b>: რას აკეთებს და რას აბრუნებს</li>
-        <li><b>ტიპიზებული</b> პარამეტრები: DateTime, int, enum</li>
+        <li><b>ტიპიზებული</b> პარამეტრები: DateTimeOffset, int, enum</li>
         <li><b>ერთი tool, ერთი საქმე</b>. დღეს მხოლოდ <b>კითხვა</b></li>
       </ul>
     </div>
@@ -456,10 +526,11 @@ Task<AvailabilityInfo> CheckAvailability(
       <li><b>AIFunctionFactory.Create</b> — C# მეთოდი → tool; <b>ChatOptions.Tools</b> — სია</li>
       <li><b>UseFunctionInvocation</b> ციკლს ჩვენ მაგივრად ატრიალებს</li>
       <li>მოდელი <b>ირჩევს</b> tool-ს და <b>ავსებს</b> პარამეტრებს ტექსტიდან</li>
-      <li>კარგი tool: ზმნა-სახელი, აღწერა, ტიპები; დღეს მხოლოდ <b>კითხვა</b></li></ul></div>
+      <li>კარგი tool: ზმნა-სახელი, აღწერა, ტიპები; დღეს მხოლოდ <b>კითხვა</b></li>
+      <li><b>დრო</b>: ბაზაში UTC, კიდეზე DateTimeOffset, „ახლა“ — TimeProvider</li></ul></div>
     <div class="col" style="gap:14px">
-      <code-block lang="csharp" cls="sm" title="Program.cs">
-builder.Services.AddChatClient(…)
+      <code-block lang="csharp" cls="sm" title="Extensions/ServiceExtensions.cs">
+services.AddChatClient(…)
     .UseFunctionInvocation();
       </code-block>
       <div class="callout ask">🙋 ეს <b>ერთი ხაზი</b> სინამდვილეში რა არის? სად კიდევ გინახავთ <code class="i">.Use…()</code>?</div>

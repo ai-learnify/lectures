@@ -41,11 +41,11 @@ public sealed record ClassifyResponse(string Category, long? InputTokens);
 [HttpPost("classify")]
 public async Task<IActionResult> Classify(ClassifyRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, "Classify the library request. Answer with one word only: Search, Reserve or Question."),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync(messages);
 

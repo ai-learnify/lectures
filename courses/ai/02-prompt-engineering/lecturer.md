@@ -159,8 +159,8 @@
 [HttpPost("sentiment")]
 public async Task<IActionResult> AnalyzeSentiment(SentimentRequest req)
 {
-    List<ChatMessage> messages =
-    [
+    var messages = new List<ChatMessage>
+    {
         new(ChatRole.System, "Classify the guest's review of the restaurant. Answer with one word only: Positive, Negative or Mixed."),
         new(ChatRole.User, "The khinkali was delicious and the service was fast"),
         new(ChatRole.Assistant, "Positive"),
@@ -169,7 +169,7 @@ public async Task<IActionResult> AnalyzeSentiment(SentimentRequest req)
         new(ChatRole.User, "The dishes are good, but the prices are very high"),
         new(ChatRole.Assistant, "Mixed"),
         new(ChatRole.User, req.Message)
-    ];
+    };
 
     var response = await chat.GetResponseAsync(messages);
 
